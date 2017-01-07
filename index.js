@@ -2,7 +2,12 @@ const messenger = require("facebook-chat-api");
 const fs = require("fs");
 const ids = require("./ids"); // Various IDs stored for easy access
 const config = require("./config"); // Config file
-const credentials = require("./credentials"); // Login creds
+try {
+    const credentials = require("./credentials"); // Login creds
+} catch (e) {
+    // Deployed to Heroku or config file is missing
+    const credentials = process.env;
+}
 const utils = require("./configutils");
 const commands = require("./commands");
 var gapi; // Global API for external functions (set on login)
@@ -14,8 +19,8 @@ try {
     }, main);
 } catch (e) { // No app state saved
     messenger({
-        email: credentials.EMAIL || process.env.EMAIL,
-        password: credentials.PASSWORD || process.env.PASSWORD
+        email: credentials.EMAIL
+        password: credentials.PASSWORD,
     }, function callback(err, api) {
         fs.writeFileSync('appstate.json', JSON.stringify(api.getAppState()));
         main(err, api);
