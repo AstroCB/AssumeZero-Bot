@@ -1,15 +1,16 @@
 {
-    "name": "assume-zero-bot-power",
-    "version": "1.0.0",
-    "description": "A group chat bot that performs a variety of functions.",
-    "main": "index.js",
-    "scripts": {
-        "start": "node index.js",
-        "test": "node test.js"
-    },
-    "author": "Cameron Bernhardt (AstroCB)",
-    "license": "MIT",
-    "dependencies": {
-        "facebook-chat-api": "^1.2.0"
-    }
+  "name": "assume-zero-bot-power",
+  "version": "1.0.0",
+  "description": "A group chat bot that performs a variety of functions.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "author": "Cameron Bernhardt (AstroCB)",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.14.0",
+    "facebook-chat-api": "^1.2.0"
+  }
 }
