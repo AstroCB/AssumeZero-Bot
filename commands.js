@@ -22,7 +22,7 @@ exports.commands = {
     "order66": {
         "display_names": ["execute order 66", "order 66"],
         "pretty_name": "Order 66",
-        "description": `Removes all members from the chat for ${config.order66Time} seconds`,
+        "description": `Every single group member, including your Socialpath Yiyi Kuang, is now an enemy of the group chat (for ${config.order66Time} seconds)`,
         "syntax": "execute order 66",
         "user_input": false,
         "regex": /execute order 66/i,
