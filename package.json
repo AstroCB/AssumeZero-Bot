@@ -4,7 +4,8 @@
     "description": "A group chat bot that performs a variety of functions.",
     "main": "index.js",
     "scripts": {
-        "start": "node index.js"
+        "start": "node index.js",
+        "test": "node test.js"
     },
     "author": "Cameron Bernhardt (AstroCB)",
     "license": "MIT",
