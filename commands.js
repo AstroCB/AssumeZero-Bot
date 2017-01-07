@@ -1,6 +1,15 @@
 // Stores user commands (accessible via trigger word set in config.js)
 const config = require("./config");
 exports.commands = {
+    "help": {
+        "display_names": ["help"],
+        "pretty_name": "Help",
+        "description": "Get more information about a command, or open quick help",
+        "syntax": "help (command)",
+        "user_input": false,
+        "regex": /help(.*)/i,
+        "experimental": false
+    },
     "kick": {
         "display_names": ["kick"],
         "pretty_name": "Kick",
@@ -91,13 +100,13 @@ exports.commands = {
         "regex": /random message/i,
         "experimental": true
     },
-    "help": {
-      "display_names": ["help"],
-      "pretty_name": "Help",
-      "description": "Get more information about a command, or open quick help",
-      "syntax": "help (command)",
-      "user_input": false,
-      "regex": /help(.*)/i,
-      "experimental": false
+    "alive": {
+        "display_names": ["alive", "alive?"],
+        "pretty_name": "Alive",
+        "description": "Tests whether the bot is running",
+        "syntax": "alive(?)",
+        "user_input": false,
+        "regex": /alive(?:\?)?/i,
+        "experimental": false
     }
 };

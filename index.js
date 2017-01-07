@@ -267,6 +267,12 @@ function handleCommand(command, fromUserId, api = gapi) {
                 });
             }
         });
+    } else if (co["alive"]) {
+        api.getThreadInfo(ids.group, function(err, data) {
+            if (!err) {
+                sendMessage(data.emoji.emoji);
+            }
+        });
     }
 }
 
@@ -275,7 +281,11 @@ function matchesWithUser(command, message, sep = " ") {
 }
 
 function sendMessage(m, api = gapi) {
-    api.sendMessage(m, ids.group);
+    try {
+        api.sendMessage(m, ids.group);
+    } catch (e) { // For debug mode
+        console.log(m);
+    }
 }
 
 function sendError(m) {
