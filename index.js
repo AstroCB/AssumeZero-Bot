@@ -2,14 +2,16 @@ const messenger = require("facebook-chat-api");
 const fs = require("fs");
 const ids = require("./ids"); // Various IDs stored for easy access
 const config = require("./config"); // Config file
+const utils = require("./configutils");
+const commands = require("./commands");
+const heroku = require("./heroku");
 try {
-    const credentials = require("./credentials"); // Login creds
+    // Login creds from local dir
+    const credentials = require("./credentials");
 } catch (e) {
     // Deployed to Heroku or config file is missing
     const credentials = process.env;
 }
-const utils = require("./configutils");
-const commands = require("./commands");
 var gapi; // Global API for external functions (set on login)
 
 // Log in
