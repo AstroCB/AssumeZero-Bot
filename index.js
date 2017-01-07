@@ -14,8 +14,8 @@ try {
     }, main);
 } catch (e) { // No app state saved
     messenger({
-        email: credentials.EMAIL,
-        password: credentials.PASSWORD
+        email: credentials.EMAIL || process.env.EMAIL,
+        password: credentials.PASSWORD || process.env.PASSWORD
     }, function callback(err, api) {
         fs.writeFileSync('appstate.json', JSON.stringify(api.getAppState()));
         main(err, api);
