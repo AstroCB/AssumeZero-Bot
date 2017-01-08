@@ -267,8 +267,12 @@ function handleCommand(command, fromUserId, api = gapi) {
                 });
             }
         });
-    } else if (co["alive"]) {
-        sendEmoji(ids.group);
+    } else if (co["alive"].m) {
+        sendEmoji(config.defaultEmoji, ds.group);
+    } else if (co["resetemoji"].m) {
+        api.changeThreadEmoji(config.defaultEmoji, ids.group);
+    } else if (co["setemoji"].m && co["setemoji"].m[1]) {
+        api.changeThreadEmoji(co["setemoji"].m[1], ids.group);
     }
 }
 

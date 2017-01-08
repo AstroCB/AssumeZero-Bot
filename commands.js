@@ -50,7 +50,7 @@ exports.commands = {
         "display_names": ["set color"],
         "pretty_name": "Set color",
         "description": "Sets the color to the specified hex value and outputs previous color",
-        "syntax": "change color(s) (to) #{six-digit hex color}",
+        "syntax": "set color(s) (to) #{six-digit hex color}",
         "user_input": false,
         "regex": /set color(?:s)? (?:to )?(#(?:[a-f]|\d){6})/i,
         "experimental": false
@@ -107,6 +107,24 @@ exports.commands = {
         "syntax": "alive(?)",
         "user_input": false,
         "regex": /alive(?:\?)?/i,
+        "experimental": false
+    },
+    "resetemoji": {
+        "display_names": ["reset emoji"],
+        "pretty_name": "Reset emoji",
+        "description": "Resets the emoji",
+        "syntax": "reset emoji",
+        "user_input": false,
+        "regex": /reset emoji/i,
+        "experimental": false
+    },
+    "setemoji": {
+        "display_names": ["set emoji"],
+        "pretty_name": "Set color",
+        "description": "Sets the color to the specified hex value and outputs previous color",
+        "syntax": "set emoji (to) #{emoji}",
+        "user_input": false,
+        "regex": /set emoji (?:to )?([\uD83C-\uDBFF\uDC00-\uDFFF])/iu, // Match emoji w/ Unicode modifier
         "experimental": false
     }
 };
