@@ -94,6 +94,7 @@ function main(err, api) {
             }
         }
     });
+    handleCommand("alive?");
 }
 
 function addNewUser(id, message, api = gapi) {
@@ -268,7 +269,7 @@ function handleCommand(command, fromUserId, api = gapi) {
             }
         });
     } else if (co["alive"].m) {
-        sendEmoji(config.defaultEmoji, ids.group);
+        sendEmoji(ids.group);
     } else if (co["resetemoji"].m) {
         api.changeThreadEmoji(config.defaultEmoji, ids.group);
     } else if (co["setemoji"].m && co["setemoji"].m[1]) {
