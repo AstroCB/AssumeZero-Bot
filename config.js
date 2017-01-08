@@ -1,4 +1,5 @@
 const utils = require("./configutils"); // Utility functions
+
 // The trigger word that precedes most commands and will activate the bot
 exports.trigger = "physics";
 
