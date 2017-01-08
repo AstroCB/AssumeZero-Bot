@@ -33,6 +33,8 @@ exports.defaultEmoji = "🚀";
 
 // For xkcd searching capability
 exports.xkcd = {
+    // Custom search engine that searches the xkcd website only
+    // (keep unless you want to customize the results) and an API key from Google Dev Console
     "engine": "017207449713114446929:kyxuw7rvlw4",
     "key": "AIzaSyCHfJCpWEYUCydDMbb9PqK42XpPQd9L-F8"
 };
