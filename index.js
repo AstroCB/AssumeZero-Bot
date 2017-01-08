@@ -94,7 +94,6 @@ function main(err, api) {
             }
         }
     });
-    handleCommand("physics quote asdfasdf asdfjlkl;", 100007016509302);
 }
 
 function addNewUser(id, message, api = gapi) {
