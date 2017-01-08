@@ -282,7 +282,7 @@ function handleCommand(command, fromUserId, api = gapi) {
         } else {
             api.getUserInfo(fromUserId, function(err, data) {
                 if (!err) {
-                    message += `– ${data[fromUserId].name}`;
+                    message += ` – ${data[fromUserId].name}`;
                     api.sendMessage(message, id);
                 }
             });
