@@ -1,5 +1,5 @@
 {
-  "name": "assume-zero-bot-power",
+  "name": "assume-bot",
   "version": "1.0.0",
   "description": "A group chat bot that performs a variety of functions.",
   "main": "index.js",
