@@ -94,7 +94,6 @@ function main(err, api) {
             }
         }
     });
-    handleCommand("alive?");
 }
 
 function addNewUser(id, message, api = gapi) {
