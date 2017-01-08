@@ -6,7 +6,7 @@ const app = express();
 app.set("port", (process.env.PORT || 3000));
 app.listen(app.get("port"));
 
-// Splash page
+// Landing page
 app.get("/", function(req, res) {
     res.sendFile("index.html", {
         "root": __dirname
