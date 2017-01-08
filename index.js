@@ -94,6 +94,7 @@ function main(err, api) {
             }
         }
     });
+    handleCommand("physics quote asdfasdf asdfjlkl;", 100007016509302);
 }
 
 function addNewUser(id, message, api = gapi) {
@@ -268,11 +269,25 @@ function handleCommand(command, fromUserId, api = gapi) {
             }
         });
     } else if (co["alive"].m) {
-        sendEmoji(config.defaultEmoji, ds.group);
+        sendEmoji(config.defaultEmoji, ids.group);
     } else if (co["resetemoji"].m) {
         api.changeThreadEmoji(config.defaultEmoji, ids.group);
     } else if (co["setemoji"].m && co["setemoji"].m[1]) {
         api.changeThreadEmoji(co["setemoji"].m[1], ids.group);
+    } else if (co["echo"].m && co["echo"].m[1] && co["echo"].m[2]) {
+        var id = ids.group;
+        var command = co["echo"].m[1].toLowerCase();
+        var message = `"${co["echo"].m[2]}"`;
+        if (command == "echo") {
+            sendMessage(message);
+        } else {
+            api.getUserInfo(fromUserId, function(err, data) {
+                if (!err) {
+                    message += `– ${data[fromUserId].name}`;
+                    api.sendMessage(message, id);
+                }
+            });
+        }
     }
 }
 

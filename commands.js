@@ -126,5 +126,14 @@ exports.commands = {
         "user_input": false,
         "regex": /set emoji (?:to )?([\uD83C-\uDBFF\uDC00-\uDFFF])/iu, // Match emoji w/ Unicode modifier
         "experimental": false
+    },
+    "echo": {
+      "display_names": ["echo", "quote"],
+      "pretty_name": "Echo/quote",
+      "description": "Echoes or quotes the provided statement",
+      "syntax": "(echo|quote) ${statement}",
+      "user_input": false,
+      "regex": /(echo|quote) (.*)/i,
+      "experimental": false
     }
 };
