@@ -120,8 +120,8 @@ exports.commands = {
     },
     "setemoji": {
         "display_names": ["set emoji"],
-        "pretty_name": "Set color",
-        "description": "Sets the color to the specified hex value and outputs previous color",
+        "pretty_name": "Set emoji",
+        "description": "Sets the emoji to the specified Unicode emoji",
         "syntax": "set emoji (to) #{emoji}",
         "user_input": false,
         "regex": /set emoji (?:to )?([\uD83C-\uDBFF\uDC00-\uDFFF])/iu, // Match emoji w/ Unicode modifier
