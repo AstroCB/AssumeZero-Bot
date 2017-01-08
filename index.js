@@ -268,11 +268,7 @@ function handleCommand(command, fromUserId, api = gapi) {
             }
         });
     } else if (co["alive"]) {
-        api.getThreadInfo(ids.group, function(err, data) {
-            if (!err) {
-                sendMessage(data.emoji.emoji);
-            }
-        });
+        sendEmoji(ids.group);
     }
 }
 
@@ -369,4 +365,12 @@ function getHelpEntry(input, log) {
             }
         }
     }
+}
+
+function sendEmoji(threadId) {
+    api.getThreadInfo(threadId, function(err, data) {
+        if (!err) {
+            sendMessage(data.emoji.emoji);
+        }
+    });
 }

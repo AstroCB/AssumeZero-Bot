@@ -9,6 +9,10 @@
   },
   "author": "Cameron Bernhardt (AstroCB)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AstroCB/JonahBot/"
+  },
   "dependencies": {
     "express": "^4.14.0",
     "facebook-chat-api": "^1.2.0",

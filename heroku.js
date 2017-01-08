@@ -13,7 +13,7 @@ const local_high = 9
 const offset = 5;
 setInterval(function() {
     var now = new Date();
-    if (now.getHours() < (local_low + offset) || now.getHours() >= (local_high + offset)) {
+    if (now.getUTCHours() < (local_low + offset) || now.getUTCHours() >= (local_high + offset)) {
         http.get("http://assume-bot.herokuapp.com");
     }
 }, 2700000);
