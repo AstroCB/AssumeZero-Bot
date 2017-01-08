@@ -6,6 +6,13 @@ const app = express();
 app.set("port", (process.env.PORT || 3000));
 app.listen(app.get("port"));
 
+// Splash page
+app.get("/", function(req, res) {
+    res.sendFile("index.html", {
+        "root": __dirname
+    });
+});
+
 // Ping every 45 minutes to keep awake
 // Sleep from 3 AM to 9 AM to preserve time (UTC)
 const local_low = 3;
