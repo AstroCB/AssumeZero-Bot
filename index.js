@@ -385,7 +385,7 @@ function getHelpEntry(input, log) {
     }
 }
 
-function sendEmoji(threadId) {
+function sendEmoji(threadId, api = gapi) {
     api.getThreadInfo(threadId, function(err, data) {
         if (!err) {
             sendMessage(data.emoji.emoji);
