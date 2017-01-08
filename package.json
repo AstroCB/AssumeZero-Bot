@@ -16,6 +16,7 @@
   "dependencies": {
     "express": "^4.14.0",
     "facebook-chat-api": "^1.2.0",
-    "http": "0.0.0"
+    "http": "0.0.0",
+    "request": "^2.79.0"
   }
 }

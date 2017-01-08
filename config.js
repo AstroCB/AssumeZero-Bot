@@ -30,3 +30,9 @@ exports.defaultColor = "#67B868";
 
 // Default emoji
 exports.defaultEmoji = "🚀";
+
+// For xkcd searching capability
+exports.xkcd = {
+    "engine": "017207449713114446929:kyxuw7rvlw4",
+    "key": "AIzaSyCHfJCpWEYUCydDMbb9PqK42XpPQd9L-F8"
+};

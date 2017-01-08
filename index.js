@@ -1,5 +1,6 @@
 const messenger = require("facebook-chat-api");
 const fs = require("fs");
+const request = require("request");
 const ids = require("./ids"); // Various IDs stored for easy access
 const config = require("./config"); // Config file
 const utils = require("./configutils");
@@ -285,6 +286,32 @@ function handleCommand(command, fromUserId, api = gapi) {
                     message += ` – ${data[fromUserId].name}`;
                     api.sendMessage(message, id);
                 }
+            });
+        }
+    } else if (co["xkcd"].m && co["xkcd"].m[1]) {
+        var command = co["xkcd"].m[1];
+        var query = co["xkcd"].m[2];
+        var threadId = ids.group;
+        if (query) {
+            // Perform search using Google Custom Search API (provide API key / custom engine in config.js)
+            const url = `https://www.googleapis.com/customsearch/v1?key=${config.xkcd.key}&cx=${config.xkcd.engine}&q=${encodeURIComponent(query)}`;
+            request(url, function(err, res, body) {
+                if (!err && res.statusCode == 200) {
+                    var results = JSON.parse(body).items;
+                    if (results.length > 0) {
+                        api.sendMessage({
+                            "url": results[0].formattedUrl // Best match
+                        }, threadId);
+                    } else {
+                        sendError("No results found");
+                    }
+                } else {
+                    console.log(err);
+                }
+            });
+        } else {
+            sendMessage({
+                "url": `http://xkcd.com/${command}`
             });
         }
     }

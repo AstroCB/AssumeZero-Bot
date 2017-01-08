@@ -135,5 +135,14 @@ exports.commands = {
       "user_input": false,
       "regex": /(echo|quote) (.*)/i,
       "experimental": false
+    },
+    "xkcd": {
+      "display_names": ["xkcd", "xkcd search"],
+      "pretty_name": "xkcd",
+      "description": "Outputs the numbered xkcd or search result",
+      "syntax": "xkcd ({comic number}|search {search query})",
+      "user_input": false,
+      "regex": /xkcd (\d+|search (.+))/i,
+      "experimental": false
     }
 };
