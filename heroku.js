@@ -13,7 +13,7 @@ app.get("/", function(req, res) {
     });
 });
 
-// Ping every 45 minutes to keep awake
+// Ping every 20 minutes to keep awake
 // Sleep from 3 AM to 9 AM to preserve time (UTC)
 const local_low = 3;
 const local_high = 9
@@ -21,6 +21,7 @@ const offset = 5;
 setInterval(function() {
     var now = new Date();
     if (now.getUTCHours() < (local_low + offset) || now.getUTCHours() >= (local_high + offset)) {
+        console.log("Pinging server");
         http.get("http://assume-bot.herokuapp.com");
     }
-}, 2700000);
+}, 1200000);
