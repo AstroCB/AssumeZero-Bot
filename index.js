@@ -60,11 +60,10 @@ function main(err, api) {
                     api.getThreadInfo(groupId, function(err, data) {
                         for (var i = 0; i < pingUsers.length; i++) { // Loop doesn't run if no ping matches
                             if (!err) {
-                                var message = "You have been summoned in " + config.groupName + " by " + data.nicknames[senderId];
-                                if (pingMessage.length > 0) { // Message left after pings removed
-                                    message += " with the following message: \"" + pingMessage + "\"";
-                                } else {
-                                    message += "."
+                                var sender = data.nicknames[senderId];
+                                var message = `${sender} summoned you in ${data.name}`;
+                                if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
+                                    message = `"${pingMessage}" – ${sender} in ${data.name}`;
                                 }
                                 api.sendMessage(message, ids.members[groupId][pingUsers[i]]);
                             }
