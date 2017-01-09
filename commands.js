@@ -27,7 +27,7 @@ exports.commands = {
         "short_description": "Add/search user",
         "description": "Searches for the given user and either outputs the best match (for searching) or adds it to the chat (for adding)",
         "syntax": "(add|search) {user}",
-        "user_input": true,
+        "user_input": false,
         "regex": /(add|search) (.*)/i,
         "experimental": false
     },

@@ -65,6 +65,7 @@ function main(err, api) {
                                 if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
                                     message = `"${pingMessage}" – ${sender} in ${data.name}`;
                                 }
+                                message += ` at ${(new Date()).toLocaleDateString()}` // Time stamp
                                 api.sendMessage(message, ids.members[groupId][pingUsers[i]]);
                             }
                         }
@@ -154,15 +155,16 @@ function handleCommand(command, fromUserId, api = gapi) {
         }
     } else if (co["addsearch"].m && co["addsearch"].m[1] && co["addsearch"].m[2]) {
         var threadId = ids.group;
+        var user = co["addsearch"].m[2]
         try {
-            api.getUserID(co["addsearch"].m[2], function(err, data) {
-                var bestMatch = data[0]; // Hopefully the right person
+            api.getUserID(user, function(err, data) {
                 if (!err) {
+                    var bestMatch = data[0]; // Hopefully the right person
                     if (co["addsearch"].m[1].toLowerCase() == "search") {
                         sendMessage(bestMatch.profileUrl); // Best match
                     } else {
                         // Add user to group and update log of member IDs
-                        api.addUserToGroup(bestMatch.userID, threadId);
+                        addUser(bestMatch.userID, threadId);
                         api.getUserInfo(bestMatch.userID, function(err, info) {
                             if (!err) {
                                 var fn = info[bestMatch.userID].firstName || bestMatch.name.split()[0] // Backup
@@ -173,10 +175,12 @@ function handleCommand(command, fromUserId, api = gapi) {
                             }
                         });
                     }
+                } else {
+                    api.sendMessage(`Error: ${err.error}`, threadId);
                 }
             });
         } catch (e) {
-            sendError("User " + user + " not recognized");
+            sendError(`User ${user} not recognized`);
         }
     } else if (co["order66"].m) {
         // Remove everyone from the chat for 15 seconds
@@ -273,7 +277,12 @@ function handleCommand(command, fromUserId, api = gapi) {
     } else if (co["resetemoji"].m) {
         api.changeThreadEmoji(config.defaultEmoji, ids.group);
     } else if (co["setemoji"].m && co["setemoji"].m[1]) {
-        api.changeThreadEmoji(co["setemoji"].m[1], ids.group);
+        try {
+            api.changeThreadEmoji(co["setemoji"].m[1], ids.group);
+        } catch (e) {
+            // Backup
+            api.changeThreadEmoji(config.defaultEmoji, ids.group);
+        }
     } else if (co["echo"].m && co["echo"].m[1] && co["echo"].m[2]) {
         var id = ids.group;
         var command = co["echo"].m[1].toLowerCase();
@@ -367,9 +376,10 @@ function parsePing(m) {
 // Also accepts optional callback parameter if length is specified
 function kick(userId, time, groupId = ids.group, callback, api = gapi) {
     api.removeUserFromGroup(userId, groupId);
+    delete ids.members[groupId][userId]; // Remove from members obj
     if (time) {
         setTimeout(function() {
-            api.addUserToGroup(userId, groupId);
+            addUser(userId, groupId);
             if (callback) {
                 callback();
             }
@@ -377,25 +387,38 @@ function kick(userId, time, groupId = ids.group, callback, api = gapi) {
     }
 }
 
+function addUser(id, groupId = ids.group, api = gapi) {
+    api.getUserInfo(id, function(err, info) {
+        api.addUserToGroup(id, groupId, function(err, data) {
+            if (!err && info) {
+              // Add back to members obj
+                ids.members[groupId][info[id].firstName.toLowerCase()] = id;
+            }
+        })
+    });
+}
+
 // If the bot is in dynamic mode, it needs to reset its config variables
 // every time it receives a message; this function is called on every listen ping
 function setEnvironmentVariables(message, api = gapi) {
     ids.group = message.threadID;
     api.getThreadInfo(ids.group, function(err, data) {
-        config.groupName = data.name || "Unnamed chat";
-        config.defaultEmoji = data.emoji.emoji;
-        config.defaultColor = data.color;
-        ids.members[message.threadID] = []; // Clear old members
-        api.getUserInfo(data.participantIDs, function(err, data) {
-            if (!err) {
-                for (var id in data) {
-                    if (data.hasOwnProperty(id) && id != ids.bot) {
-                        ids.members[message.threadID][data[id].firstName.toLowerCase()] = id;
+        if (data) {
+            config.groupName = data.name || "Unnamed chat";
+            config.defaultEmoji = data.emoji ? data.emoji.emoji : config.defaultEmoji;
+            config.defaultColor = data.color;
+            ids.members[message.threadID] = []; // Clear old members
+            api.getUserInfo(data.participantIDs, function(err, data) {
+                if (!err) {
+                    for (var id in data) {
+                        if (data.hasOwnProperty(id) && id != ids.bot) {
+                            ids.members[message.threadID][data[id].firstName.toLowerCase()] = id;
+                        }
                     }
+                    config.userRegExp = utils.setRegexFromMembers(message.threadID);
                 }
-                config.userRegExp = utils.setRegexFromMembers(message.threadID);
-            }
-        });
+            });
+        }
     });
 }
 
@@ -415,7 +438,7 @@ function getHelpEntry(input, log) {
 function sendEmoji(threadId, api = gapi) {
     api.getThreadInfo(threadId, function(err, data) {
         if (!err) {
-            sendMessage(data.emoji.emoji);
+            sendMessage(data.emoji ? data.emoji.emoji : config.defaultEmoji);
         }
     });
 }
