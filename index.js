@@ -140,7 +140,7 @@ function handleCommand(command, fromUserId, api = gapi) {
             for (var c in co) {
                 if (co.hasOwnProperty(c)) {
                     var entry = co[c];
-                    mess += `${entry.syntax}: ${entry.description}\n`
+                    mess += `${entry.syntax}: ${entry.short_description}\n`
                 }
             }
             mess += `\nTip: for more detailed descriptions, use "${config.trigger} help (command)"`;
@@ -186,7 +186,8 @@ function handleCommand(command, fromUserId, api = gapi) {
         setTimeout(function() {
             var callbackset = false;
             for (var m in ids.members[groupId]) {
-                if (ids.members[groupId].hasOwnProperty(m)) {
+                // Bot should never be in members list, but this is a safeguard
+                if (ids.members[groupId].hasOwnProperty(m) && ids.members[groupId][m] != ids.bot) {
                     if (!callbackset) { // Only want to send the message once
                         kick(ids.members[groupId][m], config.order66Time, groupId, function() {
                             api.sendMessage("Balance is restored to the Force.", groupId);
@@ -277,13 +278,13 @@ function handleCommand(command, fromUserId, api = gapi) {
     } else if (co["echo"].m && co["echo"].m[1] && co["echo"].m[2]) {
         var id = ids.group;
         var command = co["echo"].m[1].toLowerCase();
-        var message = `"${co["echo"].m[2]}"`;
+        var message = `${co["echo"].m[2]}`;
         if (command == "echo") {
             sendMessage(message);
         } else {
             api.getUserInfo(fromUserId, function(err, data) {
                 if (!err) {
-                    message += ` – ${data[fromUserId].name}`;
+                    message = `"${message}" – ${data[fromUserId].name}`;
                     api.sendMessage(message, id);
                 }
             });
