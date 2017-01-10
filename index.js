@@ -6,12 +6,13 @@ const config = require("./config"); // Config file
 const utils = require("./configutils");
 const commands = require("./commands");
 const heroku = require("./heroku");
+var credentials;
 try {
     // Login creds from local dir
-    const credentials = require("./credentials");
+    credentials = require("./credentials");
 } catch (e) {
     // Deployed to Heroku or config file is missing
-    const credentials = process.env;
+    credentials = process.env;
 }
 var gapi; // Global API for external functions (set on login)
 
@@ -44,7 +45,7 @@ function main(err, api) {
         }
         if (message && !err) {
             // Handle messages
-            // console.log(message);
+            console.log(message);
             if (message.threadID == ids.group && message.type == "message" && message.senderId != ids.bot) { // Is from AØBP but not from bot
                 var m = message.body;
                 var attachments = message.attachments;

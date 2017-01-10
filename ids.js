@@ -1,5 +1,5 @@
 exports.group = 883154065107088; // AØBP thread ID
-exports.bot = 100014788693366;
+exports.bot = 100014787769496;
 exports.members = { // Member ids
     // NOTE: **NEVER** add the bot's ID to this list or order 66 will obliterate the chat
     "883154065107088": {
