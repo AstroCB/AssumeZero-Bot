@@ -45,8 +45,8 @@ function main(err, api) {
         }
         if (message && !err) {
             // Handle messages
-            console.log(message);
-            if (message.threadID == ids.group && message.type == "message" && message.senderId != ids.bot) { // Is from AØBP but not from bot
+            // console.log(message);
+            if (message.threadID == ids.group && message.type == "message" && message.senderId != ids.bot && !isBanned(message.senderId)) { // Is from AØBP but not from bot
                 var m = message.body;
                 var attachments = message.attachments;
                 var senderId = message.senderID;
@@ -392,7 +392,7 @@ function addUser(id, groupId = ids.group, api = gapi) {
     api.getUserInfo(id, function(err, info) {
         api.addUserToGroup(id, groupId, function(err, data) {
             if (!err && info) {
-              // Add back to members obj
+                // Add back to members obj
                 ids.members[groupId][info[id].firstName.toLowerCase()] = id;
             }
         })
@@ -442,4 +442,8 @@ function sendEmoji(threadId, api = gapi) {
             sendMessage(data.emoji ? data.emoji.emoji : config.defaultEmoji);
         }
     });
+}
+
+function isBanned(senderId) {
+    return (config.banned.indexOf(senderId) > -1);
 }
