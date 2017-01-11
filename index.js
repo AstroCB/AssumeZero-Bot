@@ -332,23 +332,20 @@ function handleEasterEggs(message, fromUserId, api = gapi) {
     if (config.easterEggs) {
         const threadId = message.threadID; // For async functions
         if (message.match(/genius/i)) {
-            // Requires a photo called "genius.jpg" in the media subdirectory of root
             sendFile("media/genius.jpg");
         }
-        if (message.match(/kys|cuck(?:ed)?|maga/i)) {
+        if (message.match(/kys|cuck(?:ed)?|maga|trump /i)) {
             sendMessage("Delete your account.")
         }
         if (message.match(/(?:problem |p)set/i)) {
-            // Requires a text file under media
             fs.readFile("media/monologue.txt", "utf-8", function(err, text) {
                 if (!err) {
                     api.sendMessage(text, threadId);
                 }
             });
         }
-        if (message.match(/^i mean$/i)) {
-            // Requires "imean.png" under media
-            sendFile("media/imean.png");
+        if (message.match(/^umd$/i)) {
+            sendFile("media/umd.png");
         }
     }
 }
