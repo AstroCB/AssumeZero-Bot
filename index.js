@@ -144,8 +144,8 @@ function handleCommand(command, fromUserId, api = gapi) {
         }
     } else if (co["xkcd"].m) {
         if (co["xkcd"].m[1]) { // Parameter specified
-            const param = co["xkcd"].m[1];
             const query = co["xkcd"].m[2];
+            const param = co["xkcd"].m[1].split(query).join("").trim(); // Param = 1st match - 2nd
             const threadId = ids.group;
             if (query && param == "search") {
                 // Perform search using Google Custom Search API (provide API key / custom engine in config.js)
