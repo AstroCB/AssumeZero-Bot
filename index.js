@@ -338,7 +338,7 @@ function handleCommand(command, fromUserId, api = gapi) {
 // Some commands may require additional configuration
 function handleEasterEggs(message, senderId) {
     if (message.match(/genius/i)) {
-        // Requires a photo called "genius.jpg" in a media subdirectory of root
+        // Requires a photo called "genius.jpg" in the media subdirectory of root
         sendFile("media/genius.jpg");
     }
 }
