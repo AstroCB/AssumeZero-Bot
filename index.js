@@ -347,6 +347,9 @@ function handleEasterEggs(message, fromUserId, api = gapi) {
         if (message.match(/^umd$/i)) {
             sendFile("media/umd.png");
         }
+        if (message.match(/commit (seppuku|sudoku)/i)) {
+            sendMessage("RIP");
+        }
     }
 }
 
