@@ -42,8 +42,7 @@ function main(err, api) {
         }
         if (message && !err) {
             // Handle messages
-            // console.log(message);
-            if (message.type == "message" && message.senderId != ids.bot && !isBanned(message.senderId)) { // Is from AØBP but not from bot
+            if (message.type == "message" && message.senderID != ids.bot && !isBanned(message.senderID)) { // Is from AØBP but not from bot
                 if (message.threadID == ids.group) { // Message from main group (or current group, if in dynamic mode)
                     var m = message.body;
                     var attachments = message.attachments;
