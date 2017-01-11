@@ -355,6 +355,10 @@ function handleEasterEggs(message, fromUserId, api = gapi) {
                 }
             });
         }
+        if (message.match(/^i mean$/i)) {
+            // Requires "imean.png" under media
+            sendFile("media/imean.png")
+        }
     }
 }
 
