@@ -142,6 +142,45 @@ function handleCommand(command, fromUserId, api = gapi) {
         } catch (e) {
             sendError(`User ${user} not recognized`);
         }
+    } else if (co["xkcd"].m) {
+        if (co["xkcd"].m[1]) { // Parameter specified
+            const param = co["xkcd"].m[1];
+            const query = co["xkcd"].m[2];
+            const threadId = ids.group;
+            if (query && param == "search") {
+                // Perform search using Google Custom Search API (provide API key / custom engine in config.js)
+                const url = `https://www.googleapis.com/customsearch/v1?key=${config.xkcd.key}&cx=${config.xkcd.engine}&q=${encodeURIComponent(query)}`;
+                request(url, function(err, res, body) {
+                    if (!err && res.statusCode == 200) {
+                        const results = JSON.parse(body).items;
+                        if (results.length > 0) {
+                            api.sendMessage({
+                                "url": results[0].formattedUrl // Best match
+                            }, threadId);
+                        } else {
+                            api.sendMessage("Error: No results found", threadId);
+                        }
+                    } else {
+                        console.log(err);
+                    }
+                });
+            } else if (param) { // If param != search, it should be either a number or valid sub-URL for xkcd.com
+                sendMessage({
+                    "url": `http://xkcd.com/${param}`
+                });
+            }
+        } else { // No parameter passed; send random xkcd
+            // Get info of most current xkcd to find out the number of existing xkcd (i.e. the rand ceiling)
+            request("http://xkcd.com/info.0.json", function(err, res, body) {
+                if (!err && res.statusCode == 200) {
+                    const num = parseInt(JSON.parse(body).num); // Number of most recent xkcd
+                    const randxkcd = Math.floor(Math.random() * num) + 1;
+                    sendMessage({
+                        "url": `http://xkcd.com/${randxkcd}`
+                    });
+                }
+            });
+        }
     } else if (co["addsearch"].m && co["addsearch"].m[1] && co["addsearch"].m[2]) {
         var threadId = ids.group;
         var user = co["addsearch"].m[2]
@@ -289,45 +328,6 @@ function handleCommand(command, fromUserId, api = gapi) {
                 if (!err) {
                     message = `"${message}" – ${data[fromUserId].name}`;
                     api.sendMessage(message, id);
-                }
-            });
-        }
-    } else if (co["xkcd"].m) {
-        if (co["xkcd"].m[1]) { // Parameter specified
-            const param = co["xkcd"].m[1];
-            const query = co["xkcd"].m[2];
-            const threadId = ids.group;
-            if (query && param == "search") {
-                // Perform search using Google Custom Search API (provide API key / custom engine in config.js)
-                const url = `https://www.googleapis.com/customsearch/v1?key=${config.xkcd.key}&cx=${config.xkcd.engine}&q=${encodeURIComponent(query)}`;
-                request(url, function(err, res, body) {
-                    if (!err && res.statusCode == 200) {
-                        const results = JSON.parse(body).items;
-                        if (results.length > 0) {
-                            api.sendMessage({
-                                "url": results[0].formattedUrl // Best match
-                            }, threadId);
-                        } else {
-                            api.sendMessage("Error: No results found", threadId);
-                        }
-                    } else {
-                        console.log(err);
-                    }
-                });
-            } else if (param) { // If param != search, it should be either a number or valid sub-URL for xkcd.com
-                sendMessage({
-                    "url": `http://xkcd.com/${param}`
-                });
-            }
-        } else { // No parameter passed; send random xkcd
-            // Get info of most current xkcd to find out the number of existing xkcd (i.e. the rand ceiling)
-            request("http://xkcd.com/info.0.json", function(err, res, body) {
-                if (!err && res.statusCode == 200) {
-                    const num = parseInt(JSON.parse(body).num); // Number of most recent xkcd
-                    const randxkcd = Math.floor(Math.random() * num) + 1;
-                    sendMessage({
-                      "url": `http://xkcd.com/${randxkcd}`
-                    });
                 }
             });
         }

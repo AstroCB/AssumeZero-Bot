@@ -21,6 +21,16 @@ exports.commands = {
         "regex": "kick",
         "experimental": false
     },
+    "xkcd": {
+        "display_names": ["xkcd", "xkcd search"],
+        "pretty_name": "xkcd",
+        "short_description": "Links xkcd",
+        "description": "Outputs the numbered xkcd or search result (or a random one if none was specified)",
+        "syntax": "xkcd ({comic number}|search {search query})",
+        "user_input": false,
+        "regex": /xkcd(?: (\d+|search (.+)))?/i,
+        "experimental": false
+    },
     "addsearch": {
         "display_names": ["add", "search"],
         "pretty_name": "Add/search",
@@ -142,23 +152,13 @@ exports.commands = {
         "experimental": false
     },
     "echo": {
-      "display_names": ["echo", "quote"],
-      "pretty_name": "Echo/quote",
-      "short_description": "Repeat/quote statement",
-      "description": "Echoes or quotes the provided statement",
-      "syntax": "(echo|quote) ${statement}",
-      "user_input": false,
-      "regex": /(echo|quote) (.*)/i,
-      "experimental": false
-    },
-    "xkcd": {
-      "display_names": ["xkcd", "xkcd search"],
-      "pretty_name": "xkcd",
-      "short_description": "Links xkcd",
-      "description": "Outputs the numbered xkcd or search result (or a random one if none was specified)",
-      "syntax": "xkcd ({comic number}|search {search query})",
-      "user_input": false,
-      "regex": /xkcd(?: (\d+|search (.+)))?/i,
-      "experimental": false
+        "display_names": ["echo", "quote"],
+        "pretty_name": "Echo/quote",
+        "short_description": "Repeat/quote statement",
+        "description": "Echoes or quotes the provided statement",
+        "syntax": "(echo|quote) ${statement}",
+        "user_input": false,
+        "regex": /(echo|quote) (.*)/i,
+        "experimental": false
     }
 };
