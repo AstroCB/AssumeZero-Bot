@@ -194,7 +194,10 @@ function handleCommand(command, fromUserId, api = gapi) {
                         addUser(bestMatch.userID, threadId);
                     }
                 } else {
-                    api.sendMessage(`Error: ${err.error}`, threadId);
+                  if(err.error){
+                    // Fix typo
+                    api.sendMessage(`Error: ${err.error.replace("Bes", "Best")}`, threadId);
+                  }
                 }
             });
         } catch (e) {
@@ -276,7 +279,7 @@ function handleCommand(command, fromUserId, api = gapi) {
         api.getThreadInfo(threadId, function(err, data) {
             if (!err) {
                 const count = data.messageCount;
-                const randMessage = Math.floor(Math.random() * (count + 1));
+                var randMessage = Math.floor(Math.random() * (count + 1));
                 api.getThreadHistory(ids.group, 0, count, (new Date()).getTime(), function(err, data) {
                     if (err) {
                         console.log(err);
