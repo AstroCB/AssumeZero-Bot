@@ -46,45 +46,52 @@ function main(err, api) {
         if (message && !err) {
             // Handle messages
             // console.log(message);
-            if (message.threadID == ids.group && message.type == "message" && message.senderId != ids.bot && !isBanned(message.senderId)) { // Is from AØBP but not from bot
-                var m = message.body;
-                var attachments = message.attachments;
-                var senderId = message.senderID;
+            if (message.type == "message" && message.senderId != ids.bot && !isBanned(message.senderId)) { // Is from AØBP but not from bot
+                if (message.threadID == ids.group) { // Message from main group (or current group, if in dynamic mode)
+                    var m = message.body;
+                    var attachments = message.attachments;
+                    var senderId = message.senderID;
 
-                // Handle message body
-                if (m) {
-                    // Handle pings
-                    var pingData = parsePing(m);
-                    var pingUsers = pingData.users;
-                    var pingMessage = pingData.message;
-                    var groupId = ids.group;
-                    api.getThreadInfo(groupId, function(err, data) {
-                        for (var i = 0; i < pingUsers.length; i++) { // Loop doesn't run if no ping matches
-                            if (!err) {
-                                var sender = data.nicknames[senderId];
-                                var message = `${sender} summoned you in ${data.name}`;
-                                if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
-                                    message = `"${pingMessage}" – ${sender} in ${data.name}`;
+                    // Handle message body
+                    if (m) {
+                        // Handle pings
+                        var pingData = parsePing(m);
+                        var pingUsers = pingData.users;
+                        var pingMessage = pingData.message;
+                        var groupId = ids.group;
+                        api.getThreadInfo(groupId, function(err, data) {
+                            for (var i = 0; i < pingUsers.length; i++) { // Loop doesn't run if no ping matches
+                                if (!err) {
+                                    var sender = data.nicknames[senderId];
+                                    var message = `${sender} summoned you in ${data.name}`;
+                                    if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
+                                        message = `"${pingMessage}" – ${sender} in ${data.name}`;
+                                    }
+                                    message += ` at ${(new Date()).toLocaleDateString()}` // Time stamp
+                                    api.sendMessage(message, ids.members[groupId][pingUsers[i]]);
                                 }
-                                message += ` at ${(new Date()).toLocaleDateString()}` // Time stamp
-                                api.sendMessage(message, ids.members[groupId][pingUsers[i]]);
                             }
-                        }
-                    });
-
-                    // Pass to commands testing for trigger word
-                    var cindex = m.toLowerCase().indexOf(config.trigger);
-                    if (cindex > -1) { // Trigger command mode
-                        handleCommand(m.substring(cindex + config.trigger.length), senderId);
-                    }
-                }
-                // Handle attachments
-                for (var i = 0; i < attachments.length; i++) {
-                    if (attachments[i].type == "animated_image" && !attachments[i].filename) { // Should have filename if OC
-                        kick(senderId, config.banTime, function() {
-                            sendMessage("You have been kicked for violating the group chat GIF policy: only OC is allowed.")
                         });
+
+                        // Pass to commands testing for trigger word
+                        var cindex = m.toLowerCase().indexOf(config.trigger);
+                        if (cindex > -1) { // Trigger command mode
+                            handleCommand(m.substring(cindex + config.trigger.length), senderId);
+                        } else {
+                            // Check for Easter eggs
+                            handleEasterEggs(m, senderId);
+                        }
                     }
+                    // Handle attachments
+                    for (var i = 0; i < attachments.length; i++) {
+                        if (attachments[i].type == "animated_image" && !attachments[i].filename) { // Should have filename if OC
+                            kick(senderId, config.banTime, function() {
+                                sendMessage("You have been kicked for violating the group chat GIF policy: only OC is allowed.")
+                            });
+                        }
+                    }
+                } else if (message.threadID != ids.group) { // Not from main group (static group mode)
+                    api.sendMessage("Multi-chat mode is off", message.threadID);
                 }
             }
             // Handle presence notifications
@@ -327,6 +334,17 @@ function handleCommand(command, fromUserId, api = gapi) {
     }
 }
 
+// Check for commands that don't require a trigger (Easter eggs)
+// Some commands may require additional configuration
+function handleEasterEggs(message, senderId) {
+    if (message.match(/genius/i)) {
+        // Requires a photo called "genius.jpg" in a media subdirectory of root
+        sendFile("media/genius.jpg");
+    }
+}
+
+// Utility functions
+
 function matchesWithUser(command, message, sep = " ") {
     return message.match(new RegExp(command + sep + config.userRegExp, "i"));
 }
@@ -446,4 +464,14 @@ function sendEmoji(threadId, api = gapi) {
 
 function isBanned(senderId) {
     return (config.banned.indexOf(senderId) > -1);
+}
+
+// Sends file where filename is a relative path to the file from root
+// Accepts an optional message body parameter
+function sendFile(filename, message = "", threadId = ids.group, api = gapi) {
+    var msg = {
+        "body": message,
+        "attachment": fs.createReadStream(`${__dirname}/${filename}`)
+    }
+    api.sendMessage(msg, threadId);
 }
