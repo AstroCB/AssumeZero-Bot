@@ -325,9 +325,9 @@ function handleCommand(command, fromUserId, api = gapi) {
                 if (!err && res.statusCode == 200) {
                     const num = parseInt(JSON.parse(body).num); // Number of most recent xkcd
                     const randxkcd = Math.floor(Math.random() * num) + 1;
-                    api.sendMessage({
+                    sendMessage({
                       "url": `http://xkcd.com/${randxkcd}`
-                    }, threadId);
+                    });
                 }
             });
         }
