@@ -192,16 +192,6 @@ function handleCommand(command, fromUserId, api = gapi) {
                     } else {
                         // Add user to group and update log of member IDs
                         addUser(bestMatch.userID, threadId);
-                        api.getUserInfo(bestMatch.userID, function(err, info) {
-                            if (!err) {
-                                var fn = info[bestMatch.userID].firstName || bestMatch.name.split()[0]; // Backup
-                                if (!ids.members[threadId][fn.toLowerCase()]) { // Check if already in member dict; if not, add
-                                    ids.members[threadId][fn.toLowerCase()] = bestMatch.userID;
-                                    // Update command checking
-                                    config.userRegExp = utils.setRegexFromMembers(threadId);
-                                }
-                            }
-                        });
                     }
                 } else {
                     api.sendMessage(`Error: ${err.error}`, threadId);
@@ -424,13 +414,20 @@ function kick(userId, time, groupId = ids.group, callback, api = gapi) {
     }
 }
 
-function addUser(id, groupId = ids.group, api = gapi) {
+// Adds user to group and updates members list
+// Optional parameter to welcome new user to the group
+function addUser(id, threadId = ids.group, welcome = true, api = gapi) {
     api.getUserInfo(id, function(err, info) {
-        api.addUserToGroup(id, groupId, function(err, data) {
+        api.addUserToGroup(id, threadId, function(err, data) {
             if (!err && info) {
                 // Add to members obj
-                ids.members[groupId][info[id].firstName.toLowerCase()] = id;
-                welcomeNewUser(id, groupId);
+                ids.members[threadId][info[id].firstName.toLowerCase()] = id;
+                // Update regex command checking
+                config.userRegExp = utils.setRegexFromMembers(threadId);
+
+                if (welcome) {
+                    welcomeNewUser(id, threadId);
+                }
             }
         })
     });
