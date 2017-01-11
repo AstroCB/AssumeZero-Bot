@@ -6,7 +6,7 @@ exports.trigger = "physics";
 // Choose whether to allow bot to respond in any chat it is added to
 // If true, group properties will be generated dynamically at runtime
 // Otherwise, set them below
-exports.dynamic = true;
+exports.dynamic = false;
 
 // Name of chat
 exports.groupName = "Assume Zero Brain Power";
