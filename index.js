@@ -348,7 +348,7 @@ function handleEasterEggs(message, fromUserId, api = gapi) {
             sendFile("media/umd.png");
         }
         if (message.match(/commit (seppuku|sudoku)/i)) {
-            sendMessage("これはおそらくLarryの失敗です");
+            sendMessage("RIP");
         }
     }
 }
