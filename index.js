@@ -243,15 +243,16 @@ function handleCommand(command, fromUserId, api = gapi) {
         }
         sendMessage(`Messaged ${user.substring(0, 1).toUpperCase()}${user.substring(1)} ${config.wakeUpTimes} times`);
     } else if (co["randmess"].m) {
+        const threadId = ids.group;
         // Get thread length
-        api.getThreadInfo(ids.group, function(err, data) {
+        api.getThreadInfo(threadId, function(err, data) {
             if (!err) {
-                var count = data.messageCount;
-                var randMessage = Math.floor(Math.random() * (count + 1));
+                const count = data.messageCount;
+                const randMessage = Math.floor(Math.random() * (count + 1));
                 api.getThreadHistory(ids.group, 0, count, (new Date()).getTime(), function(err, data) {
                     if (err) {
                         console.log(err);
-                        sendError("Message could not be found");
+                        api.sendMessage("Error: Message could not be found", threadId);
                     } else {
                         var m = data[randMessage];
                         while (!(m && m.body)) {
@@ -261,7 +262,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                         var b = m.body,
                             name = m.senderName,
                             time = new Date(m.timestamp);
-                        sendMessage(b + " - " + name + " (" + time.toLocaleDateString() + ")");
+                        api.sendMessage(`${b} - ${name} (${time.toLocaleDateString()})`, threadId);
                     }
                 });
             }
@@ -291,30 +292,43 @@ function handleCommand(command, fromUserId, api = gapi) {
                 }
             });
         }
-    } else if (co["xkcd"].m && co["xkcd"].m[1]) {
-        var command = co["xkcd"].m[1];
-        var query = co["xkcd"].m[2];
-        var threadId = ids.group;
-        if (query) {
-            // Perform search using Google Custom Search API (provide API key / custom engine in config.js)
-            const url = `https://www.googleapis.com/customsearch/v1?key=${config.xkcd.key}&cx=${config.xkcd.engine}&q=${encodeURIComponent(query)}`;
-            request(url, function(err, res, body) {
-                if (!err && res.statusCode == 200) {
-                    var results = JSON.parse(body).items;
-                    if (results.length > 0) {
-                        api.sendMessage({
-                            "url": results[0].formattedUrl // Best match
-                        }, threadId);
+    } else if (co["xkcd"].m) {
+        if (co["xkcd"].m[1]) { // Parameter specified
+            const param = co["xkcd"].m[1];
+            const query = co["xkcd"].m[2];
+            const threadId = ids.group;
+            if (query && param == "search") {
+                // Perform search using Google Custom Search API (provide API key / custom engine in config.js)
+                const url = `https://www.googleapis.com/customsearch/v1?key=${config.xkcd.key}&cx=${config.xkcd.engine}&q=${encodeURIComponent(query)}`;
+                request(url, function(err, res, body) {
+                    if (!err && res.statusCode == 200) {
+                        const results = JSON.parse(body).items;
+                        if (results.length > 0) {
+                            api.sendMessage({
+                                "url": results[0].formattedUrl // Best match
+                            }, threadId);
+                        } else {
+                            api.sendMessage("Error: No results found", threadId);
+                        }
                     } else {
-                        sendError("No results found");
+                        console.log(err);
                     }
-                } else {
-                    console.log(err);
+                });
+            } else if (param) { // If param != search, it should be either a number or valid sub-URL for xkcd.com
+                sendMessage({
+                    "url": `http://xkcd.com/${param}`
+                });
+            }
+        } else { // No parameter passed; send random xkcd
+            // Get info of most current xkcd to find out the number of existing xkcd (i.e. the rand ceiling)
+            request("http://xkcd.com/info.0.json", function(err, res, body) {
+                if (!err && res.statusCode == 200) {
+                    const num = parseInt(JSON.parse(body).num); // Number of most recent xkcd
+                    const randxkcd = Math.floor(Math.random() * num) + 1;
+                    api.sendMessage({
+                      "url": `http://xkcd.com/${randxkcd}`
+                    }, threadId);
                 }
-            });
-        } else {
-            sendMessage({
-                "url": `http://xkcd.com/${command}`
             });
         }
     }

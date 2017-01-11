@@ -155,10 +155,10 @@ exports.commands = {
       "display_names": ["xkcd", "xkcd search"],
       "pretty_name": "xkcd",
       "short_description": "Links xkcd",
-      "description": "Outputs the numbered xkcd or search result",
+      "description": "Outputs the numbered xkcd or search result (or a random one if none was specified)",
       "syntax": "xkcd ({comic number}|search {search query})",
       "user_input": false,
-      "regex": /xkcd (\d+|search (.+))/i,
+      "regex": /xkcd(?: (\d+|search (.+)))?/i,
       "experimental": false
     }
 };
