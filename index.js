@@ -63,7 +63,7 @@ function main(err, api) {
                                     if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
                                         message = `"${pingMessage}" – ${sender} in ${data.name}`;
                                     }
-                                    message += ` at ${(new Date()).toLocaleTimeString()}` // Time stamp
+                                    message += ` at ${getTimeString()}` // Time stamp
                                     api.sendMessage(message, ids.members[groupId][pingUsers[i]]);
                                 }
                             }
@@ -347,10 +347,10 @@ function handleEasterEggs(message, fromUserId, api = gapi) {
         if (message.match(/^umd$/i)) {
             sendFile("media/umd.png");
         }
-        if(message.match(/cornell/)) {
-          sendMessage({
-            "url": "https://www.youtube.com/watch?v=yBUz4RnoWSM"
-          });
+        if (message.match(/cornell/)) {
+            sendMessage({
+                "url": "https://www.youtube.com/watch?v=yBUz4RnoWSM"
+            });
         }
         if (message.match(/commit seppuku/i)) {
             sendMessage("RIP");
@@ -506,4 +506,13 @@ function sendFile(filename, message = "", threadId = ids.group, api = gapi) {
         "attachment": fs.createReadStream(`${__dirname}/${filename}`)
     }
     api.sendMessage(msg, threadId);
+}
+
+// Returns a string of the current time in EST
+function getTimeString() {
+    const offset = -5; // Eastern
+    const d = new Date();
+    const utc = d.getTime() * (d.getTimezoneOffset() * 600000); // UTC milliseconds since 1970
+    const eastern = new Date(utc + (offset * 60 * 60000));
+    return eastern.toLocaleTimeString();
 }
