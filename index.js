@@ -320,7 +320,7 @@ function handleCommand(command, fromUserId, api = gapi) {
 
 // Check for commands that don't require a trigger (Easter eggs)
 // Some commands may require additional configuration (and most only make sense for
-// the original chat it was built for (Assume Zero Brain Power), so should be off by default
+// the original chat it was built for), so should be off by default
 function handleEasterEggs(message, fromUserId, api = gapi) {
     if (config.easterEggs) {
         const threadId = message.threadID; // For async functions
