@@ -95,15 +95,6 @@ function main(err, api) {
     });
 }
 
-function addNewUser(id, message, api = gapi) {
-    api.getUserInfo(id, function(err, data) {
-        if (!err) {
-            var user = data[id];
-            sendMessage("Welcome to" + config.groupName + ", " + user.firstName + " (user " + id + ")!", ids.group);
-        }
-    });
-}
-
 function handleCommand(command, fromUserId, api = gapi) {
     // Evaluate commands
     const co = commands.commands; // Short var names since I'll be typing them a lot
@@ -203,11 +194,14 @@ function handleCommand(command, fromUserId, api = gapi) {
     } else if (co["resetcolor"].m) {
         api.changeThreadColor(config.defaultColor, ids.group);
     } else if (co["setcolor"].m && co["setcolor"].m[1]) {
-        api.getThreadInfo(ids.group, function(err, data) {
+        var threadId = ids.group;
+        api.getThreadInfo(threadId, function(err, data) {
             if (!err) {
                 const ogColor = data.color; // Will be null if no custom color set
-                api.changeThreadColor(co["setcolor"].m[1], ids.group, function() {
-                    sendMessage("Last color was " + ogColor);
+                api.changeThreadColor(co["setcolor"].m[1], threadId, function(err, data) {
+                    if (!err) {
+                        api.sendMessage(`Last color was ${ogColor}`, threadId);
+                    }
                 });
             }
         });
@@ -419,10 +413,20 @@ function addUser(id, groupId = ids.group, api = gapi) {
     api.getUserInfo(id, function(err, info) {
         api.addUserToGroup(id, groupId, function(err, data) {
             if (!err && info) {
-                // Add back to members obj
+                // Add to members obj
                 ids.members[groupId][info[id].firstName.toLowerCase()] = id;
+                welcomeNewUser(id, groupId);
             }
         })
+    });
+}
+
+function welcomeNewUser(id, groupId = ids.group, api = gapi) {
+    api.getUserInfo(id, function(err, data) {
+        if (!err) {
+            var user = data[id];
+            api.sendMessage(`Welcome to ${config.groupName}, ${user.firstName} (user ${id})!`, groupId);
+        }
     });
 }
 
