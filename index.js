@@ -63,7 +63,7 @@ function main(err, api) {
                                     if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
                                         message = `"${pingMessage}" – ${sender} in ${data.name}`;
                                     }
-                                    message += ` at ${(new Date()).toLocaleDateString()}` // Time stamp
+                                    message += ` at ${(new Date()).toLocaleTimeString()}` // Time stamp
                                     api.sendMessage(message, ids.members[groupId][pingUsers[i]]);
                                 }
                             }
