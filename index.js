@@ -140,7 +140,7 @@ function handleCommand(command, fromUserId, api = gapi) {
         try {
             kick(ids.members[ids.group][user]);
         } catch (e) {
-            sendError("User " + user + " not recognized");
+            sendError(`User ${user} not recognized`);
         }
     } else if (co["addsearch"].m && co["addsearch"].m[1] && co["addsearch"].m[2]) {
         var threadId = ids.group;
@@ -150,15 +150,16 @@ function handleCommand(command, fromUserId, api = gapi) {
                 if (!err) {
                     var bestMatch = data[0]; // Hopefully the right person
                     if (co["addsearch"].m[1].toLowerCase() == "search") {
-                        sendMessage(bestMatch.profileUrl); // Best match
+                        api.sendMessage(bestMatch.profileUrl, threadId); // Best match
                     } else {
                         // Add user to group and update log of member IDs
                         addUser(bestMatch.userID, threadId);
                         api.getUserInfo(bestMatch.userID, function(err, info) {
                             if (!err) {
-                                var fn = info[bestMatch.userID].firstName || bestMatch.name.split()[0] // Backup
-                                if (!ids.members[threadId][fn.toLowerCase()]) {
+                                var fn = info[bestMatch.userID].firstName || bestMatch.name.split()[0]; // Backup
+                                if (!ids.members[threadId][fn.toLowerCase()]) { // Check if already in member dict; if not, add
                                     ids.members[threadId][fn.toLowerCase()] = bestMatch.userID;
+                                    // Update command checking
                                     config.userRegExp = utils.setRegexFromMembers(threadId);
                                 }
                             }
@@ -172,13 +173,14 @@ function handleCommand(command, fromUserId, api = gapi) {
             sendError(`User ${user} not recognized`);
         }
     } else if (co["order66"].m) {
-        // Remove everyone from the chat for 15 seconds
+        // Remove everyone from the chat for configurable amount of time (see config.js)
         sendMessage("I hate you all.");
-        var groupId = ids.group; // Store in case it changes later
+        const groupId = ids.group; // Store in case it changes later (very important)
         setTimeout(function() {
             var callbackset = false;
             for (var m in ids.members[groupId]) {
                 // Bot should never be in members list, but this is a safeguard
+                //(ALSO VERY IMPORTANT so that group isn't completely emptied)
                 if (ids.members[groupId].hasOwnProperty(m) && ids.members[groupId][m] != ids.bot) {
                     if (!callbackset) { // Only want to send the message once
                         kick(ids.members[groupId][m], config.order66Time, groupId, function() {
@@ -186,15 +188,15 @@ function handleCommand(command, fromUserId, api = gapi) {
                         });
                         callbackset = true;
                     } else {
-                        kick(ids.members[groupId][m], 15);
+                        kick(ids.members[groupId][m], config.order66Time);
                     }
                 }
             }
-        }, 2000);
+        }, 2000); // Make sure people see the message (and impending doom)
     } else if (co["resetcolor"].m) {
         api.changeThreadColor(config.defaultColor, ids.group);
     } else if (co["setcolor"].m && co["setcolor"].m[1]) {
-        var threadId = ids.group;
+        const threadId = ids.group;
         api.getThreadInfo(threadId, function(err, data) {
             if (!err) {
                 const ogColor = data.color; // Will be null if no custom color set
@@ -206,18 +208,18 @@ function handleCommand(command, fromUserId, api = gapi) {
             }
         });
     } else if (co["hitlights"].m) {
-        const colors = ["#6179af", "#7550eb", "#85a9cb", "#1a87de", "#8573db", "#42f1f2", "#07ef63"];
-        api.getThreadInfo(ids.group, function(err, data) {
+        const colors = ["#6179af", "#7550eb", "#85a9cb", "#1a87de", "#8573db", "#42f1f2", "#07ef63"]; // TODO: randomize colors
+        const threadId = ids.group; // Store in case it changes
+        api.getThreadInfo(threadId, function(err, data) {
             if (!err) {
                 const ogColor = data.color; // Will be null if no custom color set
-                const delay = 500;
-                var groupId = ids.group; // Store in case it changes
-                for (let i = 0; i < colors.length; i++) {
+                const delay = 500; // Delay between color changes (half second is a good default)
+                for (let i = 0; i < colors.length; i++) { // Need block scoping for timeout
                     setTimeout(function() {
-                        api.changeThreadColor(colors[i], groupId);
+                        api.changeThreadColor(colors[i], threadId);
                         if (i == (colors.length - 1)) { // Set back to original
                             setTimeout(function() {
-                                api.changeThreadColor(ogColor, groupId);
+                                api.changeThreadColor(ogColor, threadId);
                             }, delay);
                         }
                     }, delay + (i * delay)); // Queue color changes
@@ -239,7 +241,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                 api.sendMessage("Wake up", members[user]);
             }, 500 + (500 * i));
         }
-        sendMessage("Messaged " + user.substring(0, 1).toUpperCase() + user.substring(1) + " " + config.wakeUpTimes + " times");
+        sendMessage(`Messaged ${user.substring(0, 1).toUpperCase()}${user.substring(1)} ${config.wakeUpTimes} times`);
     } else if (co["randmess"].m) {
         // Get thread length
         api.getThreadInfo(ids.group, function(err, data) {
@@ -341,7 +343,7 @@ function handleEasterEggs(message, fromUserId, api = gapi) {
         }
         if (message.match(/^i mean$/i)) {
             // Requires "imean.png" under media
-            sendFile("media/imean.png")
+            sendFile("media/imean.png");
         }
     }
 }

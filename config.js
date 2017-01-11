@@ -22,7 +22,7 @@ exports.order66Time = 15;
 // Time in seconds to ban users for violating the GIF policy
 exports.banTime = 30;
 
-// Number of times to message user with the "wake up" commands
+// Number of times to message user with the "wake up" command
 exports.wakeUpTimes = 20;
 
 // Default color (hex)
