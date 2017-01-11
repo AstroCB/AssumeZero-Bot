@@ -35,9 +35,6 @@ try {
 function main(err, api) {
     if (err) return console.error(err);
     gapi = api; // Set global API
-    api.setOptions({
-        updatePresence: true
-    });
 
     api.listen(function callback(err, message) {
         if (config.dynamic) { // See config for explanation
@@ -92,13 +89,6 @@ function main(err, api) {
                     }
                 } else if (message.threadID != ids.group) { // Not from main group (static group mode)
                     api.sendMessage("Multi-chat mode is off", message.threadID);
-                }
-            }
-            // Handle presence notifications
-            if (message.type == "presence") {
-                var name = ids.members[ids.group][message.userID];
-                if (name) {
-                    api.sendMessage("Welcome back, " + name.charAt(0).toUpperCase() + name.substring(1), ids.assume);
                 }
             }
         }
