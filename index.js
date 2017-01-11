@@ -335,11 +335,26 @@ function handleCommand(command, fromUserId, api = gapi) {
 }
 
 // Check for commands that don't require a trigger (Easter eggs)
-// Some commands may require additional configuration
-function handleEasterEggs(message, senderId) {
-    if (message.match(/genius/i)) {
-        // Requires a photo called "genius.jpg" in the media subdirectory of root
-        sendFile("media/genius.jpg");
+// Some commands may require additional configuration (and most only make sense for
+// the original chat it was built for (Assume Zero Brain Power), so should be off by default
+function handleEasterEggs(message, fromUserId, api = gapi) {
+    if (config.easterEggs) {
+        const threadId = message.threadID; // For async functions
+        if (message.match(/genius/i)) {
+            // Requires a photo called "genius.jpg" in the media subdirectory of root
+            sendFile("media/genius.jpg");
+        }
+        if (message.match(/kys|cuck(?:ed)?|maga/i)) {
+            sendMessage("Delete your account.")
+        }
+        if (message.match(/(?:problem |p)set/i)) {
+            // Requires a text file under media
+            fs.readFile("media/monologue.txt", "utf-8", function(err, text) {
+                if (!err) {
+                    api.sendMessage(text, threadId);
+                }
+            });
+        }
     }
 }
 

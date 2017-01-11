@@ -41,3 +41,7 @@ exports.xkcd = {
     "engine": "017207449713114446929:kyxuw7rvlw4",
     "key": "AIzaSyCHfJCpWEYUCydDMbb9PqK42XpPQd9L-F8"
 };
+
+// Decide whether it should check for Easter eggs, most of which won't make sense
+// outside of the chat it was built for (Assume Zero Brain Power)
+exports.easterEggs = true;
