@@ -441,7 +441,7 @@ function welcomeNewUser(id, groupId = ids.group, api = gapi) {
     api.getUserInfo(id, function(err, data) {
         if (!err) {
             var user = data[id];
-            api.sendMessage(`Welcome to ${config.groupName}, ${user.firstName} (user ${id})!`, groupId);
+            api.sendMessage(`Welcome to ${config.groupName}, ${user.firstName}!`, groupId);
         }
     });
 }
