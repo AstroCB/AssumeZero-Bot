@@ -32,7 +32,7 @@ exports.defaultColor = "#67B868";
 exports.defaultEmoji = "🚀";
 
 // List of banned user IDs as strings
-exports.banned = ["100002237228114"];
+exports.banned = [];
 
 // For xkcd searching capability
 // Custom search engine that searches the xkcd website only
