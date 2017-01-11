@@ -73,10 +73,9 @@ function main(err, api) {
                         var cindex = m.toLowerCase().indexOf(config.trigger);
                         if (cindex > -1) { // Trigger command mode
                             handleCommand(m.substring(cindex + config.trigger.length), senderId);
-                        } else {
-                            // Check for Easter eggs
-                            handleEasterEggs(m, senderId);
                         }
+                        // Check for Easter eggs
+                        handleEasterEggs(m, senderId);
                     }
                     // Handle attachments
                     for (var i = 0; i < attachments.length; i++) {
@@ -194,10 +193,10 @@ function handleCommand(command, fromUserId, api = gapi) {
                         addUser(bestMatch.userID, threadId);
                     }
                 } else {
-                  if(err.error){
-                    // Fix typo
-                    api.sendMessage(`Error: ${err.error.replace("Bes", "Best")}`, threadId);
-                  }
+                    if (err.error) {
+                        // Fix typo
+                        api.sendMessage(`Error: ${err.error.replace("Bes", "Best")}`, threadId);
+                    }
                 }
             });
         } catch (e) {
