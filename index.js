@@ -512,7 +512,7 @@ function sendFile(filename, message = "", threadId = ids.group, api = gapi) {
 function getTimeString() {
     const offset = -5; // Eastern
     const d = new Date();
-    const utc = d.getTime() * (d.getTimezoneOffset() * 600000); // UTC milliseconds since 1970
+    const utc = d.getTime() + (d.getTimezoneOffset() * 600000); // UTC milliseconds since 1970
     const eastern = new Date(utc + (offset * 60 * 60000));
     return eastern.toLocaleTimeString();
 }
