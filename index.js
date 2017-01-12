@@ -47,14 +47,13 @@ function main(err, api) {
                     var m = message.body;
                     var attachments = message.attachments;
                     var senderId = message.senderID;
-
+                    var groupId = ids.group;
                     // Handle message body
                     if (m) {
                         // Handle pings
                         var pingData = parsePing(m);
                         var pingUsers = pingData.users;
                         var pingMessage = pingData.message;
-                        var groupId = ids.group;
                         api.getThreadInfo(groupId, function(err, data) {
                             for (var i = 0; i < pingUsers.length; i++) { // Loop doesn't run if no ping matches
                                 if (!err) {
@@ -80,8 +79,9 @@ function main(err, api) {
                     // Handle attachments
                     for (var i = 0; i < attachments.length; i++) {
                         if (attachments[i].type == "animated_image" && !attachments[i].filename) { // Should have filename if OC
-                            kick(senderId, config.banTime, function() {
-                                sendMessage("You have been kicked for violating the group chat GIF policy: only OC is allowed.")
+                            console.log("YO");
+                            kick(senderId, config.banTime, groupId, function() {
+                                api.sendMessage("You have been kicked for violating the group chat GIF policy: only OC is allowed.", groupId);
                             });
                         }
                     }
@@ -409,15 +409,17 @@ function parsePing(m) {
 // Kick user for an optional length of time in seconds (default indefinitely)
 // Also accepts optional callback parameter if length is specified
 function kick(userId, time, groupId = ids.group, callback, api = gapi) {
-    api.removeUserFromGroup(userId, groupId);
-    delete ids.members[groupId][userId]; // Remove from members obj
-    if (time) {
-        setTimeout(function() {
-            addUser(userId, groupId);
-            if (callback) {
-                callback();
-            }
-        }, time * 1000);
+    if (userId != ids.bot) { // Never allow bot to be kicked
+        api.removeUserFromGroup(userId, groupId);
+        delete ids.members[groupId][userId]; // Remove from members obj
+        if (time) {
+            setTimeout(function() {
+                addUser(userId, groupId);
+                if (callback) {
+                    callback();
+                }
+            }, time * 1000);
+        }
     }
 }
 
