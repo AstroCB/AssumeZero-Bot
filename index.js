@@ -373,7 +373,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/commit seppuku/i)) {
             sendMessage("RIP");
         }
-        if (message.match(/physics c/i)) {
+        if (message.match(/physics c(?:[^A-z]|$)/i)) {
             sendMessage({
                 "url": "https://www.youtube.com/watch?v=HydsTDvEINo"
             });
