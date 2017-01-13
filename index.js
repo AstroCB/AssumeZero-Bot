@@ -343,7 +343,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/genius/i)) {
             sendFile("media/genius.jpg");
         }
-        if (message.match(/kys|cuck(?:ed)?|maga|trump /i)) {
+        if (message.match(/kys|cuck(?:ed)?|maga/i)) {
             sendMessage("Delete your account.")
         }
         if (message.match(/(?:problem |p)set(?:s)?/i)) {
