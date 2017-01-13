@@ -419,7 +419,7 @@ function kick(userId, time, groupId = ids.group, callback, api = gapi) {
         delete ids.members[groupId][userId]; // Remove from members obj
         if (time) {
             setTimeout(function() {
-                addUser(userId, groupId);
+                addUser(userId, groupId, false); // Don't welcome if they're not new to the group
                 if (callback) {
                     callback();
                 }
