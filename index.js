@@ -417,6 +417,7 @@ function kick(userId, time, groupId = ids.group, callback, api = gapi) {
     if (userId != ids.bot) { // Never allow bot to be kicked
         api.removeUserFromGroup(userId, groupId);
         delete ids.members[groupId][userId]; // Remove from members obj
+        config.userRegExp = utils.setRegexFromMembers();
         if (time) {
             setTimeout(function() {
                 addUser(userId, groupId, false); // Don't welcome if they're not new to the group
