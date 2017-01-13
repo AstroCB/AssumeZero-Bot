@@ -79,7 +79,6 @@ function main(err, api) {
                     // Handle attachments
                     for (var i = 0; i < attachments.length; i++) {
                         if (attachments[i].type == "animated_image" && !attachments[i].filename) { // Should have filename if OC
-                            console.log("YO");
                             kick(senderId, config.banTime, groupId, function() {
                                 api.sendMessage("You have been kicked for violating the group chat GIF policy: only OC is allowed.", groupId);
                             });
@@ -100,7 +99,11 @@ function handleCommand(command, fromUserId, api = gapi) {
         if (co.hasOwnProperty(c)) {
             // Set match vals
             if (co[c].user_input) { // Requires a match from the members dict
-                co[c].m = matchesWithUser(co[c].regex, command);
+                if (Array.isArray(co[c].regex)) { // Also has a regex suffix (passed as length 2 array)
+                    co[c].m = matchesWithUser(co[c].regex[0], command, " ", co[c].regex[1]);
+                } else { // Just a standard regex prefex as a string + name
+                    co[c].m = matchesWithUser(co[c].regex, command);
+                }
             } else {
                 co[c].m = command.match(co[c].regex);
             }
@@ -135,8 +138,10 @@ function handleCommand(command, fromUserId, api = gapi) {
         }
     } else if (co["kick"].m && co["kick"].m[1]) {
         var user = co["kick"].m[1].toLowerCase();
+        var optTime = co["kick"].m[2];
         try {
-            kick(ids.members[ids.group][user]);
+            // Kick with optional time specified in call only if specified in command
+            kick(ids.members[ids.group][user], optTime ? parseInt(optTime) : undefined);
         } catch (e) {
             sendError(`User ${user} not recognized`);
         }
@@ -360,8 +365,8 @@ function handleEasterEggs(message, fromUserId, api = gapi) {
 
 // Utility functions
 
-function matchesWithUser(command, message, sep = " ") {
-    return message.match(new RegExp(command + sep + config.userRegExp, "i"));
+function matchesWithUser(command, message, sep = " ", suffix = "") {
+    return message.match(new RegExp(`${command}${sep}${config.userRegExp}${suffix}`, "i"));
 }
 
 function sendMessage(m, api = gapi) {

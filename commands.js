@@ -16,9 +16,9 @@ exports.commands = {
         "pretty_name": "Kick",
         "short_description": "Kick member",
         "description": "Kicks a given member from the chat",
-        "syntax": "kick {member}",
+        "syntax": "kick {member} ({number of seconds})",
         "user_input": true,
-        "regex": "kick",
+        "regex": ["kick", "(?: (\\d+))?"], // Optional number param after name
         "experimental": false
     },
     "xkcd": {
