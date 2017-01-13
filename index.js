@@ -74,7 +74,7 @@ function main(err, api) {
                             handleCommand(m.substring(cindex + config.trigger.length), senderId);
                         }
                         // Check for Easter eggs
-                        handleEasterEggs(m, senderId);
+                        handleEasterEggs(m, groupId, senderId);
                     }
                     // Handle attachments
                     for (var i = 0; i < attachments.length; i++) {
@@ -138,14 +138,19 @@ function handleCommand(command, fromUserId, api = gapi) {
         }
     } else if (co["kick"].m && co["kick"].m[1]) {
         var user = co["kick"].m[1].toLowerCase();
-        var optTime = co["kick"].m[2];
+        var optTime = co["kick"].m[2] ? parseInt(co["kick"].m[2]) : undefined;
         try {
-            // Kick with optional time specified in call only if specified in command
-            kick(ids.members[ids.group][user], optTime ? parseInt(optTime) : undefined);
+            // Make sure already in group
+            if (ids.members[ids.group][user]) {
+                // Kick with optional time specified in call only if specified in command
+                kick(ids.members[ids.group][user], optTime);
+            } else {
+                throw new Error(`User ${user} not recognized`);
+            }
         } catch (e) {
-            sendError(`User ${user} not recognized`);
+            sendError(e);
         }
-    } else if (co["xkcd"].m) {
+    } else if (co["xkcd"].m) { // Check second to prevent clashes with search command
         if (co["xkcd"].m[1]) { // Parameter specified
             const query = co["xkcd"].m[2];
             const param = co["xkcd"].m[1].split(query).join("").trim(); // Param = 1st match - 2nd
@@ -333,32 +338,48 @@ function handleCommand(command, fromUserId, api = gapi) {
 // Check for commands that don't require a trigger (Easter eggs)
 // Some commands may require additional configuration (and most only make sense for
 // the original chat it was built for), so should be off by default
-function handleEasterEggs(message, fromUserId, api = gapi) {
+function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
     if (config.easterEggs) {
-        const threadId = message.threadID; // For async functions
         if (message.match(/genius/i)) {
             sendFile("media/genius.jpg");
         }
         if (message.match(/kys|cuck(?:ed)?|maga|trump /i)) {
             sendMessage("Delete your account.")
         }
-        if (message.match(/(?:problem |p)set/i)) {
+        if (message.match(/(?:problem |p)set(?:s)?/i)) {
             fs.readFile("media/monologue.txt", "utf-8", function(err, text) {
                 if (!err) {
                     api.sendMessage(text, threadId);
                 }
             });
         }
-        if (message.match(/^umd$/i)) {
+        if (message.match(/umd/i)) {
             sendFile("media/umd.png");
         }
-        if (message.match(/cornell/)) {
+        if (message.match(/cornell/i)) {
             sendMessage({
                 "url": "https://www.youtube.com/watch?v=yBUz4RnoWSM"
             });
         }
+        if (message.match(/swarthmore/i)) {
+            sendMessage("Land of the free");
+        }
+        if (message.match(/purdue/i)) {
+            sendMessage("I hear they have good chicken");
+        }
+        if (message.match(/nyu/i)) {
+            sendMessage("We don't speak of it");
+        }
         if (message.match(/commit seppuku/i)) {
             sendMessage("RIP");
+        }
+        if (message.match(/physics c/i)) {
+            sendMessage({
+                "url": "https://www.youtube.com/watch?v=HydsTDvEINo"
+            });
+        }
+        if (message.match(/(?:\s|^)shaw/i)) {
+            sendFile("media/shaw.png");
         }
     }
 }
@@ -416,7 +437,7 @@ function parsePing(m) {
 function kick(userId, time, groupId = ids.group, callback, api = gapi) {
     if (userId != ids.bot) { // Never allow bot to be kicked
         api.removeUserFromGroup(userId, groupId);
-        delete ids.members[groupId][userId]; // Remove from members obj
+        deleteUserFromId(userId, groupId);
         config.userRegExp = utils.setRegexFromMembers();
         if (time) {
             setTimeout(function() {
@@ -425,6 +446,18 @@ function kick(userId, time, groupId = ids.group, callback, api = gapi) {
                     callback();
                 }
             }, time * 1000);
+        }
+    }
+}
+
+// Removes the specified user from members dict
+// (with user ID – can do it directly w/o function if you have key already)
+function deleteUserFromId(userId, groupId) {
+    for (var m in ids.members[groupId]) {
+        if (ids.members[groupId].hasOwnProperty(m)) {
+            if (ids.members[groupId][m] == userId) {
+                delete ids.members[groupId][m];
+            }
         }
     }
 }
