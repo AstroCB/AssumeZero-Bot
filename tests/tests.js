@@ -1,4 +1,4 @@
-test("1+1=2", function(assert) {
-    var n = 1 + 1;
-    assert.equals(n, 2);
-});
+var n = 1+1;
+if(n != 2) {
+  throw Error("Serious issue here");
+}
