@@ -362,7 +362,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             });
         }
         if (message.match(/swarthmore/i)) {
-            sendMessage("Land of the free");
+            sendFile("media/jonah.png");
         }
         if (message.match(/purdue/i)) {
             sendMessage("I hear they have good chicken");
