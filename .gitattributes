@@ -1,0 +1,2 @@
+# Exclude landing page from code analytics
+index.html linguist-generated
