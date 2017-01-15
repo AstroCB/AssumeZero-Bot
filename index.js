@@ -63,7 +63,7 @@ function main(err, api) {
                                         message = `"${pingMessage}" – ${sender} in ${data.name}`;
                                     }
                                     message += ` at ${getTimeString()}` // Time stamp
-                                    api.sendMessage(message, ids.members[groupId][pingUsers[i]]);
+                                    sendMessage(message, ids.members[groupId][pingUsers[i]]);
                                 }
                             }
                         });
@@ -80,12 +80,12 @@ function main(err, api) {
                     for (var i = 0; i < attachments.length; i++) {
                         if (attachments[i].type == "animated_image" && !attachments[i].filename) { // Should have filename if OC
                             kick(senderId, config.banTime, groupId, function() {
-                                api.sendMessage("You have been kicked for violating the group chat GIF policy: only OC is allowed.", groupId);
+                                sendMessage("You have been kicked for violating the group chat GIF policy: only OC is allowed.", groupId);
                             });
                         }
                     }
                 } else if (message.threadID != ids.group) { // Not from main group (static group mode)
-                    api.sendMessage("Multi-chat mode is off", message.threadID);
+                    sendMessage("Multi-chat mode is off", message.threadID);
                 }
             }
         }
@@ -93,6 +93,7 @@ function main(err, api) {
 }
 
 function handleCommand(command, fromUserId, api = gapi) {
+    const threadId = ids.group; // For async callbacks
     // Evaluate commands
     const co = commands.commands; // Short var names since I'll be typing them a lot
     for (var c in co) {
@@ -137,13 +138,13 @@ function handleCommand(command, fromUserId, api = gapi) {
             sendMessage(mess);
         }
     } else if (co["kick"].m && co["kick"].m[1]) {
-        var user = co["kick"].m[1].toLowerCase();
-        var optTime = co["kick"].m[2] ? parseInt(co["kick"].m[2]) : undefined;
+        const user = co["kick"].m[1].toLowerCase();
+        const optTime = co["kick"].m[2] ? parseInt(co["kick"].m[2]) : undefined;
         try {
             // Make sure already in group
-            if (ids.members[ids.group][user]) {
+            if (ids.members[threadId][user]) {
                 // Kick with optional time specified in call only if specified in command
-                kick(ids.members[ids.group][user], optTime);
+                kick(ids.members[threadId][user], optTime);
             } else {
                 throw new Error(`User ${user} not recognized`);
             }
@@ -154,7 +155,6 @@ function handleCommand(command, fromUserId, api = gapi) {
         if (co["xkcd"].m[1]) { // Parameter specified
             const query = co["xkcd"].m[2];
             const param = co["xkcd"].m[1].split(query).join("").trim(); // Param = 1st match - 2nd
-            const threadId = ids.group;
             if (query && param == "search") {
                 // Perform search using Google Custom Search API (provide API key / custom engine in config.js)
                 const url = `https://www.googleapis.com/customsearch/v1?key=${config.xkcd.key}&cx=${config.xkcd.engine}&q=${encodeURIComponent(query)}`;
@@ -162,11 +162,11 @@ function handleCommand(command, fromUserId, api = gapi) {
                     if (!err && res.statusCode == 200) {
                         const results = JSON.parse(body).items;
                         if (results.length > 0) {
-                            api.sendMessage({
+                            sendMessage({
                                 "url": results[0].formattedUrl // Best match
                             }, threadId);
                         } else {
-                            api.sendMessage("Error: No results found", threadId);
+                            sendMessage("Error: No results found", threadId);
                         }
                     } else {
                         console.log(err);
@@ -190,14 +190,50 @@ function handleCommand(command, fromUserId, api = gapi) {
             });
         }
     } else if (co["addsearch"].m && co["addsearch"].m[1] && co["addsearch"].m[2]) {
-        var threadId = ids.group;
-        var user = co["addsearch"].m[2]
+        const user = co["addsearch"].m[2];
         try {
             api.getUserID(user, function(err, data) {
                 if (!err) {
-                    var bestMatch = data[0]; // Hopefully the right person
+                    const bestMatch = data[0]; // Hopefully the right person
                     if (co["addsearch"].m[1].toLowerCase() == "search") {
-                        api.sendMessage(bestMatch.profileUrl, threadId); // Best match
+                        const desc = `Best match: ${bestMatch.name}\n${bestMatch.profileUrl}\nRank: ${bestMatch.score}`;
+
+                        // Try to get large propic URL from Facebook Graph API using user ID
+                        // If propic exists, combine it with the description
+                        const userId = bestMatch.userID
+                        const photoUrl = `media/profiles/${userId}.jpg`; // Location of downloaded file
+                        const graphUrl = `https://graph.facebook.com/${userId}/picture?type=large&redirect=false&width=400&height=400`;
+                        request.get(graphUrl, (err, res, body) => {
+                            if (res.statusCode == 200) {
+                                const url = JSON.parse(body).data.url; // Photo URL from Graph API
+                                if (url) {
+                                    request.head(url, (err, res, body) => {
+                                        // Download propic and pass to chat API
+                                        if (!err) {
+                                            request(url).pipe(fs.createWriteStream(photoUrl)).on('close', (err, data) => {
+                                                if (!err) {
+                                                    // Use API's official sendMessage here for callback functionality
+                                                    api.sendMessage({
+                                                        "body": desc,
+                                                        "attachment": fs.createReadStream(`${__dirname}/${photoUrl}`)
+                                                    }, threadId, (err, data) => {
+                                                        // Delete downloaded propic
+                                                        fs.unlink(photoUrl);
+                                                    });
+                                                } else {
+                                                    sendMessage(desc, threadId);
+                                                }
+                                            });
+                                        } else {
+                                            // Just send the description if photo can't be downloaded
+                                            sendMessage(desc, threadId);
+                                        }
+                                    });
+                                } else {
+                                    sendMessage(desc, threadId);
+                                }
+                            }
+                        });
                     } else {
                         // Add user to group and update log of member IDs
                         addUser(bestMatch.userID, threadId);
@@ -205,7 +241,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                 } else {
                     if (err.error) {
                         // Fix typo
-                        api.sendMessage(`Error: ${err.error.replace("Bes", "Best")}`, threadId);
+                        sendMessage(`Error: ${err.error.replace("Bes", "Best")}`, threadId);
                     }
                 }
             });
@@ -214,42 +250,40 @@ function handleCommand(command, fromUserId, api = gapi) {
         }
     } else if (co["order66"].m) {
         // Remove everyone from the chat for configurable amount of time (see config.js)
+        // Use stored threadId in case it changes later (very important)
         sendMessage("I hate you all.");
-        const groupId = ids.group; // Store in case it changes later (very important)
         setTimeout(function() {
             var callbackset = false;
-            for (var m in ids.members[groupId]) {
+            for (var m in ids.members[threadId]) {
                 // Bot should never be in members list, but this is a safeguard
                 //(ALSO VERY IMPORTANT so that group isn't completely emptied)
-                if (ids.members[groupId].hasOwnProperty(m) && ids.members[groupId][m] != ids.bot) {
+                if (ids.members[threadId].hasOwnProperty(m) && ids.members[threadId][m] != ids.bot) {
                     if (!callbackset) { // Only want to send the message once
-                        kick(ids.members[groupId][m], config.order66Time, groupId, function() {
-                            api.sendMessage("Balance is restored to the Force.", groupId);
+                        kick(ids.members[threadId][m], config.order66Time, threadId, function() {
+                            sendMessage("Balance is restored to the Force.", threadId);
                         });
                         callbackset = true;
                     } else {
-                        kick(ids.members[groupId][m], config.order66Time);
+                        kick(ids.members[threadId][m], config.order66Time);
                     }
                 }
             }
         }, 2000); // Make sure people see the message (and impending doom)
     } else if (co["resetcolor"].m) {
-        api.changeThreadColor(config.defaultColor, ids.group);
+        api.changeThreadColor(config.defaultColor, threadId);
     } else if (co["setcolor"].m && co["setcolor"].m[1]) {
-        const threadId = ids.group;
         api.getThreadInfo(threadId, function(err, data) {
             if (!err) {
                 const ogColor = data.color; // Will be null if no custom color set
                 api.changeThreadColor(co["setcolor"].m[1], threadId, function(err, data) {
                     if (!err) {
-                        api.sendMessage(`Last color was ${ogColor}`, threadId);
+                        sendMessage(`Last color was ${ogColor}`, threadId);
                     }
                 });
             }
         });
     } else if (co["hitlights"].m) {
         const colors = ["#6179af", "#7550eb", "#85a9cb", "#1a87de", "#8573db", "#42f1f2", "#07ef63"]; // TODO: randomize colors
-        const threadId = ids.group; // Store in case it changes
         api.getThreadInfo(threadId, function(err, data) {
             if (!err) {
                 const ogColor = data.color; // Will be null if no custom color set
@@ -267,32 +301,31 @@ function handleCommand(command, fromUserId, api = gapi) {
             }
         });
     } else if (co["resetnick"].m && co["resetnick"].m[1]) {
-        var user = co["resetnick"].m[1].toLowerCase();
-        api.changeNickname("", ids.group, ids.members[ids.group][user]);
+        const user = co["resetnick"].m[1].toLowerCase();
+        api.changeNickname("", threadId, ids.members[threadId][user]);
     } else if (co["setnick"].m && co["setnick"].m[1]) {
-        var user = co["setnick"].m[1].toLowerCase();
-        var newname = co["setnick"].m.input.split(co["setnick"].m[0]).join("").trim(); // Get rid of match to find rest of message
-        api.changeNickname(newname, ids.group, ids.members[ids.group][user]);
+        const user = co["setnick"].m[1].toLowerCase();
+        const newname = co["setnick"].m.input.split(co["setnick"].m[0]).join("").trim(); // Get rid of match to find rest of message
+        api.changeNickname(newname, threadId, ids.members[threadId][user]);
     } else if (co["wakeup"].m && co["wakeup"].m[1]) {
-        var user = co["wakeup"].m[1].toLowerCase();
-        var members = ids.members[ids.group]; // Save in case it changes
+        const user = co["wakeup"].m[1].toLowerCase();
+        const members = ids.members[threadId]; // Save in case it changes
         for (var i = 0; i < config.wakeUpTimes; i++) {
             setTimeout(function() {
-                api.sendMessage("Wake up", members[user]);
+                sendMessage("Wake up", members[user]);
             }, 500 + (500 * i));
         }
         sendMessage(`Messaged ${user.substring(0, 1).toUpperCase()}${user.substring(1)} ${config.wakeUpTimes} times`);
     } else if (co["randmess"].m) {
-        const threadId = ids.group;
         // Get thread length
         api.getThreadInfo(threadId, function(err, data) {
             if (!err) {
                 const count = data.messageCount;
                 var randMessage = Math.floor(Math.random() * (count + 1));
-                api.getThreadHistory(ids.group, 0, count, (new Date()).getTime(), function(err, data) {
+                api.getThreadHistory(threadId, 0, count, (new Date()).getTime(), function(err, data) {
                     if (err) {
                         console.log(err);
-                        api.sendMessage("Error: Message could not be found", threadId);
+                        sendMessage("Error: Message could not be found", threadId);
                     } else {
                         var m = data[randMessage];
                         while (!(m && m.body)) {
@@ -302,25 +335,26 @@ function handleCommand(command, fromUserId, api = gapi) {
                         var b = m.body,
                             name = m.senderName,
                             time = new Date(m.timestamp);
-                        api.sendMessage(`${b} - ${name} (${time.toLocaleDateString()})`, threadId);
+                        sendMessage(`${b} - ${name} (${time.toLocaleDateString()})`, threadId);
                     }
                 });
             }
         });
     } else if (co["alive"].m) {
-        sendEmoji(ids.group);
+        sendEmoji(threadId);
     } else if (co["resetemoji"].m) {
-        api.changeThreadEmoji(config.defaultEmoji, ids.group);
+        api.changeThreadEmoji(config.defaultEmoji, threadId, (err) => {
+
+        });
     } else if (co["setemoji"].m && co["setemoji"].m[1]) {
-        try {
-            api.changeThreadEmoji(co["setemoji"].m[1], ids.group);
-        } catch (e) {
-            // Backup
-            api.changeThreadEmoji(config.defaultEmoji, ids.group);
-        }
+        api.changeThreadEmoji(co["setemoji"].m[1], threadId, (err) => {
+            if (err) {
+                // Set to default as backup if errors
+                api.changeThreadEmoji(config.defaultEmoji, threadId);
+            }
+        });
     } else if (co["echo"].m && co["echo"].m[1] && co["echo"].m[2]) {
-        var id = ids.group;
-        var command = co["echo"].m[1].toLowerCase();
+        const command = co["echo"].m[1].toLowerCase();
         var message = `${co["echo"].m[2]}`;
         if (command == "echo") {
             sendMessage(message);
@@ -328,7 +362,7 @@ function handleCommand(command, fromUserId, api = gapi) {
             api.getUserInfo(fromUserId, function(err, data) {
                 if (!err) {
                     message = `"${message}" – ${data[fromUserId].name}`;
-                    api.sendMessage(message, id);
+                    sendMessage(message, threadId);
                 }
             });
         }
@@ -349,7 +383,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/(?:problem |p)set(?:s)?/i)) {
             fs.readFile("media/monologue.txt", "utf-8", function(err, text) {
                 if (!err) {
-                    api.sendMessage(text, threadId);
+                    sendMessage(text, threadId);
                 }
             });
         }
@@ -390,16 +424,24 @@ function matchesWithUser(command, message, sep = " ", suffix = "") {
     return message.match(new RegExp(`${command}${sep}${config.userRegExp}${suffix}`, "i"));
 }
 
-function sendMessage(m, api = gapi) {
+// Wrapper function for sending messages easily
+// Isn't that much simpler than the actual message function, but it
+// allows for an optional thread parameter (default is currently stored ID)
+// and for outputting messages to stdout when the API isn't available (e.g. before login)
+// Accepts either a simple string or a message object with URL/attachment fields
+// Probably a good idea to use this wrapper for all sending instances for debug purposes
+// and consistency unless a callback is needed
+function sendMessage(m, threadId = ids.group, api = gapi) {
     try {
-        api.sendMessage(m, ids.group);
-    } catch (e) { // For debug mode
-        console.log(m);
+        api.sendMessage(m, threadId);
+    } catch (e) { // For debug mode (API not available)
+        console.log(`${threadId}: ${m}`);
     }
 }
 
-function sendError(m) {
-    sendMessage("Error: " + m);
+// Wrapper function for sending error messages to chat (uses sendMessage wrapper)
+function sendError(m, threadId = ids.group) {
+    sendMessage(`Error: ${m}`, threadId);
 }
 
 function debugCommandOutput(flag) {
@@ -484,8 +526,8 @@ function addUser(id, threadId = ids.group, welcome = true, api = gapi) {
 function welcomeNewUser(id, groupId = ids.group, api = gapi) {
     api.getUserInfo(id, function(err, data) {
         if (!err) {
-            var user = data[id];
-            api.sendMessage(`Welcome to ${config.groupName}, ${user.firstName}!`, groupId);
+            const user = data[id];
+            sendMessage(`Welcome to ${config.groupName}, ${user.firstName}!`, groupId);
         }
     });
 }
@@ -542,11 +584,11 @@ function isBanned(senderId) {
 // Sends file where filename is a relative path to the file from root
 // Accepts an optional message body parameter
 function sendFile(filename, message = "", threadId = ids.group, api = gapi) {
-    var msg = {
+    const msg = {
         "body": message,
         "attachment": fs.createReadStream(`${__dirname}/${filename}`)
     }
-    api.sendMessage(msg, threadId);
+    sendMessage(msg, threadId);
 }
 
 // Returns a string of the current time in EST

@@ -148,7 +148,7 @@ exports.commands = {
         "description": "Sets the emoji to the specified Unicode value",
         "syntax": "set emoji (to) #{emoji}",
         "user_input": false,
-        "regex": /set emoji (?:to )?([\uD83C-\uDBFF\uDC00-\uDFFF])/iu, // Match emoji w/ Unicode modifier
+        "regex": /set emoji (?:to )?([\uD83C-\uDBFF\uDC00-\uDFFF]{1,2})/iu, // Match emoji w/ Unicode modifier (1-2 chars)
         "experimental": false
     },
     "echo": {
