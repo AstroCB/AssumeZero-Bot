@@ -35,7 +35,8 @@ exports.numColors = 10;
 exports.defaultEmoji = "🚀";
 
 // List of banned user IDs as strings
-exports.banned = [];
+// Stored in banned.json and pulled at runtime & after updates
+exports.banned = utils.getBannedUsers();
 
 // For xkcd searching capability
 // Custom search engine that searches the xkcd website only

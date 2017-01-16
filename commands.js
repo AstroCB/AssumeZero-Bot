@@ -7,6 +7,7 @@ exports.commands = {
         "short_description": "Get help",
         "description": "Get more information about a command, or open quick help",
         "syntax": "help (command)",
+        "sudo": false,
         "user_input": false,
         "regex": /help(.*)/i,
         "experimental": false
@@ -17,6 +18,7 @@ exports.commands = {
         "short_description": "Kick member",
         "description": "Kicks a given member from the chat",
         "syntax": "kick {member} ({number of seconds})",
+        "sudo": false,
         "user_input": true,
         "regex": ["kick", "(?: (\\d+))?"], // Optional number param after name
         "experimental": false
@@ -27,6 +29,7 @@ exports.commands = {
         "short_description": "Links xkcd",
         "description": "Outputs the numbered xkcd or search result (or a random one if none was specified)",
         "syntax": "xkcd ({comic number}|search {search query})",
+        "sudo": false,
         "user_input": false,
         "regex": /xkcd(?: (\d+|search (.+)))?/i,
         "experimental": false
@@ -37,6 +40,7 @@ exports.commands = {
         "short_description": "Add/search user",
         "description": "Searches for the given user and either outputs the best match (for searching) or adds it to the chat (for adding)",
         "syntax": "(add|search ({number of results})) {user}",
+        "sudo": false,
         "user_input": false,
         "regex": /(add|search(?: (\d*))?) (.*)/i,
         "experimental": false
@@ -47,6 +51,7 @@ exports.commands = {
         "short_description": "Execute group temporarily",
         "description": `Every single group member, including your Socialpath Yiyi Kuang, is now an enemy of the group chat (for ${config.order66Time} seconds)`,
         "syntax": "execute order 66",
+        "sudo": false,
         "user_input": false,
         "regex": /execute order 66/i,
         "experimental": false
@@ -57,6 +62,7 @@ exports.commands = {
         "short_description": "Reset color",
         "description": "Resets the group colors",
         "syntax": "reset color(s)",
+        "sudo": false,
         "user_input": false,
         "regex": /reset color(?:s)?/i,
         "experimental": false
@@ -67,6 +73,7 @@ exports.commands = {
         "short_description": "Set chat color",
         "description": "Sets the color to the specified hex value and outputs previous color",
         "syntax": "set color(s) (to) #{six-digit hex color}",
+        "sudo": false,
         "user_input": false,
         "regex": /set color(?:s)? (?:to )?(#(?:[a-f]|\d){6})/i,
         "experimental": false
@@ -77,6 +84,7 @@ exports.commands = {
         "short_description": "Random chat colors",
         "description": "Changes the group colors to random colors in quick succession",
         "syntax": "hit the lights",
+        "sudo": false,
         "user_input": false,
         "regex": /hit the lights/i,
         "experimental": false
@@ -87,6 +95,7 @@ exports.commands = {
         "short_description": "Reset nickname",
         "description": "Clears the nickname for the given member",
         "syntax": "reset (nick)name {member}",
+        "sudo": false,
         "user_input": true,
         "regex": "reset (?:nick)?name",
         "experimental": false
@@ -97,6 +106,7 @@ exports.commands = {
         "short_description": "Set nickname",
         "description": "Sets the given nickname for the given member",
         "syntax": "set (nick)name {member} {nickname}",
+        "sudo": false,
         "user_input": true,
         "regex": "set (?:nick)?name",
         "experimental": false
@@ -107,6 +117,7 @@ exports.commands = {
         "short_description": "Message user repeatedly",
         "description": `Sends ${config.wakeUpTimes} messages to the given member`,
         "syntax": "wake up {member}",
+        "sudo": false,
         "user_input": true,
         "regex": "wake up",
         "experimental": false
@@ -117,6 +128,7 @@ exports.commands = {
         "short_description": "Get random message",
         "description": "Retrieves a random message from the recent history of the group",
         "syntax": "random message",
+        "sudo": false,
         "user_input": false,
         "regex": /random message/i,
         "experimental": true
@@ -127,6 +139,7 @@ exports.commands = {
         "short_description": "Is bot up?",
         "description": "Tests whether the bot is running",
         "syntax": "alive(?)",
+        "sudo": false,
         "user_input": false,
         "regex": /alive(?:\?)?/i,
         "experimental": false
@@ -137,6 +150,7 @@ exports.commands = {
         "short_description": "Reset emoji",
         "description": "Resets the emoji to the group default",
         "syntax": "reset emoji",
+        "sudo": false,
         "user_input": false,
         "regex": /reset emoji/i,
         "experimental": false
@@ -147,6 +161,7 @@ exports.commands = {
         "short_description": "Set chat emoji",
         "description": "Sets the emoji to the specified Unicode value",
         "syntax": "set emoji (to) #{emoji}",
+        "sudo": false,
         "user_input": false,
         "regex": /set emoji (?:to )?([\uD83C-\uDBFF\uDC00-\uDFFF]{1,2})/iu, // Match emoji w/ Unicode modifier (1-2 chars)
         "experimental": false
@@ -157,8 +172,20 @@ exports.commands = {
         "short_description": "Repeat/quote statement",
         "description": "Echoes or quotes the provided statement",
         "syntax": "(echo|quote) ${statement}",
+        "sudo": false,
         "user_input": false,
         "regex": /(echo|quote) (.*)/i,
+        "experimental": false
+    },
+    "ban": {
+        "display_names": ["ban"],
+        "pretty_name": "Ban",
+        "short_description": "Bans/unbans",
+        "description": "Bans or unbans the provided member",
+        "syntax": "(un)ban ${member}",
+        "sudo": true,
+        "user_input": true,
+        "regex": "(un)?ban",
         "experimental": false
     }
 };

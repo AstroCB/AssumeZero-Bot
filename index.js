@@ -98,15 +98,21 @@ function handleCommand(command, fromUserId, api = gapi) {
     const co = commands.commands; // Short var names since I'll be typing them a lot
     for (var c in co) {
         if (co.hasOwnProperty(c)) {
-            // Set match vals
-            if (co[c].user_input) { // Requires a match from the members dict
-                if (Array.isArray(co[c].regex)) { // Also has a regex suffix (passed as length 2 array)
-                    co[c].m = matchesWithUser(co[c].regex[0], command, " ", co[c].regex[1]);
-                } else { // Just a standard regex prefex as a string + name
-                    co[c].m = matchesWithUser(co[c].regex, command);
+            // Check whether command is sudo-protected and, if so, whether the user is the admin
+            if ((co[c].sudo && fromUserId == ids.owner) || !co[c].sudo) {
+                // Set match vals
+                if (co[c].user_input) { // Requires a match from the members dict
+                    if (Array.isArray(co[c].regex)) { // Also has a regex suffix (passed as length 2 array)
+                        co[c].m = matchesWithUser(co[c].regex[0], command, " ", co[c].regex[1]);
+                    } else { // Just a standard regex prefex as a string + name
+                        co[c].m = matchesWithUser(co[c].regex, command);
+                    }
+                } else {
+                    co[c].m = command.match(co[c].regex);
                 }
-            } else {
-                co[c].m = command.match(co[c].regex);
+            } else { // User not authorized
+                // Set match to null to prevent checking issues
+                co[c].m = null;
             }
         }
     }
@@ -119,9 +125,9 @@ function handleCommand(command, fromUserId, api = gapi) {
         }
         if (input && input.length > 0) {
             // Give details of specific command
-            var info = getHelpEntry(input, co);
+            const info = getHelpEntry(input, co);
             if (info) {
-                sendMessage(`Entry for command "${info.pretty_name}":\n${info.description}\n\nSyntax: ${config.trigger} ${info.syntax}${info.experimental ? "\n\n(This command is experimental)" : ""}`);
+                sendMessage(`Entry for command "${info.pretty_name}":\n${info.description}\n\nSyntax: ${config.trigger} ${info.syntax}${info.sudo ? "\n\n(This command requires admin privileges)" : ""}${info.experimental ? "\n\n(This command is experimental)" : ""}`);
             } else {
                 sendError(`Help entry not found for ${input}`);
             }
@@ -130,7 +136,7 @@ function handleCommand(command, fromUserId, api = gapi) {
             var mess = "Quick help for AØBøt:\n\n";
             for (var c in co) {
                 if (co.hasOwnProperty(c)) {
-                    var entry = co[c];
+                    const entry = co[c];
                     mess += `${entry.syntax}: ${entry.short_description}\n`
                 }
             }
@@ -336,6 +342,26 @@ function handleCommand(command, fromUserId, api = gapi) {
                     sendMessage(message, threadId);
                 }
             });
+        }
+    } else if (co["ban"].m && co["ban"].m[2]) {
+        const user = co["ban"].m[2];
+        const userId = ids.members[threadId][user];
+        const callback = (err, users, status) => {
+            if (err) {
+                sendError(err, threadId);
+            } else {
+                config.banned = users;
+                sendMessage(`User successfully ${status}`, threadId);
+            }
+        }
+        if (user) {
+            if (co["ban"].m[1]) { // Unban
+                utils.removeBannedUser(userId, callback);
+            } else { // Ban
+                utils.addBannedUser(userId, callback);
+            }
+        } else {
+            sendError(`User ${user} not found`);
         }
     }
 }
