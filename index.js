@@ -240,8 +240,8 @@ function handleCommand(command, fromUserId, api = gapi) {
                     }
                 } else {
                     if (err.error) {
-                        // Fix typo
-                        sendMessage(`Error: ${err.error.replace("Bes", "Best")}`, threadId);
+                        // Fix typo in API error message
+                        sendError(`${err.error.replace("Bes", "Best")}`, threadId);
                     }
                 }
             });
@@ -283,15 +283,14 @@ function handleCommand(command, fromUserId, api = gapi) {
             }
         });
     } else if (co["hitlights"].m) {
-        const colors = ["#6179af", "#7550eb", "#85a9cb", "#1a87de", "#8573db", "#42f1f2", "#07ef63"]; // TODO: randomize colors
         api.getThreadInfo(threadId, function(err, data) {
             if (!err) {
                 const ogColor = data.color; // Will be null if no custom color set
                 const delay = 500; // Delay between color changes (half second is a good default)
-                for (let i = 0; i < colors.length; i++) { // Need block scoping for timeout
+                for (let i = 0; i < config.numColors; i++) { // Need block scoping for timeout
                     setTimeout(function() {
-                        api.changeThreadColor(colors[i], threadId);
-                        if (i == (colors.length - 1)) { // Set back to original
+                        api.changeThreadColor(getRandomColor(), threadId);
+                        if (i == (config.numColors.length - 1)) { // Set back to original color on last
                             setTimeout(function() {
                                 api.changeThreadColor(ogColor, threadId);
                             }, delay);
@@ -598,4 +597,14 @@ function getTimeString() {
     const utc = d.getTime() + (d.getTimezoneOffset() * 600000); // UTC milliseconds since 1970
     const eastern = new Date(utc + (offset * 60 * 60000));
     return eastern.toLocaleTimeString();
+}
+
+// Gets a random hex color
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) { // Hex
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
 }

@@ -28,6 +28,9 @@ exports.wakeUpTimes = 20;
 // Default color (hex)
 exports.defaultColor = "#67B868";
 
+// Number of random colors to cycle through for the "hit the lights" command
+exports.numColors = 10;
+
 // Default emoji
 exports.defaultEmoji = "🚀";
 
