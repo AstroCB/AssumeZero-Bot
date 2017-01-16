@@ -189,53 +189,25 @@ function handleCommand(command, fromUserId, api = gapi) {
                 }
             });
         }
-    } else if (co["addsearch"].m && co["addsearch"].m[1] && co["addsearch"].m[2]) {
-        const user = co["addsearch"].m[2];
+    } else if (co["addsearch"].m && co["addsearch"].m[1] && co["addsearch"].m[3]) {
+        // Fields 1 & 3 are are for the command and the user, respectively
+        // Field 2 is for an optional number parameter specifying the number of search results
+        // for a search command (default is 1)
+        const user = co["addsearch"].m[3];
+        const command = co["addsearch"].m[1].split(" ")[0].toLowerCase(); // Strip opt parameter from match if present
         try {
             api.getUserID(user, function(err, data) {
                 if (!err) {
                     const bestMatch = data[0]; // Hopefully the right person
-                    if (co["addsearch"].m[1].toLowerCase() == "search") {
-                        const desc = `Best match: ${bestMatch.name}\n${bestMatch.profileUrl}\nRank: ${bestMatch.score}`;
-
-                        // Try to get large propic URL from Facebook Graph API using user ID
-                        // If propic exists, combine it with the description
-                        const userId = bestMatch.userID
-                        const photoUrl = `media/profiles/${userId}.jpg`; // Location of downloaded file
-                        const graphUrl = `https://graph.facebook.com/${userId}/picture?type=large&redirect=false&width=400&height=400`;
-                        request.get(graphUrl, (err, res, body) => {
-                            if (res.statusCode == 200) {
-                                const url = JSON.parse(body).data.url; // Photo URL from Graph API
-                                if (url) {
-                                    request.head(url, (err, res, body) => {
-                                        // Download propic and pass to chat API
-                                        if (!err) {
-                                            request(url).pipe(fs.createWriteStream(photoUrl)).on('close', (err, data) => {
-                                                if (!err) {
-                                                    // Use API's official sendMessage here for callback functionality
-                                                    api.sendMessage({
-                                                        "body": desc,
-                                                        "attachment": fs.createReadStream(`${__dirname}/${photoUrl}`)
-                                                    }, threadId, (err, data) => {
-                                                        // Delete downloaded propic
-                                                        fs.unlink(photoUrl);
-                                                    });
-                                                } else {
-                                                    sendMessage(desc, threadId);
-                                                }
-                                            });
-                                        } else {
-                                            // Just send the description if photo can't be downloaded
-                                            sendMessage(desc, threadId);
-                                        }
-                                    });
-                                } else {
-                                    sendMessage(desc, threadId);
-                                }
-                            }
-                        });
-                    } else {
-                        // Add user to group and update log of member IDs
+                    const numResults = parseInt(co["addsearch"].m[2]) || 1; // Number of results to display
+                    if (command == "search") { // Is a search command
+                        // Output search results / propic
+                        for (var i = 0; i < numResults; i++) {
+                            // Passes number of match to indicate level (closeness to top)
+                            searchForUser(data[i], threadId, i);
+                        }
+                    } else { // Is an add command
+                        // Add best match to group and update log of member IDs
                         addUser(bestMatch.userID, threadId);
                     }
                 } else {
@@ -598,6 +570,52 @@ function getTimeString() {
     const eastern = new Date(utc + (offset * 60 * 60000));
     return eastern.toLocaleTimeString();
 }
+
+// Creates a description for a user search result given the match's data from the chat API
+// Also performs a Graph API search for a high-res version of the user's profile picture
+// and uploads it with the description if it finds one
+// Optional parameter to specify which level of match it is (1st, 2nd, 3rd, etc.)
+function searchForUser(match, threadId, num = 0, api = gapi) {
+    const desc = `${(num == 0) ? "Best match" : "Match " + (num+1)}: ${match.name}\n${match.profileUrl}\nRank: ${match.score}`;
+
+    // Try to get large propic URL from Facebook Graph API using user ID
+    // If propic exists, combine it with the description
+    const userId = match.userID;
+    const photoUrl = `media/profiles/${userId}.jpg`; // Location of downloaded file
+    const graphUrl = `https://graph.facebook.com/${userId}/picture?type=large&redirect=false&width=400&height=400`;
+    request.get(graphUrl, (err, res, body) => {
+        if (res.statusCode == 200) {
+            const url = JSON.parse(body).data.url; // Photo URL from Graph API
+            if (url) {
+                request.head(url, (err, res, body) => {
+                    // Download propic and pass to chat API
+                    if (!err) {
+                        request(url).pipe(fs.createWriteStream(photoUrl)).on('close', (err, data) => {
+                            if (!err) {
+                                // Use API's official sendMessage here for callback functionality
+                                api.sendMessage({
+                                    "body": desc,
+                                    "attachment": fs.createReadStream(`${__dirname}/${photoUrl}`)
+                                }, threadId, (err, data) => {
+                                    // Delete downloaded propic
+                                    fs.unlink(photoUrl);
+                                });
+                            } else {
+                                sendMessage(desc, threadId);
+                            }
+                        });
+                    } else {
+                        // Just send the description if photo can't be downloaded
+                        sendMessage(desc, threadId);
+                    }
+                });
+            } else {
+                sendMessage(desc, threadId);
+            }
+        }
+    });
+}
+
 
 // Gets a random hex color
 function getRandomColor() {
