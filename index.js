@@ -285,12 +285,12 @@ function handleCommand(command, fromUserId, api = gapi) {
     } else if (co["hitlights"].m) {
         api.getThreadInfo(threadId, function(err, data) {
             if (!err) {
-                const ogColor = data.color; // Will be null if no custom color set
+                const ogColor = data.color || config.defaultColor; // Will be null if no custom color set
                 const delay = 500; // Delay between color changes (half second is a good default)
                 for (let i = 0; i < config.numColors; i++) { // Need block scoping for timeout
                     setTimeout(function() {
                         api.changeThreadColor(getRandomColor(), threadId);
-                        if (i == (config.numColors.length - 1)) { // Set back to original color on last
+                        if (i == (config.numColors - 1)) { // Set back to original color on last
                             setTimeout(function() {
                                 api.changeThreadColor(ogColor, threadId);
                             }, delay);
