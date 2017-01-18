@@ -31,7 +31,7 @@ exports.commands = {
         "syntax": "xkcd ({comic number}|search {search query})",
         "sudo": false,
         "user_input": false,
-        "regex": /xkcd(?: (\d+|search (.+)))?/i,
+        "regex": /xkcd(?: (new|\d+|search (.+)))?/i,
         "experimental": false
     },
     "addsearch": {

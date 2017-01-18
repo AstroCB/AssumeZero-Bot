@@ -178,7 +178,11 @@ function handleCommand(command, fromUserId, api = gapi) {
                         console.log(err);
                     }
                 });
-            } else if (param) { // If param != search, it should be either a number or valid sub-URL for xkcd.com
+            } else if (param == "new") { // Get most recent
+                sendMessage({
+                    "url": "http://xkcd.com/"
+                });
+            } else if (param) { // If param != search or new, it should be either a number or valid sub-URL for xkcd.com
                 sendMessage({
                     "url": `http://xkcd.com/${param}`
                 });
