@@ -178,9 +178,19 @@ function handleCommand(command, fromUserId, api = gapi) {
                         console.log(err);
                     }
                 });
-            } else if (param == "new") { // Get most recent
-                sendMessage({
-                    "url": "http://xkcd.com/"
+            } else if (param == "new") { // Get most recent (but send as permalink for future reference)
+                request("http://xkcd.com/info.0.json", function(err, res, body) {
+                    if (!err && res.statusCode == 200) {
+                        const num = parseInt(JSON.parse(body).num); // Number of most recent xkcd
+                        sendMessage({
+                            "url": `http://xkcd.com/${num}`
+                        }, threadId);
+                    } else {
+                        // Just send to homepage for newest as backup
+                        sendMessage({
+                            "url": "http://xkcd.com/"
+                        }, threadId);
+                    }
                 });
             } else if (param) { // If param != search or new, it should be either a number or valid sub-URL for xkcd.com
                 sendMessage({
@@ -195,7 +205,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                     const randxkcd = Math.floor(Math.random() * num) + 1;
                     sendMessage({
                         "url": `http://xkcd.com/${randxkcd}`
-                    });
+                    }, threadId);
                 }
             });
         }
