@@ -28,7 +28,7 @@ exports.commands = {
         "pretty_name": "xkcd",
         "short_description": "Links xkcd",
         "description": "Outputs the numbered xkcd or search result (or a random one if none was specified)",
-        "syntax": "xkcd ({comic number}|search {search query})",
+        "syntax": "xkcd (new|{comic number}|search {search query})",
         "sudo": false,
         "user_input": false,
         "regex": /xkcd(?: (new|\d+|search (.+)))?/i,
