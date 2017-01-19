@@ -365,8 +365,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                 sendError(err, threadId);
             } else {
                 config.banned = users;
-                console.log(config.banned);
-                console.log(`User successfully ${status}`, threadId);
+                sendMessage(`User successfully ${status}`, threadId);
             }
         }
         if (user) {
