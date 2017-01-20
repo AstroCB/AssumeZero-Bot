@@ -7,4 +7,4 @@ enable:
 disable:
 	heroku ps:scale web=0 -a assume-bot
 restart:
-	heroku ps:restart web
+	heroku ps:restart web -a assume-bot
