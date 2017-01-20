@@ -5,7 +5,7 @@ const ids = require("./ids"); // Various IDs stored for easy access
 const config = require("./config"); // Config file
 const utils = require("./configutils");
 const commands = require("./commands");
-const heroku = require("./heroku");
+const server = require("./server");
 var credentials;
 try {
     // Login creds from local dir
@@ -43,63 +43,65 @@ exports.login = login; // Export for external use
 // Listen for commands
 function main(err, api) {
     if (err) return console.error(err);
-    gapi = api; // Set global API
+    gapi = api; // Initialize global API variable
+    api.listen(handleMessage);
+}
 
-    api.listen(function callback(err, message) {
-        if (config.dynamic) { // See config for explanation
-            setEnvironmentVariables(message);
-        }
-        if (message && !err) {
-            // Handle messages
-            if (message.type == "message" && message.senderID != ids.bot && !isBanned(message.senderID)) { // Is from AØBP but not from bot
-                if (message.threadID == ids.group) { // Message from main group (or current group, if in dynamic mode)
-                    var m = message.body;
-                    var attachments = message.attachments;
-                    var senderId = message.senderID;
-                    var groupId = ids.group;
-                    // Handle message body
-                    if (m) {
-                        // Handle pings
-                        var pingData = parsePing(m);
-                        var pingUsers = pingData.users;
-                        var pingMessage = pingData.message;
-                        api.getThreadInfo(groupId, function(err, data) {
-                            for (var i = 0; i < pingUsers.length; i++) { // Loop doesn't run if no ping matches
-                                if (!err) {
-                                    var sender = data.nicknames[senderId];
-                                    var message = `${sender} summoned you in ${data.name}`;
-                                    if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
-                                        message = `"${pingMessage}" – ${sender} in ${data.name}`;
-                                    }
-                                    message += ` at ${getTimeString()}` // Time stamp
-                                    sendMessage(message, ids.members[groupId][pingUsers[i]]);
+function handleMessage(err, message, api = gapi) { // New message received from listen()
+    if (config.dynamic) { // See config for explanation
+        setEnvironmentVariables(message);
+    }
+    if (message && !err) {
+        // Handle messages
+        if (message.type == "message" && message.senderID != ids.bot && !isBanned(message.senderID)) { // Is from AØBP but not from bot
+            if (message.threadID == ids.group) { // Message from main group (or current group, if in dynamic mode)
+                var m = message.body;
+                var attachments = message.attachments;
+                var senderId = message.senderID;
+                var groupId = ids.group;
+                // Handle message body
+                if (m) {
+                    // Handle pings
+                    var pingData = parsePing(m);
+                    var pingUsers = pingData.users;
+                    var pingMessage = pingData.message;
+                    api.getThreadInfo(groupId, function(err, data) {
+                        for (var i = 0; i < pingUsers.length; i++) { // Loop doesn't run if no ping matches
+                            if (!err) {
+                                var sender = data.nicknames[senderId];
+                                var message = `${sender} summoned you in ${data.name}`;
+                                if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
+                                    message = `"${pingMessage}" – ${sender} in ${data.name}`;
                                 }
+                                message += ` at ${getTimeString()}` // Time stamp
+                                sendMessage(message, ids.members[groupId][pingUsers[i]]);
                             }
-                        });
+                        }
+                    });
 
-                        // Pass to commands testing for trigger word
-                        var cindex = m.toLowerCase().indexOf(config.trigger);
-                        if (cindex > -1) { // Trigger command mode
-                            handleCommand(m.substring(cindex + config.trigger.length), senderId);
-                        }
-                        // Check for Easter eggs
-                        handleEasterEggs(m, groupId, senderId);
+                    // Pass to commands testing for trigger word
+                    var cindex = m.toLowerCase().indexOf(config.trigger);
+                    if (cindex > -1) { // Trigger command mode
+                        handleCommand(m.substring(cindex + config.trigger.length), senderId);
                     }
-                    // Handle attachments
-                    for (var i = 0; i < attachments.length; i++) {
-                        if (attachments[i].type == "animated_image" && !attachments[i].filename) { // Should have filename if OC
-                            kick(senderId, config.banTime, groupId, function() {
-                                sendMessage("You have been kicked for violating the group chat GIF policy: only OC is allowed.", groupId);
-                            });
-                        }
-                    }
-                } else if (message.threadID != ids.group) { // Not from main group (static group mode)
-                    sendMessage("Multi-chat mode is off", message.threadID);
+                    // Check for Easter eggs
+                    handleEasterEggs(m, groupId, senderId);
                 }
+                // Handle attachments
+                for (var i = 0; i < attachments.length; i++) {
+                    if (attachments[i].type == "animated_image" && !attachments[i].filename) { // Should have filename if OC
+                        kick(senderId, config.banTime, groupId, function() {
+                            sendMessage("You have been kicked for violating the group chat GIF policy: only OC is allowed.", groupId);
+                        });
+                    }
+                }
+            } else if (message.threadID != ids.group) { // Not from main group (static group mode)
+                sendMessage("Multi-chat mode is off", message.threadID);
             }
         }
-    });
+    }
 }
+exports.handleMessage = handleMessage;
 
 function handleCommand(command, fromUserId, api = gapi) {
     const threadId = ids.group; // For async callbacks

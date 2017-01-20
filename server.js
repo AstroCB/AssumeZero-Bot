@@ -2,7 +2,6 @@ const express = require("express");
 const http = require("http");
 const app = express();
 const bodyParser = require("body-parser");
-const owner = require("./ids").owner;
 const main = require("./index");
 
 // Bind to ports to make Heroku happy even though it doesn't use them
@@ -22,22 +21,39 @@ app.use(bodyParser.urlencoded({
 }));
 // Accept POST requests for commands
 app.post("/command", (req, res) => {
-    if (req.body && req.body.command) {
+    if (req.body && req.body.senderId) {
         console.log("POST received");
-        sendCommand(req.body.command);
+        if (req.body.command) {
+            handle(req.body.command, req.body.senderId, true);
+        } else if (req.body.message) {
+            handle(req.body.message, req.body.senderId);
+        }
+        res.sendStatus(200);
     } else {
         console.log(req);
         res.status(500).send({
-            "error": "Error receiving command"
+            "error": "Error receiving data"
         });
     }
 });
 
-function sendCommand(command) {
+// Handles a message parameter string as if it were received by the bot
+// Optional isCommand parameter to bypass the string parsing and pass directly
+// to the handleCommand function in index (has a specific format & parameters
+//  of its own, which is why it has its own flag)
+function handle(message, sender, isCommand = false) {
     // Log in & send command to handler function
     main.login((err, api) => {
         if (!err) {
-            main.handleCommand(command, owner, api);
+            if (isCommand) { // Specifically formatted command
+                main.handleCommand(message, sender, api);
+            } else { // Just parse the message normally (requires message obj)
+                main.handleMessage({
+                    "body": message,
+                    "senderID": sender,
+                    "type": "message"
+                }, api);
+            }
         } else {
             console.log(err);
         }
