@@ -426,6 +426,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/(?:\s|^)shaw/i)) {
             sendFile("media/shaw.png");
         }
+        if (message.match(/(?:physics )?(?:get|measure) bac/i)) {
+            sendMessage("Yiyi's BAC is far above healthy levels")
+        }
     }
 }
 
