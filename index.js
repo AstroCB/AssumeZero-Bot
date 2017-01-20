@@ -17,19 +17,28 @@ try {
 var gapi; // Global API for external functions (set on login)
 
 // Log in
-try {
-    messenger({
-        appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))
-    }, main);
-} catch (e) { // No app state saved
-    messenger({
-        email: credentials.EMAIL,
-        password: credentials.PASSWORD
-    }, function callback(err, api) {
-        fs.writeFileSync('appstate.json', JSON.stringify(api.getAppState()));
+if (require.main === module) { // Called directly; login immediately
+    login((err, api) => {
         main(err, api);
     });
 }
+
+function login(callback) {
+    try {
+        messenger({
+            appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))
+        }, callback);
+    } catch (e) { // No app state saved
+        messenger({
+            email: credentials.EMAIL,
+            password: credentials.PASSWORD
+        }, function callback(err, api) {
+            fs.writeFileSync('appstate.json', JSON.stringify(api.getAppState()));
+            callback(err, api);
+        });
+    }
+}
+exports.login = login; // Export for external use
 
 // Listen for commands
 function main(err, api) {
@@ -379,6 +388,7 @@ function handleCommand(command, fromUserId, api = gapi) {
         }
     }
 }
+exports.handleCommand = handleCommand; // Export for external use
 
 // Check for commands that don't require a trigger (Easter eggs)
 // Some commands may require additional configuration (and most only make sense for
@@ -426,7 +436,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/(?:\s|^)shaw/i)) {
             sendFile("media/shaw.png");
         }
-        if (message.match(/(?:physics )?(?:get|measure) bac/i)) {
+        if (message.match(/(?:get|measure) bac/i)) {
             sendMessage("Yiyi's BAC is far above healthy levels")
         }
     }
