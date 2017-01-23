@@ -46,7 +46,7 @@ function main(err, api) {
     gapi = api; // Initialize global API variable
     api.listen(handleMessage);
 }
-
+console.log(config.dynamic);
 function handleMessage(err, message, api = gapi) { // New message received from listen()
     if (config.dynamic) { // See config for explanation
         setEnvironmentVariables(message);

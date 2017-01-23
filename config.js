@@ -6,7 +6,9 @@ exports.trigger = "physics";
 // Choose whether to allow bot to respond in any chat it is added to
 // If true, group properties will be generated dynamically at runtime
 // Otherwise, set them below
-exports.dynamic = false;
+// By default, tries looking for a Heroku config var called DYNAMIC
+// Change default val below if not using Heroku
+exports.dynamic = process.env.DYNAMIC ? JSON.parse(process.env.DYNAMIC) : false;
 
 // Name of chat
 exports.groupName = "Assume Zero Brain Power";
