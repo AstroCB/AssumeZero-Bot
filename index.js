@@ -406,7 +406,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                 },
                 "headers": {
                     "Accept": "application/vnd.heroku+json; version=3",
-                    "Authorization": `Bearer ${credentials.TOKEN}`
+                    "Authorization": `Bearer ${credentials.TOKEN}` // Requires Heroku OAuth token for modifying config vars
                 }
             }); // Should trigger auto-restart on Heroku
         } else { // Local
