@@ -398,7 +398,7 @@ function handleCommand(command, fromUserId, api = gapi) {
         const isEnabled = (setting == "on");
         sendMessage(`Turning dynamic mode ${setting} and restarting; give me a moment`);
 
-        if (process.env.DYNAMIC) { // Heroku
+        if (process.env.EMAIL) { // Heroku
             request.patch({
                 "url": "https://api.heroku.com/apps/assume-bot/config-vars",
                 "form": {
