@@ -397,12 +397,17 @@ function handleCommand(command, fromUserId, api = gapi) {
         const setting = co["dynamic"].m[1].toLowerCase();
         const isEnabled = (setting == "on");
         sendMessage(`Turning dynamic mode ${setting} and restarting`);
-
+        process.env.DYNAMIC = true;
         if (process.env.DYNAMIC) { // Heroku
-            request("https://api.heroku.com/apps/assume/config-vars", {
-                "DYNAMIC": isEnabled
-            }, (err, data) => {
-                console.log(err, data);
+            request.patch({
+                "url": "https://api.heroku.com/apps/assume-bot/config-vars",
+                "form": {
+                    "DYNAMIC": isEnabled
+                },
+                "headers": {
+                    "Accept": "application/vnd.heroku+json; version=3",
+                    "Authorization": `Bearer ${credentials.TOKEN}`
+                }
             }); // Should trigger auto-restart on Heroku
         } else { // Local
             config.dynamic = isEnabled;
