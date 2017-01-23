@@ -1,5 +1,6 @@
 const messenger = require("facebook-chat-api");
 const fs = require("fs");
+const exec = require("child_process").exec;
 const request = require("request");
 const ids = require("./ids"); // Various IDs stored for easy access
 const config = require("./config"); // Config file
@@ -348,7 +349,9 @@ function handleCommand(command, fromUserId, api = gapi) {
         sendEmoji(threadId);
     } else if (co["resetemoji"].m) {
         api.changeThreadEmoji(config.defaultEmoji, threadId, (err) => {
-
+            if (err) {
+                console.log(err);
+            }
         });
     } else if (co["setemoji"].m && co["setemoji"].m[1]) {
         api.changeThreadEmoji(co["setemoji"].m[1], threadId, (err) => {
@@ -389,6 +392,24 @@ function handleCommand(command, fromUserId, api = gapi) {
             }
         } else {
             sendError(`User ${user} not found`);
+        }
+    } else if (co["dynamic"].m && co["dynamic"].m[1]) {
+        const setting = co["dynamic"].m[1].toLowerCase();
+        const isEnabled = (setting == "on");
+        sendMessage(`Turning dynamic mode ${setting} and restarting`);
+
+        if (process.env.DYNAMIC) { // Heroku
+            request("https://api.heroku.com/apps/assume/config-vars", {
+                "DYNAMIC": isEnabled
+            }); // Should trigger auto-restart on Heroku
+        } else { // Local
+            config.dynamic = isEnabled;
+            if (!isEnabled) {
+                // Set back to defaults
+                setEnvironmentVariables({
+                    "threadID": ids.defaultGroup
+                });
+            }
         }
     }
 }
@@ -564,6 +585,7 @@ function welcomeNewUser(id, groupId = ids.group, api = gapi) {
 // every time it receives a message; this function is called on every listen ping
 function setEnvironmentVariables(message, api = gapi) {
     ids.group = message.threadID;
+    console.log(message.threadID);
     api.getThreadInfo(ids.group, function(err, data) {
         if (data) {
             config.groupName = data.name || "Unnamed chat";
@@ -672,7 +694,6 @@ function searchForUser(match, threadId, num = 0, api = gapi) {
         }
     });
 }
-
 
 // Gets a random hex color
 function getRandomColor() {

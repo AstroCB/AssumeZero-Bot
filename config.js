@@ -8,7 +8,7 @@ exports.trigger = "physics";
 // Otherwise, set them below
 // By default, tries looking for a Heroku config var called DYNAMIC
 // Change default val below if not using Heroku
-exports.dynamic = process.env.DYNAMIC ? JSON.parse(process.env.DYNAMIC) : false;
+exports.dynamic = process.env.DYNAMIC ? JSON.parse(process.env.DYNAMIC) : true;
 
 // Name of chat
 exports.groupName = "Assume Zero Brain Power";

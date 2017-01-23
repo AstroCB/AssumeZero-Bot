@@ -187,5 +187,16 @@ exports.commands = {
         "user_input": true,
         "regex": "(un)?ban",
         "experimental": false
+    },
+    "dynamic": {
+        "display_names": ["dynamic"],
+        "pretty_name": "Dynamic",
+        "short_description": "Set dynamic mode",
+        "description": "Allows user to change the state of the bot's dynamic mode setting",
+        "syntax": "dynamic (on|off)",
+        "sudo": true,
+        "user_input": false,
+        "regex": /dynamic (on|off)/i,
+        "experimental": false
     }
 };
