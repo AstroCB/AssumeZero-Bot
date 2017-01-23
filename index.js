@@ -401,6 +401,8 @@ function handleCommand(command, fromUserId, api = gapi) {
         if (process.env.DYNAMIC) { // Heroku
             request("https://api.heroku.com/apps/assume/config-vars", {
                 "DYNAMIC": isEnabled
+            }, (err, data) => {
+                console.log(err, data);
             }); // Should trigger auto-restart on Heroku
         } else { // Local
             config.dynamic = isEnabled;
@@ -585,7 +587,6 @@ function welcomeNewUser(id, groupId = ids.group, api = gapi) {
 // every time it receives a message; this function is called on every listen ping
 function setEnvironmentVariables(message, api = gapi) {
     ids.group = message.threadID;
-    console.log(message.threadID);
     api.getThreadInfo(ids.group, function(err, data) {
         if (data) {
             config.groupName = data.name || "Unnamed chat";
