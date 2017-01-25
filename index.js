@@ -1,3 +1,4 @@
+// Dependencies
 const messenger = require("facebook-chat-api");
 const fs = require("fs");
 const exec = require("child_process").exec;
@@ -15,6 +16,10 @@ try {
     // Deployed to Heroku or config file is missing
     credentials = process.env;
 }
+const mem = require("memjs").Client.create(credentials.MEMCACHIER_SERVERS, {
+    username: credentials.MEMCACHIER_USERNAME,
+    password: credentials.MEMCACHIER_PASSWORD
+});
 var gapi; // Global API for external functions (set on login)
 
 // Log in
@@ -710,13 +715,3 @@ function getRandomColor() {
     }
     return color;
 }
-
-const mem = require("memjs").Client.create(credentials.MEMCACHIER_SERVERS, {
-    username: credentials.MEMCACHIER_USERNAME,
-    password: credentials.MEMCACHIER_PASSWORD
-});
-mem.get("test", (err, val) => {
-  if(!err) {
-    console.log(val.toString())
-  }
-})
