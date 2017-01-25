@@ -710,3 +710,13 @@ function getRandomColor() {
     }
     return color;
 }
+
+const mem = require("memjs").Client.create(credentials.MEMCACHIER_SERVERS, {
+    username: credentials.MEMCACHIER_USERNAME,
+    password: credentials.MEMCACHIER_PASSWORD
+});
+mem.get("test", (err, val) => {
+  if(!err) {
+    console.log(val.toString())
+  }
+})
