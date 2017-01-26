@@ -14,8 +14,9 @@ exports.dynamic = process.env.DYNAMIC ? JSON.parse(process.env.DYNAMIC) : true;
 exports.groupName = "Assume Zero Brain Power";
 
 // The regular expression used for detecting names in commands issued to the bot
-// By default, it will look for the names listed as keys in the group's members dictionary in ids.js
-// For custom name detection, remove this function call and replace it with a string containing regex
+// By default, it will look for the names listed as keys in the group's members
+// dictionary in ids.js For custom name detection, remove this function call and
+// replace it with a string containing regex
 exports.userRegExp = utils.setRegexFromMembers();
 
 // Time in seconds to ban users for Order 66
@@ -36,13 +37,20 @@ exports.numColors = 10;
 // Default emoji
 exports.defaultEmoji = "🚀";
 
-// List of banned user IDs as strings
-// Stored in banned.json and pulled at runtime & after updates
-exports.banned = utils.getBannedUsers();
+// exports.banned is a list of banned user IDs as strings
+// Stored in memory and pulled at runtime & after updates
+// Remove this function call and replace with an array of user IDs to override
+utils.getBannedUsers((err, users) => {
+    if (err) {
+        console.log(err);
+    }
+    exports.banned = users;
+});
 
 // For xkcd searching capability
 // Custom search engine that searches the xkcd website only
-// (keep unless you want to customize the results) and an API key from Google Dev Console
+// (keep unless you want to customize the results) and an API key
+// from Google Dev Console
 exports.xkcd = {
     "engine": "017207449713114446929:kyxuw7rvlw4",
     "key": "AIzaSyCHfJCpWEYUCydDMbb9PqK42XpPQd9L-F8"

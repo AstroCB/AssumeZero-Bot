@@ -1,6 +1,11 @@
 // Utility functions for config file
 const ids = require("./ids");
+const credentials = require("./credentials");
 const fs = require("fs");
+const mem = require("memjs").Client.create(credentials.MEMCACHIER_SERVERS, {
+    username: credentials.MEMCACHIER_USERNAME,
+    password: credentials.MEMCACHIER_PASSWORD
+});
 
 exports.setRegexFromMembers = function(groupId = ids.group) {
     const members = Object.keys(ids.members[groupId]);
@@ -24,35 +29,55 @@ exports.contains = function(a, groupId = ids.group) {
 };
 
 // For banning functionality
-exports.getBannedUsers = function() {
-    try {
-        return JSON.parse(fs.readFileSync("banned.json"));
-    } catch (e) {
-        return [];
-    }
+
+exports.getBannedUsers = function(callback) {
+    mem.get("banned", (err, data) => {
+        try {
+            callback(err, JSON.parse(data.toString()) || []);
+        } catch (e) {
+            // Send empty arr by default
+            callback(err, []);
+        }
+    });
 }
 
 exports.addBannedUser = function(id, callback) {
-    const bannedUsers = exports.getBannedUsers();
-    if (bannedUsers.indexOf(id) < 0) {
-        bannedUsers.push(id);
-        fs.writeFile("banned.json", JSON.stringify(bannedUsers), (err) => {
-            callback(err, bannedUsers, "banned");
-        });
-    } else {
-        callback("User already in ban list");
-    }
+    exports.getBannedUsers((err, bannedUsers) => {
+        if (!err) {
+            if (bannedUsers.indexOf(id) < 0) {
+                bannedUsers.push(id);
+                mem.set("banned", JSON.stringify(bannedUsers), (err, success) => {
+                    if (success) {
+                        console.log(`User ${id} banned`);
+                    }
+                    callback(err, bannedUsers, "banned");
+                });
+            } else {
+                callback("User already in ban list");
+            }
+        } else {
+            console.log(err);
+        }
+    });
 }
 
 exports.removeBannedUser = function(id, callback = () => {}) {
-    const bannedUsers = exports.getBannedUsers();
-    const ind = bannedUsers.indexOf(id);
-    if (ind > -1) {
-        bannedUsers.splice(ind, 1);
-        fs.writeFile("banned.json", JSON.stringify(bannedUsers), (err) => {
-            callback(err, bannedUsers, "unbanned");
-        });
-    } else {
-        callback("User not in ban list");
-    }
+    exports.getBannedUsers((err, bannedUsers) => {
+        if (!err) {
+            const ind = bannedUsers.indexOf(id);
+            if (ind > -1) {
+                bannedUsers.splice(ind, 1);
+                mem.set("banned", JSON.stringify(bannedUsers), (err, success) => {
+                    if (success) {
+                        console.log(`User ${id} unbanned`);
+                    }
+                    callback(err, bannedUsers, "unbanned");
+                });
+            } else {
+                callback("User not in ban list");
+            }
+        } else {
+            console.log(err);
+        }
+    });
 }

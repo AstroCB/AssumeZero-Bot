@@ -31,7 +31,7 @@ if (require.main === module) { // Called directly; login immediately
 
 function login(callback) {
     // Logging message with config details
-    console.log(`Bot ${ids.bot} logging in ${process.env.EMAIL ? "remotely" : "locally"} with dynamic mode ${config.dynamic ? "on" : "off"}, with trigger "${config.trigger}", and with Easter eggs ${config.easterEggs ? "on" : "off"}. ${utils.getBannedUsers().length} users are currently banned.`);
+    console.log(`Bot ${ids.bot} logging in ${process.env.EMAIL ? "remotely" : "locally"} with dynamic mode ${config.dynamic ? "on" : "off"}, with trigger "${config.trigger}", and with Easter eggs ${config.easterEggs ? "on" : "off"}.`);
     try {
         messenger({
             appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))
