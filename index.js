@@ -526,7 +526,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/(?:get|measure) bac/i)) {
             sendMessage("Yiyi's BAC is far above healthy levels")
         }
-        if (message.match(/physics .* cam/i)) {
+        if (message.match(/physics .* cam$/i)) {
             sendMessage("eron");
         }
     }
