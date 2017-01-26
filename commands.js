@@ -198,5 +198,27 @@ exports.commands = {
         "user_input": false,
         "regex": /dynamic (on|off)/i,
         "experimental": false
+    },
+    "vote": {
+        "display_names": ["<", ">"],
+        "pretty_name": "Voting (</>)",
+        "short_description": "Vote on users",
+        "description": "Allows users to upvote (>) or downvote (<) a given user to influence their current point total",
+        "syntax": "(<|>) (points) ${member}",
+        "sudo": false,
+        "user_input": true,
+        "regex": "(<|>)(?: (\\d+))?",
+        "experimental": false
+    },
+    "score": {
+        "display_names": ["score", "get score", "set score"],
+        "pretty_name": "Score",
+        "short_description": "Get/set user score",
+        "description": "Displays the user's current point score or sets it to a new provided value (must be ≥ 0)",
+        "syntax": "score (new score) ${member}",
+        "sudo": false,
+        "user_input": true,
+        "regex": "score(?: (\\d+))?",
+        "experimental": false
     }
 };

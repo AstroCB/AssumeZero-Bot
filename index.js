@@ -1,13 +1,13 @@
 // Dependencies
-const messenger = require("facebook-chat-api");
+const messenger = require("facebook-chat-api"); // Chat API
 const fs = require("fs");
 const exec = require("child_process").exec;
-const request = require("request");
+const request = require("request"); // For HTTP requests
 const ids = require("./ids"); // Various IDs stored for easy access
 const config = require("./config"); // Config file
-const utils = require("./configutils");
-const commands = require("./commands");
-const server = require("./server");
+const utils = require("./configutils"); // Utility functions
+const commands = require("./commands"); // Command documentation/configuration
+const server = require("./server"); // Server configuration
 var credentials;
 try {
     // Login creds from local dir
@@ -422,6 +422,54 @@ function handleCommand(command, fromUserId, api = gapi) {
                     "threadID": ids.defaultGroup
                 });
             }
+        }
+    } else if (co["vote"].m && co["vote"].m[1] && co["vote"].m[3]) {
+        const points = parseInt(co["vote"].m[2]) || 5; // Default to five points
+        const user = co["vote"].m[3].toLowerCase();
+        const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
+        mem.get(`userscore_${user}`, (err, val) => {
+            if (err) {
+                console.log(err);
+            }
+            // Convert from buffer & grab current score (set 0 if it doesn't yet exist)
+            const score = val = val ? parseInt(val.toString()) : 0;
+            const getCallback = (isAdd) => {
+                return (err, success) => {
+                    if (success) {
+                        sendMessage(`${user_cap}'s current score is now ${isAdd ? (score + points) : (score - points)}.`, threadId);
+                    } else {
+                        sendError("Score update failed.", threadId);
+                    }
+                }
+            };
+            if (co["vote"].m[1] == ">") {
+                // Upvote
+                mem.set(`userscore_${user}`, `${(score + points)}`, getCallback(true));
+            } else {
+                // Downvote
+                mem.set(`userscore_${user}`, `${(score - points)}`, getCallback(false));
+            }
+        });
+    } else if (co["score"].m && co["score"].m[2]) {
+        const user = co["score"].m[2].toLowerCase();
+        const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
+        const new_score = co["score"].m[1];
+        if (parseInt(new_score)) { // Set to provided score if valid
+            mem.set(`user_score_${user}`, new_score, (err, success) => {
+                if (success) {
+                  sendMessage(`${user_cap}'s score updated to ${new_score}`);
+                } else {
+                  sendError(err);
+                }
+            })
+        } else { // No value provided; just display score
+            mem.get(`userscore_${user}`, (err, val) => {
+                if (!err) {
+                    sendMessage(`${user_cap}'s current score is ${val.toString()}.`, threadId);
+                } else {
+                    console.log(err);
+                }
+            });
         }
     }
 }
