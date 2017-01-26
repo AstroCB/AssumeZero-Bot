@@ -481,7 +481,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                 });
             }
         } else {
-          sendError(`User ${user_cap} not found`, threadId);
+            sendError(`User ${user_cap} not found`, threadId);
         }
     }
 }
