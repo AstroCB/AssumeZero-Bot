@@ -379,7 +379,7 @@ function handleCommand(command, fromUserId, api = gapi) {
             });
         }
     } else if (co["ban"].m && co["ban"].m[2]) {
-        const user = co["ban"].m[2];
+        const user = co["ban"].m[2].toLowerCase();
         const userId = ids.members[threadId][user];
         const callback = (err, users, status) => {
             if (err) {
