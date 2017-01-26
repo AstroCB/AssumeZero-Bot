@@ -423,9 +423,10 @@ function handleCommand(command, fromUserId, api = gapi) {
                 });
             }
         }
-    } else if (co["vote"].m && co["vote"].m[1] && co["vote"].m[3]) {
-        const points = parseInt(co["vote"].m[2]) || 5; // Default to five points
-        const user = co["vote"].m[3].toLowerCase();
+    } else if (co["vote"].m && co["vote"].m[1] && co["vote"].m[2]) {
+        // Can be easily customized to accept a score parameter if so desired
+        const points = config.votePoints || 5; // Default to five points
+        const user = co["vote"].m[2].toLowerCase();
         const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
         mem.get(`userscore_${user}`, (err, val) => {
             if (err) {
@@ -454,18 +455,19 @@ function handleCommand(command, fromUserId, api = gapi) {
         const user = co["score"].m[2].toLowerCase();
         const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
         const new_score = co["score"].m[1];
-        if (parseInt(new_score)) { // Set to provided score if valid
-            mem.set(`user_score_${user}`, new_score, (err, success) => {
+        if (new_score || new_score == "0") { // Set to provided score if valid (0 is falsey)
+            mem.set(`userscore_${user}`, new_score, (err, success) => {
                 if (success) {
-                  sendMessage(`${user_cap}'s score updated to ${new_score}`);
+                    sendMessage(`${user_cap}'s score updated to ${new_score}.`);
                 } else {
-                  sendError(err);
+                    sendError(err);
                 }
             })
         } else { // No value provided; just display score
             mem.get(`userscore_${user}`, (err, val) => {
                 if (!err) {
-                    sendMessage(`${user_cap}'s current score is ${val.toString()}.`, threadId);
+                    const stored_score = val.toString() || 0;
+                    sendMessage(`${user_cap}'s current score is ${stored_score}.`, threadId);
                 } else {
                     console.log(err);
                 }
@@ -523,6 +525,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         }
         if (message.match(/(?:get|measure) bac/i)) {
             sendMessage("Yiyi's BAC is far above healthy levels")
+        }
+        if (message.match(/physics .* cam/i)) {
+            sendMessage("eron");
         }
     }
 }

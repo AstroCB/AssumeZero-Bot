@@ -123,7 +123,7 @@ exports.commands = {
         "experimental": false
     },
     "randmess": {
-        "display_names": ["random message"],
+        "display_names": ["get random message", "random message"],
         "pretty_name": "Random message",
         "short_description": "Get random message",
         "description": "Retrieves a random message from the recent history of the group",
@@ -201,13 +201,13 @@ exports.commands = {
     },
     "vote": {
         "display_names": ["<", ">"],
-        "pretty_name": "Voting (</>)",
+        "pretty_name": "Vote (</>)",
         "short_description": "Vote on users",
         "description": "Allows users to upvote (>) or downvote (<) a given user to influence their current point total",
         "syntax": "(<|>) (points) ${member}",
         "sudo": false,
         "user_input": true,
-        "regex": "(<|>)(?: (\\d+))?",
+        "regex": "(<|>)",
         "experimental": false
     },
     "score": {

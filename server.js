@@ -30,7 +30,7 @@ app.post("/command", (req, res) => {
         }
         res.sendStatus(200);
     } else {
-        console.log(req);
+        console.log(req.body);
         res.status(500).send({
             "error": "Error receiving data"
         });
