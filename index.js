@@ -430,7 +430,7 @@ function handleCommand(command, fromUserId, api = gapi) {
         const userId = ids.members[threadId][user];
         const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
         if (userId) {
-            mem.get(`userscore_${user}`, (err, val) => {
+            mem.get(`userscore_${userId}`, (err, val) => {
                 if (err) {
                     console.log(err);
                 }
@@ -447,10 +447,10 @@ function handleCommand(command, fromUserId, api = gapi) {
                 };
                 if (co["vote"].m[1] == ">") {
                     // Upvote
-                    mem.set(`userscore_${user}`, `${(score + points)}`, getCallback(true));
+                    mem.set(`userscore_${userId}`, `${(score + points)}`, getCallback(true));
                 } else {
                     // Downvote
-                    mem.set(`userscore_${user}`, `${(score - points)}`, getCallback(false));
+                    mem.set(`userscore_${userId}`, `${(score - points)}`, getCallback(false));
                 }
             });
         } else {
