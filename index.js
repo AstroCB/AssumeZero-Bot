@@ -427,51 +427,61 @@ function handleCommand(command, fromUserId, api = gapi) {
         // Can be easily customized to accept a score parameter if so desired
         const points = config.votePoints || 5; // Default to five points
         const user = co["vote"].m[2].toLowerCase();
+        const userId = ids.members[threadId][user];
         const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
-        mem.get(`userscore_${user}`, (err, val) => {
-            if (err) {
-                console.log(err);
-            }
-            // Convert from buffer & grab current score (set 0 if it doesn't yet exist)
-            const score = val = val ? parseInt(val.toString()) : 0;
-            const getCallback = (isAdd) => {
-                return (err, success) => {
-                    if (success) {
-                        sendMessage(`${user_cap}'s current score is now ${isAdd ? (score + points) : (score - points)}.`, threadId);
-                    } else {
-                        sendError("Score update failed.", threadId);
-                    }
-                }
-            };
-            if (co["vote"].m[1] == ">") {
-                // Upvote
-                mem.set(`userscore_${user}`, `${(score + points)}`, getCallback(true));
-            } else {
-                // Downvote
-                mem.set(`userscore_${user}`, `${(score - points)}`, getCallback(false));
-            }
-        });
-    } else if (co["score"].m && co["score"].m[2]) {
-        const user = co["score"].m[2].toLowerCase();
-        const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
-        const new_score = co["score"].m[1];
-        if (new_score || new_score == "0") { // Set to provided score if valid (0 is falsey)
-            mem.set(`userscore_${user}`, new_score, (err, success) => {
-                if (success) {
-                    sendMessage(`${user_cap}'s score updated to ${new_score}.`);
-                } else {
-                    sendError(err);
-                }
-            })
-        } else { // No value provided; just display score
+        if (userId) {
             mem.get(`userscore_${user}`, (err, val) => {
-                if (!err) {
-                    const stored_score = val.toString() || 0;
-                    sendMessage(`${user_cap}'s current score is ${stored_score}.`, threadId);
-                } else {
+                if (err) {
                     console.log(err);
                 }
+                // Convert from buffer & grab current score (set 0 if it doesn't yet exist)
+                const score = val = val ? parseInt(val.toString()) : 0;
+                const getCallback = (isAdd) => {
+                    return (err, success) => {
+                        if (success) {
+                            sendMessage(`${user_cap}'s current score is now ${isAdd ? (score + points) : (score - points)}.`, threadId);
+                        } else {
+                            sendError("Score update failed.", threadId);
+                        }
+                    }
+                };
+                if (co["vote"].m[1] == ">") {
+                    // Upvote
+                    mem.set(`userscore_${user}`, `${(score + points)}`, getCallback(true));
+                } else {
+                    // Downvote
+                    mem.set(`userscore_${user}`, `${(score - points)}`, getCallback(false));
+                }
             });
+        } else {
+            sendError(`User ${user_cap} not found`, threadId);
+        }
+    } else if (co["score"].m && co["score"].m[2]) {
+        const user = co["score"].m[2].toLowerCase();
+        const userId = ids.members[threadId][user];
+        const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
+        if (userId) {
+            const new_score = co["score"].m[1];
+            if (new_score || new_score == "0") { // Set to provided score if valid (0 is falsey)
+                mem.set(`userscore_${userId}`, new_score, (err, success) => {
+                    if (success) {
+                        sendMessage(`${user_cap}'s score updated to ${new_score}.`);
+                    } else {
+                        sendError(err);
+                    }
+                });
+            } else { // No value provided; just display score
+                mem.get(`userscore_${userId}`, (err, val) => {
+                    if (!err) {
+                        const stored_score = val.toString() || 0;
+                        sendMessage(`${user_cap}'s current score is ${stored_score}.`, threadId);
+                    } else {
+                        console.log(err);
+                    }
+                });
+            }
+        } else {
+          sendError(`User ${user_cap} not found`, threadId);
         }
     }
 }
