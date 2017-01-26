@@ -1,6 +1,13 @@
 // Utility functions for config file
 const ids = require("./ids");
-const credentials = require("./credentials");
+var credentials;
+try {
+    // Login creds from local dir
+    credentials = require("./credentials");
+} catch (e) {
+    // Deployed to Heroku or config file is missing
+    credentials = process.env;
+}
 const fs = require("fs");
 const mem = require("memjs").Client.create(credentials.MEMCACHIER_SERVERS, {
     username: credentials.MEMCACHIER_USERNAME,
