@@ -19,12 +19,10 @@ exports.setRegexFromMembers = function(groupId = ids.group) {
     var regstr = "(";
     for (var i = 0; i < members.length; i++) {
         regstr += members[i];
-        if (i != (members.length - 1)) {
             regstr += "|";
-        }
     }
-    regstr += ")"
-    // Final format: (user1|user2|user3|usern)
+    regstr += "me)" // Include "me" for current user
+    // Final format: (user1|user2|user3|usern|me)
     return regstr;
 }
 

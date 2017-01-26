@@ -126,6 +126,14 @@ function handleCommand(command, fromUserId, api = gapi) {
                     } else { // Just a standard regex prefex as a string + name
                         co[c].m = matchesWithUser(co[c].regex, command);
                     }
+                    // Now look for instances of "me" in the command and replace with the calling user
+                    if (co[c].m) {
+                        co[c].m = co[c].m.map((m) => {
+                            if (m) {
+                                return m.replace(/(^| )me/i, "$1" + getNameFromId(fromUserId, threadId));
+                            }
+                        });
+                    }
                 } else {
                     co[c].m = command.match(co[c].regex);
                 }
@@ -777,4 +785,15 @@ function getRandomColor() {
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
+}
+
+function getNameFromId(id, thread) {
+    const users = ids.members[thread];
+    for (var m in users) {
+        if (users.hasOwnProperty(m)) {
+            if (users[m] == id) {
+                return m;
+            }
+        }
+    }
 }
