@@ -458,7 +458,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                     console.log(err);
                 }
                 // Convert from buffer & grab current score (set 0 if it doesn't yet exist)
-                const score = val = val ? parseInt(val.toString()) : 0;
+                const score = val ? parseInt(val.toString()) : 0;
                 const getCallback = (isAdd) => {
                     return (err, success) => {
                         if (success) {
