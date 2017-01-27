@@ -824,4 +824,3 @@ function restart(callback) {
         }
     });
 }
-restart();
