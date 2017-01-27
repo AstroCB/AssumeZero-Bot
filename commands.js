@@ -220,5 +220,16 @@ exports.commands = {
         "user_input": true,
         "regex": "score(?: (\\d+))?",
         "experimental": false
+    },
+    "restart": {
+        "display_names": ["restart"],
+        "pretty_name": "Restart": ,
+        "short_description": "Restarts the bot",
+        "description": "Restarts the bot (requires deployment to Heroku)",
+        "syntax": "restart",
+        "sudo": true,
+        "user_input": false,
+        "regex": /restart/i,
+        "experimental": false
     }
 };

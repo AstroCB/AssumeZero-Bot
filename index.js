@@ -506,6 +506,10 @@ function handleCommand(command, fromUserId, api = gapi) {
         } else {
             sendError(`User ${user_cap} not found`, threadId);
         }
+    } else if (co["restart"].m) {
+        restart(() => {
+            sendMessage("Restarting...", threadId);
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -815,6 +819,7 @@ function getNameFromId(id, thread) {
 }
 
 // Restarts the bot (requires deploying to Heroku)
+// Includes optional callback
 function restart(callback) {
     request.delete({
         "url": "https://api.heroku.com/apps/assume-bot/dynos/web",
@@ -823,4 +828,7 @@ function restart(callback) {
             "Authorization": `Bearer ${credentials.TOKEN}` // Requires Heroku OAuth token for authorization
         }
     });
+    if (callback) {
+        callback();
+    }
 }
