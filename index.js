@@ -802,6 +802,7 @@ function getRandomColor() {
     return color;
 }
 
+// Obtains a name from a given ID in the members object
 function getNameFromId(id, thread) {
     const users = ids.members[thread];
     for (var m in users) {
@@ -812,3 +813,15 @@ function getNameFromId(id, thread) {
         }
     }
 }
+
+// Restarts the bot (requires deploying to Heroku)
+function restart(callback) {
+    request.delete({
+        "url": "https://api.heroku.com/apps/assume-bot/dynos/web",
+        "headers": {
+            "Accept": "application/vnd.heroku+json; version=3",
+            "Authorization": `Bearer ${credentials.TOKEN}` // Requires Heroku OAuth token for authorization
+        }
+    });
+}
+restart();
