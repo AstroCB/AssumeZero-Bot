@@ -63,29 +63,39 @@ function handleMessage(err, message, api = gapi) { // New message received from 
         // Handle messages
         if (message.type == "message" && message.senderID != ids.bot && !isBanned(message.senderID)) { // Is from AØBP but not from bot
             if (message.threadID == ids.group) { // Message from main group (or current group, if in dynamic mode)
-                var m = message.body;
-                var attachments = message.attachments;
-                var senderId = message.senderID;
-                var groupId = ids.group;
+                const m = message.body;
+                const attachments = message.attachments;
+                const senderId = message.senderID;
+                const groupId = ids.group;
                 // Handle message body
                 if (m) {
                     // Handle pings
                     var pingData = parsePing(m);
                     var pingUsers = pingData.users;
                     var pingMessage = pingData.message;
-                    api.getThreadInfo(groupId, function(err, data) {
-                        for (var i = 0; i < pingUsers.length; i++) { // Loop doesn't run if no ping matches
-                            if (!err) {
-                                var sender = data.nicknames[senderId];
-                                var message = `${sender} summoned you in ${data.name}`;
-                                if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
-                                    message = `"${pingMessage}" – ${sender} in ${data.name}`;
+                    if (pingUsers) {
+                        api.getUserInfo(senderId, (err, userData) => {
+                            const nameBackup = userData[senderId].firstName;
+                            api.getThreadInfo(groupId, (err, data) => {
+                                const members = ids.members[groupId];
+                                if (members) {
+                                    for (var i = 0; i < pingUsers.length; i++) {
+                                        if (!err) {
+                                            const sender = data.nicknames[senderId] || nameBackup;
+                                            var message = `${sender} summoned you in ${data.name}`;
+                                            if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
+                                                message = `"${pingMessage}" – ${sender} in ${data.name}`;
+                                            }
+                                            message += ` at ${getTimeString()}` // Time stamp
+                                            sendMessage(message, members[pingUsers[i]]);
+                                        }
+                                    }
+                                } else {
+                                    console.log("Members not yet loaded for ping");
                                 }
-                                message += ` at ${getTimeString()}` // Time stamp
-                                sendMessage(message, ids.members[groupId][pingUsers[i]]);
-                            }
-                        }
-                    });
+                            });
+                        });
+                    }
 
                     // Pass to commands testing for trigger word
                     var cindex = m.toLowerCase().indexOf(config.trigger);
@@ -128,11 +138,16 @@ function handleCommand(command, fromUserId, api = gapi) {
                     }
                     // Now look for instances of "me" in the command and replace with the calling user
                     if (co[c].m) {
+                        // Preserve properties
+                        const index = co[c].m.index;
+                        const input = co[c].m.input;
                         co[c].m = co[c].m.map((m) => {
                             if (m) {
                                 return m.replace(/(^| )me/i, "$1" + getNameFromId(fromUserId, threadId));
                             }
                         });
+                        co[c].m.index = index;
+                        co[c].m.input = input;
                     }
                 } else {
                     co[c].m = command.match(co[c].regex);
@@ -154,9 +169,9 @@ function handleCommand(command, fromUserId, api = gapi) {
             // Give details of specific command
             const info = getHelpEntry(input, co);
             if (info) {
-                sendMessage(`Entry for command "${info.pretty_name}":\n${info.description}\n\nSyntax: ${config.trigger} ${info.syntax}${info.sudo ? "\n\n(This command requires admin privileges)" : ""}${info.experimental ? "\n\n(This command is experimental)" : ""}`);
+                sendMessage(`Entry for command "${info.pretty_name}":\n${info.description}\n\nSyntax: ${config.trigger} ${info.syntax}${info.sudo ? "\n\n(This command requires admin privileges)" : ""}${info.experimental ? "\n\n(This command is experimental)" : ""}`, threadId);
             } else {
-                sendError(`Help entry not found for ${input}`);
+                sendError(`Help entry not found for ${input}`, threadId);
             }
         } else {
             // No command passed; give overview of all of them
@@ -168,7 +183,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                 }
             }
             mess += `\nTip: for more detailed descriptions, use "${config.trigger} help (command)"`;
-            sendMessage(mess);
+            sendMessage(mess, threadId);
         }
     } else if (co["kick"].m && co["kick"].m[1]) {
         const user = co["kick"].m[1].toLowerCase();
@@ -222,7 +237,7 @@ function handleCommand(command, fromUserId, api = gapi) {
             } else if (param) { // If param != search or new, it should be either a number or valid sub-URL for xkcd.com
                 sendMessage({
                     "url": `http://xkcd.com/${param}`
-                });
+                }, threadId);
             }
         } else { // No parameter passed; send random xkcd
             // Get info of most current xkcd to find out the number of existing xkcd (i.e. the rand ceiling)
@@ -270,7 +285,7 @@ function handleCommand(command, fromUserId, api = gapi) {
     } else if (co["order66"].m) {
         // Remove everyone from the chat for configurable amount of time (see config.js)
         // Use stored threadId in case it changes later (very important)
-        sendMessage("I hate you all.");
+        sendMessage("I hate you all.", threadId);
         setTimeout(function() {
             var callbackset = false;
             for (var m in ids.members[threadId]) {
@@ -333,7 +348,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                 sendMessage("Wake up", members[user]);
             }, 500 + (500 * i));
         }
-        sendMessage(`Messaged ${user.substring(0, 1).toUpperCase()}${user.substring(1)} ${config.wakeUpTimes} times`);
+        sendMessage(`Messaged ${user.substring(0, 1).toUpperCase()}${user.substring(1)} ${config.wakeUpTimes} times`, threadId);
     } else if (co["randmess"].m) {
         // Get thread length
         api.getThreadInfo(threadId, function(err, data) {
@@ -377,7 +392,7 @@ function handleCommand(command, fromUserId, api = gapi) {
         const command = co["echo"].m[1].toLowerCase();
         var message = `${co["echo"].m[2]}`;
         if (command == "echo") {
-            sendMessage(message);
+            sendMessage(message, threadId);
         } else {
             api.getUserInfo(fromUserId, function(err, data) {
                 if (!err) {
@@ -409,7 +424,7 @@ function handleCommand(command, fromUserId, api = gapi) {
     } else if (co["dynamic"].m && co["dynamic"].m[1]) {
         const setting = co["dynamic"].m[1].toLowerCase();
         const isEnabled = (setting == "on");
-        sendMessage(`Turning dynamic mode ${setting} and restarting; give me a moment`);
+        sendMessage(`Turning dynamic mode ${setting} and restarting; give me a moment`, threadId);
 
         if (process.env.EMAIL) { // Heroku
             request.patch({
@@ -473,9 +488,9 @@ function handleCommand(command, fromUserId, api = gapi) {
             if (new_score || new_score == "0") { // Set to provided score if valid (0 is falsey)
                 mem.set(`userscore_${userId}`, new_score, (err, success) => {
                     if (success) {
-                        sendMessage(`${user_cap}'s score updated to ${new_score}.`);
+                        sendMessage(`${user_cap}'s score updated to ${new_score}.`, threadId);
                     } else {
-                        sendError(err);
+                        sendError(err, threadId);
                     }
                 });
             } else { // No value provided; just display score
@@ -501,10 +516,10 @@ exports.handleCommand = handleCommand; // Export for external use
 function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
     if (config.easterEggs) {
         if (message.match(/genius/i)) {
-            sendFile("media/genius.jpg");
+            sendFile("media/genius.jpg", "", threadId);
         }
         if (message.match(/kys|cuck(?:ed)?|maga/i)) {
-            sendMessage("Delete your account.")
+            sendMessage("Delete your account.", threadId)
         }
         if (message.match(/(?:problem |p)set(?:s)?/i)) {
             fs.readFile("media/monologue.txt", "utf-8", function(err, text) {
@@ -514,38 +529,38 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             });
         }
         if (message.match(/umd/i)) {
-            sendFile("media/umd.png");
+            sendFile("media/umd.png", "", threadId);
         }
         if (message.match(/cornell/i)) {
             sendMessage({
                 "url": "https://www.youtube.com/watch?v=yBUz4RnoWSM"
-            });
+            }, threadId);
         }
         if (message.match(/swarthmore/i)) {
-            sendFile("media/jonah.png");
+            sendFile("media/jonah.png", "", threadId);
         }
         if (message.match(/purdue/i)) {
-            sendMessage("I hear they have good chicken");
+            sendMessage("I hear they have good chicken", threadId);
         }
         if (message.match(/nyu/i)) {
-            sendMessage("We don't speak of it");
+            sendMessage("We don't speak of it", threadId);
         }
         if (message.match(/commit seppuku/i)) {
-            sendMessage("RIP");
+            sendMessage("RIP", threadId);
         }
         if (message.match(/physics c(?:[^A-z]|$)/i)) {
             sendMessage({
                 "url": "https://www.youtube.com/watch?v=HydsTDvEINo"
-            });
+            }, threadId);
         }
         if (message.match(/(?:\s|^)shaw/i)) {
-            sendFile("media/shaw.png");
+            sendFile("media/shaw.png", "", threadId);
         }
         if (message.match(/(?:get|measure) bac/i)) {
-            sendMessage("Yiyi's BAC is far above healthy levels")
+            sendMessage("Yiyi's BAC is far above healthy levels", threadId)
         }
         if (message.match(/physics .* cam$/i)) {
-            sendMessage("eron");
+            sendMessage("eron", threadId);
         }
     }
 }
@@ -673,9 +688,9 @@ function setEnvironmentVariables(message, api = gapi) {
             config.groupName = data.name || "Unnamed chat";
             config.defaultEmoji = data.emoji ? data.emoji.emoji : config.defaultEmoji;
             config.defaultColor = data.color;
-            ids.members[message.threadID] = []; // Clear old members
             api.getUserInfo(data.participantIDs, function(err, data) {
                 if (!err) {
+                    ids.members[message.threadID] = []; // Clear old members
                     for (var id in data) {
                         if (data.hasOwnProperty(id) && id != ids.bot) {
                             ids.members[message.threadID][data[id].firstName.toLowerCase()] = id;
@@ -704,7 +719,7 @@ function getHelpEntry(input, log) {
 function sendEmoji(threadId, api = gapi) {
     api.getThreadInfo(threadId, function(err, data) {
         if (!err) {
-            sendMessage(data.emoji ? data.emoji.emoji : config.defaultEmoji);
+            sendMessage(data.emoji ? data.emoji.emoji : config.defaultEmoji, threadId);
         }
     });
 }
