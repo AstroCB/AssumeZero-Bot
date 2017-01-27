@@ -223,7 +223,7 @@ exports.commands = {
     },
     "restart": {
         "display_names": ["restart"],
-        "pretty_name": "Restart": ,
+        "pretty_name": "Restart",
         "short_description": "Restarts the bot",
         "description": "Restarts the bot (requires deployment to Heroku)",
         "syntax": "restart",
