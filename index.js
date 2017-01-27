@@ -290,7 +290,7 @@ function handleCommand(command, fromUserId, api = gapi) {
             var callbackset = false;
             for (var m in ids.members[threadId]) {
                 // Bot should never be in members list, but this is a safeguard
-                //(ALSO VERY IMPORTANT so that group isn't completely emptied)
+                // (ALSO VERY IMPORTANT so that group isn't completely emptied)
                 if (ids.members[threadId].hasOwnProperty(m) && ids.members[threadId][m] != ids.bot) {
                     if (!callbackset) { // Only want to send the message once
                         kick(ids.members[threadId][m], config.order66Time, threadId, function() {

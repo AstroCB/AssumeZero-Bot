@@ -16,7 +16,7 @@ exports.groupName = "Assume Zero Brain Power";
 // The regular expression used for detecting names in commands issued to the bot
 // By default, it will look for the names listed as keys in the group's members
 // dictionary in ids.js For custom name detection, remove this function call and
-// replace it with a string containing regex
+// replace it with a string containing a regular expression
 exports.userRegExp = utils.setRegexFromMembers();
 
 // Time in seconds to ban users for Order 66

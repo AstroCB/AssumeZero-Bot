@@ -63,7 +63,7 @@ function handle(message, sender, isCommand = false) {
 // Ping every 20 minutes to keep awake
 // Sleep from 3 AM to 9 AM to preserve time (UTC)
 const local_low = 3;
-const local_high = 9
+const local_high = 9;
 const offset = 5;
 setInterval(function() {
     var now = new Date();
