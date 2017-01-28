@@ -1,6 +1,6 @@
 // Dependencies
 const messenger = require("facebook-chat-api"); // Chat API
-const fs = require("fs");
+const fs = require("fs"); // File system
 const exec = require("child_process").exec;
 const request = require("request"); // For HTTP requests
 const ids = require("./ids"); // Various IDs stored for easy access
@@ -16,10 +16,16 @@ try {
     // Deployed to Heroku or config file is missing
     credentials = process.env;
 }
+// External storage API (Memcachier) (requires credentials)
 const mem = require("memjs").Client.create(credentials.MEMCACHIER_SERVERS, {
-    username: credentials.MEMCACHIER_USERNAME,
-    password: credentials.MEMCACHIER_PASSWORD
+    "username": credentials.MEMCACHIER_USERNAME,
+    "password": credentials.MEMCACHIER_PASSWORD
 });
+// Spotify API (requires credentials)
+const spotify = new(require("spotify-web-api-node"))({
+    "clientId": credentials.SPOTIFY_CLIENTID,
+    "clientSecret": credentials.SPOTIFY_CLIENTSECRET
+}); // Spotify API
 var gapi; // Global API for external functions (set on login)
 
 // Log in
@@ -510,6 +516,43 @@ function handleCommand(command, fromUserId, api = gapi) {
         restart(() => {
             sendMessage("Restarting...", threadId);
         });
+    } else if (co["song"].m) {
+        spotify.clientCredentialsGrant({}, (err, data) => {
+            if (!err) {
+                spotify.setAccessToken(data.body.access_token);
+                spotify.getPlaylist("zhiyikuang", "53Bq3HDhuLlpTYutbeAT53", {}, (err, data) => {
+                    if (!err) {
+                        const name = data.body.name;
+                        const songs = data.body.tracks.items;
+                        const track = songs[Math.floor(Math.random() * (songs.length - 1))].track;
+                        const getArtists = () => {
+                            const artists = track.artists;
+                            artistStr = "";
+                            for (var i = 0; i < artists.length; i++) {
+                                artistStr += artists[i].name;
+                                if (i != artists.length - 1) {
+                                    artistStr += "/";
+                                }
+                            }
+                            return artistStr;
+                        }
+                        const msg = `How about ${track.name} (from "${track.album.name}") by ${getArtists()}?`;
+                        if (track.preview_url) {
+                            // Send preview MP3 to chat if exists
+                            sendFileFromUrl(track.preview_url, "media/preview.mp3", msg, threadId);
+                        } else {
+                            sendMessage({
+                                "body": msg,
+                                "url": track.external_urls.spotify // Should always exist
+                            }, threadId);
+                        }
+
+                    } else {
+                        console.log(err);
+                    }
+                });
+            }
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -761,37 +804,46 @@ function searchForUser(match, threadId, num = 0, api = gapi) {
     // Try to get large propic URL from Facebook Graph API using user ID
     // If propic exists, combine it with the description
     const userId = match.userID;
-    const photoUrl = `media/profiles/${userId}.jpg`; // Location of downloaded file
     const graphUrl = `https://graph.facebook.com/${userId}/picture?type=large&redirect=false&width=400&height=400`;
     request.get(graphUrl, (err, res, body) => {
         if (res.statusCode == 200) {
             const url = JSON.parse(body).data.url; // Photo URL from Graph API
+            const photoUrl = `media/profiles/${userId}.jpg`; // Location of downloaded file
             if (url) {
-                request.head(url, (err, res, body) => {
-                    // Download propic and pass to chat API
-                    if (!err) {
-                        request(url).pipe(fs.createWriteStream(photoUrl)).on('close', (err, data) => {
-                            if (!err) {
-                                // Use API's official sendMessage here for callback functionality
-                                api.sendMessage({
-                                    "body": desc,
-                                    "attachment": fs.createReadStream(`${__dirname}/${photoUrl}`)
-                                }, threadId, (err, data) => {
-                                    // Delete downloaded propic
-                                    fs.unlink(photoUrl);
-                                });
-                            } else {
-                                sendMessage(desc, threadId);
-                            }
-                        });
-                    } else {
-                        // Just send the description if photo can't be downloaded
-                        sendMessage(desc, threadId);
-                    }
-                });
+                sendFileFromUrl(url, photoUrl, desc, threadId);
             } else {
                 sendMessage(desc, threadId);
             }
+        }
+    });
+}
+
+// Sends a file to the group from a URL by temporarily downloading it
+// and re-uploading it as part of the message (useful for images on Facebook
+// domains, which are blocked by Facebook for URL auto-detection)
+// Accepts url, optional file download location/name, optional message, and optional
+// threadId parameters
+function sendFileFromUrl(url, path = "media/temp.jpg", message = "", threadId = ids.group, api = gapi) {
+    request.head(url, (err, res, body) => {
+        // Download file and pass to chat API
+        if (!err) {
+            request(url).pipe(fs.createWriteStream(path)).on('close', (err, data) => {
+                if (!err) {
+                    // Use API's official sendMessage here for callback functionality
+                    api.sendMessage({
+                        "body": message,
+                        "attachment": fs.createReadStream(`${__dirname}/${path}`)
+                    }, threadId, (err, data) => {
+                        // Delete downloaded propic
+                        fs.unlink(path);
+                    });
+                } else {
+                    sendMessage(message, threadId);
+                }
+            });
+        } else {
+            // Just send the description if photo can't be downloaded
+            sendMessage(message, threadId);
         }
     });
 }

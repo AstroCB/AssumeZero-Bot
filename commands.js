@@ -231,5 +231,16 @@ exports.commands = {
         "user_input": false,
         "regex": /restart/i,
         "experimental": false
+    },
+    "song": {
+        "display_names": ["song", "get song"],
+        "pretty_name": "Song",
+        "short_description": "Get random song",
+        "description": "Grabs a random song from Yiyi's master playlist (https://open.spotify.com/user/zhiyikuang/playlist/53Bq3HDhuLlpTYutbeAT53)",
+        "syntax": "(get) song",
+        "sudo": false,
+        "user_input": false,
+        "regex": /(?:get )?song/i,
+        "experimental": false
     }
 };
