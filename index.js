@@ -553,6 +553,29 @@ function handleCommand(command, fromUserId, api = gapi) {
                 });
             }
         });
+    } else if (co["photo"].m && co["photo"].m[1]) {
+        // Set photo to photo at provided URL
+        const url = co["photo"].m[1];
+        const path = "media/group.png";
+        request.head(url, (err, res, body) => {
+            // Download file and pass to chat API
+            if (!err) {
+                request(url).pipe(fs.createWriteStream(path)).on('close', (err, data) => {
+                    if (!err) {
+                        // Use API's official sendMessage here for callback functionality
+                        api.changeGroupImage(fs.createReadStream(`${__dirname}/${path}`), threadId, (err, data) => {
+                            // Delete downloaded propic
+                            fs.unlink(path);
+                            if (err) {
+                                sendError("Photo couldn't be found at that URL", threadId);
+                            }
+                        });
+                    }
+                });
+            } else {
+                sendError("Photo couldn't be downloaded", threadId);
+            }
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use

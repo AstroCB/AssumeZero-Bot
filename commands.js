@@ -242,5 +242,16 @@ exports.commands = {
         "user_input": false,
         "regex": /(?:get )?song/i,
         "experimental": false
+    },
+    "photo": {
+        "display_names": ["set picture", "set photo", "set image", "change picture", "change photo", "set photo", "picture", "photo", "image"],
+        "pretty_name": "Change group picture",
+        "short_description": "Sets group photo to URL",
+        "description": "Changes the group's photo to the image at the specified URL",
+        "syntax": "(get) song",
+        "sudo": false,
+        "user_input": false,
+        "regex": /(?:(?:set|change) )?(?:photo|picture|image) ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?)/i, // URL
+        "experimental": false
     }
 };
