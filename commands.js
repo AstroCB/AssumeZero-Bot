@@ -245,7 +245,7 @@ exports.commands = {
     },
     "photo": {
         "display_names": ["set picture", "set photo", "set image", "change picture", "change photo", "set photo", "picture", "photo", "image"],
-        "pretty_name": "Change group picture",
+        "pretty_name": "Group photo",
         "short_description": "Sets group photo to URL",
         "description": "Changes the group's photo to the image at the specified URL",
         "syntax": "(set|change) (photo|picture|image) (url)",
