@@ -248,7 +248,7 @@ exports.commands = {
         "pretty_name": "Change group picture",
         "short_description": "Sets group photo to URL",
         "description": "Changes the group's photo to the image at the specified URL",
-        "syntax": "(get) song",
+        "syntax": "(set|change) (photo|picture|image) (url)",
         "sudo": false,
         "user_input": false,
         "regex": /(?:(?:set|change) )?(?:photo|picture|image) ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?)/i, // URL
