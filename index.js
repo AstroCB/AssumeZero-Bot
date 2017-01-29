@@ -586,7 +586,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                     if (!err) {
                         // Use API's official sendMessage here for callback functionality
                         api.changeGroupImage(fs.createReadStream(`${__dirname}/${path}`), threadId, (err, data) => {
-                            // Delete downloaded propic
+                            // Delete downloaded file
                             fs.unlink(path);
                             if (err) {
                                 sendError("Photo couldn't be found at that URL", threadId);
