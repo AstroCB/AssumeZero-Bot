@@ -310,17 +310,17 @@ exports.commands = {
         "experimental": false
     },
     "spotsearch": {
-        "display_names": ["artist search", "song search", "track search"],
+        "display_names": ["search artist", "search song", "search track"],
         "pretty_name": "Spotify search",
         "short_description": "Search for artists & songs",
         "description": "Searches Spotify's database for artists and songs",
-        "syntax": "(artist|(song|track)) search ${query}",
+        "syntax": "search (artist|(song|track)) ${query}",
         "sudo": false,
         "user_input": {
             "accepts": false,
             "optional": false
         },
-        "regex": /(artist|song|track) search (.*)/i,
+        "regex": /search (artist|song|track) (.*)/i,
         "experimental": false
     },
     "photo": {
