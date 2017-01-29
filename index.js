@@ -557,8 +557,8 @@ function handleCommand(command, fromUserId, api = gapi) {
                             }
                             return artistStr;
                         }
-                        sendMessage(`Grabbing a song from ${playlist.name}'s playlist, "${name}..."`, threadId);
-                        const msg = `How about ${track.name} (from "${track.album.name}") by ${getArtists()}?`;
+                        sendMessage(`Grabbing a song from ${playlist.name}'s playlist, "${name}"...`, threadId);
+                        const msg = `How about ${track.name} (from "${track.album.name}") by ${getArtists()}${track.explicit ? " (Explicit)" : ""}?`;
                         if (track.preview_url) {
                             // Send preview MP3 to chat if exists
                             sendFileFromUrl(track.preview_url, "media/preview.mp3", msg, threadId);
