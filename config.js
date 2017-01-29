@@ -96,7 +96,7 @@ exports.spotifyPlaylists = [{
         "name": "Matthew",
         "id": "100006496860557",
         "user": "powerplayer117",
-        "uri": "2b80Bi6Pu90f6LzJwcwXpM"
+        "uri": "2fdwKfdyavl28cVOWOjBkB"
     }
 ];
 // Default playlist used if invalid user passed
