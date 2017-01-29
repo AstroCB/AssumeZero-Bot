@@ -81,6 +81,11 @@ exports.spotifyPlaylists = [{
         "id": "100002237228114",
         "user": "1211218832",
         "uri": "3L1HbTx5JPlvoYzebh2cq9"
+    }, {
+        "name": "Colin",
+        "id": "100003158871750",
+        "user": "colinam1",
+        "playlist": "5DLJfgTgZ041ykJgH1Ior4"
     }
 ];
 // Default used if invalid user passed
