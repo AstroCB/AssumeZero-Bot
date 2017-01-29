@@ -205,7 +205,7 @@ function handleCommand(command, fromUserId, api = gapi) {
         } catch (e) {
             sendError(e);
         }
-    } else if (co["xkcd"].m) { // Check second to prevent clashes with search command
+    } else if (co["xkcd"].m) { // Check before regular search to prevent clashes
         if (co["xkcd"].m[1]) { // Parameter specified
             const query = co["xkcd"].m[2];
             const param = co["xkcd"].m[1].split(query).join("").trim(); // Param = 1st match - 2nd
@@ -257,6 +257,85 @@ function handleCommand(command, fromUserId, api = gapi) {
                 }
             });
         }
+    } else if (co["spotsearch"].m && co["spotsearch"].m[1] && co["spotsearch"].m[2]) {
+        const query = co["spotsearch"].m[2];
+        spotify.clientCredentialsGrant({}, (err, data) => {
+            if (!err) {
+                spotify.setAccessToken(data.body.access_token);
+                if (co["spotsearch"].m[1].toLowerCase() == "artist") {
+                    // Artist search
+                    spotify.searchArtists(query, {}, (err, data) => {
+                        if (!err) {
+                            const bestMatch = data.body.artists.items[0];
+                            const id = bestMatch.id;
+                            if (id) {
+                                spotify.getArtistTopTracks(id, "US", (err, data) => {
+                                    if (!err) {
+                                        const tracks = data.body.tracks;
+                                        const link = bestMatch.external_urls.spotify;
+                                        const image = bestMatch.images[0];
+                                        const popularity = bestMatch.popularity;
+                                        let message = `Best match: ${bestMatch.name}\nPopularity: ${popularity}%\n\nTop tracks:\n`
+                                        for (let i = 0; i < config.spotifySearchLimit; i++) {
+                                            if (tracks[i]) {
+                                                message += `${tracks[i].name}${tracks[i].explicit ? " (Explicit)" : ""} (from ${tracks[i].album.name})${(i != config.spotifySearchLimit - 1) ? "\n" : ""}`;
+                                            }
+                                        }
+
+                                        if (image) {
+                                            // Send image of artist
+                                            sendFileFromUrl(image, "media/artist.png", message, threadId);
+                                        } else if (link) {
+                                            // Just send link
+                                            sendMessage({
+                                                "body": message,
+                                                "url": bestMatch
+                                            }, threadId);
+                                        } else {
+                                            // Just send message
+                                            sendMessage(message, threadId);
+                                        }
+                                    }
+                                });
+                            } else {
+                                sendError(`No results found for query "${query}"`, threadId);
+                            }
+                        } else {
+                            sendError(err, threadId)
+                        }
+                    });
+                } else {
+                    // Song search
+                    spotify.searchTracks(query, {}, (err, data) => {
+                        if (!err) {
+                            const bestMatch = data.body.tracks.items[0];
+                            if (bestMatch) {
+                                const message = `Best match: ${bestMatch.name} by ${getArtists(bestMatch)} (from ${bestMatch.album.name})${bestMatch.explicit ? " (Explicit)" : ""}`;
+                                const url = bestMatch.external_urls.spotify;
+                                const preview = bestMatch.preview_url;
+
+                                if (preview) {
+                                    // Upload preview
+                                    sendFileFromUrl(preview, "media/preview.mp3", message, threadId);
+                                } else {
+                                    // Just send Spotify URL
+                                    sendMessage({
+                                        "body": message,
+                                        "url": url
+                                    }), threadId;
+                                }
+                            } else {
+                                sendError(`No results found for query "${query}"`, threadId);
+                            }
+                        } else {
+                            sendError(err, threadId);
+                        }
+                    });
+                }
+            } else {
+                console.log(err);
+            }
+        });
     } else if (co["addsearch"].m && co["addsearch"].m[1] && co["addsearch"].m[3]) {
         // Fields 1 & 3 are are for the command and the user, respectively
         // Field 2 is for an optional number parameter specifying the number of search results
@@ -546,17 +625,6 @@ function handleCommand(command, fromUserId, api = gapi) {
                         const name = data.body.name;
                         const songs = data.body.tracks.items;
                         const track = songs[Math.floor(Math.random() * songs.length)].track;
-                        const getArtists = () => {
-                            const artists = track.artists;
-                            artistStr = "";
-                            for (var i = 0; i < artists.length; i++) {
-                                artistStr += artists[i].name;
-                                if (i != artists.length - 1) {
-                                    artistStr += "/";
-                                }
-                            }
-                            return artistStr;
-                        }
                         sendMessage(`Grabbing a song from ${playlist.name}'s playlist, "${name}"...`, threadId);
                         const msg = `How about ${track.name} (from "${track.album.name}") by ${getArtists()}${track.explicit ? " (Explicit)" : ""}?`;
                         if (track.preview_url) {
@@ -929,4 +997,17 @@ function restart(callback) {
     if (callback) {
         callback();
     }
+}
+
+// Constructs a string of artists when passed a track object from the Spotify API
+function getArtists(track) {
+    const artists = track.artists;
+    artistStr = "";
+    for (let i = 0; i < artists.length; i++) {
+        artistStr += artists[i].name;
+        if (i != artists.length - 1) {
+            artistStr += "/";
+        }
+    }
+    return artistStr;
 }

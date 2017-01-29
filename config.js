@@ -93,5 +93,8 @@ exports.spotifyPlaylists = [{
       "uri": "2b80Bi6Pu90f6LzJwcwXpM"
     }
 ];
-// Default used if invalid user passed
+// Default playlist used if invalid user passed
 exports.defaultPlaylist = exports.spotifyPlaylists[1];
+
+// Number of top tracks to display for Spotify searches
+exports.spotifySearchLimit = 3;
