@@ -136,11 +136,11 @@ function handleCommand(command, fromUserId, api = gapi) {
             // Check whether command is sudo-protected and, if so, whether the user is the admin
             if ((co[c].sudo && fromUserId == ids.owner) || !co[c].sudo) {
                 // Set match vals
-                if (co[c].user_input) { // Requires a match from the members dict
+                if (co[c].user_input.accepts) { // Takes a match from the members dict
                     if (Array.isArray(co[c].regex)) { // Also has a regex suffix (passed as length 2 array)
-                        co[c].m = matchesWithUser(co[c].regex[0], command, " ", co[c].regex[1]);
+                        co[c].m = matchesWithUser(co[c].regex[0], command, co[c].user_input.optional, " ", co[c].regex[1]);
                     } else { // Just a standard regex prefex as a string + name
-                        co[c].m = matchesWithUser(co[c].regex, command);
+                        co[c].m = matchesWithUser(co[c].regex, command, co[c].user_input.optional);
                     }
                     // Now look for instances of "me" in the command and replace with the calling user
                     if (co[c].m) {
@@ -520,11 +520,32 @@ function handleCommand(command, fromUserId, api = gapi) {
         spotify.clientCredentialsGrant({}, (err, data) => {
             if (!err) {
                 spotify.setAccessToken(data.body.access_token);
-                spotify.getPlaylist("zhiyikuang", "53Bq3HDhuLlpTYutbeAT53", {}, (err, data) => {
+                const user = co["song"].m[1] ? co["song"].m[1].toLowerCase() : null;
+                const userId = ids.members[threadId][user];
+                const playlists = config.spotifyPlaylists; // Provide data in config
+                let playlist;
+                if (user && userId) {
+                    // User specified
+                    const users = playlists.map((plst) => {
+                        return plst.id;
+                    });
+                    if (users.indexOf(userId) > -1) {
+                        // User has a playlist
+                        playlist = playlists[users.indexOf(userId)];
+                    } else {
+                        playlist = config.defaultPlaylist;
+                        sendMessage(`User ${user.substring(0,1).toUpperCase() + user.substring(1)} does not have a stored playlist; using ${playlist.name}'s instead`, threadId);
+                    }
+                } else {
+                    // No playlist specified; grab random one
+                    playlist = playlists[Math.floor(Math.random() * playlists.length)];
+                }
+
+                spotify.getPlaylist(playlist.user, playlist.uri, {}, (err, data) => {
                     if (!err) {
                         const name = data.body.name;
                         const songs = data.body.tracks.items;
-                        const track = songs[Math.floor(Math.random() * (songs.length - 1))].track;
+                        const track = songs[Math.floor(Math.random() * songs.length)].track;
                         const getArtists = () => {
                             const artists = track.artists;
                             artistStr = "";
@@ -536,6 +557,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                             }
                             return artistStr;
                         }
+                        sendMessage(`Grabbing a song from ${playlist.name}'s playlist, "${name}"`, threadId);
                         const msg = `How about ${track.name} (from "${track.album.name}") by ${getArtists()}?`;
                         if (track.preview_url) {
                             // Send preview MP3 to chat if exists
@@ -637,8 +659,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
 
 // Utility functions
 
-function matchesWithUser(command, message, sep = " ", suffix = "") {
-    return message.match(new RegExp(`${command}${sep}${config.userRegExp}${suffix}`, "i"));
+function matchesWithUser(command, message, optional = false, sep = " ", suffix = "") {
+    // Construct regex string
+    return message.match(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${config.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
 }
 
 // Wrapper function for sending messages easily
@@ -677,11 +700,11 @@ function parsePing(m) {
         users = Object.keys(ids.members[ids.group]);
         m = m.split("@@" + allMatch[1]).join("");
     } else {
-        var matches = matchesWithUser("@@", m, "");
+        var matches = matchesWithUser("@@", m, false, "");
         while (matches && matches[1]) {
             users.push(matches[1].toLowerCase());
             m = m.split("@@" + matches[1]).join(""); // Remove discovered match from string
-            matches = matchesWithUser("@@", m, "");
+            matches = matchesWithUser("@@", m, false, "");
         }
         // After loop, m will contain the message without the pings (the message to be sent)
     }

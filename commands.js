@@ -8,7 +8,10 @@ exports.commands = {
         "description": "Get more information about a command, or open quick help",
         "syntax": "help (command)",
         "sudo": false,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /help(.*)/i,
         "experimental": false
     },
@@ -19,7 +22,10 @@ exports.commands = {
         "description": "Kicks a given member from the chat",
         "syntax": "kick {member} ({number of seconds})",
         "sudo": false,
-        "user_input": true,
+        "user_input": {
+            "accepts": true,
+            "optional": false
+        },
         "regex": ["kick", "(?: (\\d+))?"], // Optional number param after name
         "experimental": false
     },
@@ -30,7 +36,10 @@ exports.commands = {
         "description": "Outputs the numbered xkcd or search result (or a random one if none was specified)",
         "syntax": "xkcd (new|{comic number}|search {search query})",
         "sudo": false,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /xkcd(?: (new|\d+|search (.+)))?/i,
         "experimental": false
     },
@@ -41,7 +50,10 @@ exports.commands = {
         "description": "Searches for the given user and either outputs the best match (for searching) or adds it to the chat (for adding)",
         "syntax": "(add|search ({number of results})) {user}",
         "sudo": false,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /(add|search(?: (\d*))?) (.*)/i,
         "experimental": false
     },
@@ -52,7 +64,10 @@ exports.commands = {
         "description": `Every single group member, including your Socialpath Yiyi Kuang, is now an enemy of the group chat (for ${config.order66Time} seconds)`,
         "syntax": "execute order 66",
         "sudo": false,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /execute order 66/i,
         "experimental": false
     },
@@ -63,7 +78,10 @@ exports.commands = {
         "description": "Resets the group colors",
         "syntax": "reset color(s)",
         "sudo": false,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /reset color(?:s)?/i,
         "experimental": false
     },
@@ -74,7 +92,10 @@ exports.commands = {
         "description": "Sets the color to the specified hex value and outputs previous color",
         "syntax": "set color(s) (to) #{six-digit hex color}",
         "sudo": false,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /set color(?:s)? (?:to )?(#(?:[a-f]|\d){6})/i,
         "experimental": false
     },
@@ -85,7 +106,10 @@ exports.commands = {
         "description": "Changes the group colors to random colors in quick succession",
         "syntax": "hit the lights",
         "sudo": false,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /hit the lights/i,
         "experimental": false
     },
@@ -96,7 +120,10 @@ exports.commands = {
         "description": "Clears the nickname for the given member",
         "syntax": "reset (nick)name {member}",
         "sudo": false,
-        "user_input": true,
+        "user_input": {
+            "accepts": true,
+            "optional": false
+        },
         "regex": "reset (?:nick)?name",
         "experimental": false
     },
@@ -107,7 +134,10 @@ exports.commands = {
         "description": "Sets the given nickname for the given member",
         "syntax": "set (nick)name {member} {nickname}",
         "sudo": false,
-        "user_input": true,
+        "user_input": {
+            "accepts": true,
+            "optional": false
+        },
         "regex": "set (?:nick)?name",
         "experimental": false
     },
@@ -118,7 +148,10 @@ exports.commands = {
         "description": `Sends ${config.wakeUpTimes} messages to the given member`,
         "syntax": "wake up {member}",
         "sudo": false,
-        "user_input": true,
+        "user_input": {
+            "accepts": true,
+            "optional": false
+        },
         "regex": "wake up",
         "experimental": false
     },
@@ -129,7 +162,10 @@ exports.commands = {
         "description": "Retrieves a random message from the recent history of the group",
         "syntax": "random message",
         "sudo": false,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /random message/i,
         "experimental": true
     },
@@ -140,7 +176,10 @@ exports.commands = {
         "description": "Tests whether the bot is running",
         "syntax": "alive(?)",
         "sudo": false,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /alive(?:\?)?/i,
         "experimental": false
     },
@@ -151,7 +190,10 @@ exports.commands = {
         "description": "Resets the emoji to the group default",
         "syntax": "reset emoji",
         "sudo": false,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /reset emoji/i,
         "experimental": false
     },
@@ -162,7 +204,10 @@ exports.commands = {
         "description": "Sets the emoji to the specified Unicode value",
         "syntax": "set emoji (to) #{emoji}",
         "sudo": false,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /set emoji (?:to )?([\uD83C-\uDBFF\uDC00-\uDFFF]{1,2})/iu, // Match emoji w/ Unicode modifier (1-2 chars)
         "experimental": false
     },
@@ -173,7 +218,10 @@ exports.commands = {
         "description": "Echoes or quotes the provided statement",
         "syntax": "(echo|quote) ${statement}",
         "sudo": false,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /(echo|quote) (.*)/i,
         "experimental": false
     },
@@ -184,7 +232,10 @@ exports.commands = {
         "description": "Bans or unbans the provided member",
         "syntax": "(un)ban ${member}",
         "sudo": true,
-        "user_input": true,
+        "user_input": {
+            "accepts": true,
+            "optional": false
+        },
         "regex": "(un)?ban",
         "experimental": false
     },
@@ -195,7 +246,10 @@ exports.commands = {
         "description": "Allows user to change the state of the bot's dynamic mode setting",
         "syntax": "dynamic (on|off)",
         "sudo": true,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /dynamic (on|off)/i,
         "experimental": false
     },
@@ -206,7 +260,10 @@ exports.commands = {
         "description": "Allows users to upvote (>) or downvote (<) a given user to influence their current point total",
         "syntax": "(<|>) (points) ${member}",
         "sudo": false,
-        "user_input": true,
+        "user_input": {
+            "accepts": true,
+            "optional": false
+        },
         "regex": "(<|>)",
         "experimental": false
     },
@@ -217,7 +274,10 @@ exports.commands = {
         "description": "Displays the user's current point score or sets it to a new provided value (must be ≥ 0)",
         "syntax": "score (new score) ${member}",
         "sudo": false,
-        "user_input": true,
+        "user_input": {
+            "accepts": true,
+            "optional": false
+        },
         "regex": "score(?: (\\d+))?",
         "experimental": false
     },
@@ -228,7 +288,10 @@ exports.commands = {
         "description": "Restarts the bot (requires deployment to Heroku)",
         "syntax": "restart",
         "sudo": true,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /restart/i,
         "experimental": false
     },
@@ -236,11 +299,14 @@ exports.commands = {
         "display_names": ["song", "get song"],
         "pretty_name": "Song",
         "short_description": "Get random song",
-        "description": "Grabs a random song from Yiyi's master playlist (https://open.spotify.com/user/zhiyikuang/playlist/53Bq3HDhuLlpTYutbeAT53)",
-        "syntax": "(get) song",
+        "description": "Grabs a random song from member playlist",
+        "syntax": "(get) song (${member})",
         "sudo": false,
-        "user_input": false,
-        "regex": /(?:get )?song/i,
+        "user_input": {
+            "accepts": true,
+            "optional": true
+        },
+        "regex": "(?:get )?song",
         "experimental": false
     },
     "photo": {
@@ -250,7 +316,10 @@ exports.commands = {
         "description": "Changes the group's photo to the image at the specified URL",
         "syntax": "(set|change) (photo|picture|image) (url)",
         "sudo": false,
-        "user_input": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
         "regex": /(?:(?:set|change) )?(?:photo|picture|image) ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?)/i, // URL
         "experimental": false
     }

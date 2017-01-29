@@ -63,3 +63,25 @@ exports.easterEggs = true;
 // How many points a vote is worth by default
 // See commands.js for more info
 exports.votePoints = 5;
+
+// Specify here user Spotify playlists to select from with the "song" command
+exports.spotifyPlaylists = [{
+        "name": "Cameron",
+        "id": "100007016509302",
+        "user": "astrocb",
+        "uri": "5y1RF0Qzrh7ZLpPYRk7vPZ"
+    },
+    {
+        "name": "Justin",
+        "id": "100000284649585",
+        "user": "zhiyikuang",
+        "uri": "53Bq3HDhuLlpTYutbeAT53"
+    }, {
+        "name": "Larry",
+        "id": "100002237228114",
+        "user": "1211218832",
+        "uri": "3L1HbTx5JPlvoYzebh2cq9"
+    }
+];
+// Default used if invalid user passed
+exports.defaultPlaylist = exports.spotifyPlaylists[1];
