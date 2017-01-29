@@ -104,7 +104,7 @@ function handleMessage(err, message, api = gapi) { // New message received from 
                     }
 
                     // Pass to commands testing for trigger word
-                    var cindex = m.toLowerCase().indexOf(config.trigger);
+                    const cindex = m.toLowerCase().indexOf(config.trigger);
                     if (cindex > -1) { // Trigger command mode
                         handleCommand(m.substring(cindex + config.trigger.length), senderId);
                     }
