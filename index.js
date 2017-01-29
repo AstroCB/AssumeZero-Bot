@@ -265,7 +265,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                 if (co["spotsearch"].m[1].toLowerCase() == "artist") {
                     // Artist search
                     spotify.searchArtists(query, {}, (err, data) => {
-                        if (!err && artists) {
+                        if (!err && data.body) {
                             const bestMatch = data.body.artists.items[0];
                             const id = bestMatch.id;
                             if (id) {
