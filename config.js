@@ -86,17 +86,17 @@ exports.spotifyPlaylists = [{
         "id": "100003158871750",
         "user": "colinam1",
         "uri": "5DLJfgTgZ041ykJgH1Ior4"
-    }, 
+    },
     {
-      "name": "Kevin",
-      "id": "100007084773616",
-      "user": "kwang21093",
-      "uri": "5891o4biUm1gPGgNd2JGPg"
+        "name": "Kevin",
+        "id": "100007084773616",
+        "user": "kwang21093",
+        "uri": "5891o4biUm1gPGgNd2JGPg"
     }, {
-      "name": "Matthew",
-      "id": "100006496860557",
-      "user": "powerplayer117",
-      "uri": "2b80Bi6Pu90f6LzJwcwXpM"
+        "name": "Matthew",
+        "id": "100006496860557",
+        "user": "powerplayer117",
+        "uri": "2b80Bi6Pu90f6LzJwcwXpM"
     }
 ];
 // Default playlist used if invalid user passed
