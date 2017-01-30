@@ -16,8 +16,8 @@ const mem = require("memjs").Client.create(credentials.MEMCACHIER_SERVERS, {
 
 exports.setRegexFromMembers = function(groupId = ids.group) {
     const members = Object.keys(ids.members[groupId]);
-    var regstr = "(";
-    for (var i = 0; i < members.length; i++) {
+    let regstr = "(";
+    for (let i = 0; i < members.length; i++) {
         regstr += members[i];
             regstr += "|";
     }

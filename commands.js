@@ -4,7 +4,7 @@ exports.commands = {
     "help": {
         "display_names": ["help"],
         "pretty_name": "Help",
-        "short_description": "Get help",
+        "short_description": "",
         "description": "Get more information about a command, or open quick help",
         "syntax": "help ({command})",
         "sudo": false,
@@ -18,8 +18,8 @@ exports.commands = {
     "kick": {
         "display_names": ["kick"],
         "pretty_name": "Kick",
-        "short_description": "Kick member",
-        "description": "Kicks a given member from the chat",
+        "short_description": "Removes member",
+        "description": "Removes a given member from the chat for an optional amount of time",
         "syntax": "kick {member} ({number of seconds})",
         "sudo": false,
         "user_input": {
@@ -46,7 +46,7 @@ exports.commands = {
     "spotsearch": {
         "display_names": ["search artist", "search song", "search track"],
         "pretty_name": "Spotify search",
-        "short_description": "Search for artists & songs",
+        "short_description": "Search for music",
         "description": "Searches Spotify's database for artists and songs",
         "syntax": "search (artist|(song|track)) {query}",
         "sudo": false,
@@ -60,7 +60,7 @@ exports.commands = {
     "addsearch": {
         "display_names": ["add", "search"],
         "pretty_name": "Add/search",
-        "short_description": "Add/search user",
+        "short_description": "",
         "description": "Searches for the given user and either outputs the best match (for searching) or adds it to the chat (for adding)",
         "syntax": "(add|search ({number of results})) {user}",
         "sudo": false,
@@ -74,7 +74,7 @@ exports.commands = {
     "order66": {
         "display_names": ["execute order 66", "order 66"],
         "pretty_name": "Order 66",
-        "short_description": "Execute group temporarily",
+        "short_description": "Destroy group temporarily",
         "description": `Every single group member, including your Socialpath Yiyi Kuang, is now an enemy of the group chat (for ${config.order66Time} seconds)`,
         "syntax": "execute order 66",
         "sudo": false,
@@ -88,7 +88,7 @@ exports.commands = {
     "resetcolor": {
         "display_names": ["reset color"],
         "pretty_name": "Reset color",
-        "short_description": "Reset color",
+        "short_description": "",
         "description": "Resets the group colors",
         "syntax": "reset color(s)",
         "sudo": false,
@@ -102,7 +102,7 @@ exports.commands = {
     "setcolor": {
         "display_names": ["set color"],
         "pretty_name": "Set color",
-        "short_description": "Set chat color",
+        "short_description": "",
         "description": "Sets the color to the specified hex value and outputs previous color",
         "syntax": "set color(s) (to) #{six-digit hex color}",
         "sudo": false,
@@ -130,7 +130,7 @@ exports.commands = {
     "resetnick": {
         "display_names": ["reset nickname"],
         "pretty_name": "Reset nickname",
-        "short_description": "Reset nickname",
+        "short_description": "",
         "description": "Clears the nickname for the given member",
         "syntax": "reset (nick)name {member}",
         "sudo": false,
@@ -144,7 +144,7 @@ exports.commands = {
     "setnick": {
         "display_names": ["set nickname"],
         "pretty_name": "Set nickname",
-        "short_description": "Set nickname",
+        "short_description": "",
         "description": "Sets the given nickname for the given member",
         "syntax": "set (nick)name {member} {nickname}",
         "sudo": false,
@@ -172,7 +172,7 @@ exports.commands = {
     "randmess": {
         "display_names": ["get random message", "random message"],
         "pretty_name": "Random message",
-        "short_description": "Get random message",
+        "short_description": "",
         "description": "Retrieves a random message from the recent history of the group",
         "syntax": "random message",
         "sudo": false,
@@ -186,7 +186,7 @@ exports.commands = {
     "alive": {
         "display_names": ["alive", "alive?"],
         "pretty_name": "Alive",
-        "short_description": "Is bot up?",
+        "short_description": "",
         "description": "Tests whether the bot is running",
         "syntax": "alive(?)",
         "sudo": false,
@@ -200,7 +200,7 @@ exports.commands = {
     "resetemoji": {
         "display_names": ["reset emoji"],
         "pretty_name": "Reset emoji",
-        "short_description": "Reset emoji",
+        "short_description": "",
         "description": "Resets the emoji to the group default",
         "syntax": "reset emoji",
         "sudo": false,
@@ -212,9 +212,9 @@ exports.commands = {
         "experimental": false
     },
     "setemoji": {
-        "display_names": ["set emoji"],
+        "display_names": ["set emoji", "emoji"],
         "pretty_name": "Set emoji",
-        "short_description": "Set chat emoji",
+        "short_description": "",
         "description": "Sets the emoji to the specified Unicode value",
         "syntax": "set emoji (to) #{emoji}",
         "sudo": false,
@@ -228,7 +228,7 @@ exports.commands = {
     "echo": {
         "display_names": ["echo", "quote"],
         "pretty_name": "Echo/quote",
-        "short_description": "Repeat/quote statement",
+        "short_description": "",
         "description": "Echoes or quotes the provided statement",
         "syntax": "(echo|quote) {statement}",
         "sudo": false,
@@ -240,9 +240,9 @@ exports.commands = {
         "experimental": false
     },
     "ban": {
-        "display_names": ["ban"],
+        "display_names": ["ban", "unban"],
         "pretty_name": "Ban",
-        "short_description": "Bans/unbans",
+        "short_description": "",
         "description": "Bans or unbans the provided member",
         "syntax": "(un)ban {member}",
         "sudo": true,
@@ -256,7 +256,7 @@ exports.commands = {
     "dynamic": {
         "display_names": ["dynamic"],
         "pretty_name": "Dynamic",
-        "short_description": "Set dynamic mode",
+        "short_description": "",
         "description": "Allows user to change the state of the bot's dynamic mode setting",
         "syntax": "dynamic (on|off)",
         "sudo": true,
@@ -282,7 +282,7 @@ exports.commands = {
         "experimental": false
     },
     "score": {
-        "display_names": ["score", "get score", "set score"],
+        "display_names": ["score"],
         "pretty_name": "Score",
         "short_description": "Get/set user score",
         "description": "Displays the user's current point score or sets it to a new provided value (must be ≥ 0)",
@@ -298,8 +298,8 @@ exports.commands = {
     "restart": {
         "display_names": ["restart"],
         "pretty_name": "Restart",
-        "short_description": "Restarts the bot",
-        "description": "Restarts the bot (requires deployment to Heroku)",
+        "short_description": "",
+        "description": "Restarts the bot (requires remote deployment to Heroku)",
         "syntax": "restart",
         "sudo": true,
         "user_input": {
@@ -312,7 +312,7 @@ exports.commands = {
     "song": {
         "display_names": ["song", "get song"],
         "pretty_name": "Song",
-        "short_description": "Get random song",
+        "short_description": "Random song",
         "description": "Grabs a random song from member playlist",
         "syntax": "(get) song ({member})",
         "sudo": false,

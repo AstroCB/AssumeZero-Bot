@@ -185,10 +185,12 @@ function handleCommand(command, fromUserId, api = gapi) {
             for (var c in co) {
                 if (co.hasOwnProperty(c)) {
                     const entry = co[c];
-                    mess += `${entry.syntax}: ${entry.short_description}\n`
+                    // Only display short description if one exists
+                    mess += `${entry.syntax}${entry.short_description ? `: ${entry.short_description}` : ""}\n`
+                    mess += "------------------\n"; // Suffix for separating commands
                 }
             }
-            mess += `\nTip: for more detailed descriptions, use "${config.trigger} help (command)"\n\nContact Cameron Bernhardt with any questions.`;
+            mess += `\nContact Cameron Bernhardt with any questions.\n\nTip: for more detailed descriptions, use "${config.trigger} help (command)"`;
             sendMessage(mess, threadId);
         }
     } else if (co["kick"].m && co["kick"].m[1]) {
