@@ -119,8 +119,8 @@ function handleMessage(err, message, api = gapi) { // New message received from 
                         });
                     }
                 }
-            } else if (message.threadID != ids.group) { // Not from main group (static group mode)
-                sendMessage("Multi-chat mode is off", message.threadID);
+            } else if (message.threadID != ids.group) {
+                // Not from main group (static group mode)
             }
         }
     }
