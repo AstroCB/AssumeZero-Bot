@@ -186,7 +186,7 @@ exports.commands = {
     "alive": {
         "display_names": ["alive", "alive?"],
         "pretty_name": "Alive",
-        "short_description": "",
+        "short_description": "Is bot awake?",
         "description": "Tests whether the bot is running",
         "syntax": "alive(?)",
         "sudo": false,
