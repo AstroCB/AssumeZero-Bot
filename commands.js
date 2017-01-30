@@ -6,7 +6,7 @@ exports.commands = {
         "pretty_name": "Help",
         "short_description": "Get help",
         "description": "Get more information about a command, or open quick help",
-        "syntax": "help (command)",
+        "syntax": "help ({command})",
         "sudo": false,
         "user_input": {
             "accepts": false,
@@ -48,7 +48,7 @@ exports.commands = {
         "pretty_name": "Spotify search",
         "short_description": "Search for artists & songs",
         "description": "Searches Spotify's database for artists and songs",
-        "syntax": "search (artist|(song|track)) ${query}",
+        "syntax": "search (artist|(song|track)) {query}",
         "sudo": false,
         "user_input": {
             "accepts": false,
@@ -230,7 +230,7 @@ exports.commands = {
         "pretty_name": "Echo/quote",
         "short_description": "Repeat/quote statement",
         "description": "Echoes or quotes the provided statement",
-        "syntax": "(echo|quote) ${statement}",
+        "syntax": "(echo|quote) {statement}",
         "sudo": false,
         "user_input": {
             "accepts": false,
@@ -244,7 +244,7 @@ exports.commands = {
         "pretty_name": "Ban",
         "short_description": "Bans/unbans",
         "description": "Bans or unbans the provided member",
-        "syntax": "(un)ban ${member}",
+        "syntax": "(un)ban {member}",
         "sudo": true,
         "user_input": {
             "accepts": true,
@@ -272,7 +272,7 @@ exports.commands = {
         "pretty_name": "Vote (</>)",
         "short_description": "Vote on users",
         "description": "Allows users to upvote (>) or downvote (<) a given user to influence their current point total",
-        "syntax": "(<|>) (points) ${member}",
+        "syntax": "(<|>) (points) {member}",
         "sudo": false,
         "user_input": {
             "accepts": true,
@@ -286,7 +286,7 @@ exports.commands = {
         "pretty_name": "Score",
         "short_description": "Get/set user score",
         "description": "Displays the user's current point score or sets it to a new provided value (must be ≥ 0)",
-        "syntax": "score (new score) ${member}",
+        "syntax": "score (new score) {member}",
         "sudo": false,
         "user_input": {
             "accepts": true,
@@ -314,7 +314,7 @@ exports.commands = {
         "pretty_name": "Song",
         "short_description": "Get random song",
         "description": "Grabs a random song from member playlist",
-        "syntax": "(get) song (${member})",
+        "syntax": "(get) song ({member})",
         "sudo": false,
         "user_input": {
             "accepts": true,
