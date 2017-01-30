@@ -188,7 +188,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                     mess += `${entry.syntax}: ${entry.short_description}\n`
                 }
             }
-            mess += `\nTip: for more detailed descriptions, use "${config.trigger} help (command)\n\nContact Cameron Bernhardt with questions.`;
+            mess += `\nTip: for more detailed descriptions, use "${config.trigger} help (command)"\n\nContact Cameron Bernhardt with any questions.`;
             sendMessage(mess, threadId);
         }
     } else if (co["kick"].m && co["kick"].m[1]) {
