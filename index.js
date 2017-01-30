@@ -190,7 +190,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                     mess += "------------------\n"; // Suffix for separating commands
                 }
             }
-            mess += `The bot goes to sleep every night from ~3 AM - 9 AM EST. Contact Cameron Bernhardt with any questions.\n\nTip: for more detailed descriptions, use "${config.trigger} help (command)"`;
+            mess += `The bot goes to sleep every night from ~3 AM - 9 AM ET. Contact Cameron Bernhardt with any questions.\n\nTip: for more detailed descriptions, use "${config.trigger} help (command)"`;
             sendMessage(mess, threadId);
         }
     } else if (co["kick"].m && co["kick"].m[1]) {
