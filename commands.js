@@ -43,6 +43,20 @@ exports.commands = {
         "regex": /xkcd(?: (new|\d+|search (.+)))?/i,
         "experimental": false
     },
+    "spotsearch": {
+        "display_names": ["search artist", "search song", "search track"],
+        "pretty_name": "Spotify search",
+        "short_description": "Search for artists & songs",
+        "description": "Searches Spotify's database for artists and songs",
+        "syntax": "search (artist|(song|track)) ${query}",
+        "sudo": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /search (artist|song|track) (.*)/i,
+        "experimental": false
+    },
     "addsearch": {
         "display_names": ["add", "search"],
         "pretty_name": "Add/search",
@@ -307,20 +321,6 @@ exports.commands = {
             "optional": true
         },
         "regex": "(?:get )?song",
-        "experimental": false
-    },
-    "spotsearch": {
-        "display_names": ["search artist", "search song", "search track"],
-        "pretty_name": "Spotify search",
-        "short_description": "Search for artists & songs",
-        "description": "Searches Spotify's database for artists and songs",
-        "syntax": "search (artist|(song|track)) ${query}",
-        "sudo": false,
-        "user_input": {
-            "accepts": false,
-            "optional": false
-        },
-        "regex": /search (artist|song|track) (.*)/i,
         "experimental": false
     },
     "photo": {
