@@ -390,7 +390,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                 }
             }
         }, 2000); // Make sure people see the message (and impending doom)
-    } else if (co["setcolor"].m && co["setcolor"].m[1]) {
+    } else if (co["setcolor"].m) {
         if (co["setcolor"].m[1]) { // Reset
             api.changeThreadColor(config.defaultColor, threadId);
         } else if (co["setcolor"].m[2]) {
