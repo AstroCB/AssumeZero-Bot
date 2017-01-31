@@ -379,15 +379,12 @@ function handleCommand(command, fromUserId, api = gapi) {
                 // Bot should never be in members list, but this is a safeguard
                 // (ALSO VERY IMPORTANT so that group isn't completely emptied)
                 if (ids.members[threadId].hasOwnProperty(m) && ids.members[threadId][m] != ids.bot) {
-                    console.log(`Kicking from ${threadId}`);
                     if (!callbackset) { // Only want to send the message once
-                        console.log(`Initial kick from ${threadId}`);
                         kick(ids.members[threadId][m], config.order66Time, threadId, function() {
                             sendMessage("Balance is restored to the Force.", threadId);
                         });
                         callbackset = true;
                     } else {
-                        console.log(`Regular kick from ${threadId}`);
                         kick(ids.members[threadId][m], config.order66Time, threadId);
                     }
                 }
@@ -823,7 +820,6 @@ function kick(userId, time, groupId = ids.group, callback, api = gapi) {
                 config.userRegExp = utils.setRegexFromMembers();
                 if (time) {
                     setTimeout(function() {
-                        console.log(`Adding ${userId} to ${groupId}`);
                         addUser(userId, groupId, false); // Don't welcome if they're not new to the group
                         if (callback) {
                             callback();
