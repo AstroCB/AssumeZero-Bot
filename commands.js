@@ -84,7 +84,7 @@ exports.commands = {
         },
         "regex": /execute order 66/i,
         "experimental": false
-    }
+    },
     "setcolor": {
         "display_names": ["reset color", "set color"],
         "pretty_name": "(Re)set color",
