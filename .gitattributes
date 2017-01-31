@@ -1,2 +1,3 @@
-# Exclude landing page from code analytics
+# Exclude files from language analytics
 index.html linguist-generated
+Makefile linguist-generated
