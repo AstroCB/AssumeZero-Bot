@@ -93,6 +93,12 @@ exports.spotifyPlaylists = [{
         "uri": "5DLJfgTgZ041ykJgH1Ior4"
     },
     {
+        "name": "Anton"
+        "id": "100010603296156",
+        "user": "apozharski",
+        "uri": "4aWii0hXP9A73HcGm9NUII"
+    },
+    {
         "name": "Kevin",
         "id": "100004459232882",
         "user": "kwang21093",
