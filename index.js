@@ -492,7 +492,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                     const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][now.getMonth()];
                     const year = now.getFullYear();
 
-                    message = `"${message}" – ${data[fromUserId].name}, ${day}, ${month} ${date}, ${year}`;
+                    message = `"${message}" – ${data[fromUserId].name}\n${day}, ${month} ${date}, ${year}`;
                     sendMessage(message, threadId);
                 }
             });
