@@ -815,17 +815,21 @@ function parsePing(m) {
 // Also accepts optional callback parameter if length is specified
 function kick(userId, time, groupId = ids.group, callback, api = gapi) {
     if (userId != ids.bot) { // Never allow bot to be kicked
-        api.removeUserFromGroup(userId, groupId);
-        deleteUserFromId(userId, groupId);
-        config.userRegExp = utils.setRegexFromMembers();
-        if (time) {
-            setTimeout(function() {
-                console.log(`Adding ${userId} to ${groupId}`);
-                addUser(userId, groupId, false); // Don't welcome if they're not new to the group
-                if (callback) {
-                    callback();
-                }
-            }, time * 1000);
+        try {
+            api.removeUserFromGroup(userId, groupId);
+            deleteUserFromId(userId, groupId);
+            config.userRegExp = utils.setRegexFromMembers();
+            if (time) {
+                setTimeout(function() {
+                    console.log(`Adding ${userId} to ${groupId}`);
+                    addUser(userId, groupId, false); // Don't welcome if they're not new to the group
+                    if (callback) {
+                        callback();
+                    }
+                }, time * 1000);
+            }
+        } catch (e) {
+            sendError("Cannot remove user from a private chat", groupId);
         }
     }
 }
