@@ -724,7 +724,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/physics .* cam$/i)) {
             sendMessage("eron", threadId);
         }
-        if(message.match(/socialist/i)) {
+        if(message.match(/socialis(?:t|m)/i)) {
           sendFile("media/anton.png", "", threadId);
         }
     }
