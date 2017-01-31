@@ -719,10 +719,13 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             sendFile("media/shaw.png", "", threadId);
         }
         if (message.match(/(?:get|measure) bac/i)) {
-            sendMessage("Yiyi's BAC is far above healthy levels", threadId)
+            sendMessage("Yiyi's BAC is far above healthy levels", threadId);
         }
         if (message.match(/physics .* cam$/i)) {
             sendMessage("eron", threadId);
+        }
+        if(message.match(/socialist/i)) {
+          sendFile("media/anton.png", "", threadId);
         }
     }
 }
