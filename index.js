@@ -464,7 +464,7 @@ function handleCommand(command, fromUserId, api = gapi) {
         });
     } else if (co["alive"].m) {
         sendEmoji(threadId);
-    } else if (co["setemoji"].m && co["setemoji"].m[1]) {
+    } else if (co["setemoji"].m) {
         if (co["resetemoji"].m[1]) {
             // Reset
             api.changeThreadEmoji(config.defaultEmoji, threadId, (err) => {
