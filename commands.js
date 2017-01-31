@@ -336,5 +336,19 @@ exports.commands = {
         },
         "regex": /(?:(?:set|change) )?(?:photo|picture|image) ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?)/i, // URL
         "experimental": false
+    },
+    "title": {
+      "display_names": ["set title", "change title", "title"],
+      "pretty_name": "Set title",
+      "short_description": "",
+      "description": "Sets the title to the specified value",
+      "syntax": "(set|change) title {title}",
+      "sudo": false,
+      "user_input": {
+          "accepts": false,
+          "optional": false
+      },
+      "regex": /(?:set|change )?title (.*)/i,
+      "experimental": false
     }
 };

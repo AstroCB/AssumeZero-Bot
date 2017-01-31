@@ -677,6 +677,13 @@ function handleCommand(command, fromUserId, api = gapi) {
                 sendError("Photo couldn't be downloaded", threadId);
             }
         });
+    } else if (co["title"].m && co["title"].m[1]) {
+        const title = co["title"].m[1];
+        api.setTitle(title, threadId, (err) => {
+            if (err) {
+                sendError("Cannot set title for non-group chats", threadId);
+            }
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
