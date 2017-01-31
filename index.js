@@ -479,11 +479,20 @@ function handleCommand(command, fromUserId, api = gapi) {
         const command = co["echo"].m[1].toLowerCase();
         var message = `${co["echo"].m[2]}`;
         if (command == "echo") {
+            // Just an echo – repeat message
             sendMessage(message, threadId);
         } else {
+            // Quote - use name
             api.getUserInfo(fromUserId, function(err, data) {
                 if (!err) {
-                    message = `"${message}" – ${data[fromUserId].name}`;
+                    // Date formatting
+                    const now = new Date();
+                    const date = now.getDate();
+                    const day = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][now.getDay()];
+                    const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][now.getMonth()];
+                    const year = now.getFullYear();
+
+                    message = `"${message}" – ${data[fromUserId].name}, ${day}, ${month} ${date}, ${year}`;
                     sendMessage(message, threadId);
                 }
             });
@@ -724,8 +733,8 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/physics .* cam$/i)) {
             sendMessage("eron", threadId);
         }
-        if(message.match(/socialis(?:t|m)/i)) {
-          sendFile("media/anton.png", "", threadId);
+        if (message.match(/socialis(?:t|m)/i)) {
+            sendFile("media/anton.png", "", threadId);
         }
     }
 }
