@@ -84,33 +84,19 @@ exports.commands = {
         },
         "regex": /execute order 66/i,
         "experimental": false
-    },
-    "resetcolor": {
-        "display_names": ["reset color"],
-        "pretty_name": "Reset color",
-        "short_description": "",
-        "description": "Resets the group colors",
-        "syntax": "reset color(s)",
-        "sudo": false,
-        "user_input": {
-            "accepts": false,
-            "optional": false
-        },
-        "regex": /reset color(?:s)?/i,
-        "experimental": false
-    },
+    }
     "setcolor": {
-        "display_names": ["set color"],
-        "pretty_name": "Set color",
+        "display_names": ["reset color", "set color"],
+        "pretty_name": "(Re)set color",
         "short_description": "",
-        "description": "Sets the color to the specified hex value and outputs previous color",
+        "description": "(Re)sets the color to the specified hex value and outputs previous color",
         "syntax": "set color(s) (to) #{six-digit hex color}",
         "sudo": false,
         "user_input": {
             "accepts": false,
             "optional": false
         },
-        "regex": /set color(?:s)? (?:to )?(#(?:[a-f]|\d){6})/i,
+        "regex": /(re)?set color(?:s)?(?: (?:to )?(#(?:[a-f]|\d){6}))?/i,
         "experimental": false
     },
     "hitlights": {
@@ -128,17 +114,17 @@ exports.commands = {
         "experimental": false
     },
     "resetnick": {
-        "display_names": ["reset nickname"],
-        "pretty_name": "Reset nickname",
+        "display_names": ["clear nickname"],
+        "pretty_name": "Clear nickname",
         "short_description": "",
         "description": "Clears the nickname for the given member",
-        "syntax": "reset (nick)name {member}",
+        "syntax": "clear (nick)name {member}",
         "sudo": false,
         "user_input": {
             "accepts": true,
             "optional": false
         },
-        "regex": "reset (?:nick)?name",
+        "regex": "clear (?:nick)?name",
         "experimental": false
     },
     "setnick": {
@@ -197,32 +183,18 @@ exports.commands = {
         "regex": /alive(?:\?)?/i,
         "experimental": false
     },
-    "resetemoji": {
-        "display_names": ["reset emoji"],
-        "pretty_name": "Reset emoji",
-        "short_description": "",
-        "description": "Resets the emoji to the group default",
-        "syntax": "reset emoji",
-        "sudo": false,
-        "user_input": {
-            "accepts": false,
-            "optional": false
-        },
-        "regex": /reset emoji/i,
-        "experimental": false
-    },
     "setemoji": {
-        "display_names": ["set emoji", "emoji"],
+        "display_names": ["set emoji", "reset emoji", "emoji"],
         "pretty_name": "Set emoji",
         "short_description": "",
-        "description": "Sets the emoji to the specified Unicode value",
-        "syntax": "set emoji (to) #{emoji}",
+        "description": "(Re)sets the emoji to the specified Unicode value",
+        "syntax": "(re)set emoji (to) #{emoji}",
         "sudo": false,
         "user_input": {
             "accepts": false,
             "optional": false
         },
-        "regex": /set emoji (?:to )?([\uD83C-\uDBFF\uDC00-\uDFFF]{1,2})/iu, // Match emoji w/ Unicode modifier (1-2 chars)
+        "regex": /(re)?set emoji(?: (?:to )?([\uD83C-\uDBFF\uDC00-\uDFFF]{1,2}))?/iu, // Match emoji w/ Unicode modifier (1-2 chars)
         "experimental": false
     },
     "echo": {
@@ -338,17 +310,17 @@ exports.commands = {
         "experimental": false
     },
     "title": {
-      "display_names": ["set title", "change title", "title"],
-      "pretty_name": "Set title",
-      "short_description": "",
-      "description": "Sets the title to the specified value",
-      "syntax": "(set|change) title {title}",
-      "sudo": false,
-      "user_input": {
-          "accepts": false,
-          "optional": false
-      },
-      "regex": /(?:set|change )?title (.*)/i,
-      "experimental": false
+        "display_names": ["set title", "change title", "title"],
+        "pretty_name": "Set title",
+        "short_description": "",
+        "description": "Sets the title to the specified value",
+        "syntax": "(set|change) title {title}",
+        "sudo": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /(?:(?:set|change) )?title (.*)/i,
+        "experimental": false
     }
 };

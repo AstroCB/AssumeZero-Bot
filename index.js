@@ -390,19 +390,21 @@ function handleCommand(command, fromUserId, api = gapi) {
                 }
             }
         }, 2000); // Make sure people see the message (and impending doom)
-    } else if (co["resetcolor"].m) {
-        api.changeThreadColor(config.defaultColor, threadId);
     } else if (co["setcolor"].m && co["setcolor"].m[1]) {
-        api.getThreadInfo(threadId, function(err, data) {
-            if (!err) {
-                const ogColor = data.color; // Will be null if no custom color set
-                api.changeThreadColor(co["setcolor"].m[1], threadId, function(err, data) {
-                    if (!err) {
-                        sendMessage(`Last color was ${ogColor}`, threadId);
-                    }
-                });
-            }
-        });
+        if (co["setcolor"].m[1]) { // Reset
+            api.changeThreadColor(config.defaultColor, threadId);
+        } else if (co["setcolor"].m[2]) {
+            api.getThreadInfo(threadId, function(err, data) {
+                if (!err) {
+                    const ogColor = data.color; // Will be null if no custom color set
+                    api.changeThreadColor(co["setcolor"].m[2], threadId, function(err, data) {
+                        if (!err) {
+                            sendMessage(`Last color was ${ogColor}`, threadId);
+                        }
+                    });
+                }
+            });
+        }
     } else if (co["hitlights"].m) {
         api.getThreadInfo(threadId, function(err, data) {
             if (!err) {
@@ -462,19 +464,22 @@ function handleCommand(command, fromUserId, api = gapi) {
         });
     } else if (co["alive"].m) {
         sendEmoji(threadId);
-    } else if (co["resetemoji"].m) {
-        api.changeThreadEmoji(config.defaultEmoji, threadId, (err) => {
-            if (err) {
-                console.log(err);
-            }
-        });
     } else if (co["setemoji"].m && co["setemoji"].m[1]) {
-        api.changeThreadEmoji(co["setemoji"].m[1], threadId, (err) => {
-            if (err) {
-                // Set to default as backup if errors
-                api.changeThreadEmoji(config.defaultEmoji, threadId);
-            }
-        });
+        if (co["resetemoji"].m[1]) {
+            // Reset
+            api.changeThreadEmoji(config.defaultEmoji, threadId, (err) => {
+                if (err) {
+                    console.log(err);
+                }
+            });
+        } else if (co["resetemoji"].m[2]) {
+            api.changeThreadEmoji(co["setemoji"].m[2], threadId, (err) => {
+                if (err) {
+                    // Set to default as backup if errors
+                    api.changeThreadEmoji(config.defaultEmoji, threadId);
+                }
+            });
+        }
     } else if (co["echo"].m && co["echo"].m[1] && co["echo"].m[2]) {
         const command = co["echo"].m[1].toLowerCase();
         var message = `${co["echo"].m[2]}`;
