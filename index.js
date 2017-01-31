@@ -374,8 +374,8 @@ function handleCommand(command, fromUserId, api = gapi) {
         // Use stored threadId in case it changes later (very important)
         sendMessage("I hate you all.", threadId);
         setTimeout(function() {
-            var callbackset = false;
-            for (var m in ids.members[threadId]) {
+            let callbackset = false;
+            for (let m in ids.members[threadId]) {
                 // Bot should never be in members list, but this is a safeguard
                 // (ALSO VERY IMPORTANT so that group isn't completely emptied)
                 if (ids.members[threadId].hasOwnProperty(m) && ids.members[threadId][m] != ids.bot) {
@@ -385,7 +385,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                         });
                         callbackset = true;
                     } else {
-                        kick(ids.members[threadId][m], config.order66Time);
+                        kick(ids.members[threadId][m], config.order66Time, threadId);
                     }
                 }
             }
