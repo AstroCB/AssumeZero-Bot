@@ -815,22 +815,23 @@ function parsePing(m) {
 // Also accepts optional callback parameter if length is specified
 function kick(userId, time, groupId = ids.group, callback, api = gapi) {
     if (userId != ids.bot) { // Never allow bot to be kicked
-        try {
-            api.removeUserFromGroup(userId, groupId);
-            deleteUserFromId(userId, groupId);
-            config.userRegExp = utils.setRegexFromMembers();
-            if (time) {
-                setTimeout(function() {
-                    console.log(`Adding ${userId} to ${groupId}`);
-                    addUser(userId, groupId, false); // Don't welcome if they're not new to the group
-                    if (callback) {
-                        callback();
-                    }
-                }, time * 1000);
+        api.removeUserFromGroup(userId, groupId, (err) => {
+            if (err) {
+                sendError("Cannot kick user from private chat", groupId);
+            } else {
+                deleteUserFromId(userId, groupId);
+                config.userRegExp = utils.setRegexFromMembers();
+                if (time) {
+                    setTimeout(function() {
+                        console.log(`Adding ${userId} to ${groupId}`);
+                        addUser(userId, groupId, false); // Don't welcome if they're not new to the group
+                        if (callback) {
+                            callback();
+                        }
+                    }, time * 1000);
+                }
             }
-        } catch (e) {
-            sendError("Cannot remove user from a private chat", groupId);
-        }
+        });
     }
 }
 
@@ -848,7 +849,9 @@ function deleteUserFromId(userId, groupId) {
 
 // Adds user to group and updates members list
 // Optional parameter to welcome new user to the group
-function addUser(id, threadId = ids.group, welcome = true, api = gapi) {
+// Buffer limit controls number of times it will attempt to add the user to the group
+// if not successful on the first attempt (default 5)
+function addUser(id, threadId = ids.group, welcome = true, currentBuffer = 0, api = gapi) {
     api.getUserInfo(id, function(err, info) {
         api.addUserToGroup(id, threadId, function(err, data) {
             if (!err && info) {
@@ -860,8 +863,10 @@ function addUser(id, threadId = ids.group, welcome = true, api = gapi) {
                 if (welcome) {
                     welcomeNewUser(id, threadId);
                 }
+            } else if (err && (currentBuffer < config.addBufferLimit)) {
+                addUser(id, threadId, welcome, (currentBuffer + 1));
             }
-        })
+        });
     });
 }
 

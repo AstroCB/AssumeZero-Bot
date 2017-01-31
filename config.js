@@ -115,3 +115,6 @@ exports.defaultPlaylist = exports.spotifyPlaylists[1];
 
 // Number of top tracks to display for Spotify searches
 exports.spotifySearchLimit = 3;
+
+// Number of times bot will retry adding a user if it fails on the first time
+exports.addBufferLimit = 5;
