@@ -282,7 +282,7 @@ exports.commands = {
         "experimental": false
     },
     "score": {
-        "display_names": ["score"],
+        "display_names": ["score", "set score", "get score"],
         "pretty_name": "Score",
         "short_description": "Get/set user score",
         "description": "Displays the user's current point score or sets it to a new provided value (must be ≥ 0)",
