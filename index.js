@@ -359,7 +359,6 @@ function handleCommand(command, fromUserId, api = gapi) {
                 console.log(err);
             }
         });
-
     } else if (co["addsearch"].m && co["addsearch"].m[1] && co["addsearch"].m[3]) {
         // Fields 1 & 3 are are for the command and the user, respectively
         // Field 2 is for an optional number parameter specifying the number of search results
