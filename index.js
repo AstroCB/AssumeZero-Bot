@@ -261,7 +261,7 @@ function handleCommand(command, fromUserId, api = gapi) {
         }
     } else if (co["spotsearch"].m && co["spotsearch"].m[1] && co["spotsearch"].m[2]) {
         logInSpotify((err, data) => {
-            if (err) {
+            if (!err) {
                 const query = co["spotsearch"].m[2];
                 if (co["spotsearch"].m[1].toLowerCase() == "artist") {
                     // Artist search
@@ -346,8 +346,14 @@ function handleCommand(command, fromUserId, api = gapi) {
                         const bestMatch = data.body.tracks.items[0];
 
                         if (bestMatch) {
-                            spotify.addTracksToPlaylist(config.groupPlaylist.user, config.groupPlaylist.uri, [bestMatch.uri]);
-                            sendMessage(`Added ${bestMatch.name} by ${getArtists(bestMatch)} to ${config.groupPlaylist.name}'s playlist'`);
+                            console.log(bestMatch.uri)
+                            spotify.addTracksToPlaylist(config.groupPlaylist.user, config.groupPlaylist.uri, [bestMatch.uri], (err) => {
+                                if (!err) {
+                                    sendMessage(`Added ${bestMatch.name} by ${getArtists(bestMatch)} to ${config.groupPlaylist.name}'s playlist'`, threadId);
+                                } else {
+                                    sendError(`Couldn't add ${bestMatch.name} to playlist`, threadId);
+                                }
+                            });
                         } else {
                             sendError(`Song not found for query ${query}`, threadId);
                         }
