@@ -57,6 +57,20 @@ exports.commands = {
         "regex": /search (artist|song|track) (.*)/i,
         "experimental": false
     },
+    "spotadd": {
+        "display_names": ["add song", "add track"],
+        "pretty_name": "Add song",
+        "short_description": "Add to group playlist",
+        "description": "Adds a song (top Spotify search result) to the group's playlist",
+        "syntax": "add (song|track) {query}",
+        "sudo": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /add (?:song|track) (.*)/i,
+        "experimental": false
+    },
     "addsearch": {
         "display_names": ["add", "search"],
         "pretty_name": "Add/search",

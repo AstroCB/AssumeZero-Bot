@@ -260,10 +260,9 @@ function handleCommand(command, fromUserId, api = gapi) {
             });
         }
     } else if (co["spotsearch"].m && co["spotsearch"].m[1] && co["spotsearch"].m[2]) {
-        const query = co["spotsearch"].m[2];
-        spotify.clientCredentialsGrant({}, (err, data) => {
-            if (!err) {
-                spotify.setAccessToken(data.body.access_token);
+        logInSpotify((err, data) => {
+            if (err) {
+                const query = co["spotsearch"].m[2];
                 if (co["spotsearch"].m[1].toLowerCase() == "artist") {
                     // Artist search
                     spotify.searchArtists(query, {}, (err, data) => {
@@ -338,6 +337,29 @@ function handleCommand(command, fromUserId, api = gapi) {
                 console.log(err);
             }
         });
+    } else if (co["spotadd"].m && co["spotadd"].m[1]) {
+        logInSpotify((err, data) => {
+            if (!err) {
+                const query = co["spotadd"].m[1];
+                spotify.searchTracks(query, {}, (err, data) => {
+                    if (!err) {
+                        const bestMatch = data.body.tracks.items[0];
+
+                        if (bestMatch) {
+                            spotify.addTracksToPlaylist(config.groupPlaylist.user, config.groupPlaylist.uri, [bestMatch.uri]);
+                            sendMessage(`Added ${bestMatch.name} by ${getArtists(bestMatch)} to ${config.groupPlaylist.name}'s playlist'`);
+                        } else {
+                            sendError(`Song not found for query ${query}`, threadId);
+                        }
+                    } else {
+                        sendError(err, threadId);
+                    }
+                })
+            } else {
+                console.log(err);
+            }
+        });
+
     } else if (co["addsearch"].m && co["addsearch"].m[1] && co["addsearch"].m[3]) {
         // Fields 1 & 3 are are for the command and the user, respectively
         // Field 2 is for an optional number parameter specifying the number of search results
@@ -1045,4 +1067,19 @@ function getArtists(track) {
         }
     }
     return artistStr;
+}
+
+// Logs into Spotify API & sets the appropriate credentials
+function logInSpotify(callback) {
+    spotify.clientCredentialsGrant({}, (err, data) => {
+        if (!err) {
+            spotify.setAccessToken(data.body.access_token);
+            if (callback) {
+                callback();
+            }
+        } else {
+            callback(err);
+        }
+
+    });
 }
