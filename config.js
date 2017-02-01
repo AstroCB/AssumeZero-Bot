@@ -111,7 +111,11 @@ exports.spotifyPlaylists = [{
     }
 ];
 // Default playlist used if invalid user passed
-exports.defaultPlaylist = exports.spotifyPlaylists[1];
+exports.defaultPlaylist = {
+    "name": "the group's",
+    "user": "astrocb",
+    "uri": "4joxRVv8wzT4keFzCS3gAt"
+};
 
 // Number of top tracks to display for Spotify searches
 exports.spotifySearchLimit = 3;
