@@ -112,7 +112,7 @@ exports.spotifyPlaylists = [{
 ];
 // Default playlist used if invalid user passed
 exports.defaultPlaylist = {
-    "name": "the group's",
+    "name": "Assume Zero Brain Power",
     "user": "astrocb",
     "uri": "4joxRVv8wzT4keFzCS3gAt"
 };
