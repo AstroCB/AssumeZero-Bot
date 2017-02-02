@@ -763,7 +763,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
                 "url": "https://www.youtube.com/watch?v=HydsTDvEINo"
             }, threadId);
         }
-        if (message.match(/(?:\s|^)mechanics|electricity|magnetism|pulley|friction|acceleration|torque/i)) {
+        if (message.match(/(?:\s|^)mechanics|electricity|magnetism|pulley|friction|acceleration|torque|impulse/i)) {
             sendFile("media/shaw.png", "", threadId);
         }
         if (message.match(/(?:get|measure) bac[^k]/i)) {
@@ -777,6 +777,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         }
         if (message.match(/pre(?:-|\s)?med/i)) {
             sendFile("media/premed.png", "", threadId);
+        }
+        if (message.match(/(\s|^)sleep/i)) {
+            sendMessage("Have I got a story to tell you about various fruits...", threadId);
         }
     }
 }
