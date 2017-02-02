@@ -777,7 +777,6 @@ function matchesWithUser(command, message, fromUserId, optional = false, threadI
     // Construct regex string
     let match = message.match(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${config.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
     // Now look for instances of "me" in the command and replace with the calling user
-    // console.log(match);
     if (match) {
         // Preserve properties
         const index = match.index;
