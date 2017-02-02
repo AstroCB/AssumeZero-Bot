@@ -763,7 +763,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
                 "url": "https://www.youtube.com/watch?v=HydsTDvEINo"
             }, threadId);
         }
-        if (message.match(/(?:\s|^)mechanics|(?:\s|^)e(?:\&)?m(?:\s|$)|pulley|friction/i)) {
+        if (message.match(/(?:\s|^)mechanics|electricity|magnetism|pulley|friction/i)) {
             sendFile("media/shaw.png", "", threadId);
         }
         if (message.match(/(?:get|measure) bac[^k]/i)) {
