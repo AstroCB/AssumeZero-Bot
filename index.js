@@ -771,6 +771,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/good(?:\s)?night(?:\, )?bot/i)) {
             sendMessage("Night!", threadId);
         }
+        if (message.match(/public funds/i)) {
+            sendFile("media/dirks.png", "", threadId);
+        }
     }
 }
 
