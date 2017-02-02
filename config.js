@@ -1,7 +1,7 @@
 const utils = require("./configutils"); // Utility functions
 
 // The trigger word that precedes most commands and will activate the bot
-exports.trigger = "physics";
+exports.trigger = "shaw";
 
 // Choose whether to allow bot to respond in any chat it is added to
 // If true, group properties will be generated dynamically at runtime

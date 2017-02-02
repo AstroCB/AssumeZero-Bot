@@ -763,10 +763,10 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
                 "url": "https://www.youtube.com/watch?v=HydsTDvEINo"
             }, threadId);
         }
-        if (message.match(/(?:\s|^)shaw/i)) {
+        if (message.match(/(?:\s|^)mechanics|e(?:\&)?m|pulley|friction/i)) {
             sendFile("media/shaw.png", "", threadId);
         }
-        if (message.match(/(?:get|measure) bac/i)) {
+        if (message.match(/(?:get|measure) bac[^k]/i)) {
             sendMessage("Yiyi's BAC is far above healthy levels", threadId);
         }
         if (message.match(/physics .* cam$/i)) {
@@ -774,6 +774,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         }
         if (message.match(/socialis(?:t|m)/i)) {
             sendFile("media/anton.png", "", threadId);
+        }
+        if (message.match(/pre(?:-|\s)?med/i)) {
+            sendFile("media/premed.png", "", threadId);
         }
     }
 }
