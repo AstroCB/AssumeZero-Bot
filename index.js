@@ -769,7 +769,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/(?:get|measure) bac[^k]/i)) {
             sendMessage("Yiyi's BAC is far above healthy levels", threadId);
         }
-        if (message.match(new RegExp(`${config.trigger} .* cam$`, "i")) {
+        if (message.match(new RegExp(`${config.trigger} .* cam$`, "i"))) {
             sendMessage("eron", threadId);
         }
         if (message.match(/socialis(?:t|m)/i)) {
