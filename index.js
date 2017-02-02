@@ -76,9 +76,9 @@ function handleMessage(err, message, api = gapi) { // New message received from 
                 // Handle message body
                 if (m) {
                     // Handle pings
-                    var pingData = parsePing(m);
-                    var pingUsers = pingData.users;
-                    var pingMessage = pingData.message;
+                    const pingData = parsePing(m, senderId, groupId);
+                    const pingUsers = pingData.users;
+                    const pingMessage = pingData.message;
                     if (pingUsers) {
                         api.getUserInfo(senderId, (err, userData) => {
                             const nameBackup = userData[senderId].firstName;
@@ -138,9 +138,9 @@ function handleCommand(command, fromUserId, api = gapi) {
                 // Set match vals
                 if (co[c].user_input.accepts) { // Takes a match from the members dict
                     if (Array.isArray(co[c].regex)) { // Also has a regex suffix (passed as length 2 array)
-                        co[c].m = matchesWithUser(co[c].regex[0], command, co[c].user_input.optional, " ", co[c].regex[1]);
+                        co[c].m = matchesWithUser(co[c].regex[0], command, fromUserId, co[c].user_input.optional, threadId, " ", co[c].regex[1]);
                     } else { // Just a standard regex prefex as a string + name
-                        co[c].m = matchesWithUser(co[c].regex, command, co[c].user_input.optional);
+                        co[c].m = matchesWithUser(co[c].regex, command, fromUserId, co[c].user_input.optional, threadId);
                     }
                 } else {
                     co[c].m = command.match(co[c].regex);
@@ -773,21 +773,22 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
 
 // Utility functions
 
-function matchesWithUser(command, message, optional = false, sep = " ", suffix = "") {
+function matchesWithUser(command, message, fromUserId, optional = false, threadId = ids.group, sep = " ", suffix = "") {
     // Construct regex string
-    const match = message.match(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${config.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
+    let match = message.match(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${config.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
     // Now look for instances of "me" in the command and replace with the calling user
+    // console.log(match);
     if (match) {
         // Preserve properties
         const index = match.index;
         const input = match.input;
         match = match.map((m) => {
             if (m) {
-                return m.replace(/(^| )me/i, "$1" + getNameFromId(fromUserId, threadId));
+                return m.replace(/(^| )me(?:[^A-z0-9]|$)/i, "$1" + getNameFromId(fromUserId, threadId));
             }
         });
-        match.m.index = index;
-        match.m.input = input;
+        match.index = index;
+        match.input = input;
     }
     return match;
 }
@@ -821,18 +822,22 @@ function debugCommandOutput(flag) {
     }
 }
 
-function parsePing(m) {
+function parsePing(m, fromUserId, threadId) {
     let users = [];
     const allMatch = m.match(/@@(all|everyone)/i);
     if (allMatch && allMatch[1]) { // Alert everyone
         users = Object.keys(ids.members[ids.group]);
         m = m.split("@@" + allMatch[1]).join("");
     } else {
-        let matches = matchesWithUser("@@", m, false, "");
+        let matches = matchesWithUser("@@", m, fromUserId, false, threadId, "");
         while (matches && matches[1]) {
             users.push(matches[1].toLowerCase());
+            const beforeSplit = m;
             m = m.split("@@" + matches[1]).join(""); // Remove discovered match from string
-            matches = matchesWithUser("@@", m, false, "");
+            if (m == beforeSplit) { // Discovered match was "me"
+                m = m.split("@@me").join("");
+            }
+            matches = matchesWithUser("@@", m, fromUserId, false, threadId, "");
         }
         // After loop, m will contain the message without the pings (the message to be sent)
     }
