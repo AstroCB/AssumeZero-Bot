@@ -1,7 +1,7 @@
 exports.group = "883154065107088";
 exports.defaultGroup = "883154065107088"; // Main group thread ID
 exports.testGroup = "1398444230228776" // Optional group for testing
-exports.bot = "100014787769496";
+exports.bot = "100015168671225";
 exports.owner = "100007016509302"; // ID of bot owner (for secure commands)
 exports.members = { // Member ids
     // NOTE: **NEVER** add the bot's ID to this list or order 66 will obliterate the chat
