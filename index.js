@@ -131,7 +131,7 @@ function handleCommand(command, fromUserId, api = gapi) {
     const threadId = ids.group; // For async callbacks
     // Evaluate commands
     const co = commands.commands; // Short var names since I'll be typing them a lot
-    for (var c in co) {
+    for (let c in co) {
         if (co.hasOwnProperty(c)) {
             // Check whether command is sudo-protected and, if so, whether the user is the admin
             if ((co[c].sudo && fromUserId == ids.owner) || !co[c].sudo) {
@@ -141,19 +141,6 @@ function handleCommand(command, fromUserId, api = gapi) {
                         co[c].m = matchesWithUser(co[c].regex[0], command, co[c].user_input.optional, " ", co[c].regex[1]);
                     } else { // Just a standard regex prefex as a string + name
                         co[c].m = matchesWithUser(co[c].regex, command, co[c].user_input.optional);
-                    }
-                    // Now look for instances of "me" in the command and replace with the calling user
-                    if (co[c].m) {
-                        // Preserve properties
-                        const index = co[c].m.index;
-                        const input = co[c].m.input;
-                        co[c].m = co[c].m.map((m) => {
-                            if (m) {
-                                return m.replace(/(^| )me/i, "$1" + getNameFromId(fromUserId, threadId));
-                            }
-                        });
-                        co[c].m.index = index;
-                        co[c].m.input = input;
                     }
                 } else {
                     co[c].m = command.match(co[c].regex);
@@ -788,7 +775,21 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
 
 function matchesWithUser(command, message, optional = false, sep = " ", suffix = "") {
     // Construct regex string
-    return message.match(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${config.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
+    const match = message.match(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${config.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
+    // Now look for instances of "me" in the command and replace with the calling user
+    if (match) {
+        // Preserve properties
+        const index = match.index;
+        const input = match.input;
+        match = match.map((m) => {
+            if (m) {
+                return m.replace(/(^| )me/i, "$1" + getNameFromId(fromUserId, threadId));
+            }
+        });
+        match.m.index = index;
+        match.m.input = input;
+    }
+    return match;
 }
 
 // Wrapper function for sending messages easily
@@ -821,13 +822,13 @@ function debugCommandOutput(flag) {
 }
 
 function parsePing(m) {
-    var users = [];
-    var allMatch = m.match(/@@(all|everyone)/i);
+    let users = [];
+    const allMatch = m.match(/@@(all|everyone)/i);
     if (allMatch && allMatch[1]) { // Alert everyone
         users = Object.keys(ids.members[ids.group]);
         m = m.split("@@" + allMatch[1]).join("");
     } else {
-        var matches = matchesWithUser("@@", m, false, "");
+        let matches = matchesWithUser("@@", m, false, "");
         while (matches && matches[1]) {
             users.push(matches[1].toLowerCase());
             m = m.split("@@" + matches[1]).join(""); // Remove discovered match from string
@@ -1043,7 +1044,7 @@ function getRandomColor() {
 // Obtains a name from a given ID in the members object
 function getNameFromId(id, thread) {
     const users = ids.members[thread];
-    for (var m in users) {
+    for (let m in users) {
         if (users.hasOwnProperty(m)) {
             if (users[m] == id) {
                 return m;
