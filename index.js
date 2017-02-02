@@ -768,6 +768,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/(\s|^)sleep/i)) {
             sendMessage("Have I got a story to tell you about various fruits...", threadId);
         }
+        if (message.match(/good(?:\s)?night(?:\, )?bot/i)) {
+            sendMessage("Night!", threadId);
+        }
     }
 }
 
