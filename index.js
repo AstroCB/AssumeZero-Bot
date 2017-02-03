@@ -776,6 +776,13 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/public funds/i)) {
             sendFile("media/dirks.png", "", threadId);
         }
+        if (message.match(/did you ever hear the tragedy of darth plagueis the wise/i)) {
+            fs.readFile("media/plagueis.txt", "utf-8", function(err, text) {
+                if (!err) {
+                    sendMessage(text, threadId);
+                }
+            });
+        }
     }
 }
 
