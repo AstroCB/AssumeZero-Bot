@@ -387,14 +387,14 @@ function handleCommand(command, fromUserId, api = gapi) {
         // Remove everyone from the chat for configurable amount of time (see config.js)
         // Use stored threadId in case it changes later (very important)
         sendMessage("I hate you all.", threadId);
-        setTimeout(function() {
+        setTimeout(() => {
             let callbackset = false;
             for (let m in ids.members[threadId]) {
                 // Bot should never be in members list, but this is a safeguard
                 // (ALSO VERY IMPORTANT so that group isn't completely emptied)
                 if (ids.members[threadId].hasOwnProperty(m) && ids.members[threadId][m] != ids.bot) {
                     if (!callbackset) { // Only want to send the message once
-                        kick(ids.members[threadId][m], config.order66Time, threadId, function() {
+                        kick(ids.members[threadId][m], config.order66Time, threadId, () => {
                             sendMessage("Balance is restored to the Force.", threadId);
                         });
                         callbackset = true;
