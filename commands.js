@@ -348,7 +348,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /answer .*/i,
+        "regex": /(?:ask|answer) .*/i,
         "experimenal": false
     }
 };
