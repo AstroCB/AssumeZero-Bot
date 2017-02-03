@@ -342,7 +342,7 @@ exports.commands = {
         "pretty_name": "Answer/Magic 8-ball",
         "short_description": "Get the answers to your questions",
         "description": "Answers your yes/no question with a random value",
-        "syntax": "answer {question}",
+        "syntax": "(ask|answer) {question}",
         "sudo": false,
         "user_input": {
             "accepts": false,
