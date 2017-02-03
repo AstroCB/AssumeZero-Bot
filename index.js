@@ -168,7 +168,7 @@ function handleCommand(command, fromUserId, api = gapi) {
             }
         } else {
             // No command passed; give overview of all of them
-            let mess = `Quick help for AØBøt:\n\nPrecede these commands with "${config.trigger}:\n"`;
+            let mess = `Quick help for AØBøt:\n\nPrecede these commands with "${config.trigger}":\n`;
             for (var c in co) {
                 if (co.hasOwnProperty(c)) {
                     const entry = co[c];
