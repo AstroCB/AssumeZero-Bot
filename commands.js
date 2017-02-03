@@ -336,5 +336,19 @@ exports.commands = {
         },
         "regex": /(?:(?:set|change) )?title (.*)/i,
         "experimental": false
+    },
+    "answer": {
+        "display_names": ["answer", "magic 8 ball"],
+        "pretty_name": "Answer/Magic 8-ball",
+        "short_description": "Get the answers to your questions",
+        "description": "Answers your yes/no question with a random value",
+        "syntax": "answer {question}",
+        "sudo": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /answer .*/i,
+        "experimenal": false
     }
 };

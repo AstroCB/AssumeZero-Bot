@@ -703,6 +703,8 @@ function handleCommand(command, fromUserId, api = gapi) {
                 sendError("Cannot set title for non-group chats", threadId);
             }
         });
+    } else if (co["answer"].m) {
+        sendMessage(config.answerResponses[Math.floor(Math.random() * config.answerResponses.length)], threadId);
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -753,7 +755,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/(?:\s|^)mechanics|electricity|magnetism|pulley|massless|friction|acceleration|torque|impulse/i)) {
             sendFile("media/shaw.png", "", threadId);
         }
-        if (message.match(/(?:get|measure) bac[^k]/i)) {
+        if (message.match(/(?:get|measure) bac(?:[^k]|$)/i)) {
             sendMessage("Yiyi's BAC is far above healthy levels", threadId);
         }
         if (message.match(new RegExp(`${config.trigger} .* cam$`, "i"))) {
