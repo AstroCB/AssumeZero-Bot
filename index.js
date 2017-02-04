@@ -48,7 +48,7 @@ function login(callback) {
             password: credentials.PASSWORD
         }, function callback(err, api) {
             fs.writeFileSync('appstate.json', JSON.stringify(api.getAppState()));
-            callback(err, api);
+            main(err, api);
         });
     }
 }
