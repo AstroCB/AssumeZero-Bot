@@ -719,7 +719,7 @@ function handleCommand(command, fromUserId, api = gapi) {
             }
         }
         const rand = Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound;
-        const chance = Math.abs(((1.0 / (upperBound - lowerBound)) * 100).toFixed(2));
+        const chance = Math.abs(((1.0 / (upperBound - lowerBound + 1)) * 100).toFixed(2));
         sendMessage(`${rand}\n\nWith bounds of (${lowerBound}, ${upperBound}), the chances of receiving this result were ${chance}%`, threadId);
     }
 }
