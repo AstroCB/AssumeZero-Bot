@@ -488,7 +488,6 @@ function handleCommand(command, fromUserId, api = gapi) {
             });
         } else if (co["setemoji"].m[2]) {
             // Set
-            console.log(co["setemoji"].m[2]);
             api.changeThreadEmoji(co["setemoji"].m[2], threadId, (err) => {
                 if (err) {
                     // Set to default as backup if errors
