@@ -338,9 +338,9 @@ exports.commands = {
         "experimental": false
     },
     "answer": {
-        "display_names": ["answer", "magic 8 ball"],
-        "pretty_name": "Answer/Magic 8-ball",
-        "short_description": "Get the answers to your questions",
+        "display_names": ["ask", "answer", "magic 8 ball"],
+        "pretty_name": "Magic 8-ball",
+        "short_description": "",
         "description": "Answers your yes/no question with a random value",
         "syntax": "(ask|answer) {question}",
         "sudo": false,
@@ -350,5 +350,19 @@ exports.commands = {
         },
         "regex": /(?:ask|answer) .*/i,
         "experimenal": false
+    },
+    "rng": {
+      "display_names": ["random", "rand"],
+      "pretty_name": "Random number generator",
+      "short_description": "",
+      "description": `Generates a random number in the given range (between two args if passed, between ${config.lowerBoundDefault} and the arg if one is passed, or between ${config.lowerBoundDefault} and ${config.upperBoundDefault} otherwise)`,
+      "syntax": "(rng|rand(om)) ({lower bound}) ({upper bound})",
+      "sudo": false,
+      "user_input": {
+          "accepts": false,
+          "optional": false
+      },
+      "regex": /r(?:and(?:om)?|ng)(?: (\d+))?(?: (\d+))?/i,
+      "experimenal": false
     }
 };

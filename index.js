@@ -705,6 +705,22 @@ function handleCommand(command, fromUserId, api = gapi) {
         });
     } else if (co["answer"].m) {
         sendMessage(config.answerResponses[Math.floor(Math.random() * config.answerResponses.length)], threadId);
+    } else if (co["rng"].m) {
+        let lowerBound, upperBound;
+        if (co["rng"].m[2]) {
+            lowerBound = parseInt(co["rng"].m[1]); // Assumed to exist if upperBound was passed
+            upperBound = parseInt(co["rng"].m[2]);
+        } else { // No last parameter
+            lowerBound = config.lowerBoundDefault;
+            if (co["rng"].m[1]) { // Only parameter passed becomes upper bound
+                upperBound = parseInt(co["rng"].m[1]);
+            } else { // No params passed at all
+                upperBound = config.upperBoundDefault;
+            }
+        }
+        const rand = Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound;
+        const chance = Math.abs(((1.0/(upperBound - lowerBound)) * 100).toFixed(2));
+        sendMessage(`${rand}\n\nWith bounds of (${lowerBound}, ${upperBound}), the chances of receiving this result were ${chance}%`, threadId);
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -776,7 +792,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/public funds/i)) {
             sendFile("media/dirks.png", "", threadId);
         }
-        if (message.match(/did you ever hear the tragedy of darth plagueis the wise/i)) {
+        if (message.match(/darth plagueis/i)) {
             fs.readFile("media/plagueis.txt", "utf-8", function(err, text) {
                 if (!err) {
                     sendMessage(text, threadId);
