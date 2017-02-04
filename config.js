@@ -135,4 +135,4 @@ exports.answerResponses = ["Yes", "No", "Maybe", "It is certain", "Time will tel
 
 // Default bounds for RNG command
 exports.lowerBoundDefault = 0;
-exports.upperBoundDefault = 100;
+exports.upperBoundDefault = 99;
