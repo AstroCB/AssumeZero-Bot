@@ -129,7 +129,8 @@ exports.addBufferLimit = 5;
 
 // List of responses for "answer" command
 exports.answerResponses = ["Yes", "No", "Maybe", "It is certain", "Time will tell", "Ask again later",
-    "Only if you believe", "Possibly", "Never", "Of course", "No way", "You're out of your mind"
+    "Only if you believe", "Possibly", "Never", "Of course", "No way", "You're out of your mind", "Nope",
+    "Yep", "Good one", "Eh"
 ];
 
 // Default bounds for RNG command
