@@ -142,17 +142,17 @@ exports.commands = {
         "experimental": false
     },
     "setnick": {
-        "display_names": ["set nickname"],
+        "display_names": ["set nickname", "change nickname", "set name", "change name", "rename"],
         "pretty_name": "Set nickname",
         "short_description": "",
         "description": "Sets the given nickname for the given member",
-        "syntax": "set (nick)name {member} {nickname}",
+        "syntax": "(((set|change) (nick)name)|rename) {member} {nickname}",
         "sudo": false,
         "user_input": {
             "accepts": true,
             "optional": false
         },
-        "regex": "set (?:nick)?name",
+        "regex": "((?:(?:set|change) (?:nick)?name)|rename)",
         "experimental": false
     },
     "wakeup": {

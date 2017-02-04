@@ -41,7 +41,7 @@ function login(callback) {
     try {
         messenger({
             appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))
-        }, callback);
+        }, main);
     } catch (e) { // No app state saved
         messenger({
             email: credentials.EMAIL,
