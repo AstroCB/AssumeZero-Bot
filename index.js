@@ -799,6 +799,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
                 }
             });
         }
+        if (message.match(/(\s|^)lit([^A-z0-9]|$)/)) {
+            sendMessage("🔥", threadId);
+        }
     }
 }
 
