@@ -352,7 +352,7 @@ exports.commands = {
         "experimenal": false
     },
     "rng": {
-      "display_names": ["random", "rand"],
+      "display_names": ["random", "rand", "rng"],
       "pretty_name": "Random number generator",
       "short_description": "",
       "description": `Generates a random number in the given range (between two args if passed, between ${config.lowerBoundDefault} and the arg if one is passed, or between ${config.lowerBoundDefault} and ${config.upperBoundDefault} otherwise)`,
