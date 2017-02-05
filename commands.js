@@ -104,13 +104,13 @@ exports.commands = {
         "pretty_name": "(Re)set color",
         "short_description": "",
         "description": "(Re)sets the color to the specified hex value and outputs previous color",
-        "syntax": "set color(s) (to) (#{six-digit hex color}|rand)",
+        "syntax": "set color(s) (to) (#{six-digit hex color}|rand(om))",
         "sudo": false,
         "user_input": {
             "accepts": false,
             "optional": false
         },
-        "regex": /(re)?set color(?:s)?(?: (?:to )?(#(?:[a-f]|\d){6}|rand))?/i,
+        "regex": /(re)?set color(?:s)?(?: (?:to )?(#(?:[a-f]|\d){6}|rand(?:om)?))?/i,
         "experimental": false
     },
     "hitlights": {
