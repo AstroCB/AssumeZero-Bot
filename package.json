@@ -19,6 +19,7 @@
     "facebook-chat-api": "^1.2.0",
     "http": "0.0.0",
     "memjs": "^0.10.0",
+    "node-horseman": "^3.2.0",
     "request": "^2.79.0",
     "spotify-web-api-node": "^2.3.6"
   }
