@@ -803,7 +803,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/(\s|^)lit([^A-z0-9]|$)/i)) {
             sendMessage("🔥", threadId);
         }
-        if (message.match(/pozharskiy/i)) {
+        if (message.match(/pozharski(y)?/i)) {
             sendFile("media/pozharskiy.mp4", "", threadId);
         }
     }
