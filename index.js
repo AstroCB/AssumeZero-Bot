@@ -408,7 +408,7 @@ function handleCommand(command, fromUserId, api = gapi) {
         if (co["setcolor"].m[1]) { // Reset
             api.changeThreadColor(config.defaultColor, threadId);
         } else if (co["setcolor"].m[2]) {
-            const colorToSet = (co["setcolor"].m[2] == "rand") ? getRandomColor() : co["setcolor"].m[2];
+            const colorToSet = (co["setcolor"].m[2].match(/rand(om)?/i)) ? getRandomColor() : co["setcolor"].m[2];
             api.getThreadInfo(threadId, function(err, data) {
                 if (!err) {
                     const ogColor = data.color; // Will be null if no custom color set
