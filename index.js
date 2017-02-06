@@ -802,9 +802,6 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/money/i)) {
             sendFile("media/money.png", "", threadId);
         }
-        if (message.match(/bee movie/i)) {
-            sendContentsOfFile("media/beemovie.txt", threadId);
-        }
     }
 }
 
