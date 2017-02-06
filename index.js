@@ -1139,9 +1139,9 @@ function logInSpotify(callback) {
 
 // Sends the contents of a given file (works best with text files)
 function sendContentsOfFile(file, threadId = ids.group) {
-    fs.readFile(file, "utf-8", (err, data) => {
+    fs.readFile(file, "utf-8", (err, text) => {
         if (!err) {
-            sendMessage(file, threadId);
+            sendMessage(text, threadId);
         } else {
             console.log(err);
         }
