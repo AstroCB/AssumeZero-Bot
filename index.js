@@ -739,11 +739,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             sendMessage("Delete your account.", threadId)
         }
         if (message.match(/(?:problem |p)set(?:s)?/i)) {
-            fs.readFile("media/monologue.txt", "utf-8", function(err, text) {
-                if (!err) {
-                    sendMessage(text, threadId);
-                }
-            });
+            sendContentsOfFile("media/monologue.txt", threadId);
         }
         if (message.match(/umd/i)) {
             sendFile("media/umd.png", "", threadId);
@@ -795,11 +791,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             sendFile("media/dirks.png", "", threadId);
         }
         if (message.match(/darth plagueis/i)) {
-            fs.readFile("media/plagueis.txt", "utf-8", function(err, text) {
-                if (!err) {
-                    sendMessage(text, threadId);
-                }
-            });
+            sendContentsOfFile("media/plagueis.txt", threadId);
         }
         if (message.match(/(\s|^)lit([^A-z0-9]|$)/i)) {
             sendMessage("🔥", threadId);
@@ -809,6 +801,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         }
         if (message.match(/money/i)) {
             sendFile("media/money.png", "", threadId);
+        }
+        if (message.match(/bee movie/i)) {
+            sendContentsOfFile("media/beemovie.txt", threadId);
         }
     }
 }
@@ -1140,4 +1135,15 @@ function logInSpotify(callback) {
         }
 
     });
+}
+
+// Sends the contents of a given file (works best with text files)
+function sendContentsOfFile(file, threadId = ids.group) {
+    fs.readFile(file, "utf-8", (err, data) => {
+        if (!err) {
+            sendMessage(file, threadId);
+        } else {
+            console.log(err);
+        }
+    })
 }
