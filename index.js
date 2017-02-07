@@ -568,9 +568,9 @@ function handleCommand(command, fromUserId, api = gapi) {
         const userId = ids.members[threadId][user];
         const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
         const getCallback = (isAdd) => {
-            return (err, success) => {
+            return (err, success, newScore) => {
                 if (success) {
-                    sendMessage(`${user_cap}'s current score is now ${isAdd ? (score + points) : (score - points)}.`, threadId);
+                    sendMessage(`${user_cap}'s current score is now ${newScore}.`, threadId);
                 } else {
                     sendError("Score update failed.", threadId);
                 }
@@ -1161,11 +1161,9 @@ function updateScore(isAdd, userId, callback) {
 
         // Can be easily customized to accept a score parameter if so desired
         const points = config.votePoints || 5; // Default to five points
-
-        if (isAdd) { // Increase score by default amount
-            setScore(userId, `${score + points}`, callback);
-        } else { // Decrease score by default amount
-            setScore(userId, `${score - points}`, callback);
-        }
+        const newScore = isAdd ? (score + points) : (score - points);
+        setScore(userId, `${newScore}`, (err, success) => {
+            callback(err, success, newScore);
+        });
     });
 }
