@@ -1151,6 +1151,9 @@ function getScore(userId, callback) {
     mem.get(`userscore_${userId}`, callback);
 }
 
+// Updates the user's score either by (if isAdd) increasing or (otherwise) decreasing
+// the user's score by the default value set in config, or 5 points if not set
+// Returns a callback with error, success, and a value equal to the user's new score
 function updateScore(isAdd, userId, callback) {
     getScore(userId, (err, val) => {
         if (err) {
