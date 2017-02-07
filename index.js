@@ -564,35 +564,26 @@ function handleCommand(command, fromUserId, api = gapi) {
             }
         }
     } else if (co["vote"].m && co["vote"].m[1] && co["vote"].m[2]) {
-        // Can be easily customized to accept a score parameter if so desired
-        const points = config.votePoints || 5; // Default to five points
         const user = co["vote"].m[2].toLowerCase();
         const userId = ids.members[threadId][user];
         const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
-        if (userId) {
-            mem.get(`userscore_${userId}`, (err, val) => {
-                if (err) {
-                    console.log(err);
-                }
-                // Convert from buffer & grab current score (set 0 if it doesn't yet exist)
-                const score = val ? parseInt(val.toString()) : 0;
-                const getCallback = (isAdd) => {
-                    return (err, success) => {
-                        if (success) {
-                            sendMessage(`${user_cap}'s current score is now ${isAdd ? (score + points) : (score - points)}.`, threadId);
-                        } else {
-                            sendError("Score update failed.", threadId);
-                        }
-                    }
-                };
-                if (co["vote"].m[1] == ">") {
-                    // Upvote
-                    mem.set(`userscore_${userId}`, `${(score + points)}`, getCallback(true));
+        const getCallback = (isAdd) => {
+            return (err, success) => {
+                if (success) {
+                    sendMessage(`${user_cap}'s current score is now ${isAdd ? (score + points) : (score - points)}.`, threadId);
                 } else {
-                    // Downvote
-                    mem.set(`userscore_${userId}`, `${(score - points)}`, getCallback(false));
+                    sendError("Score update failed.", threadId);
                 }
-            });
+            };
+        };
+        if (userId) {
+            if (co["vote"].m[1] == ">") {
+                // Upvote
+                updateScore(true, userId, getCallback(true));
+            } else {
+                // Downvote
+                updateScore(false, userId, getCallback(false));
+            }
         } else {
             sendError(`User ${user_cap} not found`, threadId);
         }
@@ -603,7 +594,7 @@ function handleCommand(command, fromUserId, api = gapi) {
         if (userId) {
             const new_score = co["score"].m[1];
             if (new_score || new_score == "0") { // Set to provided score if valid (0 is falsey)
-                mem.set(`userscore_${userId}`, new_score, (err, success) => {
+                setScore(userId, new_score, (err, success) => {
                     if (success) {
                         sendMessage(`${user_cap}'s score updated to ${new_score}.`, threadId);
                     } else {
@@ -611,7 +602,7 @@ function handleCommand(command, fromUserId, api = gapi) {
                     }
                 });
             } else { // No value provided; just display score
-                mem.get(`userscore_${userId}`, (err, val) => {
+                getScore(`userId`, (err, val) => {
                     if (!err) {
                         const stored_score = val.toString() || 0;
                         sendMessage(`${user_cap}'s current score is ${stored_score}.`, threadId);
@@ -1148,4 +1139,33 @@ function sendContentsOfFile(file, threadId = ids.group) {
             console.log(err);
         }
     })
+}
+
+// Functions for getting/setting user scores (doesn't save much in terms of
+// code/DRY, but wraps the functions so that it's easy to change how they're stored)
+function setScore(userId, score, callback) {
+    mem.set(`userscore_${userId}`, score, callback);
+}
+
+function getScore(userId, callback) {
+    mem.get(`userscore_${userId}`, callback);
+}
+
+function updateScore(isAdd, userId, callback) {
+    getScore(userId, (err, val) => {
+        if (err) {
+            callback(err);
+        }
+        // Convert from buffer & grab current score (set 0 if it doesn't yet exist)
+        const score = val ? parseInt(val.toString()) : 0;
+
+        // Can be easily customized to accept a score parameter if so desired
+        const points = config.votePoints || 5; // Default to five points
+
+        if (isAdd) { // Increase score by default amount
+            setScore(userId, `${score + points}`, callback);
+        } else { // Decrease score by default amount
+            setScore(userId, `${score - points}`, callback);
+        }
+    });
 }
