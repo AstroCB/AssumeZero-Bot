@@ -396,7 +396,7 @@ exports.commands = {
         "pretty_name": "Black & white",
         "short_description": "Converts an image to black and white",
         "description": "Converts an image to black and white with either a URL or an uploaded image",
-        "syntax": "bw {url}",
+        "syntax": "bw ({url})",
         "sudo": false,
         "attachments": true,
         "user_input": {
