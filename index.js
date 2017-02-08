@@ -756,7 +756,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
                         }
                     });
                 } else {
-                    sendError(`Sorry, but ${attachments[i].name} is not an acceptable file type`, trheadId);
+                    sendError(`Sorry, but ${attachments[i].name} is not an acceptable file type`, threadId);
                 }
             }
         } else {
