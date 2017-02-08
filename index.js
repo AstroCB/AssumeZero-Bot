@@ -793,10 +793,13 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/money/i)) {
             sendFile("media/money.png", "", threadId);
         }
-        if (message.match(/rest of the country/)) {
+        if (message.match(/rest of the country/i)) {
             sendMessage({
                 "url": "https://secure-media.collegeboard.org/digitalServices/pdf/ap/ap16_physics_c_mech_sg.pdf"
             }, threadId);
+        }
+        if (message.match(/(^|\s)drug/i)) {
+            sendFile("media/drugs.png", "", threadId);
         }
     }
 }
