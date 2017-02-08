@@ -760,7 +760,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
                 }
             }
         } else {
-            sendError("You must provide either a URL or a valid image attachment");
+            sendError("You must provide either a URL or a valid image attachment", threadId);
         }
     }
 }
