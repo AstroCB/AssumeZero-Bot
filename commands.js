@@ -8,6 +8,7 @@ exports.commands = {
         "description": "Get more information about a command, or open quick help",
         "syntax": "help ({command})",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -22,6 +23,7 @@ exports.commands = {
         "description": "Removes a given member from the chat for an optional amount of time",
         "syntax": "kick {member} ({number of seconds})",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": true,
             "optional": false
@@ -36,6 +38,7 @@ exports.commands = {
         "description": "Outputs the numbered xkcd or search result (or a random one if none was specified)",
         "syntax": "xkcd (new|{comic number}|search {search query})",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -50,6 +53,7 @@ exports.commands = {
         "description": "Searches Spotify's database for artists and songs",
         "syntax": "search (artist|(song|track)) {query}",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -64,6 +68,7 @@ exports.commands = {
         "description": "Adds a song (top Spotify search result) to the group's playlist",
         "syntax": "add (song|track) {query}",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -78,6 +83,7 @@ exports.commands = {
         "description": "Searches for the given user and either outputs the best match (for searching) or adds it to the chat (for adding)",
         "syntax": "(add|search ({number of results})) {user}",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -92,6 +98,7 @@ exports.commands = {
         "description": `Every single group member, including your Socialpath Yiyi Kuang, is now an enemy of the group chat (for ${config.order66Time} seconds)`,
         "syntax": "execute order 66",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -106,6 +113,7 @@ exports.commands = {
         "description": "(Re)sets the color to the specified hex value and outputs previous color",
         "syntax": "set color(s) (to) (#{six-digit hex color}|rand(om))",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -120,6 +128,7 @@ exports.commands = {
         "description": "Changes the group colors to random colors in quick succession",
         "syntax": "hit the lights",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -134,6 +143,7 @@ exports.commands = {
         "description": "Clears the nickname for the given member",
         "syntax": "clear (nick)name {member}",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": true,
             "optional": false
@@ -148,6 +158,7 @@ exports.commands = {
         "description": "Sets the given nickname for the given member",
         "syntax": "(((set|change) (nick)name)|rename) {member} {nickname}",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": true,
             "optional": false
@@ -162,6 +173,7 @@ exports.commands = {
         "description": `Sends ${config.wakeUpTimes} messages to the given member`,
         "syntax": "wake up {member}",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": true,
             "optional": false
@@ -176,6 +188,7 @@ exports.commands = {
         "description": "Retrieves a random message from the recent history of the group",
         "syntax": "random message",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -190,6 +203,7 @@ exports.commands = {
         "description": "Tests whether the bot is running",
         "syntax": "alive(?)",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -204,6 +218,7 @@ exports.commands = {
         "description": "(Re)sets the emoji to the specified Unicode value",
         "syntax": "(re)set emoji (to) #{emoji}",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -218,6 +233,7 @@ exports.commands = {
         "description": "Echoes or quotes the provided statement",
         "syntax": "(echo|quote) {statement}",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -232,6 +248,7 @@ exports.commands = {
         "description": "Bans or unbans the provided member",
         "syntax": "(un)ban {member}",
         "sudo": true,
+        "attachments": false,
         "user_input": {
             "accepts": true,
             "optional": false
@@ -246,6 +263,7 @@ exports.commands = {
         "description": "Allows user to change the state of the bot's dynamic mode setting",
         "syntax": "dynamic (on|off)",
         "sudo": true,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -260,6 +278,7 @@ exports.commands = {
         "description": "Allows users to upvote (>) or downvote (<) a given user to influence their current point total",
         "syntax": "(<|>) (points) {member}",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": true,
             "optional": false
@@ -274,6 +293,7 @@ exports.commands = {
         "description": "Displays the user's current point score or sets it to a new provided value (must be ≥ 0)",
         "syntax": "score (new score) {member}",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": true,
             "optional": false
@@ -288,6 +308,7 @@ exports.commands = {
         "description": "Restarts the bot (requires remote deployment to Heroku)",
         "syntax": "restart",
         "sudo": true,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -302,6 +323,7 @@ exports.commands = {
         "description": "Grabs a random song from member playlist",
         "syntax": "(get) song ({member})",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": true,
             "optional": true
@@ -316,6 +338,7 @@ exports.commands = {
         "description": "Changes the group's photo to the image at the specified URL",
         "syntax": "(set|change) (photo|picture|image) (url)",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -330,6 +353,7 @@ exports.commands = {
         "description": "Sets the title to the specified value",
         "syntax": "(set|change) title {title}",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -344,6 +368,7 @@ exports.commands = {
         "description": "Answers your yes/no question with a random value",
         "syntax": "(ask|answer) {question}",
         "sudo": false,
+        "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
@@ -352,17 +377,33 @@ exports.commands = {
         "experimenal": false
     },
     "rng": {
-      "display_names": ["random", "rand", "rng"],
-      "pretty_name": "Random number generator",
-      "short_description": "",
-      "description": `Generates a random number in the given range (between two args if passed, between ${config.lowerBoundDefault} and the arg if one is passed, or between ${config.lowerBoundDefault} and ${config.upperBoundDefault} otherwise)`,
-      "syntax": "(rng|rand(om)) ({lower bound}) ({upper bound})",
-      "sudo": false,
-      "user_input": {
-          "accepts": false,
-          "optional": false
-      },
-      "regex": /r(?:and(?:om)?|ng)(?: (\d+))?(?: (\d+))?/i,
-      "experimenal": false
+        "display_names": ["random", "rand", "rng"],
+        "pretty_name": "Random number generator",
+        "short_description": "",
+        "description": `Generates a random number in the given range (between two args if passed, between ${config.lowerBoundDefault} and the arg if one is passed, or between ${config.lowerBoundDefault} and ${config.upperBoundDefault} otherwise)`,
+        "syntax": "(rng|rand(om)) ({lower bound}) ({upper bound})",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /r(?:and(?:om)?|ng)(?: (\d+))?(?: (\d+))?/i,
+        "experimenal": false
+    },
+    "bw": {
+        "display_names": ["bw", "black and white", "grayscale"],
+        "pretty_name": "Black & white",
+        "short_description": "Converts an image to black and white",
+        "description": "Converts an image to black and white with either a URL or an uploaded image",
+        "syntax": "bw {url}",
+        "sudo": false,
+        "attachments": true,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /bw(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
+        "experimenal": false
     }
 };

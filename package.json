@@ -18,6 +18,7 @@
     "express": "^4.14.0",
     "facebook-chat-api": "^1.2.0",
     "http": "0.0.0",
+    "jimp": "^0.2.27",
     "memjs": "^0.10.0",
     "node-horseman": "^3.2.0",
     "request": "^2.79.0",

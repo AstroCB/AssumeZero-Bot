@@ -3,6 +3,7 @@ const messenger = require("facebook-chat-api"); // Chat API
 const fs = require("fs"); // File system
 const exec = require("child_process").exec;
 const request = require("request"); // For HTTP requests
+const image = require("jimp"); // For image processing
 const ids = require("./ids"); // Various IDs stored for easy access
 const config = require("./config"); // Config file
 const utils = require("./configutils"); // Utility functions
@@ -106,7 +107,7 @@ function handleMessage(err, message, api = gapi) { // New message received from 
                     // Pass to commands testing for trigger word
                     const cindex = m.toLowerCase().indexOf(config.trigger);
                     if (cindex > -1) { // Trigger command mode
-                        handleCommand(m.substring(cindex + config.trigger.length), senderId);
+                        handleCommand(m.substring(cindex + config.trigger.length), senderId, message); // Pass full message obj in case it's needed in a command
                     }
                     // Check for Easter eggs
                     handleEasterEggs(m, groupId, senderId);
@@ -127,7 +128,12 @@ function handleMessage(err, message, api = gapi) { // New message received from 
 }
 exports.handleMessage = handleMessage;
 
-function handleCommand(command, fromUserId, api = gapi) {
+/*
+  This is the main body of the program; it handles whatever comes after the trigger word
+  in the received message body and looks for matches of commands listed in the commands.js
+  file, and then processes them accordingly.
+*/
+function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
     const threadId = ids.group; // For async callbacks
     // Evaluate commands
     const co = commands.commands; // Short var names since I'll be typing them a lot
@@ -162,7 +168,7 @@ function handleCommand(command, fromUserId, api = gapi) {
             // Give details of specific command
             const info = getHelpEntry(input, co);
             if (info) {
-                sendMessage(`Entry for command "${info.pretty_name}":\n${info.description}\n\nSyntax: ${config.trigger} ${info.syntax}${info.sudo ? "\n\n(This command requires admin privileges)" : ""}${info.experimental ? "\n\n(This command is experimental)" : ""}`, threadId);
+                sendMessage(`Entry for command "${info.pretty_name}":\n${info.description}\n\nSyntax: ${config.trigger} ${info.syntax}${info.attachments ? "\n\n(This command accepts attachments)" : ""}${info.sudo ? "\n\n(This command requires admin privileges)" : ""}${info.experimental ? "\n\n(This command is experimental)" : ""}`, threadId);
             } else {
                 sendError(`Help entry not found for ${input}`, threadId);
             }
@@ -714,6 +720,48 @@ function handleCommand(command, fromUserId, api = gapi) {
         const rand = Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound;
         const chance = Math.abs(((1.0 / (upperBound - lowerBound + 1)) * 100).toFixed(2));
         sendMessage(`${rand}\n\nWith bounds of (${lowerBound}, ${upperBound}), the chances of receiving this result were ${chance}%`, threadId);
+    } else if (co["bw"].m) {
+        const url = co["bw"].m[1];
+        const attachments = messageLiteral.attachments;
+        if (url) { // URL passed
+            const filename = `media/${encodeURIComponent(url)}.png`;
+            image.read(url, (err, file) => {
+                if (err) {
+                    sendError("Unable to retreive image from that URL", threadId);
+                } else {
+                    file.greyscale().write(filename, (err) => {
+                        if (!err) {
+                            sendFile(filename, threadId, "", () => {
+                                fs.unlink(filename);
+                            });
+                        }
+                    });
+                }
+            });
+        } else if (attachments) {
+            for (let i = 0; i < attachments.length; i++) {
+                if (attachments[i].type == "photo") {
+                    const filename = `media/${attachments[i].name}.png`;
+                    image.read(attachments[i].previewUrl, (err, file) => {
+                        if (err) {
+                            sendError("Invalid file", threadId);
+                        } else {
+                            file.greyscale().write(filename, (err) => {
+                                if (!err) {
+                                    sendFile(filename, threadId, "", () => {
+                                        fs.unlink(filename);
+                                    });
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    sendError(`Sorry, but ${attachments[i].name} is not an acceptable file type`, trheadId);
+                }
+            }
+        } else {
+            sendError("You must provide either a URL or a valid image attachment");
+        }
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -724,7 +772,7 @@ exports.handleCommand = handleCommand; // Export for external use
 function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
     if (config.easterEggs) {
         if (message.match(/genius/i)) {
-            sendFile("media/genius.jpg", "", threadId);
+            sendFile("media/genius.jpg", threadId);
         }
         if (message.match(/kys|cuck(?:ed)?|maga/i)) {
             sendMessage("Delete your account.", threadId)
@@ -733,7 +781,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             sendContentsOfFile("media/monologue.txt", threadId);
         }
         if (message.match(/umd/i)) {
-            sendFile("media/umd.png", "", threadId);
+            sendFile("media/umd.png", threadId);
         }
         if (message.match(/cornell/i)) {
             sendMessage({
@@ -741,7 +789,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             }, threadId);
         }
         if (message.match(/swarthmore/i)) {
-            sendFile("media/jonah.png", "", threadId);
+            sendFile("media/jonah.png", threadId);
         }
         if (message.match(/purdue/i)) {
             sendMessage("I hear they have good chicken", threadId);
@@ -758,7 +806,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             }, threadId);
         }
         if (message.match(/(?:\s|^)mechanics|electricity|magnetism|pulley|massless|friction|acceleration|torque|impulse/i)) {
-            sendFile("media/shaw.png", "", threadId);
+            sendFile("media/shaw.png", threadId);
         }
         if (message.match(/(?:get|measure) bac(?:[^k]|$)/i)) {
             sendMessage("Yiyi's BAC is far above healthy levels", threadId);
@@ -767,10 +815,10 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             sendMessage("eron", threadId);
         }
         if (message.match(/socialis(?:t|m)/i)) {
-            sendFile("media/anton.png", "", threadId);
+            sendFile("media/anton.png", threadId);
         }
         if (message.match(/pre(?:-|\s)?med/i)) {
-            sendFile("media/premed.png", "", threadId);
+            sendFile("media/premed.png", threadId);
         }
         if (message.match(/(\s|^)sleep/i)) {
             sendMessage("Have I got a story to tell you about various fruits...", threadId);
@@ -779,7 +827,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             sendMessage("Night!", threadId);
         }
         if (message.match(/public funds/i)) {
-            sendFile("media/dirks.png", "", threadId);
+            sendFile("media/dirks.png", threadId);
         }
         if (message.match(/darth plagueis/i)) {
             sendContentsOfFile("media/plagueis.txt", threadId);
@@ -788,10 +836,10 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             sendMessage("🔥", threadId);
         }
         if (message.match(/pozharski(y)?/i)) {
-            sendFile("media/pozharskiy.mp4", "", threadId);
+            sendFile("media/pozharskiy.mp4", threadId);
         }
         if (message.match(/money/i)) {
-            sendFile("media/money.png", "", threadId);
+            sendFile("media/money.png", threadId);
         }
         if (message.match(/rest of the country/i)) {
             sendMessage({
@@ -799,7 +847,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             }, threadId);
         }
         if (message.match(/(^|\s)drug/i)) {
-            sendFile("media/drugs.png", "", threadId);
+            sendFile("media/drugs.png", threadId);
         }
     }
 }
@@ -831,12 +879,13 @@ function matchesWithUser(command, message, fromUserId, optional = false, threadI
 // and for outputting messages to stdout when the API isn't available (e.g. before login)
 // Accepts either a simple string or a message object with URL/attachment fields
 // Probably a good idea to use this wrapper for all sending instances for debug purposes
-// and consistency unless a callback is needed
-function sendMessage(m, threadId = ids.group, api = gapi) {
+// and consistency
+function sendMessage(m, threadId = ids.group, callback = () => {}, api = gapi) {
     try {
-        api.sendMessage(m, threadId);
+        api.sendMessage(m, threadId, callback);
     } catch (e) { // For debug mode (API not available)
         console.log(`${threadId}: ${m}`);
+        callback();
     }
 }
 
@@ -996,13 +1045,13 @@ function isBanned(senderId) {
 }
 
 // Sends file where filename is a relative path to the file from root
-// Accepts an optional message body parameter
-function sendFile(filename, message = "", threadId = ids.group, api = gapi) {
+// Accepts an optional message body parameter and callback
+function sendFile(filename, threadId = ids.group, message = "", callback = () => {}, api = gapi) {
     const msg = {
         "body": message,
         "attachment": fs.createReadStream(`${__dirname}/${filename}`)
     }
-    sendMessage(msg, threadId);
+    sendMessage(msg, threadId, callback);
 }
 
 // Returns a string of the current time in EST
@@ -1050,7 +1099,7 @@ function sendFileFromUrl(url, path = "media/temp.jpg", message = "", threadId = 
             request(url).pipe(fs.createWriteStream(path)).on('close', (err, data) => {
                 if (!err) {
                     // Use API's official sendMessage here for callback functionality
-                    api.sendMessage({
+                    sendMessage({
                         "body": message,
                         "attachment": fs.createReadStream(`${__dirname}/${path}`)
                     }, threadId, (err, data) => {
@@ -1092,7 +1141,7 @@ function getNameFromId(id, thread) {
 
 // Restarts the bot (requires deploying to Heroku)
 // Includes optional callback
-function restart(callback) {
+function restart(callback = () => {}) {
     request.delete({
         "url": "https://api.heroku.com/apps/assume-bot/dynos/web",
         "headers": {
@@ -1100,9 +1149,7 @@ function restart(callback) {
             "Authorization": `Bearer ${credentials.TOKEN}` // Requires Heroku OAuth token for authorization
         }
     });
-    if (callback) {
-        callback();
-    }
+    callback();
 }
 
 // Constructs a string of artists when passed a track object from the Spotify API
@@ -1119,13 +1166,11 @@ function getArtists(track) {
 }
 
 // Logs into Spotify API & sets the appropriate credentials
-function logInSpotify(callback) {
+function logInSpotify(callback = () => {}) {
     spotify.clientCredentialsGrant({}, (err, data) => {
         if (!err) {
             spotify.setAccessToken(data.body.access_token);
-            if (callback) {
-                callback();
-            }
+            callback();
         } else {
             callback(err);
         }
