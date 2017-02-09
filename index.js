@@ -674,41 +674,20 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             }
         });
     } else if (co["photo"].m) {
-        // Set photo to photo at provided URL
+        // Set group photo to photo at provided URL
         const url = co["photo"].m[1];
         if (url) {
-            // Download file and pass to chat API
-            const path = `media/${encodeURIComponent(url)}.png`;
-            request(url).pipe(fs.createWriteStream(path)).on('close', (err, data) => {
-                if (!err) {
-                    api.changeGroupImage(fs.createReadStream(`${__dirname}/${path}`), threadId, (err) => {
-                        // Delete downloaded file
-                        fs.unlink(path);
-                        if (err) {
-                            sendError("Can't set group image for this chat", threadId);
-                        }
-                    });
-                } else {
-                    sendError("Couldn't download image from that URL", threadId);
-                }
-            });
+            // Use passed URL
+            setGroupImageFromUrl(url, threadId, "Can't set group image for this chat");
         } else if (attachments) {
             if (attachments[0].type == "photo") {
-                const photoUrl = attachments[0].previewUrl;
-                const path = `media/${encodeURIComponent(photoUrl)}.png`;
-                request(photoUrl).pipe(fs.createWriteStream(path)).on('close', (err, data) => {
-                    if (!err) {
-                        api.changeGroupImage(fs.createReadStream(`${__dirname}/${path}`), threadId, (err) => {
-                            fs.unlink(path);
-                            if (err) {
-                                sendError("Attachment is invalid", threadId);
-                            }
-                        });
-                    }
-                });
+                // Use photo attachment
+                setGroupImageFromUrl(attachments[0].previewUrl, threadId, "Attachment is invalid");
             } else {
                 sendError("This command only accepts photo attachments", threadId);
             }
+        } else {
+            sendError("This command requires either a valid image URL or a photo attachment", threadId);
         }
     } else if (co["title"].m && co["title"].m[1]) {
         const title = co["title"].m[1];
@@ -1233,5 +1212,24 @@ function updateScore(isAdd, userId, callback) {
         setScore(userId, `${newScore}`, (err, success) => {
             callback(err, success, newScore);
         });
+    });
+}
+
+// Sets group image to image found at given URL
+// Accepts url, threadId, and optional error message parameter to be displayed if changing the group image fails
+function setGroupImageFromUrl(url, threadId = ids.group, errMsg = "Photo couldn't download properly", api = gapi) {
+    // Download file and pass to chat API
+    const path = `media/${encodeURIComponent(url)}.png`;
+    request(url).pipe(fs.createWriteStream(path)).on('close', (err, data) => {
+        if (!err) {
+            api.changeGroupImage(fs.createReadStream(`${__dirname}/${path}`), threadId, (err) => {
+                fs.unlink(path);
+                if (err) {
+                    sendError(errMsg, threadId);
+                }
+            });
+        } else {
+            sendError("Image not found at that URL");
+        }
     });
 }
