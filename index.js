@@ -696,7 +696,6 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             if (attachments[0].type == "photo") {
                 const photoUrl = attachments[0].previewUrl;
                 const path = `media/${encodeURIComponent(photoUrl)}.png`;
-                console.log(path);
                 request(photoUrl).pipe(fs.createWriteStream(path)).on('close', (err, data) => {
                     if (!err) {
                         api.changeGroupImage(fs.createReadStream(`${__dirname}/${path}`), threadId, (err) => {
