@@ -135,6 +135,7 @@ exports.handleMessage = handleMessage;
 */
 function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
     const threadId = ids.group; // For async callbacks
+    const attachments = messageLiteral.attachments; // For commands that take attachments
     // Evaluate commands
     const co = commands.commands; // Short var names since I'll be typing them a lot
     for (let c in co) {
@@ -672,29 +673,44 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
                 });
             }
         });
-    } else if (co["photo"].m && co["photo"].m[1]) {
+    } else if (co["photo"].m) {
         // Set photo to photo at provided URL
         const url = co["photo"].m[1];
-        const path = "media/group.png";
-        request.head(url, (err, res, body) => {
+        if (url) {
             // Download file and pass to chat API
-            if (!err) {
-                request(url).pipe(fs.createWriteStream(path)).on('close', (err, data) => {
+            const path = `media/${encodeURIComponent(url)}.png`;
+            request(url).pipe(fs.createWriteStream(path)).on('close', (err, data) => {
+                if (!err) {
+                    api.changeGroupImage(fs.createReadStream(`${__dirname}/${path}`), threadId, (err) => {
+                        // Delete downloaded file
+                        fs.unlink(path);
+                        if (err) {
+                            sendError("Can't set group image for this chat", threadId);
+                        }
+                    });
+                } else {
+                    sendError("Couldn't download image from that URL", threadId);
+                }
+            });
+        } else if (attachments) {
+            if (attachments[0].type == "photo") {
+                const photoUrl = attachments[0].previewUrl;
+                const path = `media/${encodeURIComponent(photoUrl)}.png`;
+                console.log(path);
+                request(photoUrl).pipe(fs.createWriteStream(path)).on('close', (err, data) => {
                     if (!err) {
-                        // Use API's official sendMessage here for callback functionality
-                        api.changeGroupImage(fs.createReadStream(`${__dirname}/${path}`), threadId, (err, data) => {
-                            // Delete downloaded file
+                        api.changeGroupImage(fs.createReadStream(`${__dirname}/${path}`), threadId, (err) => {
                             fs.unlink(path);
                             if (err) {
-                                sendError("Photo couldn't be found at that URL", threadId);
+                                sendError("Attachment is invalid", threadId);
                             }
                         });
                     }
                 });
             } else {
-                sendError("Photo couldn't be downloaded", threadId);
+                sendError("This command only accepts photo attachments", threadId);
             }
-        });
+        }
     } else if (co["title"].m && co["title"].m[1]) {
         const title = co["title"].m[1];
         api.setTitle(title, threadId, (err) => {
@@ -722,7 +738,6 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         sendMessage(`${rand}\n\nWith bounds of (${lowerBound}, ${upperBound}), the chances of receiving this result were ${chance}%`, threadId);
     } else if (co["bw"].m) {
         const url = co["bw"].m[1];
-        const attachments = messageLiteral.attachments;
         if (url) { // URL passed
             const filename = `media/${encodeURIComponent(url)}.png`;
             image.read(url, (err, file) => {

@@ -338,12 +338,12 @@ exports.commands = {
         "description": "Changes the group's photo to the image at the specified URL",
         "syntax": "(set|change) (photo|picture|image) (url)",
         "sudo": false,
-        "attachments": false,
+        "attachments": true,
         "user_input": {
             "accepts": false,
             "optional": false
         },
-        "regex": /(?:(?:set|change) )?(?:photo|picture|image) ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?)/i, // URL
+        "regex": /(?:(?:set|change) )?(?:photo|picture|image)(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i, // URL
         "experimental": false
     },
     "title": {
