@@ -679,7 +679,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         if (url) {
             // Use passed URL
             setGroupImageFromUrl(url, threadId, "Can't set group image for this chat");
-        } else if (attachments) {
+        } else if (attachments && attachments[0]) {
             if (attachments[0].type == "photo") {
                 // Use photo attachment
                 setGroupImageFromUrl(attachments[0].previewUrl, threadId, "Attachment is invalid");
