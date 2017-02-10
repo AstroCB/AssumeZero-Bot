@@ -845,6 +845,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/(^|\s)how(\?|$)/i)) {
             sendFile("media/speedforce.mp4", threadId);
         }
+        if (message.match(/(^|\s)frat/i)) {
+            sendFile("media/frat.jpg", threadId0);
+        }
     }
 }
 
