@@ -801,8 +801,11 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/(?:\s|^)mechanics|electricity|magnetism|pulley|massless|friction|acceleration|torque|impulse/i)) {
             sendFile("media/shaw.png", threadId);
         }
-        if (message.match(/(?:get|measure) bac(?:[^k]|$)/i)) {
-            sendMessage("Yiyi's BAC is far above healthy levels", threadId);
+        const bac = matchesWithUser("(?:get|measure) bac(?:[^k]|$)", message, fromUserId, true, threadId, "");
+        console.log(bac);
+        if (bac) {
+            const name = bac[1] || "Yiyi";
+            sendMessage(`${name.substring(0,1).toUpperCase() + name.substring(1)}'s BAC is far above healthy levels`, threadId);
         }
         if (message.match(new RegExp(`${config.trigger} .* cam$`, "i"))) {
             sendMessage("eron", threadId);
@@ -846,7 +849,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             sendFile("media/speedforce.mp4", threadId);
         }
         if (message.match(/(^|\s)frat/i)) {
-            sendFile("media/frat.jpg", threadId0);
+            sendFile("media/frat.jpg", threadId);
         }
     }
 }
@@ -855,6 +858,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
 
 function matchesWithUser(command, message, fromUserId, optional = false, threadId = ids.group, sep = " ", suffix = "") {
     // Construct regex string
+    console.log(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${config.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
     let match = message.match(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${config.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
     // Now look for instances of "me" in the command and replace with the calling user
     if (match) {
