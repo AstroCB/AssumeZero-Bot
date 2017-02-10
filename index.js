@@ -802,7 +802,6 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             sendFile("media/shaw.png", threadId);
         }
         const bac = matchesWithUser("(?:get|measure) bac(?:[^k]|$)", message, fromUserId, true, threadId, "");
-        console.log(bac);
         if (bac) {
             const name = bac[1] || "Yiyi";
             sendMessage(`${name.substring(0,1).toUpperCase() + name.substring(1)}'s BAC is far above healthy levels`, threadId);
@@ -858,7 +857,6 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
 
 function matchesWithUser(command, message, fromUserId, optional = false, threadId = ids.group, sep = " ", suffix = "") {
     // Construct regex string
-    console.log(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${config.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
     let match = message.match(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${config.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
     // Now look for instances of "me" in the command and replace with the calling user
     if (match) {
