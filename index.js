@@ -805,7 +805,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
                 if (err) {
                     sendError("Unable to retrieve image from that URL", threadId);
                 } else {
-                    file.flip().write(filename, (err) => {
+                    file.invert().write(filename, (err) => {
                         if (!err) {
                             sendFile(filename, threadId, "", () => {
                                 fs.unlink(filename);
