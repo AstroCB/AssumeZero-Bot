@@ -782,9 +782,10 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         const overlay = co["overlay"].m[2];
         processImage(url, attachments, threadId, (img, filename) => {
             jimp.loadFont(jimp.FONT_SANS_32_BLACK).then((font) => {
-              const width = img.bitmap.width; // Image width
-              const height = img.bitmap.height; // Image height
-                img.print(font, width / 2, height / 2, overlay, width).write(filename, (err) => {
+                const width = img.bitmap.width; // Image width
+                const height = img.bitmap.height; // Image height
+                const textWidth = measureText(font, text);
+                img.print(font, (width - textWidth) / 2, height / 2, overlay, width).write(filename, (err) => {
                     if (!err) {
                         sendFile(filename, threadId, "", () => {
                             fs.unlink(filename);
@@ -1308,3 +1309,16 @@ function processImage(url, attachments, threadId, callback = () => {}) {
         sendError("You must provide either a URL or a valid image attachment", threadId);
     }
 }
+
+// Measures text for centering it on an image
+function measureText(font, text) {
+    let x = 0;
+    for (let i = 0; i < text.length; i++) {
+        if (font.chars[text[i]]) {
+            x += font.chars[text[i]].xoffset +
+                (font.kernings[text[i]] && font.kernings[text[i]][text[i + 1]] ? font.kernings[text[i]][text[i + 1]] : 0) +
+                (font.chars[text[i]].xadvance || 0);
+        }
+    }
+    return x;
+};

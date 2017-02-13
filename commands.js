@@ -403,7 +403,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /bw(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
+        "regex": /bw(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
         "experimenal": false
     },
     "sepia": {
@@ -418,7 +418,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /sepia(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
+        "regex": /sepia(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
         "experimenal": false
     },
     "flip": {
@@ -433,7 +433,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /flip (horiz(?:ontal)?|vert(?:ical)?)(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
+        "regex": /flip (horiz(?:ontal)?|vert(?:ical)?)(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
         "experimenal": false
     },
     "invert": {
@@ -448,7 +448,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /invert(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
+        "regex": /invert(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
         "experimenal": false
     },
     "blur": {
@@ -463,7 +463,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /blur(?: (\d+))?( gauss)?(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
+        "regex": /blur(?: (\d+))?( gauss)?(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
         "experimenal": false
     },
     "overlay": {
@@ -478,7 +478,7 @@ exports.commands = {
           "accepts": false,
           "optional": false
       },
-      "regex": /overlay(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?(.*)/i,
+      "regex": /overlay(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?(.*)/i,
       "experimenal": false
     }
 };
