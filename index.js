@@ -725,6 +725,17 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
                 }
             });
         });
+    } else if (co["sepia"].m) {
+        const url = co["sepia"].m[1];
+        processImage(url, attachments, threadId, (img, filename) => {
+            img.sepia().write(filename, (err) => {
+                if (!err) {
+                    sendFile(filename, threadId, "", () => {
+                        fs.unlink(filename);
+                    });
+                }
+            });
+        });
     } else if (co["flip"].m) {
         const horiz = (co["flip"].m[1].toLowerCase().indexOf("horiz") > -1); // Horizontal or vertical
         const url = co["flip"].m[2];

@@ -406,6 +406,21 @@ exports.commands = {
         "regex": /bw(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
         "experimenal": false
     },
+    "sepia": {
+        "display_names": ["sepia"],
+        "pretty_name": "Sepia",
+        "short_description": "Converts an image to sepia tone",
+        "description": "Converts an image to sepia tone with either a URL or an uploaded image",
+        "syntax": "sepia ({url})",
+        "sudo": false,
+        "attachments": true,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /sepia(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
+        "experimenal": false
+    },
     "flip": {
         "display_names": ["flip", "mirror"],
         "pretty_name": "Flip",
