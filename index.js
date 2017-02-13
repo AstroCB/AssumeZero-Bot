@@ -752,6 +752,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         const pixels = parseInt(co["blur"].m[1]) || 2;
         const gauss = co["blur"].m[2];
         const url = co["blur"].m[3];
+        console.log(co["blur"]);
         processImage(url, attachments, threadId, (img, filename) => {
             const callback = (err) => {
                 if (!err) {
