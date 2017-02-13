@@ -786,7 +786,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
                     const width = img.bitmap.width; // Image width
                     const height = img.bitmap.height; // Image height
                     const textDims = measureText(font, overlay); // Get text dimensions (x,y)
-                    img.print(font, (width - textDims[0]) / 2, (height - textDims[1]) / 2, overlay, width).write(filename, (err) => {
+                    img.print(font, (width - textDims[0]) / 2, (height - textDims[1]) / 2, overlay, (width + textDims[0])).write(filename, (err) => {
                         if (!err) {
                             sendFile(filename, threadId, "", () => {
                                 fs.unlink(filename);
