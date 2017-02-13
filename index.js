@@ -749,7 +749,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             });
         });
     } else if (co["blur"].m) {
-        const pixels = parseInt(co["blur"].m[1]);
+        const pixels = parseInt(co["blur"].m[1]) || 2;
         const url = co["blur"].m[2];
         processImage(url, attachments, threadId, (img, filename) => {
             img.blur(pixels).write(filename, (err) => {
