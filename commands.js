@@ -421,6 +421,21 @@ exports.commands = {
         "regex": /flip (horiz(?:ontal)?|vert(?:ical)?)(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
         "experimenal": false
     },
+    "invert": {
+        "display_names": ["invert"],
+        "pretty_name": "Invert",
+        "short_description": "Invert image colors",
+        "description": "Inverts the colors of the image from the given URL or attachments",
+        "syntax": "invert ({url})",
+        "sudo": false,
+        "attachments": true,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /invert(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
+        "experimenal": false
+    },
     "blur": {
         "display_names": ["blur"],
         "pretty_name": "Blur",

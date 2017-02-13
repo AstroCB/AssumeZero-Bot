@@ -761,6 +761,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             });
         });
     }
+    console.log(co["blur"]);
 }
 exports.handleCommand = handleCommand; // Export for external use
 
