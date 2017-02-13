@@ -757,13 +757,14 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         }
     } else if (co["flip"].m) {
         const url = co["flip"].m[1];
+        const horiz = (co["flip"].m[2].toLowerCase().indexOf("horiz") > -1); // Horizontal or vertical
         if (url) { // URL passed
             const filename = `media/${encodeURIComponent(url)}.png`;
             image.read(url, (err, file) => {
                 if (err) {
                     sendError("Unable to retreive image from that URL", threadId);
                 } else {
-                    file.flip().write(filename, (err) => {
+                    file.flip(horiz, !horiz).write(filename, (err) => {
                         if (!err) {
                             sendFile(filename, threadId, "", () => {
                                 fs.unlink(filename);
@@ -780,7 +781,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
                         if (err) {
                             sendError("Invalid file", threadId);
                         } else {
-                            file.flip().write(filename, (err) => {
+                            file.flip(horiz, !horiz).write(filename, (err) => {
                                 if (!err) {
                                     sendFile(filename, threadId, "", () => {
                                         fs.unlink(filename);
