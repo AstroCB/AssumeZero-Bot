@@ -1319,10 +1319,10 @@ function measureText(font, text) {
             x += font.chars[text[i]].xoffset +
                 (font.kernings[text[i]] && font.kernings[text[i]][text[i + 1]] ? font.kernings[text[i]][text[i + 1]] : 0) +
                 (font.chars[text[i]].xadvance || 0);
-        }
-        const width = font.chars[text[i]].yoffset;
-        if (width > y) {
-            y = width;
+            const width = font.chars[text[i]].yoffset;
+            if (width > y) {
+                y = width;
+            }
         }
     }
     return [x, y];
