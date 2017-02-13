@@ -716,128 +716,50 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         sendMessage(`${rand}\n\nWith bounds of (${lowerBound}, ${upperBound}), the chances of receiving this result were ${chance}%`, threadId);
     } else if (co["bw"].m) {
         const url = co["bw"].m[1];
-        if (url) { // URL passed
-            const filename = `media/${encodeURIComponent(url)}.png`;
-            image.read(url, (err, file) => {
-                if (err) {
-                    sendError("Unable to retrieve image from that URL", threadId);
-                } else {
-                    file.greyscale().write(filename, (err) => {
-                        if (!err) {
-                            sendFile(filename, threadId, "", () => {
-                                fs.unlink(filename);
-                            });
-                        }
+        processImage(url, attachments, threadId, (img, filename) => {
+            img.greyscale().write(filename, (err) => {
+                if (!err) {
+                    sendFile(filename, threadId, "", () => {
+                        fs.unlink(filename);
                     });
                 }
             });
-        } else if (attachments) {
-            for (let i = 0; i < attachments.length; i++) {
-                if (attachments[i].type == "photo") {
-                    const filename = `media/${attachments[i].name}.png`;
-                    image.read(attachments[i].previewUrl, (err, file) => {
-                        if (err) {
-                            sendError("Invalid file", threadId);
-                        } else {
-                            file.greyscale().write(filename, (err) => {
-                                if (!err) {
-                                    sendFile(filename, threadId, "", () => {
-                                        fs.unlink(filename);
-                                    });
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    sendError(`Sorry, but ${attachments[i].name} is not an acceptable file type`, threadId);
-                }
-            }
-        } else {
-            sendError("You must provide either a URL or a valid image attachment", threadId);
-        }
+        });
     } else if (co["flip"].m) {
         const horiz = (co["flip"].m[1].toLowerCase().indexOf("horiz") > -1); // Horizontal or vertical
         const url = co["flip"].m[2];
-        if (url) { // URL passed
-            const filename = `media/${encodeURIComponent(url)}.png`;
-            image.read(url, (err, file) => {
-                if (err) {
-                    sendError("Unable to retrieve image from that URL", threadId);
-                } else {
-                    file.flip(horiz, !horiz).write(filename, (err) => {
-                        if (!err) {
-                            sendFile(filename, threadId, "", () => {
-                                fs.unlink(filename);
-                            });
-                        }
+        processImage(url, attachments, threadId, (img, filename) => {
+            file.flip(horiz, !horiz).write(filename, (err) => {
+                if (!err) {
+                    sendFile(filename, threadId, "", () => {
+                        fs.unlink(filename);
                     });
                 }
             });
-        } else if (attachments) {
-            for (let i = 0; i < attachments.length; i++) {
-                if (attachments[i].type == "photo") {
-                    const filename = `media/${attachments[i].name}.png`;
-                    image.read(attachments[i].previewUrl, (err, file) => {
-                        if (err) {
-                            sendError("Invalid file", threadId);
-                        } else {
-                            file.flip(horiz, !horiz).write(filename, (err) => {
-                                if (!err) {
-                                    sendFile(filename, threadId, "", () => {
-                                        fs.unlink(filename);
-                                    });
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    sendError(`Sorry, but ${attachments[i].name} is not an acceptable file type`, threadId);
-                }
-            }
-        } else {
-            sendError("You must provide either a URL or a valid image attachment", threadId);
-        }
+        });
     } else if (co["invert"].m) {
         const url = co["invert"].m[1];
-        if (url) { // URL passed
-            const filename = `media/${encodeURIComponent(url)}.png`;
-            image.read(url, (err, file) => {
-                if (err) {
-                    sendError("Unable to retrieve image from that URL", threadId);
-                } else {
-                    file.invert().write(filename, (err) => {
-                        if (!err) {
-                            sendFile(filename, threadId, "", () => {
-                                fs.unlink(filename);
-                            });
-                        }
+        processImage(url, attachments, threadId, (img, filename) => {
+            file.invert().write(filename, (err) => {
+                if (!err) {
+                    sendFile(filename, threadId, "", () => {
+                        fs.unlink(filename);
                     });
                 }
             });
-        } else if (attachments) {
-            for (let i = 0; i < attachments.length; i++) {
-                if (attachments[i].type == "photo") {
-                    const filename = `media/${attachments[i].name}.png`;
-                    image.read(attachments[i].previewUrl, (err, file) => {
-                        if (err) {
-                            sendError("Invalid file", threadId);
-                        } else {
-                            file.invert().write(filename, (err) => {
-                                if (!err) {
-                                    sendFile(filename, threadId, "", () => {
-                                        fs.unlink(filename);
-                                    });
-                                }
-                            });
-                        }
+        });
+    } else if (co["blur"].m) {
+        const url = co["blur"].m[1];
+        const pixels = co["blur"].m[2];
+        processImage(url, attachments, threadId, (img, filename) => {
+            file.blur(pixels).write(filename, (err) => {
+                if (!err) {
+                    sendFile(filename, threadId, "", () => {
+                        fs.unlink(filename);
                     });
-                } else {
-                    sendError(`Sorry, but ${attachments[i].name} is not an acceptable file type`, threadId);
                 }
-            }
-        } else {
-            sendError("You must provide either a URL or a valid image attachment", threadId);
-        }
+            });
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -1320,4 +1242,36 @@ function setGroupImageFromUrl(url, threadId = ids.group, errMsg = "Photo couldn'
             sendError("Image not found at that URL");
         }
     });
+}
+
+// Processes an image by sifting between URL input and attachments and downloading
+// Returns a JIMP image object and filename where the image was stored
+function processImage(url, attachments, threadId, callback = () => {}) {
+    if (url) { // URL passed
+        const filename = `media/${encodeURIComponent(url)}.png`;
+        image.read(url, (err, file) => {
+            if (err) {
+                sendError("Unable to retrieve image from that URL", threadId);
+            } else {
+                callback(image, filename);
+            }
+        });
+    } else if (attachments) {
+        for (let i = 0; i < attachments.length; i++) {
+            if (attachments[i].type == "photo") {
+                const filename = `media/${attachments[i].name}.png`;
+                image.read(attachments[i].previewUrl, (err, file) => {
+                    if (err) {
+                        sendError("Invalid file", threadId);
+                    } else {
+                        callback(image, filename);
+                    }
+                });
+            } else {
+                sendError(`Sorry, but ${attachments[i].name} is not an acceptable file type`, threadId);
+            }
+        }
+    } else {
+        sendError("You must provide either a URL or a valid image attachment", threadId);
+    }
 }

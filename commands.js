@@ -421,19 +421,19 @@ exports.commands = {
         "regex": /flip (horiz(?:ontal)?|vert(?:ical)?)(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
         "experimenal": false
     },
-    "invert": {
-        "display_names": ["invert"],
-        "pretty_name": "Invert",
-        "short_description": "Invert image colors",
-        "description": "Inverts the colors of the image from the given URL or attachments",
-        "syntax": "invert ({url})",
+    "blur": {
+        "display_names": ["blur"],
+        "pretty_name": "Blur",
+        "short_description": "Blurs the image",
+        "description": "Blurs the image by the given number of pixels from the given URL or attachments",
+        "syntax": "blur {pixels} ({url})",
         "sudo": false,
         "attachments": true,
         "user_input": {
             "accepts": false,
             "optional": false
         },
-        "regex": /invert(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
+        "regex": /blur (\d+)(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
         "experimenal": false
     }
 };
