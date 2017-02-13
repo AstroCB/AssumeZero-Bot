@@ -3,7 +3,7 @@ const messenger = require("facebook-chat-api"); // Chat API
 const fs = require("fs"); // File system
 const exec = require("child_process").exec;
 const request = require("request"); // For HTTP requests
-const image = require("jimp"); // For image processing
+const jimp = require("jimp"); // For image processing
 const ids = require("./ids"); // Various IDs stored for easy access
 const config = require("./config"); // Config file
 const utils = require("./configutils"); // Utility functions
@@ -777,6 +777,22 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
                 img.blur(pixels).write(filename, callback);
             }
         });
+    } else if (co["overlay"].m) {
+        const url = co["overlay"].m[1];
+        const overlay = co["overlay"].m[2];
+        processImage(url, attachments, threadId, (img, filename) => {
+            jimp.loadFont(jimp.FONT_SANS_32_BLACK).then((font) => {
+              const width = img.bitmap.width; // Image width
+              const height = img.bitmap.height; // Image height
+                img.print(font, width / 2, height / 2, overlay, width).write(filename, (err) => {
+                    if (!err) {
+                        sendFile(filename, threadId, "", () => {
+                            fs.unlink(filename);
+                        });
+                    }
+                });
+            });
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -1266,7 +1282,7 @@ function setGroupImageFromUrl(url, threadId = ids.group, errMsg = "Photo couldn'
 function processImage(url, attachments, threadId, callback = () => {}) {
     if (url) { // URL passed
         const filename = `media/${encodeURIComponent(url)}.png`;
-        image.read(url, (err, file) => {
+        jimp.read(url, (err, file) => {
             if (err) {
                 sendError("Unable to retrieve image from that URL", threadId);
             } else {
@@ -1277,7 +1293,7 @@ function processImage(url, attachments, threadId, callback = () => {}) {
         for (let i = 0; i < attachments.length; i++) {
             if (attachments[i].type == "photo") {
                 const filename = `media/${attachments[i].name}.png`;
-                image.read(attachments[i].previewUrl, (err, file) => {
+                jimp.read(attachments[i].previewUrl, (err, file) => {
                     if (err) {
                         sendError("Invalid file", threadId);
                     } else {

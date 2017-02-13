@@ -465,5 +465,20 @@ exports.commands = {
         },
         "regex": /blur(?: (\d+))?( gauss)?(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
         "experimenal": false
+    },
+    "overlay": {
+      "display_names": ["overlay"],
+      "pretty_name": "Overlay",
+      "short_description": "Overlays text on an image",
+      "description": "Overlays text on an image from the given URL or attachments",
+      "syntax": "overlay ({url}) {text}",
+      "sudo": false,
+      "attachments": true,
+      "user_input": {
+          "accepts": false,
+          "optional": false
+      },
+      "regex": /overlay(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?(.*)/i,
+      "experimenal": false
     }
 };
