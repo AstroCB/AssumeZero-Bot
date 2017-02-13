@@ -448,7 +448,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /blur (\d+)(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
+        "regex": /blur (\d+)?(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
         "experimenal": false
     }
 };
