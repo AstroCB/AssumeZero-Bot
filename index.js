@@ -720,7 +720,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             const filename = `media/${encodeURIComponent(url)}.png`;
             image.read(url, (err, file) => {
                 if (err) {
-                    sendError("Unable to retreive image from that URL", threadId);
+                    sendError("Unable to retrieve image from that URL", threadId);
                 } else {
                     file.greyscale().write(filename, (err) => {
                         if (!err) {
@@ -762,7 +762,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             const filename = `media/${encodeURIComponent(url)}.png`;
             image.read(url, (err, file) => {
                 if (err) {
-                    sendError("Unable to retreive image from that URL", threadId);
+                    sendError("Unable to retrieve image from that URL", threadId);
                 } else {
                     file.flip(horiz, !horiz).write(filename, (err) => {
                         if (!err) {
@@ -803,7 +803,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             const filename = `media/${encodeURIComponent(url)}.png`;
             image.read(url, (err, file) => {
                 if (err) {
-                    sendError("Unable to retreive image from that URL", threadId);
+                    sendError("Unable to retrieve image from that URL", threadId);
                 } else {
                     file.flip().write(filename, (err) => {
                         if (!err) {
