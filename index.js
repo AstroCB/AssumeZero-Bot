@@ -781,17 +781,21 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         const url = co["overlay"].m[1];
         const overlay = co["overlay"].m[2];
         processImage(url, attachments, threadId, (img, filename) => {
-            jimp.loadFont(jimp.FONT_SANS_32_BLACK, (font) => {
-                const width = img.bitmap.width; // Image width
-                const height = img.bitmap.height; // Image height
-                const textDims = measureText(font, overlay); // Get text dimensions (x,y)
-                img.print(font, (width - textDims[0]) / 2, (height - textDims[1]) / 2, overlay, width).write(filename, (err) => {
-                    if (!err) {
-                        sendFile(filename, threadId, "", () => {
-                            fs.unlink(filename);
-                        });
-                    }
-                });
+            jimp.loadFont(jimp.FONT_SANS_32_BLACK, (err, font) => {
+                if (!err) {
+                    const width = img.bitmap.width; // Image width
+                    const height = img.bitmap.height; // Image height
+                    const textDims = measureText(font, overlay); // Get text dimensions (x,y)
+                    img.print(font, (width - textDims[0]) / 2, (height - textDims[1]) / 2, overlay, width).write(filename, (err) => {
+                        if (!err) {
+                            sendFile(filename, threadId, "", () => {
+                                fs.unlink(filename);
+                            });
+                        }
+                    });
+                } else {
+                    sendError("Couldn't load font", threadId);
+                }
             });
         });
     }
