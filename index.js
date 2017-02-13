@@ -798,7 +798,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             sendError("You must provide either a URL or a valid image attachment", threadId);
         }
     } else if (co["invert"].m) {
-        const url = co["invert"].m[2];
+        const url = co["invert"].m[1];
         if (url) { // URL passed
             const filename = `media/${encodeURIComponent(url)}.png`;
             image.read(url, (err, file) => {
