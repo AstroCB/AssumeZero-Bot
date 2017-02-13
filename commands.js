@@ -407,10 +407,10 @@ exports.commands = {
         "experimenal": false
     },
     "flip": {
-        "display_names": ["flip", "Mirror"],
+        "display_names": ["flip", "mirror"],
         "pretty_name": "Flip",
         "short_description": "Flips/mirrors an image",
-        "description": "Flips/mirrors the image with the given URL or uploaded image",
+        "description": "Flips/mirrors the image from the given URL or attachments",
         "syntax": "flip horiz(ontal)|vert(ical) ({url})",
         "sudo": false,
         "attachments": true,
@@ -419,6 +419,21 @@ exports.commands = {
             "optional": false
         },
         "regex": /flip (horiz(?:ontal)?|vert(?:ical)?)(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
+        "experimenal": false
+    },
+    "invert": {
+        "display_names": ["invert"],
+        "pretty_name": "Invert",
+        "short_description": "Invert image colors",
+        "description": "Inverts the colors of the image from the given URL or attachments",
+        "syntax": "invert ({url})",
+        "sudo": false,
+        "attachments": true,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /invert(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
         "experimenal": false
     }
 };
