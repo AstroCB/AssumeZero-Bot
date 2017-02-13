@@ -756,8 +756,8 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             sendError("You must provide either a URL or a valid image attachment", threadId);
         }
     } else if (co["flip"].m) {
-        const url = co["flip"].m[1];
-        const horiz = (co["flip"].m[2].toLowerCase().indexOf("horiz") > -1); // Horizontal or vertical
+        const horiz = (co["flip"].m[1].toLowerCase().indexOf("horiz") > -1); // Horizontal or vertical
+        const url = co["flip"].m[2];
         if (url) { // URL passed
             const filename = `media/${encodeURIComponent(url)}.png`;
             image.read(url, (err, file) => {
