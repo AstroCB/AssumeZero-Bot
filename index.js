@@ -822,7 +822,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
                         if (err) {
                             sendError("Invalid file", threadId);
                         } else {
-                            file.flip().write(filename, (err) => {
+                            file.invert().write(filename, (err) => {
                                 if (!err) {
                                     sendFile(filename, threadId, "", () => {
                                         fs.unlink(filename);
