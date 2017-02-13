@@ -440,15 +440,15 @@ exports.commands = {
         "display_names": ["blur"],
         "pretty_name": "Blur",
         "short_description": "Blurs the image",
-        "description": "Blurs the image by the given number of pixels from the given URL or attachments",
-        "syntax": "blur {pixels} ({url})",
+        "description": "Blurs the image by the given number of pixels from the given URL or attachments; optional param to do a Gaussian blur, which is very slow",
+        "syntax": "blur {pixels} (gauss) ({url})",
         "sudo": false,
         "attachments": true,
         "user_input": {
             "accepts": false,
             "optional": false
         },
-        "regex": /blur(?: (\d+))?(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
+        "regex": /blur(?: (\d+))?(?: gauss)?(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
         "experimenal": false
     }
 };

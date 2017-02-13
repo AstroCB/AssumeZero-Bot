@@ -750,17 +750,21 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         });
     } else if (co["blur"].m) {
         const pixels = parseInt(co["blur"].m[1]) || 2;
-        const url = co["blur"].m[2];
-        let start = (new Date()).getTime();
+        const gauss = co["blur"].m[2];
+        const url = co["blur"].m[3];
         processImage(url, attachments, threadId, (img, filename) => {
-            img.gaussian(pixels).write(filename, (err) => {
+            const callback = (err) => {
                 if (!err) {
-                  let end = (new Date()).getTime();
-                    sendFile(filename, threadId, `${(end - start)/1000.0} seconds`, () => {
+                    sendFile(filename, threadId, "", () => {
                         fs.unlink(filename);
                     });
                 }
-            });
+            };
+            if (gauss) {
+                img.gaussian(pixels).write(filename, callback);
+            } else {
+                img.blur(pixels).write(filename, callback);
+            }
         });
     }
 }
