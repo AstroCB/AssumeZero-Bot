@@ -729,7 +729,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         const horiz = (co["flip"].m[1].toLowerCase().indexOf("horiz") > -1); // Horizontal or vertical
         const url = co["flip"].m[2];
         processImage(url, attachments, threadId, (img, filename) => {
-            file.flip(horiz, !horiz).write(filename, (err) => {
+            img.flip(horiz, !horiz).write(filename, (err) => {
                 if (!err) {
                     sendFile(filename, threadId, "", () => {
                         fs.unlink(filename);
@@ -740,7 +740,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
     } else if (co["invert"].m) {
         const url = co["invert"].m[1];
         processImage(url, attachments, threadId, (img, filename) => {
-            file.invert().write(filename, (err) => {
+            img.invert().write(filename, (err) => {
                 if (!err) {
                     sendFile(filename, threadId, "", () => {
                         fs.unlink(filename);
@@ -749,10 +749,10 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             });
         });
     } else if (co["blur"].m) {
-        const url = co["blur"].m[1];
-        const pixels = co["blur"].m[2];
+        const pixels = co["blur"].m[1];
+        const url = co["blur"].m[2];
         processImage(url, attachments, threadId, (img, filename) => {
-            file.blur(pixels).write(filename, (err) => {
+            img.blur(pixels).write(filename, (err) => {
                 if (!err) {
                     sendFile(filename, threadId, "", () => {
                         fs.unlink(filename);
@@ -761,7 +761,6 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             });
         });
     }
-    console.log(co["blur"]);
 }
 exports.handleCommand = handleCommand; // Export for external use
 
@@ -1254,7 +1253,7 @@ function processImage(url, attachments, threadId, callback = () => {}) {
             if (err) {
                 sendError("Unable to retrieve image from that URL", threadId);
             } else {
-                callback(image, filename);
+                callback(file, filename);
             }
         });
     } else if (attachments) {
@@ -1265,7 +1264,7 @@ function processImage(url, attachments, threadId, callback = () => {}) {
                     if (err) {
                         sendError("Invalid file", threadId);
                     } else {
-                        callback(image, filename);
+                        callback(file, filename);
                     }
                 });
             } else {
