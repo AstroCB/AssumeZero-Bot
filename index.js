@@ -751,10 +751,12 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
     } else if (co["blur"].m) {
         const pixels = parseInt(co["blur"].m[1]) || 2;
         const url = co["blur"].m[2];
+        let start = (new Date()).getTime();
         processImage(url, attachments, threadId, (img, filename) => {
-            img.blur(pixels).write(filename, (err) => {
+            img.gaussian(pixels).write(filename, (err) => {
                 if (!err) {
-                    sendFile(filename, threadId, "", () => {
+                  let end = (new Date()).getTime();
+                    sendFile(filename, threadId, `${(end - start)/1000.0} seconds`, () => {
                         fs.unlink(filename);
                     });
                 }
@@ -1244,7 +1246,7 @@ function setGroupImageFromUrl(url, threadId = ids.group, errMsg = "Photo couldn'
     });
 }
 
-// Processes an image by sifting between URL input and attachments and downloading
+// Processes an image or images by sifting between URL input and attachments and downloading
 // Returns a JIMP image object and filename where the image was stored
 function processImage(url, attachments, threadId, callback = () => {}) {
     if (url) { // URL passed
