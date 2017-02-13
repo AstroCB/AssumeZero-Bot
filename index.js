@@ -755,6 +755,47 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         } else {
             sendError("You must provide either a URL or a valid image attachment", threadId);
         }
+    } else if (co["flip"].m) {
+        const url = co["flip"].m[1];
+        if (url) { // URL passed
+            const filename = `media/${encodeURIComponent(url)}.png`;
+            image.read(url, (err, file) => {
+                if (err) {
+                    sendError("Unable to retreive image from that URL", threadId);
+                } else {
+                    file.flip().write(filename, (err) => {
+                        if (!err) {
+                            sendFile(filename, threadId, "", () => {
+                                fs.unlink(filename);
+                            });
+                        }
+                    });
+                }
+            });
+        } else if (attachments) {
+            for (let i = 0; i < attachments.length; i++) {
+                if (attachments[i].type == "photo") {
+                    const filename = `media/${attachments[i].name}.png`;
+                    image.read(attachments[i].previewUrl, (err, file) => {
+                        if (err) {
+                            sendError("Invalid file", threadId);
+                        } else {
+                            file.flip().write(filename, (err) => {
+                                if (!err) {
+                                    sendFile(filename, threadId, "", () => {
+                                        fs.unlink(filename);
+                                    });
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    sendError(`Sorry, but ${attachments[i].name} is not an acceptable file type`, threadId);
+                }
+            }
+        } else {
+            sendError("You must provide either a URL or a valid image attachment", threadId);
+        }
     }
 }
 exports.handleCommand = handleCommand; // Export for external use

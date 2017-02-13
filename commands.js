@@ -405,5 +405,20 @@ exports.commands = {
         },
         "regex": /bw(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
         "experimenal": false
+    },
+    "flip": {
+        "display_names": ["flip", "Mirror"],
+        "pretty_name": "Flip",
+        "short_description": "Flips/mirrors an image",
+        "description": "Flips/mirrors the image with the given URL or uploaded image",
+        "syntax": "flip ({url})",
+        "sudo": false,
+        "attachments": true,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /flip(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
+        "experimenal": false
     }
 };
