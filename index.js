@@ -784,7 +784,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             jimp.loadFont(jimp.FONT_SANS_32_BLACK).then((font) => {
                 const width = img.bitmap.width; // Image width
                 const height = img.bitmap.height; // Image height
-                const textWidth = measureText(font, text);
+                const textWidth = measureText(font, overlay);
                 img.print(font, (width - textWidth) / 2, height / 2, overlay, width).write(filename, (err) => {
                     if (!err) {
                         sendFile(filename, threadId, "", () => {
