@@ -784,8 +784,8 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             jimp.loadFont(jimp.FONT_SANS_32_BLACK).then((font) => {
                 const width = img.bitmap.width; // Image width
                 const height = img.bitmap.height; // Image height
-                const textWidth = measureText(font, overlay);
-                img.print(font, (width - textWidth) / 2, height / 2, overlay, width).write(filename, (err) => {
+                const textDims = measureText(font, overlay); // Get text dimensions (x,y)
+                img.print(font, (width - textDims[0]) / 2, (height - textDims[1]) / 2, overlay, width).write(filename, (err) => {
                     if (!err) {
                         sendFile(filename, threadId, "", () => {
                             fs.unlink(filename);
@@ -1310,15 +1310,20 @@ function processImage(url, attachments, threadId, callback = () => {}) {
     }
 }
 
-// Measures text for centering it on an image
+// Gets dimensions of text for centering it on an image
 function measureText(font, text) {
     let x = 0;
+    let y = 0;
     for (let i = 0; i < text.length; i++) {
         if (font.chars[text[i]]) {
             x += font.chars[text[i]].xoffset +
                 (font.kernings[text[i]] && font.kernings[text[i]][text[i + 1]] ? font.kernings[text[i]][text[i + 1]] : 0) +
                 (font.chars[text[i]].xadvance || 0);
         }
+        const width = font.chars[text[i]].yoffset;
+        if (width > y) {
+            y = width;
+        }
     }
-    return x;
+    return [x, y];
 };
