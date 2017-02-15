@@ -682,7 +682,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         } else if (attachments && attachments[0]) {
             if (attachments[0].type == "photo") {
                 // Use photo attachment
-                setGroupImageFromUrl(attachments[0].previewUrl, threadId, "Attachment is invalid");
+                setGroupImageFromUrl(attachments[0].largePreviewUrl, threadId, "Attachment is invalid");
             } else {
                 sendError("This command only accepts photo attachments", threadId);
             }
@@ -1304,7 +1304,7 @@ function processImage(url, attachments, threadId, callback = () => {}) {
         for (let i = 0; i < attachments.length; i++) {
             if (attachments[i].type == "photo") {
                 const filename = `media/${attachments[i].name}.png`;
-                jimp.read(attachments[i].previewUrl, (err, file) => {
+                jimp.read(attachments[i].largePreviewUrl, (err, file) => {
                     if (err) {
                         sendError("Invalid file", threadId);
                     } else {
