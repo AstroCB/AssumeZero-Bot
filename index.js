@@ -611,7 +611,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             } else { // No value provided; just display score
                 getScore(`userId`, (err, val) => {
                     if (!err) {
-                        const stored_score = val.toString() || 0;
+                        const stored_score = val ? val.toString() : 0;
                         sendMessage(`${user_cap}'s current score is ${stored_score}.`, threadId);
                     } else {
                         console.log(err);
