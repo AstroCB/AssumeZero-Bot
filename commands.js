@@ -493,7 +493,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /poll ([A-z]+)(?: \[(.*)\])?/i,
+        "regex": /poll ([^\[\s]+)(?: \[(.*)\])?/i,
         "experimental": false
     }
 };
