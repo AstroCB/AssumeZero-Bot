@@ -374,7 +374,7 @@ exports.commands = {
             "optional": false
         },
         "regex": /(?:ask|answer) .*/i,
-        "experimenal": false
+        "experimental": false
     },
     "rng": {
         "display_names": ["random", "rand", "rng"],
@@ -389,7 +389,7 @@ exports.commands = {
             "optional": false
         },
         "regex": /r(?:and(?:om)?|ng)(?: (\d+))?(?: (\d+))?/i,
-        "experimenal": false
+        "experimental": false
     },
     "bw": {
         "display_names": ["bw", "black and white", "grayscale"],
@@ -404,7 +404,7 @@ exports.commands = {
             "optional": false
         },
         "regex": /bw(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
-        "experimenal": false
+        "experimental": false
     },
     "sepia": {
         "display_names": ["sepia"],
@@ -419,7 +419,7 @@ exports.commands = {
             "optional": false
         },
         "regex": /sepia(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
-        "experimenal": false
+        "experimental": false
     },
     "flip": {
         "display_names": ["flip", "mirror"],
@@ -434,7 +434,7 @@ exports.commands = {
             "optional": false
         },
         "regex": /flip (horiz(?:ontal)?|vert(?:ical)?)(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
-        "experimenal": false
+        "experimental": false
     },
     "invert": {
         "display_names": ["invert"],
@@ -449,12 +449,12 @@ exports.commands = {
             "optional": false
         },
         "regex": /invert(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
-        "experimenal": false
+        "experimental": false
     },
     "blur": {
         "display_names": ["blur"],
         "pretty_name": "Blur",
-        "short_description": "Blurs the image",
+        "short_description": "Blurs an image",
         "description": "Blurs the image by the given number of pixels from the given URL or attachments; optional param to do a Gaussian blur, which is very slow",
         "syntax": "blur {pixels} (gauss) ({url})",
         "sudo": false,
@@ -464,21 +464,36 @@ exports.commands = {
             "optional": false
         },
         "regex": /blur(?: (\d+))?( gauss)?(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
-        "experimenal": false
+        "experimental": false
     },
     "overlay": {
-      "display_names": ["overlay"],
-      "pretty_name": "Overlay",
-      "short_description": "Overlays text on an image",
-      "description": "Overlays text on an image from the given URL or attachments",
-      "syntax": "overlay ({url}) {text}",
-      "sudo": false,
-      "attachments": true,
-      "user_input": {
-          "accepts": false,
-          "optional": false
-      },
-      "regex": /overlay(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?(.*)/i,
-      "experimenal": false
+        "display_names": ["overlay"],
+        "pretty_name": "Overlay",
+        "short_description": "Overlays text on an image",
+        "description": "Overlays text on an image from the given URL or attachments",
+        "syntax": "overlay ({url}) {text}",
+        "sudo": false,
+        "attachments": true,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /overlay(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?(.*)/i,
+        "experimental": false
+    },
+    "poll": {
+        "display_names": ["poll"],
+        "pretty_name": "Poll",
+        "short_description": "Creates a group poll",
+        "description": "Creates a poll in the group with the given title and optional comma-delimited initial options in brackets",
+        "syntax": "poll {title} ([opt1,opt2,opt3])",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /poll ([A-z]+)(?: \[(.*)\])?/i,
+        "experimental": false
     }
 };

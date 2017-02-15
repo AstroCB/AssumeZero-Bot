@@ -798,6 +798,21 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
                 }
             });
         });
+    } else if (co["poll"].m && co["poll"].m[1]) {
+        const title = co["poll"].m[1];
+        const opts = co["poll"].m[2];
+        let optsObj = {};
+        if (opts) {
+            const items = opts.split(",");
+            for (let i = 0; i < items.length; i++) {
+                optsObj[items[i]] = false; // Initialize options to unselected in poll
+            }
+        }
+        api.createPoll(title, threadId, optsObj, (err) => {
+            if (err) {
+                sendError("Cannot create a poll in a non-group chat", threadId);
+            }
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
