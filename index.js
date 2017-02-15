@@ -896,6 +896,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/(^|\s)life([^A-z]|$)/i)) {
             sendFile("media/girlfriend.png");
         }
+        if (message.match(/el spaniard/i)) {
+            sendFile("media/sols.pdf");
+        }
     }
 }
 
