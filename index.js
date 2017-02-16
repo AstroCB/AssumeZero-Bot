@@ -917,6 +917,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/xps/i)) {
             sendFile("media/xps.jpg");
         }
+        if (message.match(/gender/i)) {
+            sendFile("media/binary.png");
+        }
     }
 }
 
