@@ -920,6 +920,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/gender/i)) {
             sendFile("media/binary.png");
         }
+        if (message.match(/(^|\s)bob([^A-z]|$)/i)) {
+            sendFile("media/serenade.mp4");
+        }
     }
 }
 
