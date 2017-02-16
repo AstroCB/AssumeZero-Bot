@@ -596,7 +596,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         }
     } else if (co["score"].m && co["score"].m[2]) {
         const user = co["score"].m[2].toLowerCase();
-        const userId = ids.members[threadId][user];
+        const userId = ids.members[threadId] ? ids.members[threadId][user] : null;
         const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
         if (userId) {
             const new_score = co["score"].m[1];
@@ -609,7 +609,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
                     }
                 });
             } else { // No value provided; just display score
-                getScore(`userId`, (err, val) => {
+                getScore(`${userId}`, (err, val) => {
                     if (!err) {
                         const stored_score = val ? val.toString() : 0;
                         sendMessage(`${user_cap}'s current score is ${stored_score}.`, threadId);
