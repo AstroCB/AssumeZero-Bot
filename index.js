@@ -923,6 +923,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/(^|\s)bob(bing|[^A-z]|$)/i)) {
             sendFile("media/serenade.mp4");
         }
+        if (message.match(/wrong chat/i)) {
+            sendFile("media/background.png");
+        }
     }
 }
 
