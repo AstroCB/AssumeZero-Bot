@@ -926,6 +926,9 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/wrong chat/i)) {
             sendFile("media/background.png");
         }
+        if (message.match(/brown/i)) {
+            sendFile("media/brown.jpg");
+        }
     }
 }
 
