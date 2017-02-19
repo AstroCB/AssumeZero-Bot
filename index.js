@@ -68,7 +68,7 @@ function handleMessage(err, message, api = gapi) { // New message received from 
         updateGroupInfo(message.threadID, message.isGroup);
         // Load existing group data
         getGroupInfo(message.threadID, (err, info) => {
-            if (err) {
+            if (err || !info) {
                 console.log(err);
             } else {
                 // Handle messages
