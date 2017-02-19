@@ -756,7 +756,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             }
         });
     } else if (co["psa"].m) {
-        sendToAll(`"${co["psa"].m[1]}" – public service announcement from Cameron`);
+        sendToAll(`"${co["psa"].m[1]}"\n\nThis has been a public service announcement from Cameron`);
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
