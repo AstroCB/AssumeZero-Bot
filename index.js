@@ -1025,11 +1025,17 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                 if (data) {
                     let info = {};
                     info.threadId = threadId;
-                    info.name = data.name || "Unnamed chat";
+                    info.name = data.name || (() => {
+                        let names = [];
+                        for (let n in data.names) {
+                            names.push(data.names[n]);
+                        }
+                        return (names.join("/") || "Unnamed chat");
+                    })();
                     info.emoji = data.emoji ? data.emoji.emoji : null;
                     info.color = data.color;
                     info.nicknames = data.nicknames || {};
-                    info.isGroup = (isGroup != undefined) ? isGroup : info.isGroup;
+                    info.isGroup = (typeof(isGroup) == "boolean" && isGroup !== undefined) ? isGroup : existingInfo.isGroup;
                     api.getUserInfo(data.participantIDs, (err, userData) => {
                         if (!err) {
                             info.members = {};
@@ -1360,11 +1366,13 @@ function measureText(font, text) {
 
 // Sends a message to all of the chats that the bot is currenty in (use sparingly)
 function sendToAll(msg) {
-    getGroups((err, groups) => {
-      const groupData = JSON.parse(groups);
-        if (groupData) {
-            for (let g in groupData) {
-                console.log(`${groupData[g].name} – ${groupData[g].isGroup}`);
+    getGroups((err, groupData) => {
+        const groups = JSON.parse(groupData);
+        if (groups) {
+            for (let g in groups) {
+                if (groups[g].isGroup) {
+                    sendMessage(msg, g);
+                }
             }
         }
     });
