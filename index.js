@@ -1023,7 +1023,7 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
             }
             api.getThreadInfo(threadId, (err, data) => {
                 if (data) {
-                    let info = {};
+                    let info = existingInfo || {};
                     info.threadId = threadId;
                     info.name = data.name || (() => {
                         let names = [];
@@ -1035,7 +1035,7 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                     info.emoji = data.emoji ? data.emoji.emoji : null;
                     info.color = data.color;
                     info.nicknames = data.nicknames || {};
-                    info.isGroup = (typeof(isGroup) == "boolean" && isGroup !== undefined) ? isGroup : existingInfo.isGroup;
+                    info.isGroup = (typeof(isGroup) == "boolean" && isGroup !== undefined) ? isGroup : info.isGroup;
                     api.getUserInfo(data.participantIDs, (err, userData) => {
                         if (!err) {
                             info.members = {};
