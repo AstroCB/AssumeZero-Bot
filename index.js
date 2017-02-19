@@ -755,6 +755,8 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 sendError("Cannot create a poll in a non-group chat", threadId);
             }
         });
+    } else if (co["psa"].m) {
+        sendToAll(co["psa"].m[1]);
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -1027,7 +1029,7 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                     info.emoji = data.emoji ? data.emoji.emoji : null;
                     info.color = data.color;
                     info.nicknames = data.nicknames || {};
-                    info.isGroup = isGroup || info.isGroup;
+                    info.isGroup = (isGroup != undefined) ? isGroup : info.isGroup;
                     api.getUserInfo(data.participantIDs, (err, userData) => {
                         if (!err) {
                             info.members = {};
@@ -1063,7 +1065,7 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
 
 // Gets stored information about a group
 function getGroupInfo(threadId, callback) {
-    mem.get(`groups`, (err, groups) => {
+    getGroups((err, groups) => {
         const groupData = JSON.parse(groups) || {};
         if (err) {
             // Error retrieving data
@@ -1079,6 +1081,11 @@ function getGroupInfo(threadId, callback) {
             }
         }
     });
+}
+
+// Wrapper function for retrieving all groups from memory
+function getGroups(callback) {
+    mem.get(`groups`, callback);
 }
 
 // Updates stored information about a group
@@ -1349,4 +1356,16 @@ function measureText(font, text) {
         }
     }
     return [x, y];
-};
+}
+
+// Sends a message to all of the chats that the bot is currenty in (use sparingly)
+function sendToAll(msg) {
+    getGroups((err, groups) => {
+      const groupData = JSON.parse(groups);
+        if (groupData) {
+            for (let g in groupData) {
+                console.log(`${groupData[g].name} – ${groupData[g].isGroup}`);
+            }
+        }
+    });
+}

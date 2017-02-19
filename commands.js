@@ -480,5 +480,20 @@ exports.commands = {
         },
         "regex": /poll ([^[]+)(?:\[(.*)\])?/i,
         "experimental": false
+    },
+    "psa": {
+        "display_names": ["psa"],
+        "pretty_name": "PSA",
+        "short_description": "Messages all the bot's groups",
+        "description": "Announces a message to all of the group chats that the bot is present in",
+        "syntax": "psa {message}",
+        "sudo": true,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /psa (.*)/i,
+        "experimental": false
     }
 };
