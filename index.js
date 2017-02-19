@@ -572,7 +572,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             if (!err) {
                 spotify.setAccessToken(data.body.access_token);
                 const user = co["song"].m[1] ? co["song"].m[1].toLowerCase() : null;
-                const userId = info.members[user];
+                const userId = groupInfo.members[user];
                 const playlists = config.spotifyPlaylists; // Provide data in config
                 let playlist;
                 if (user && userId) {
