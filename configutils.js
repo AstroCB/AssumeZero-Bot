@@ -14,19 +14,18 @@ const mem = require("memjs").Client.create(credentials.MEMCACHIER_SERVERS, {
     password: credentials.MEMCACHIER_PASSWORD
 });
 
-exports.setRegexFromMembers = function(groupId = ids.group) {
-    const members = Object.keys(ids.members[groupId]);
+exports.getRegexFromMembers = (names) => {
     let regstr = "(";
-    for (let i = 0; i < members.length; i++) {
-        regstr += members[i];
-            regstr += "|";
+    for (let i = 0; i < names.length; i++) {
+        regstr += names[i];
+        regstr += "|";
     }
     regstr += "me)" // Include "me" for current user
     // Final format: (user1|user2|user3|usern|me)
     return regstr;
 }
 
-exports.contains = function(a, groupId = ids.group) {
+exports.contains = (a, groupId = ids.group) => {
     const vals = Object.keys(ids.members[groupId]).map(function(key) {
         return ids.members[groupId][key];
     });
@@ -35,7 +34,7 @@ exports.contains = function(a, groupId = ids.group) {
 
 // For banning functionality
 
-exports.getBannedUsers = function(callback) {
+exports.getBannedUsers = (callback) => {
     mem.get("banned", (err, data) => {
         try {
             callback(err, JSON.parse(data.toString()) || []);
@@ -46,7 +45,7 @@ exports.getBannedUsers = function(callback) {
     });
 }
 
-exports.addBannedUser = function(id, callback) {
+exports.addBannedUser = (id, callback) => {
     exports.getBannedUsers((err, bannedUsers) => {
         if (!err) {
             if (bannedUsers.indexOf(id) < 0) {
@@ -66,7 +65,7 @@ exports.addBannedUser = function(id, callback) {
     });
 }
 
-exports.removeBannedUser = function(id, callback = () => {}) {
+exports.removeBannedUser = (id, callback = () => {}) => {
     exports.getBannedUsers((err, bannedUsers) => {
         if (!err) {
             const ind = bannedUsers.indexOf(id);

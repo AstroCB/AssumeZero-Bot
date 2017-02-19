@@ -1,7 +1,7 @@
 // Dependencies
 const messenger = require("facebook-chat-api"); // Chat API
 const fs = require("fs"); // File system
-const exec = require("child_process").exec;
+const exec = require("child_process").exec; // For command line access
 const request = require("request"); // For HTTP requests
 const jimp = require("jimp"); // For image processing
 const ids = require("./ids"); // Various IDs stored for easy access
@@ -38,7 +38,7 @@ if (require.main === module) { // Called directly; login immediately
 
 function login(callback) {
     // Logging message with config details
-    console.log(`Bot ${ids.bot} logging in ${process.env.EMAIL ? "remotely" : "locally"} with dynamic mode ${config.dynamic ? "on" : "off"}, with trigger "${config.trigger}", and with Easter eggs ${config.easterEggs ? "on" : "off"}.`);
+    console.log(`Bot ${ids.bot} logging in ${process.env.EMAIL ? "remotely" : "locally"} with trigger "${config.trigger}" and with Easter eggs ${config.easterEggs ? "on" : "off"}.`);
     try {
         messenger({
             appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))
@@ -63,78 +63,53 @@ function main(err, api) {
 }
 
 function handleMessage(err, message, api = gapi) { // New message received from listen()
-    if (config.dynamic) { // See config for explanation
-        setEnvironmentVariables(message);
-    }
     if (message && !err) {
-        // Handle messages
-        if (message.type == "message" && message.senderID != ids.bot && !isBanned(message.senderID)) { // Is from AØBP but not from bot
-            if (message.threadID == ids.group) { // Message from main group (or current group, if in dynamic mode)
-                const m = message.body;
-                const attachments = message.attachments;
+        // Update info of group where message came from in the background
+        updateGroupInfo(message.threadID, message.isGroup);
+        // Load existing group data
+        getGroupInfo(message.threadID, (err, info) => {
+            if (err) {
+                console.log(err);
+            } else {
+                // Handle messages
                 const senderId = message.senderID;
-                const groupId = ids.group;
-                // Handle message body
-                if (m) {
-                    // Handle pings
-                    const pingData = parsePing(m, senderId, groupId);
-                    const pingUsers = pingData.users;
-                    const pingMessage = pingData.message;
-                    if (pingUsers) {
-                        api.getUserInfo(senderId, (err, userData) => {
-                            const nameBackup = userData[senderId].firstName;
-                            api.getThreadInfo(groupId, (err, data) => {
-                                const members = ids.members[groupId];
-                                if (members) {
-                                    for (var i = 0; i < pingUsers.length; i++) {
-                                        if (!err) {
-                                            const sender = data.nicknames[senderId] || nameBackup;
-                                            var message = `${sender} summoned you in ${data.name}`;
-                                            if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
-                                                message = `"${pingMessage}" – ${sender} in ${data.name}`;
-                                            }
-                                            message += ` at ${getTimeString()}` // Time stamp
-                                            sendMessage(message, members[pingUsers[i]]);
-                                        }
-                                    }
-                                } else {
-                                    console.log("Members not yet loaded for ping");
-                                }
+                if (message.type == "message" && senderId != ids.bot && !isBanned(senderId)) { // Is from AØBP but not from bot
+                    const m = message.body;
+                    const attachments = message.attachments;
+                    // Handle message body
+                    if (m) {
+                        // Handle user pings
+                        handlePings(m, senderId, info);
+                        // Pass to commands testing for trigger word
+                        const cindex = m.toLowerCase().indexOf(config.trigger);
+                        if (cindex > -1) { // Trigger command mode
+                            handleCommand(m.substring(cindex + config.trigger.length), senderId, info, message); // Pass full message obj in case it's needed in a command
+                        }
+                        // Check for Easter eggs
+                        handleEasterEggs(m, senderId, info);
+                    }
+                    // Handle attachments
+                    for (let i = 0; i < attachments.length; i++) {
+                        if (attachments[i].type == "animated_image" && !attachments[i].filename) { // Should have filename if OC
+                            kick(senderId, info, config.banTime, () => {
+                                sendMessage("You have been kicked for violating the group chat GIF policy: only OC is allowed.", groupId);
                             });
-                        });
-                    }
-
-                    // Pass to commands testing for trigger word
-                    const cindex = m.toLowerCase().indexOf(config.trigger);
-                    if (cindex > -1) { // Trigger command mode
-                        handleCommand(m.substring(cindex + config.trigger.length), senderId, message); // Pass full message obj in case it's needed in a command
-                    }
-                    // Check for Easter eggs
-                    handleEasterEggs(m, groupId, senderId);
-                }
-                // Handle attachments
-                for (var i = 0; i < attachments.length; i++) {
-                    if (attachments[i].type == "animated_image" && !attachments[i].filename) { // Should have filename if OC
-                        kick(senderId, config.banTime, groupId, function() {
-                            sendMessage("You have been kicked for violating the group chat GIF policy: only OC is allowed.", groupId);
-                        });
+                        }
                     }
                 }
-            } else if (message.threadID != ids.group) {
-                // Not from main group (static group mode)
             }
-        }
+        });
     }
 }
 exports.handleMessage = handleMessage;
 
 /*
-  This is the main body of the program; it handles whatever comes after the trigger word
+  This is the main body of the bot; it handles whatever comes after the trigger word
   in the received message body and looks for matches of commands listed in the commands.js
   file, and then processes them accordingly.
 */
-function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
-    const threadId = ids.group; // For async callbacks
+function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gapi) {
+    const threadId = groupInfo.threadId; // For async callbacks
     const attachments = messageLiteral.attachments; // For commands that take attachments
     // Evaluate commands
     const co = commands.commands; // Short var names since I'll be typing them a lot
@@ -145,9 +120,9 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
                 // Set match vals
                 if (co[c].user_input.accepts) { // Takes a match from the members dict
                     if (Array.isArray(co[c].regex)) { // Also has a regex suffix (passed as length 2 array)
-                        co[c].m = matchesWithUser(co[c].regex[0], command, fromUserId, co[c].user_input.optional, threadId, " ", co[c].regex[1]);
+                        co[c].m = matchesWithUser(co[c].regex[0], command, fromUserId, groupInfo, co[c].user_input.optional, " ", co[c].regex[1]);
                     } else { // Just a standard regex prefex as a string + name
-                        co[c].m = matchesWithUser(co[c].regex, command, fromUserId, co[c].user_input.optional, threadId);
+                        co[c].m = matchesWithUser(co[c].regex, command, fromUserId, groupInfo, co[c].user_input.optional);
                     }
                 } else {
                     co[c].m = command.match(co[c].regex);
@@ -161,7 +136,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
     debugCommandOutput(false);
     // Check commands for matches & eval
     if (co["help"].m) { // Check help first to avoid command conflicts
-        var input;
+        let input;
         if (co["help"].m[1]) {
             input = co["help"].m[1].trim().toLowerCase();
         }
@@ -192,9 +167,9 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         const optTime = co["kick"].m[2] ? parseInt(co["kick"].m[2]) : undefined;
         try {
             // Make sure already in group
-            if (ids.members[threadId][user]) {
+            if (groupInfo.members[user]) {
                 // Kick with optional time specified in call only if specified in command
-                kick(ids.members[threadId][user], optTime);
+                kick(groupInfo.members[user], groupInfo, optTime);
             } else {
                 throw new Error(`User ${user} not recognized`);
             }
@@ -340,7 +315,6 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
                         const bestMatch = data.body.tracks.items[0];
 
                         if (bestMatch) {
-                            console.log(bestMatch.uri)
                             spotify.addTracksToPlaylist(config.groupPlaylist.user, config.groupPlaylist.uri, [bestMatch.uri], (err) => {
                                 if (!err) {
                                     sendMessage(`Added ${bestMatch.name} by ${getArtists(bestMatch)} to ${config.groupPlaylist.name}'s playlist'`, threadId);
@@ -366,19 +340,19 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         const user = co["addsearch"].m[3];
         const command = co["addsearch"].m[1].split(" ")[0].toLowerCase(); // Strip opt parameter from match if present
         try {
-            api.getUserID(user, function(err, data) {
+            api.getUserID(user, (err, data) => {
                 if (!err) {
                     const bestMatch = data[0]; // Hopefully the right person
                     const numResults = parseInt(co["addsearch"].m[2]) || 1; // Number of results to display
                     if (command == "search") { // Is a search command
                         // Output search results / propic
-                        for (var i = 0; i < numResults; i++) {
+                        for (let i = 0; i < numResults; i++) {
                             // Passes number of match to indicate level (closeness to top)
                             searchForUser(data[i], threadId, i);
                         }
                     } else { // Is an add command
                         // Add best match to group and update log of member IDs
-                        addUser(bestMatch.userID, threadId);
+                        addUser(bestMatch.userID, groupInfo);
                     }
                 } else {
                     if (err.error) {
@@ -396,64 +370,56 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         sendMessage("I hate you all.", threadId);
         setTimeout(() => {
             let callbackset = false;
-            for (let m in ids.members[threadId]) {
+            for (let m in groupInfo.members) {
                 // Bot should never be in members list, but this is a safeguard
                 // (ALSO VERY IMPORTANT so that group isn't completely emptied)
-                if (ids.members[threadId].hasOwnProperty(m) && ids.members[threadId][m] != ids.bot) {
+                if (groupInfo.members.hasOwnProperty(m) && groupInfo.members[m] != ids.bot) {
                     if (!callbackset) { // Only want to send the message once
-                        kick(ids.members[threadId][m], config.order66Time, threadId, () => {
+                        kick(groupInfo.members[m], groupInfo, config.order66Time, () => {
                             sendMessage("Balance is restored to the Force.", threadId);
                         });
                         callbackset = true;
                     } else {
-                        kick(ids.members[threadId][m], config.order66Time, threadId);
+                        kick(groupInfo.members[m], groupInfo, config.order66Time);
                     }
                 }
             }
         }, 2000); // Make sure people see the message (and impending doom)
     } else if (co["setcolor"].m) {
         if (co["setcolor"].m[1]) { // Reset
-            api.changeThreadColor(config.defaultColor, threadId);
+            api.changeThreadColor(groupInfo.color, threadId);
         } else if (co["setcolor"].m[2]) {
             const colorToSet = (co["setcolor"].m[2].match(/rand(om)?/i)) ? getRandomColor() : co["setcolor"].m[2];
-            api.getThreadInfo(threadId, function(err, data) {
+            const ogColor = groupInfo.color || "default"; // Will be null if no custom color set
+            api.changeThreadColor(colorToSet, threadId, (err, data) => {
                 if (!err) {
-                    const ogColor = data.color; // Will be null if no custom color set
-                    api.changeThreadColor(colorToSet, threadId, function(err, data) {
-                        if (!err) {
-                            sendMessage(`Last color was ${ogColor}`, threadId);
-                        }
-                    });
+                    sendMessage(`Last color was ${ogColor}`, threadId);
                 }
             });
         }
     } else if (co["hitlights"].m) {
-        api.getThreadInfo(threadId, function(err, data) {
-            if (!err) {
-                const ogColor = data.color || config.defaultColor; // Will be null if no custom color set
-                const delay = 500; // Delay between color changes (half second is a good default)
-                for (let i = 0; i < config.numColors; i++) { // Need block scoping for timeout
-                    setTimeout(function() {
-                        api.changeThreadColor(getRandomColor(), threadId);
-                        if (i == (config.numColors - 1)) { // Set back to original color on last
-                            setTimeout(function() {
-                                api.changeThreadColor(ogColor, threadId);
-                            }, delay);
-                        }
-                    }, delay + (i * delay)); // Queue color changes
+        const ogColor = groupInfo.color || config.defaultColor; // Will be null if no custom color set
+        const delay = 500; // Delay between color changes (half second is a good default)
+        for (let i = 0; i < config.numColors; i++) { // Need block scoping for timeout
+            setTimeout(() => {
+                api.changeThreadColor(getRandomColor(), threadId);
+                if (i == (config.numColors - 1)) { // Set back to original color on last
+                    setTimeout(() => {
+                        api.changeThreadColor(ogColor, threadId);
+                    }, delay);
                 }
-            }
-        });
+            }, delay + (i * delay)); // Queue color changes
+        }
     } else if (co["resetnick"].m && co["resetnick"].m[1]) {
         const user = co["resetnick"].m[1].toLowerCase();
-        api.changeNickname("", threadId, ids.members[threadId][user]);
+        api.changeNickname("", threadId, groupInfo.members[user]);
     } else if (co["setnick"].m && co["setnick"].m[1]) {
         const user = co["setnick"].m[1].toLowerCase();
-        const newname = co["setnick"].m.input.split(co["setnick"].m[0]).join("").trim(); // Get rid of match to find rest of message
-        api.changeNickname(newname, threadId, ids.members[threadId][user]);
+        const newName = co["setnick"].m.input.split(co["setnick"].m[0]).join("").trim(); // Get rid of match to find rest of message
+        api.changeNickname(newName, threadId, groupInfo.members[user]);
     } else if (co["wakeup"].m && co["wakeup"].m[1]) {
         const user = co["wakeup"].m[1].toLowerCase();
-        const members = ids.members[threadId]; // Save in case it changes
+        const members = groupInfo.members; // Save in case it changes
         for (var i = 0; i < config.wakeUpTimes; i++) {
             setTimeout(function() {
                 sendMessage("Wake up", members[user]);
@@ -485,11 +451,11 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             }
         });
     } else if (co["alive"].m) {
-        sendEmoji(threadId);
+        sendEmoji(groupInfo);
     } else if (co["setemoji"].m) {
         if (co["setemoji"].m[1]) {
             // Reset
-            api.changeThreadEmoji(config.defaultEmoji, threadId, (err) => {
+            api.changeThreadEmoji(groupInfo.emoji, threadId, (err) => {
                 if (err) {
                     console.log(err);
                 }
@@ -499,10 +465,11 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             api.changeThreadEmoji(co["setemoji"].m[2], threadId, (err) => {
                 if (err) {
                     // Set to default as backup if errors
-                    api.changeThreadEmoji(config.defaultEmoji, threadId);
+                    api.changeThreadEmoji(groupInfo.emoji, threadId);
                 }
             });
         }
+        updateGroupInfo(threadId); // Update emoji
     } else if (co["echo"].m && co["echo"].m[1] && co["echo"].m[2]) {
         const command = co["echo"].m[1].toLowerCase();
         var message = `${co["echo"].m[2]}`;
@@ -527,7 +494,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         }
     } else if (co["ban"].m && co["ban"].m[2]) {
         const user = co["ban"].m[2].toLowerCase();
-        const userId = ids.members[threadId][user];
+        const userId = groupInfo.members[user];
         const callback = (err, users, status) => {
             if (err) {
                 sendError(err, threadId);
@@ -545,34 +512,9 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         } else {
             sendError(`User ${user} not found`);
         }
-    } else if (co["dynamic"].m && co["dynamic"].m[1]) {
-        const setting = co["dynamic"].m[1].toLowerCase();
-        const isEnabled = (setting == "on");
-        sendMessage(`Turning dynamic mode ${setting} and restarting; give me a moment`, threadId);
-
-        if (process.env.EMAIL) { // Heroku
-            request.patch({
-                "url": "https://api.heroku.com/apps/assume-bot/config-vars",
-                "form": {
-                    "DYNAMIC": isEnabled
-                },
-                "headers": {
-                    "Accept": "application/vnd.heroku+json; version=3",
-                    "Authorization": `Bearer ${credentials.TOKEN}` // Requires Heroku OAuth token for modifying config vars
-                }
-            }); // Should trigger auto-restart on Heroku
-        } else { // Local
-            config.dynamic = isEnabled;
-            if (!isEnabled) {
-                // Set back to defaults
-                setEnvironmentVariables({
-                    "threadID": ids.defaultGroup
-                });
-            }
-        }
     } else if (co["vote"].m && co["vote"].m[1] && co["vote"].m[2]) {
         const user = co["vote"].m[2].toLowerCase();
-        const userId = ids.members[threadId][user];
+        const userId = groupInfo.members[user];
         const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
         const getCallback = (isAdd) => {
             return (err, success, newScore) => {
@@ -596,7 +538,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
         }
     } else if (co["score"].m && co["score"].m[2]) {
         const user = co["score"].m[2].toLowerCase();
-        const userId = ids.members[threadId] ? ids.members[threadId][user] : null;
+        const userId = groupInfo.members[user];
         const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
         if (userId) {
             const new_score = co["score"].m[1];
@@ -630,7 +572,7 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             if (!err) {
                 spotify.setAccessToken(data.body.access_token);
                 const user = co["song"].m[1] ? co["song"].m[1].toLowerCase() : null;
-                const userId = ids.members[threadId][user];
+                const userId = info.members[user];
                 const playlists = config.spotifyPlaylists; // Provide data in config
                 let playlist;
                 if (user && userId) {
@@ -704,11 +646,11 @@ function handleCommand(command, fromUserId, messageLiteral, api = gapi) {
             lowerBound = parseInt(co["rng"].m[1]); // Assumed to exist if upperBound was passed
             upperBound = parseInt(co["rng"].m[2]);
         } else { // No last parameter
-            lowerBound = config.lowerBoundDefault;
+            lowerBound = config.defaultRNGBounds[0];
             if (co["rng"].m[1]) { // Only parameter passed becomes upper bound
                 upperBound = parseInt(co["rng"].m[1]);
             } else { // No params passed at all
-                upperBound = config.upperBoundDefault;
+                upperBound = config.defaultRNGBounds[1];
             }
         }
         const rand = Math.floor(Math.random() * (upperBound - lowerBound + 1)) + lowerBound;
@@ -820,7 +762,8 @@ exports.handleCommand = handleCommand; // Export for external use
 // Check for commands that don't require a trigger (Easter eggs)
 // Some commands may require additional configuration (and most only make sense for
 // the original chat it was built for), so should be off by default
-function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
+function handleEasterEggs(message, fromUserId, groupInfo, api = gapi) {
+    const threadId = groupInfo.threadId;
     if (config.easterEggs) {
         if (message.match(/genius/i)) {
             sendFile("media/genius.jpg", threadId);
@@ -859,7 +802,7 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
         if (message.match(/(?:\s|^)shaw|mechanics|electricity|magnetism|pulley|massless|friction|acceleration|torque|impulse/i)) {
             sendFile("media/shaw.png", threadId);
         }
-        const bac = matchesWithUser("(?:get|measure) bac(?:[^k]|$)", message, fromUserId, true, threadId, "");
+        const bac = matchesWithUser("(?:get|measure) bac(?:[^k]|$)", message, groupInfo, fromUserId, true, "");
         if (bac) {
             const name = bac[1] || "Yiyi";
             sendMessage(`${name.substring(0,1).toUpperCase() + name.substring(1)}'s BAC is far above healthy levels`, threadId);
@@ -909,34 +852,34 @@ function handleEasterEggs(message, threadId, fromUserId, api = gapi) {
             sendFile("media/frat.jpg", threadId);
         }
         if (message.match(/(^|\s)life([^A-z]|$)/i)) {
-            sendFile("media/girlfriend.png");
+            sendFile("media/girlfriend.png", threadId);
         }
         if (message.match(/el spaniard/i)) {
-            sendFile("media/sols.pdf");
+            sendFile("media/sols.pdf", threadId);
         }
         if (message.match(/xps/i)) {
-            sendFile("media/xps.jpg");
+            sendFile("media/xps.jpg", threadId);
         }
         if (message.match(/gender/i)) {
-            sendFile("media/binary.png");
+            sendFile("media/binary.png", threadId);
         }
         if (message.match(/(^|\s)bob(bing|[^A-z]|$)/i)) {
-            sendFile("media/serenade.mp4");
+            sendFile("media/serenade.mp4", threadId);
         }
         if (message.match(/wrong chat/i)) {
-            sendFile("media/background.png");
+            sendFile("media/background.png", threadId);
         }
         if (message.match(/brown/i)) {
-            sendFile("media/brown.jpg");
+            sendFile("media/brown.jpg", threadId);
         }
     }
 }
 
 // Utility functions
 
-function matchesWithUser(command, message, fromUserId, optional = false, threadId = ids.group, sep = " ", suffix = "") {
+function matchesWithUser(command, message, fromUserId, groupData, optional = false, sep = " ", suffix = "") {
     // Construct regex string
-    let match = message.match(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${config.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
+    let match = message.match(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${groupData.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
     // Now look for instances of "me" in the command and replace with the calling user
     if (match) {
         // Preserve properties
@@ -944,7 +887,7 @@ function matchesWithUser(command, message, fromUserId, optional = false, threadI
         const input = match.input;
         match = match.map((m) => {
             if (m) {
-                return m.replace(/(^| )me(?:[^A-z0-9]|$)/i, "$1" + getNameFromId(fromUserId, threadId));
+                return m.replace(/(^| )me(?:[^A-z0-9]|$)/i, "$1" + groupData.names[fromUserId]);
             }
         });
         match.index = index;
@@ -960,7 +903,7 @@ function matchesWithUser(command, message, fromUserId, optional = false, threadI
 // Accepts either a simple string or a message object with URL/attachment fields
 // Probably a good idea to use this wrapper for all sending instances for debug purposes
 // and consistency
-function sendMessage(m, threadId = ids.group, callback = () => {}, api = gapi) {
+function sendMessage(m, threadId, callback = () => {}, api = gapi) {
     try {
         api.sendMessage(m, threadId, callback);
     } catch (e) { // For debug mode (API not available)
@@ -970,7 +913,7 @@ function sendMessage(m, threadId = ids.group, callback = () => {}, api = gapi) {
 }
 
 // Wrapper function for sending error messages to chat (uses sendMessage wrapper)
-function sendError(m, threadId = ids.group) {
+function sendError(m, threadId) {
     sendMessage(`Error: ${m}`, threadId);
 }
 
@@ -983,14 +926,16 @@ function debugCommandOutput(flag) {
     }
 }
 
-function parsePing(m, fromUserId, threadId) {
+// Parses a sent message for pings, removes them from the message,
+// and extracts the intended users from the ping to send the message to them
+function parsePing(m, fromUserId, groupInfo) {
     let users = [];
     const allMatch = m.match(/@@(all|everyone)/i);
     if (allMatch && allMatch[1]) { // Alert everyone
-        users = Object.keys(ids.members[ids.group]);
+        users = Object.keys(groupInfo.members);
         m = m.split("@@" + allMatch[1]).join("");
     } else {
-        let matches = matchesWithUser("@@", m, fromUserId, false, threadId, "");
+        let matches = matchesWithUser("@@", m, fromUserId, groupInfo, false, "");
         while (matches && matches[1]) {
             users.push(matches[1].toLowerCase());
             const beforeSplit = m;
@@ -998,7 +943,7 @@ function parsePing(m, fromUserId, threadId) {
             if (m == beforeSplit) { // Discovered match was "me"
                 m = m.split("@@me").join("");
             }
-            matches = matchesWithUser("@@", m, fromUserId, false, threadId, "");
+            matches = matchesWithUser("@@", m, fromUserId, groupInfo, false, "");
         }
         // After loop, m will contain the message without the pings (the message to be sent)
     }
@@ -1008,38 +953,40 @@ function parsePing(m, fromUserId, threadId) {
     };
 }
 
-// Kick user for an optional length of time in seconds (default indefinitely)
-// Also accepts optional callback parameter if length is specified
-function kick(userId, time, groupId = ids.group, callback, api = gapi) {
-    if (userId != ids.bot) { // Never allow bot to be kicked
-        api.removeUserFromGroup(userId, groupId, (err) => {
-            if (err) {
-                sendError("Cannot kick user from private chat", groupId);
-            } else {
-                deleteUserFromId(userId, groupId);
-                config.userRegExp = utils.setRegexFromMembers();
-                if (time) {
-                    setTimeout(function() {
-                        addUser(userId, groupId, false); // Don't welcome if they're not new to the group
-                        if (callback) {
-                            callback();
-                        }
-                    }, time * 1000);
-                }
+function handlePings(msg, senderId, info) {
+    const pingData = parsePing(msg, senderId, info);
+    const pingUsers = pingData.users;
+    const pingMessage = pingData.message;
+    if (pingUsers) {
+        for (let i = 0; i < pingUsers.length; i++) {
+            const sender = info.nicknames[senderId] || info.names[senderId] || "A user";
+            let message = `${sender} summoned you in ${info.name}`;
+            if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
+                message = `"${pingMessage}" – ${sender} in ${info.name}`;
             }
-        });
+            message += ` at ${getTimeString()}` // Time stamp
+            sendMessage(message, info.members[pingUsers[i]]);
+        }
     }
 }
 
-// Removes the specified user from members dict
-// (with user ID – can do it directly w/o function if you have key already)
-function deleteUserFromId(userId, groupId) {
-    for (var m in ids.members[groupId]) {
-        if (ids.members[groupId].hasOwnProperty(m)) {
-            if (ids.members[groupId][m] == userId) {
-                delete ids.members[groupId][m];
+// Kick user for an optional length of time in seconds (default indefinitely)
+// Also accepts optional callback parameter if length is specified
+function kick(userId, info, time, callback = () => {}, api = gapi) {
+    if (userId != ids.bot) { // Never allow bot to be kicked
+        api.removeUserFromGroup(userId, info.threadId, (err) => {
+            if (err) {
+                sendError("Cannot kick user from private chat", info.threadId);
+            } else {
+                if (time) {
+                    setTimeout(function() {
+                        addUser(userId, info, false); // Don't welcome if they're not new to the group
+                        callback();
+                    }, time * 1000);
+                }
+                updateGroupInfo(info.threadId);
             }
-        }
+        });
     }
 }
 
@@ -1047,63 +994,114 @@ function deleteUserFromId(userId, groupId) {
 // Optional parameter to welcome new user to the group
 // Buffer limit controls number of times it will attempt to add the user to the group
 // if not successful on the first attempt (default 5)
-function addUser(id, threadId = ids.group, welcome = true, currentBuffer = 0, api = gapi) {
-    api.getUserInfo(id, function(err, info) {
-        api.addUserToGroup(id, threadId, function(err, data) {
-            if (!err && info) {
-                // Add to members obj
-                ids.members[threadId][info[id].firstName.toLowerCase()] = id;
-                // Update regex command checking
-                config.userRegExp = utils.setRegexFromMembers(threadId);
-
-                if (welcome) {
-                    welcomeNewUser(id, threadId);
+function addUser(id, info, welcome = true, currentBuffer = 0, api = gapi) {
+    api.addUserToGroup(id, info.threadId, (err, data) => {
+        if (!err) {
+            updateGroupInfo(info.threadId, null, (err, info) => {
+                if (!err && welcome) {
+                    sendMessage(`Welcome to ${info.name}, ${info.names[id]}!`, info.threadId);
                 }
-            } else if (err && (currentBuffer < config.addBufferLimit)) {
-                addUser(id, threadId, welcome, (currentBuffer + 1));
+            });
+        } else if (err && (currentBuffer < config.addBufferLimit)) {
+            addUser(id, info, welcome, (currentBuffer + 1));
+        }
+    });
+}
+
+// Update stored info about groups after every message in the background
+// Using callback is discouraged as the idea of this function is to update in
+// the background to decrease lag, but it may be useful if updates are required
+// to continue
+function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
+    getGroupInfo(threadId, (err, existingInfo) => {
+        if (!err) {
+            if (!existingInfo) {
+                // Group not yet registered
+                sendMessage("Hello! I'm AssumeZero Bot, but you can call me AØBøt. Give me a moment to collect some information about this chat before you use any commands.", threadId);
+            }
+            api.getThreadInfo(threadId, (err, data) => {
+                if (data) {
+                    let info = {};
+                    info.threadId = threadId;
+                    info.name = data.name || "Unnamed chat";
+                    info.emoji = data.emoji ? data.emoji.emoji : null;
+                    info.color = data.color;
+                    info.nicknames = data.nicknames || {};
+                    info.isGroup = isGroup || info.isGroup;
+                    api.getUserInfo(data.participantIDs, (err, userData) => {
+                        if (!err) {
+                            info.members = {};
+                            info.names = {};
+                            for (let id in userData) {
+                                if (userData.hasOwnProperty(id) && id != ids.bot) { // Very important to not add bot to participants list
+                                    info.members[userData[id].firstName.toLowerCase()] = id;
+                                    info.names[id] = userData[id].firstName;
+                                }
+                            }
+                            info.userRegExp = utils.getRegexFromMembers(Object.keys(info.members));
+                        }
+                        setGroupInfo(info, threadId, (err) => {
+                            if (!err && !existingInfo) {
+                                sendMessage(`All done! Use '${config.trigger} help' to see what I can do.`, threadId);
+                            }
+                            callback(err, info);
+                        });
+                    });
+                } else {
+                    // Errors are logged here despite being a utility func b/c errors here are critical
+                    const err = new Error(`Thread info not found for ${threadId}`);
+                    console.log(err);
+                    callback(err);
+                }
+            });
+        } else {
+            console.log(err);
+            callback(err);
+        }
+    });
+}
+
+// Gets stored information about a group
+function getGroupInfo(threadId, callback) {
+    mem.get(`groups`, (err, groups) => {
+        const groupData = JSON.parse(groups) || {};
+        if (err) {
+            // Error retrieving data
+            callback(err);
+        } else {
+            // No errors and groups are retrieved
+            const group = groupData[threadId];
+            if (group) {
+                callback(null, group);
+            } else {
+                // No errors, but group not in list; pass null for both
+                callback();
+            }
+        }
+    });
+}
+
+// Updates stored information about a group
+function setGroupInfo(info, threadId, callback = () => {}) {
+    mem.get(`groups`, (err, groups) => {
+        const groupData = JSON.parse(groups) || {};
+        groupData[threadId] = info;
+        mem.set(`groups`, JSON.stringify(groupData), (err, success) => {
+            if (success) {
+                callback();
+            } else {
+                callback(err);
             }
         });
     });
 }
 
-function welcomeNewUser(id, groupId = ids.group, api = gapi) {
-    api.getUserInfo(id, function(err, data) {
-        if (!err) {
-            const user = data[id];
-            sendMessage(`Welcome to ${config.groupName}, ${user.firstName}!`, groupId);
-        }
-    });
-}
-
-// If the bot is in dynamic mode, it needs to reset its config variables
-// every time it receives a message; this function is called on every listen ping
-function setEnvironmentVariables(message, api = gapi) {
-    ids.group = message.threadID;
-    api.getThreadInfo(ids.group, function(err, data) {
-        if (data) {
-            config.groupName = data.name || "Unnamed chat";
-            config.defaultEmoji = data.emoji ? data.emoji.emoji : config.defaultEmoji;
-            config.defaultColor = data.color;
-            api.getUserInfo(data.participantIDs, function(err, data) {
-                if (!err) {
-                    ids.members[message.threadID] = []; // Clear old members
-                    for (var id in data) {
-                        if (data.hasOwnProperty(id) && id != ids.bot) {
-                            ids.members[message.threadID][data[id].firstName.toLowerCase()] = id;
-                        }
-                    }
-                    config.userRegExp = utils.setRegexFromMembers(message.threadID);
-                }
-            });
-        }
-    });
-}
-
+// Searches help for a given entry
 function getHelpEntry(input, log) {
-    for (var c in log) {
+    for (let c in log) {
         if (log.hasOwnProperty(c)) {
-            var names = log[c].display_names;
-            for (var i = 0; i < names.length; i++) {
+            const names = log[c].display_names;
+            for (let i = 0; i < names.length; i++) {
                 if (input == names[i]) {
                     return log[c];
                 }
@@ -1112,12 +1110,9 @@ function getHelpEntry(input, log) {
     }
 }
 
-function sendEmoji(threadId, api = gapi) {
-    api.getThreadInfo(threadId, function(err, data) {
-        if (!err) {
-            sendMessage(data.emoji ? data.emoji.emoji : config.defaultEmoji, threadId);
-        }
-    });
+// Wrapper for sending an emoji to the group quickly
+function sendEmoji(groupInfo, api = gapi) {
+    sendMessage(groupInfo.emoji || config.defaultEmoji, groupInfo.threadId);
 }
 
 function isBanned(senderId) {
@@ -1126,7 +1121,7 @@ function isBanned(senderId) {
 
 // Sends file where filename is a relative path to the file from root
 // Accepts an optional message body parameter and callback
-function sendFile(filename, threadId = ids.group, message = "", callback = () => {}, api = gapi) {
+function sendFile(filename, threadId, message = "", callback = () => {}, api = gapi) {
     const msg = {
         "body": message,
         "attachment": fs.createReadStream(`${__dirname}/${filename}`)
@@ -1172,7 +1167,7 @@ function searchForUser(match, threadId, num = 0, api = gapi) {
 // domains, which are blocked by Facebook for URL auto-detection)
 // Accepts url, optional file download location/name, optional message, and optional
 // threadId parameters
-function sendFileFromUrl(url, path = "media/temp.jpg", message = "", threadId = ids.group, api = gapi) {
+function sendFileFromUrl(url, path = "media/temp.jpg", message = "", threadId, api = gapi) {
     request.head(url, (err, res, body) => {
         // Download file and pass to chat API
         if (!err) {
@@ -1205,18 +1200,6 @@ function getRandomColor() {
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
-}
-
-// Obtains a name from a given ID in the members object
-function getNameFromId(id, thread) {
-    const users = ids.members[thread];
-    for (let m in users) {
-        if (users.hasOwnProperty(m)) {
-            if (users[m] == id) {
-                return m;
-            }
-        }
-    }
 }
 
 // Restarts the bot (requires deploying to Heroku)
@@ -1259,7 +1242,7 @@ function logInSpotify(callback = () => {}) {
 }
 
 // Sends the contents of a given file (works best with text files)
-function sendContentsOfFile(file, threadId = ids.group) {
+function sendContentsOfFile(file, threadId) {
     fs.readFile(file, "utf-8", (err, text) => {
         if (!err) {
             sendMessage(text, threadId);
@@ -1301,7 +1284,7 @@ function updateScore(isAdd, userId, callback) {
 
 // Sets group image to image found at given URL
 // Accepts url, threadId, and optional error message parameter to be displayed if changing the group image fails
-function setGroupImageFromUrl(url, threadId = ids.group, errMsg = "Photo couldn't download properly", api = gapi) {
+function setGroupImageFromUrl(url, threadId, errMsg = "Photo couldn't download properly", api = gapi) {
     // Download file and pass to chat API
     const path = `media/${encodeURIComponent(url)}.png`;
     request(url).pipe(fs.createWriteStream(path)).on('close', (err, data) => {
