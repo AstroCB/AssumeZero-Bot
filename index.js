@@ -740,6 +740,22 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 }
             });
         });
+    } else if (co["brightness"].m && co["brightness"].m[1] && co["brightness"].m[2]) {
+        const bright = (co["brightness"].m[1].toLowerCase() == "brighten");
+        // Value must range from -1 to 1
+        let perc = parseInt(co["brightness"].m[2]);
+        perc = (perc > 100) ? 1 : (perc / 100.0);
+        perc = bright ? perc : (-1 * perc);
+        const url = co["brightness"].m[3];
+        processImage(url, attachments, threadId, (img, filename) => {
+            img.brightness(perc).write(filename, (err) => {
+                if (!err) {
+                    sendFile(filename, threadId, "", () => {
+                        fs.unlink(filename);
+                    });
+                }
+            });
+        });
     } else if (co["poll"].m && co["poll"].m[1]) {
         const title = co["poll"].m[1];
         const opts = co["poll"].m[2];

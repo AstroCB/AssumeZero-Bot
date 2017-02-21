@@ -466,6 +466,21 @@ exports.commands = {
         "regex": /overlay(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?(.*)/i,
         "experimental": false
     },
+    "brightness": {
+        "display_names": ["brighten", "darken"],
+        "pretty_name": "Brighten/darken",
+        "short_description": "Alters image brightness",
+        "description": "Brightens or darkens an image by the given percent",
+        "syntax": "(brighten|darken) {percentage} ({url})",
+        "sudo": false,
+        "attachments": true,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /(brighten|darken) (\d*)(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
+        "experimental": false
+    },
     "poll": {
         "display_names": ["poll"],
         "pretty_name": "Poll",
