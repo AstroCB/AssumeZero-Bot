@@ -411,7 +411,7 @@ exports.commands = {
         "pretty_name": "Flip",
         "short_description": "Flips/mirrors an image",
         "description": "Flips/mirrors the image from the given URL or attachments",
-        "syntax": "flip horiz(ontal)|vert(ical) ({url})",
+        "syntax": "flip (horiz(ontal)|vert(ical)) ({url})",
         "sudo": false,
         "attachments": true,
         "user_input": {
