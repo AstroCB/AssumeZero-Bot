@@ -1062,7 +1062,7 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                     info.color = data.color;
                     info.nicknames = data.nicknames || {};
                     info.isGroup = (typeof(isGroup) == "boolean") ? isGroup : info.isGroup;
-                    info.muted = (typeof(existingInfo.muted) == "boolean") ? existingInfo.muted : false;
+                    info.muted = (typeof(info.muted) == "undefined") ? false : info.muted;
                     api.getUserInfo(data.participantIDs, (err, userData) => {
                         if (!err) {
                             info.members = {};
@@ -1136,8 +1136,8 @@ function setGroupInfo(info, callback = () => {}) {
     });
 }
 
-function setGroupProperty(name, value, info, callback = () => {}) {
-    info[name] = value;
+function setGroupProperty(key, value, info, callback = () => {}) {
+    info[key] = value;
     setGroupInfo(info, () => {
         updateGroupInfo(info.threadId, info.isGroup, callback);
     });
