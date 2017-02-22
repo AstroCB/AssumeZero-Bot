@@ -40,10 +40,6 @@ exports.xkcd = {
     "key": "AIzaSyCHfJCpWEYUCydDMbb9PqK42XpPQd9L-F8"
 };
 
-// Decide whether it should check for Easter eggs, most of which won't make sense
-// outside of the chat it was built for (Assume Zero Brain Power)
-exports.easterEggs = true;
-
 // How many points a vote is worth by default
 // See commands.js for more info
 exports.votePoints = 5;

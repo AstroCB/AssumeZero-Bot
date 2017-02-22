@@ -38,7 +38,7 @@ if (require.main === module) { // Called directly; login immediately
 
 function login(callback) {
     // Logging message with config details
-    console.log(`Bot ${ids.bot} logging in ${process.env.EMAIL ? "remotely" : "locally"} with trigger "${config.trigger}" and with Easter eggs ${config.easterEggs ? "on" : "off"}.`);
+    console.log(`Bot ${ids.bot} logging in ${process.env.EMAIL ? "remotely" : "locally"} with trigger "${config.trigger}".`);
     try {
         messenger({
             appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))
@@ -86,9 +86,7 @@ function handleMessage(err, message, api = gapi) { // New message received from 
                             handleCommand(m.substring(cindex + config.trigger.length), senderId, info, message); // Pass full message obj in case it's needed in a command
                         }
                         // Check for Easter eggs
-                        if (!info.muted) { // Don't check for Easter eggs if muted
-                            handleEasterEggs(m, senderId, info);
-                        }
+                        handleEasterEggs(m, senderId, info);
                     }
                     // Handle attachments
                     for (let i = 0; i < attachments.length; i++) {
@@ -794,7 +792,7 @@ exports.handleCommand = handleCommand; // Export for external use
 // the original chat it was built for), so should be off by default
 function handleEasterEggs(message, fromUserId, groupInfo, api = gapi) {
     const threadId = groupInfo.threadId;
-    if (config.easterEggs) {
+    if (!groupInfo.muted) { // Don't check for Easter eggs if muted
         if (message.match(/genius/i)) {
             sendFile("media/genius.jpg", threadId);
         }
