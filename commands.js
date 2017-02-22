@@ -510,5 +510,20 @@ exports.commands = {
         },
         "regex": /psa (.*)/i,
         "experimental": false
+    },
+    "mute": {
+        "display_names": ["mute", "unmute"],
+        "pretty_name": "Mute/unmute",
+        "short_description": "Turns on/off easter eggs",
+        "description": "Turns on/off easter eggs until they are turned back on",
+        "syntax": "(un)mute",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /(un)?mute/i,
+        "experimental": false
     }
 };

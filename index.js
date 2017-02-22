@@ -86,7 +86,9 @@ function handleMessage(err, message, api = gapi) { // New message received from 
                             handleCommand(m.substring(cindex + config.trigger.length), senderId, info, message); // Pass full message obj in case it's needed in a command
                         }
                         // Check for Easter eggs
-                        handleEasterEggs(m, senderId, info);
+                        if (!info.muted) { // Don't check for Easter eggs if muted
+                            handleEasterEggs(m, senderId, info);
+                        }
                     }
                     // Handle attachments
                     for (let i = 0; i < attachments.length; i++) {
@@ -773,6 +775,16 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         });
     } else if (co["psa"].m) {
         sendToAll(`"${co["psa"].m[1]}"\n\nThis has been a public service announcement from Cameron`);
+    } else if (co["mute"].m) {
+        const getCallback = (muted) => {
+            return (err) => {
+                if (!err) {
+                    sendMessage(`Bot ${muted ? "muted" : "unmuted"}`, threadId);
+                }
+            }
+        }
+        const mute = !(co["mute"].m[1]); // True if muting; false if unmuting
+        setGroupProperty("muted", mute, groupInfo, getCallback(mute));
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -1051,7 +1063,8 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                     info.emoji = data.emoji ? data.emoji.emoji : null;
                     info.color = data.color;
                     info.nicknames = data.nicknames || {};
-                    info.isGroup = (typeof(isGroup) == "boolean" && isGroup !== undefined) ? isGroup : info.isGroup;
+                    info.isGroup = (typeof(isGroup) == "boolean") ? isGroup : info.isGroup;
+                    info.muted = (typeof(existingInfo.muted) == "boolean") ? existingInfo.muted : false;
                     api.getUserInfo(data.participantIDs, (err, userData) => {
                         if (!err) {
                             info.members = {};
@@ -1064,7 +1077,7 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                             }
                             info.userRegExp = utils.getRegexFromMembers(Object.keys(info.members));
                         }
-                        setGroupInfo(info, threadId, (err) => {
+                        setGroupInfo(info, (err) => {
                             if (!err && !existingInfo) {
                                 sendMessage(`All done! Use '${config.trigger} help' to see what I can do.`, threadId);
                             }
@@ -1111,10 +1124,10 @@ function getGroups(callback) {
 }
 
 // Updates stored information about a group
-function setGroupInfo(info, threadId, callback = () => {}) {
-    mem.get(`groups`, (err, groups) => {
+function setGroupInfo(info, callback = () => {}) {
+    getGroups((err, groups) => {
         const groupData = JSON.parse(groups) || {};
-        groupData[threadId] = info;
+        groupData[info.threadId] = info;
         mem.set(`groups`, JSON.stringify(groupData), (err, success) => {
             if (success) {
                 callback();
@@ -1122,6 +1135,13 @@ function setGroupInfo(info, threadId, callback = () => {}) {
                 callback(err);
             }
         });
+    });
+}
+
+function setGroupProperty(name, value, info, callback = () => {}) {
+    info[name] = value;
+    setGroupInfo(info, () => {
+        updateGroupInfo(info.threadId, info.isGroup, callback);
     });
 }
 
