@@ -47,7 +47,7 @@ function login(callback) {
         messenger({
             email: credentials.EMAIL,
             password: credentials.PASSWORD
-        }, function callback(err, api) {
+        }, (err, api) => {
             fs.writeFileSync('appstate.json', JSON.stringify(api.getAppState()));
             main(err, api);
         });
