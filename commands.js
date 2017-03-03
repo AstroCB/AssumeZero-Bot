@@ -261,7 +261,7 @@ exports.commands = {
         "pretty_name": "Vote (</>)",
         "short_description": "Vote on users",
         "description": "Allows users to upvote (>) or downvote (<) a given user to influence their current point total",
-        "syntax": "(<|>) (points) {member}",
+        "syntax": "(<|>) {member}",
         "sudo": false,
         "attachments": false,
         "user_input": {
