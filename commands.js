@@ -257,7 +257,7 @@ exports.commands = {
         "experimental": false
     },
     "vote": {
-        "display_names": ["<", ">"],
+        "display_names": ["<", ">", "points", "vote"],
         "pretty_name": "Vote (</>)",
         "short_description": "Vote on users",
         "description": "Allows users to upvote (>) or downvote (<) a given user to influence their current point total",
