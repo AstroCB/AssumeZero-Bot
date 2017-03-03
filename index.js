@@ -830,7 +830,7 @@ function handleEasterEggs(message, fromUserId, groupInfo, api = gapi) {
         if (message.match(/(?:\s|^)shaw|mechanics|electricity|magnetism|pulley|massless|friction|acceleration|torque|impulse/i)) {
             sendFile("media/shaw.png", threadId);
         }
-        const bac = matchesWithUser("(?:get|measure) bac(?:[^k]|$)", message, groupInfo, fromUserId, true, "");
+        const bac = matchesWithUser("(?:get|measure) bac(?:[^k]|$)", message, fromUserId, groupInfo, true, "");
         if (bac) {
             const name = bac[1] || "Yiyi";
             sendMessage(`${name.substring(0,1).toUpperCase() + name.substring(1)}'s BAC is far above healthy levels`, threadId);
