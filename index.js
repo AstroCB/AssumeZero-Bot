@@ -787,14 +787,14 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         sendMessage(`-------BUG-------\nMessage: ${co["bug"].m[1]}\nSender: ${groupInfo.names[fromUserId]}\nTime: ${getTimeString()} (${getDateString()})\nGroup: ${groupInfo.name}\nID: ${groupInfo.threadId}\nInfo: ${JSON.stringify(groupInfo)}`, config.owner.id, (err) => {
             if (!err) {
                 if (groupInfo.isGroup) {
-                    sendMessage(`Report sent. Adding ${config.owner.names.short} to the chat for debugging purposes...`, info.threadId, () => {
+                    sendMessage(`Report sent. Adding ${config.owner.names.short} to the chat for debugging purposes...`, groupInfo.threadId, () => {
                         addUser(config.owner.id, groupInfo);
                     });
                 } else {
                     sendMessage(`Report sent to ${config.owner.names.short}.`, groupInfo.threadId);
                 }
             } else {
-                sendMessage(`Report could not be sent; please message ${config.owner.names.short} directly.`, info.threadId);
+                sendMessage(`Report could not be sent; please message ${config.owner.names.short} directly.`, groupInfo.threadId);
             }
         });
     }
