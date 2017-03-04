@@ -9,6 +9,7 @@ const config = require("./config"); // Config file
 const utils = require("./configutils"); // Utility functions
 const commands = require("./commands"); // Command documentation/configuration
 const server = require("./server"); // Server configuration
+const easter = require("./easter"); // Easter eggs
 var credentials;
 try {
     // Login creds from local dir
@@ -86,7 +87,7 @@ function handleMessage(err, message, api = gapi) { // New message received from 
                             handleCommand(m.substring(cindex + config.trigger.length), senderId, info, message); // Pass full message obj in case it's needed in a command
                         }
                         // Check for Easter eggs
-                        handleEasterEggs(m, senderId, info);
+                        easter.handleEasterEggs(m, senderId, info, api);
                     }
                     // Handle attachments
                     for (let i = 0; i < attachments.length; i++) {
@@ -801,122 +802,6 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
 }
 exports.handleCommand = handleCommand; // Export for external use
 
-// Check for commands that don't require a trigger (Easter eggs)
-// Some commands may require additional configuration (and most only make sense for
-// the original chat it was built for), so should be off by default
-function handleEasterEggs(message, fromUserId, groupInfo, api = gapi) {
-    const threadId = groupInfo.threadId;
-    if (!groupInfo.muted) { // Don't check for Easter eggs if muted
-        if (message.match(/genius/i)) {
-            sendFile("media/genius.jpg", threadId);
-        }
-        if (message.match(/kys|cuck(?:ed)?|maga/i)) {
-            sendMessage("Delete your account.", threadId)
-        }
-        if (message.match(/(?:problem |p)set(?:s)?/i)) {
-            sendContentsOfFile("media/monologue.txt", threadId);
-        }
-        if (message.match(/umd/i)) {
-            sendFile("media/umd.png", threadId);
-        }
-        if (message.match(/cornell/i)) {
-            sendMessage({
-                "url": "https://www.youtube.com/watch?v=yBUz4RnoWSM"
-            }, threadId);
-        }
-        if (message.match(/swarthmore/i)) {
-            sendFile("media/jonah.png", threadId);
-        }
-        if (message.match(/purdue/i)) {
-            sendMessage("I hear they have good chicken", threadId);
-        }
-        if (message.match(/nyu/i)) {
-            sendMessage("We don't speak of it", threadId);
-        }
-        if (message.match(/commit seppuku/i)) {
-            sendMessage("RIP", threadId);
-        }
-        if (message.match(/physics c(?:[^A-z]|$)/i)) {
-            sendMessage({
-                "url": "https://www.youtube.com/watch?v=HydsTDvEINo"
-            }, threadId);
-        }
-        if (message.match(/(?:\s|^)shaw|mechanics|electricity|magnetism|pulley|massless|friction|acceleration|torque|impulse/i)) {
-            sendFile("media/shaw.png", threadId);
-        }
-        const bac = matchesWithUser("(?:get|measure) bac(?:[^k]|$)", message, fromUserId, groupInfo, true, "");
-        if (bac) {
-            const name = bac[1] || "Yiyi";
-            sendMessage(`${name.substring(0,1).toUpperCase() + name.substring(1)}'s BAC is far above healthy levels`, threadId);
-        }
-        if (message.match(new RegExp(`${config.trigger} .* cam$`, "i"))) {
-            sendMessage("eron", threadId);
-        }
-        if (message.match(/socialis(?:t|m)/i)) {
-            sendFile("media/anton.png", threadId);
-        }
-        if (message.match(/pre(?:-|\s)?med/i)) {
-            sendFile("media/premed.png", threadId);
-        }
-        if (message.match(/(\s|^)sleep/i)) {
-            sendMessage("Have I got a story to tell you about various fruits...", threadId);
-        }
-        if (message.match(/good(?:\s)?night(?:\, )?bot/i)) {
-            sendMessage("Night!", threadId);
-        }
-        if (message.match(/public funds/i)) {
-            sendFile("media/dirks.png", threadId);
-        }
-        if (message.match(/darth plagueis/i)) {
-            sendContentsOfFile("media/plagueis.txt", threadId);
-        }
-        if (message.match(/(\s|^)lit([^A-z0-9]|$)/i)) {
-            sendMessage("🔥", threadId);
-        }
-        if (message.match(/pozharski(y)?/i)) {
-            sendFile("media/pozharskiy.mp4", threadId);
-        }
-        if (message.match(/money/i)) {
-            sendFile("media/money.png", threadId);
-        }
-        if (message.match(/rest of the country/i)) {
-            sendMessage({
-                "url": "https://secure-media.collegeboard.org/digitalServices/pdf/ap/ap16_physics_c_mech_sg.pdf"
-            }, threadId);
-        }
-        if (message.match(/(^|\s)drug/i)) {
-            sendFile("media/drugs.png", threadId);
-        }
-        if (message.match(/(^|\s)how(\?|$)/i)) {
-            sendFile("media/speedforce.mp4", threadId);
-        }
-        if (message.match(/(^|\s)frat/i)) {
-            sendFile("media/frat.jpg", threadId);
-        }
-        if (message.match(/(^|\s)life([^A-z]|$)/i)) {
-            sendFile("media/girlfriend.png", threadId);
-        }
-        if (message.match(/el spaniard/i)) {
-            sendFile("media/sols.pdf", threadId);
-        }
-        if (message.match(/xps/i)) {
-            sendFile("media/xps.jpg", threadId);
-        }
-        if (message.match(/gender/i)) {
-            sendFile("media/binary.png", threadId);
-        }
-        if (message.match(/(^|\s)bob(bing|[^A-z]|$)/i)) {
-            sendFile("media/serenade.mp4", threadId);
-        }
-        if (message.match(/wrong chat/i)) {
-            sendFile("media/background.png", threadId);
-        }
-        if (message.match(/brown/i)) {
-            sendFile("media/brown.jpg", threadId);
-        }
-    }
-}
-
 // Utility functions
 
 function matchesWithUser(command, message, fromUserId, groupData, optional = false, sep = " ", suffix = "") {
@@ -937,6 +822,7 @@ function matchesWithUser(command, message, fromUserId, groupData, optional = fal
     }
     return match;
 }
+exports.matchesWithUser = matchesWithUser; // Export for external use
 
 // Wrapper function for sending messages easily
 // Isn't that much simpler than the actual message function, but it
@@ -953,11 +839,13 @@ function sendMessage(m, threadId, callback = () => {}, api = gapi) {
         callback();
     }
 }
+exports.sendMessage = sendMessage;
 
 // Wrapper function for sending error messages to chat (uses sendMessage wrapper)
 function sendError(m, threadId) {
     sendMessage(`Error: ${m}`, threadId);
 }
+exports.sendError = sendError;
 
 function debugCommandOutput(flag) {
     if (flag) {
@@ -1189,6 +1077,7 @@ function sendFile(filename, threadId, message = "", callback = () => {}, api = g
     }
     sendMessage(msg, threadId, callback);
 }
+exports.sendFile = sendFile;
 
 // Returns a string of the current time in EST
 function getTimeString() {
@@ -1315,8 +1204,9 @@ function sendContentsOfFile(file, threadId) {
         } else {
             console.log(err);
         }
-    })
+    });
 }
+exports.sendContentsOfFile = sendContentsOfFile;
 
 // Functions for getting/setting user scores (doesn't save much in terms of
 // code/DRY, but wraps the functions so that it's easy to change how they're stored)
