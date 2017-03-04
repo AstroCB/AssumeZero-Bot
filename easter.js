@@ -117,5 +117,8 @@ exports.handleEasterEggs = (message, fromUserId, groupInfo, api) => {
         if (message.match(/kys/i)) {
             m.sendMessage("Are you threatening me, Master Jedi?", threadId);
         }
+        if(message.match(/drunk/i)) {
+          m.sendFile("media/drunk.jpg", threadId);
+        }
     }
 }
