@@ -163,7 +163,7 @@ exports.commands = {
             "accepts": true,
             "optional": false
         },
-        "regex": "(?:(?:(?:set|change) (?:nick)?name)|rename) (.*)",
+        "regex": ["(?:(?:(?:set|change) (?:nick)?name)|rename)", " (.*)"],
         "experimental": false
     },
     "wakeup": {
