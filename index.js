@@ -788,7 +788,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             if (!err) {
                 if (groupInfo.isGroup) {
                     sendMessage(`Report sent. Adding ${config.owner.names.short} to the chat for debugging purposes...`, groupInfo.threadId, () => {
-                        addUser(config.owner.id, groupInfo);
+                        addUser(config.owner.id, groupInfo, false);
                     });
                 } else {
                     sendMessage(`Report sent to ${config.owner.names.short}.`, groupInfo.threadId);
