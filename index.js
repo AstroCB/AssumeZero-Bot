@@ -414,9 +414,9 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["resetnick"].m && co["resetnick"].m[1]) {
         const user = co["resetnick"].m[1].toLowerCase();
         api.changeNickname("", threadId, groupInfo.members[user]);
-    } else if (co["setnick"].m && co["setnick"].m[1]) {
+    } else if (co["setnick"].m && co["setnick"].m[1] && co["setnick"].m[2]) {
         const user = co["setnick"].m[1].toLowerCase();
-        const newName = co["setnick"].m.input.split(co["setnick"].m[0]).join("").trim(); // Get rid of match to find rest of message
+        const newName = co["setnick"].m[2];
         api.changeNickname(newName, threadId, groupInfo.members[user]);
     } else if (co["wakeup"].m && co["wakeup"].m[1]) {
         const user = co["wakeup"].m[1].toLowerCase();
