@@ -3,6 +3,15 @@ const utils = require("./configutils"); // Utility functions
 // The trigger word that precedes most commands and will activate the bot
 exports.trigger = "physics";
 
+// Bot owner information
+exports.owner = {
+    "names": {
+        "short": "Cameron",
+        "long": "Cameron Bernhardt"
+    },
+    "id": "100007016509302" // ID of bot owner (for secure commands and reports)
+};
+
 // Time in seconds to ban users for Order 66
 exports.order66Time = 15;
 

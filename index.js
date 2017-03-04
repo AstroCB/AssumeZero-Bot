@@ -116,7 +116,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     for (let c in co) {
         if (co.hasOwnProperty(c)) {
             // Check whether command is sudo-protected and, if so, whether the user is the admin
-            if ((co[c].sudo && fromUserId == ids.owner) || !co[c].sudo) {
+            if ((co[c].sudo && fromUserId == config.owner.id) || !co[c].sudo) {
                 // Set match vals
                 if (co[c].user_input.accepts) { // Takes a match from the members dict
                     if (Array.isArray(co[c].regex)) { // Also has a regex suffix (passed as length 2 array)
@@ -159,7 +159,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                     mess += "------------------\n"; // Suffix for separating commands
                 }
             }
-            mess += `The bot goes to sleep every night from ~3 AM - 9 AM ET. Contact Cameron Bernhardt with any questions.\n\nTip: for more detailed descriptions, use "${config.trigger} help (command)"`;
+            mess += `The bot goes to sleep every night from ~3 AM - 9 AM ET. Contact ${config.owner.names.long} with any questions, or use "${config.trigger} bug" to report bugs directly.\n\nTip: for more detailed descriptions, use "${config.trigger} help {command}"`;
             sendMessage(mess, threadId);
         }
     } else if (co["kick"].m && co["kick"].m[1]) {
@@ -772,7 +772,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             }
         });
     } else if (co["psa"].m) {
-        sendToAll(`"${co["psa"].m[1]}"\n\nThis has been a public service announcement from Cameron.`);
+        sendToAll(`"${co["psa"].m[1]}"\n\nThis has been a public service announcement from ${config.owner.names.short}.`);
     } else if (co["mute"].m) {
         const getCallback = (muted) => {
             return (err) => {
@@ -783,6 +783,20 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         }
         const mute = !(co["mute"].m[1]); // True if muting; false if unmuting
         setGroupProperty("muted", mute, groupInfo, getCallback(mute));
+    } else if (co["bug"].m) {
+        sendMessage(`-------BUG-------\nMessage: ${co["bug"].m[1]}\nSender: ${groupInfo.names[fromUserId]}\nTime: ${getTimeString()} (${getDateString()})\nGroup: ${groupInfo.name}\nID: ${groupInfo.threadId}\nInfo: ${JSON.stringify(groupInfo)}`, config.owner.id, (err) => {
+            if (!err) {
+                if (groupInfo.isGroup) {
+                    sendMessage(`Report sent. Adding ${config.owner.names.short} to the chat for debugging purposes...`, info.threadId, () => {
+                        addUser(config.owner.id, groupInfo);
+                    });
+                } else {
+                    sendMessage(`Report sent to ${config.owner.names.short}.`, groupInfo.threadId);
+                }
+            } else {
+                sendMessage(`Report could not be sent; please message ${config.owner.names.short} directly.`, info.threadId);
+            }
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -1183,6 +1197,11 @@ function getTimeString() {
     const utc = d.getTime() + (d.getTimezoneOffset() * 600000); // UTC milliseconds since 1970
     const eastern = new Date(utc + (offset * 60 * 60000));
     return eastern.toLocaleTimeString();
+}
+
+// Wrapper for formatted date at current time
+function getDateString() {
+    return (new Date()).toLocaleDateString();
 }
 
 // Creates a description for a user search result given the match's data from the chat API

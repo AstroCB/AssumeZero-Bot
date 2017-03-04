@@ -525,5 +525,20 @@ exports.commands = {
         },
         "regex": /(un)?mute/i,
         "experimental": false
+    },
+    "bug": {
+        "display_names": ["bug", "bug report"],
+        "pretty_name": "Bug",
+        "short_description": "File a bug report",
+        "description": `Messages ${config.owner.names.short} directly with your message and adds to your chat for debugging`,
+        "syntax": "bug {message}",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /bug (.*)/i,
+        "experimental": false
     }
 };
