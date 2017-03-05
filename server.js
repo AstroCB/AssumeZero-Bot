@@ -19,15 +19,16 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+
 // Accept POST requests for commands
 app.post("/command", (req, res) => {
-    if (req.body && req.body.senderId) {
-        console.log("POST received");
-        if (req.body.command) {
-            handle(req.body.command, req.body.senderId, true);
-        } else if (req.body.message) {
-            handle(req.body.message, req.body.senderId);
-        }
+    if (req.body && req.body.message && req.body.senderId && req.body.threadId) {
+        main.handleMessage({
+            "body": req.body.message,
+            "senderID": req.body.senderId,
+            "threadID": req.body.threadId,
+            "type": "message"
+        }, api);
         res.sendStatus(200);
     } else {
         console.log(req.body);
@@ -36,29 +37,6 @@ app.post("/command", (req, res) => {
         });
     }
 });
-
-// Handles a message parameter string as if it were received by the bot
-// Optional isCommand parameter to bypass the string parsing and pass directly
-// to the handleCommand function in index (has a specific format & parameters
-//  of its own, which is why it has its own flag)
-function handle(message, sender, isCommand = false) {
-    // Log in & send command to handler function
-    main.login((err, api) => {
-        if (!err) {
-            if (isCommand) { // Specifically formatted command
-                main.handleCommand(message, sender, api);
-            } else { // Just parse the message normally (requires message obj)
-                main.handleMessage({
-                    "body": message,
-                    "senderID": sender,
-                    "type": "message"
-                }, api);
-            }
-        } else {
-            console.log(err);
-        }
-    });
-}
 
 // Ping every 20 minutes to keep awake
 // Sleep from 3 AM to 9 AM to preserve time (UTC)
