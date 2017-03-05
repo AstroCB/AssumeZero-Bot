@@ -22,6 +22,7 @@ app.use(bodyParser.urlencoded({
 
 // Accept POST requests for commands
 app.post("/command", (req, res) => {
+    console.log(req.body);
     if (req.body && req.body.message && req.body.senderId && req.body.threadId) {
         main.handleMessage({
             "body": req.body.message,
