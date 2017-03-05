@@ -22,15 +22,23 @@ app.use(bodyParser.urlencoded({
 
 // Accept POST requests for commands
 app.post("/command", (req, res) => {
-    console.log(req.body);
+    console.log("POST received");
     if (req.body && req.body.message && req.body.senderId && req.body.threadId) {
-        main.handleMessage({
-            "body": req.body.message,
-            "senderID": req.body.senderId,
-            "threadID": req.body.threadId,
-            "type": "message"
-        }, api);
-        res.sendStatus(200);
+        main.login((err, data) => {
+            if (!err) {
+                main.handleMessage({
+                    "body": req.body.message,
+                    "senderID": req.body.senderId,
+                    "threadID": req.body.threadId,
+                    "type": "message"
+                }, api);
+                res.sendStatus(200);
+            } else {
+                res.status(500).send({
+                    "error": "Unable to login"
+                });
+            }
+        });
     } else {
         console.log(req.body);
         res.status(500).send({
