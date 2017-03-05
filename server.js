@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({
 app.post("/command", (req, res) => {
     console.log("POST received");
     if (req.body && req.body.message && req.body.senderId && req.body.threadId) {
-        main.login((err, data) => {
+        main.login((err, api) => {
             if (!err) {
                 main.handleMessage({
                     "body": req.body.message,
@@ -34,8 +34,9 @@ app.post("/command", (req, res) => {
                 }, api);
                 res.sendStatus(200);
             } else {
+                console.log(err);
                 res.status(500).send({
-                    "error": `Unable to login: ${err}`
+                    "error": `Unable to login`
                 });
             }
         });
