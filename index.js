@@ -787,11 +787,11 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["bug"].m) {
         sendMessage(`-------BUG-------\nMessage: ${co["bug"].m[1]}\nSender: ${groupInfo.names[fromUserId]}\nTime: ${getTimeString()} (${getDateString()})\nGroup: ${groupInfo.name}\nID: ${groupInfo.threadId}\nInfo: ${JSON.stringify(groupInfo)}`, config.owner.id, (err) => {
             if (!err) {
-                if (groupInfo.isGroup) {
+                if (groupInfo.isGroup && !groupInfo.members[config.owner.id]) { // If is a group and owner is not in it, add
                     sendMessage(`Report sent. Adding ${config.owner.names.short} to the chat for debugging purposes...`, groupInfo.threadId, () => {
                         addUser(config.owner.id, groupInfo, false);
                     });
-                } else {
+                } else { // Otherwise, just send confirmation
                     sendMessage(`Report sent to ${config.owner.names.short}.`, groupInfo.threadId);
                 }
             } else {
