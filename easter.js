@@ -124,5 +124,8 @@ exports.handleEasterEggs = (message, fromUserId, groupInfo, api) => {
         if (message.match(/flush/i)) {
             m.sendFile("media/flush.png", threadId);
         }
+        if (message.match(/(^|\s)dog([^A-z]|$)/i)) {
+            m.sendFile("media/dog.png", threadId);
+        }
     }
 }
