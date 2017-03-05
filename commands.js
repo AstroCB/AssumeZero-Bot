@@ -331,6 +331,21 @@ exports.commands = {
         "regex": /(?:(?:set|change) )?(?:photo|picture|image)(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i, // URL
         "experimental": false
     },
+    "poll": {
+        "display_names": ["poll"],
+        "pretty_name": "Poll",
+        "short_description": "Creates a group poll",
+        "description": "Creates a poll in the group with the given title and optional comma-delimited initial options in brackets",
+        "syntax": "poll {title} ([opt1,opt2,opt3])",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /poll ([^[]+)(?:\[(.*)\])?/i,
+        "experimental": false
+    },
     "title": {
         "display_names": ["set title", "change title", "title"],
         "pretty_name": "Set title",
@@ -479,21 +494,6 @@ exports.commands = {
             "optional": false
         },
         "regex": /(brighten|darken) (\d*)(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
-        "experimental": false
-    },
-    "poll": {
-        "display_names": ["poll"],
-        "pretty_name": "Poll",
-        "short_description": "Creates a group poll",
-        "description": "Creates a poll in the group with the given title and optional comma-delimited initial options in brackets",
-        "syntax": "poll {title} ([opt1,opt2,opt3])",
-        "sudo": false,
-        "attachments": false,
-        "user_input": {
-            "accepts": false,
-            "optional": false
-        },
-        "regex": /poll ([^[]+)(?:\[(.*)\])?/i,
         "experimental": false
     },
     "psa": {

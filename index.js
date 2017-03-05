@@ -632,6 +632,21 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         } else {
             sendError("This command requires either a valid image URL or a photo attachment", threadId);
         }
+    } else if (co["poll"].m && co["poll"].m[1]) {
+        const title = co["poll"].m[1];
+        const opts = co["poll"].m[2];
+        let optsObj = {};
+        if (opts) {
+            const items = opts.split(",");
+            for (let i = 0; i < items.length; i++) {
+                optsObj[items[i]] = false; // Initialize options to unselected in poll
+            }
+        }
+        api.createPoll(title, threadId, optsObj, (err) => {
+            if (err) {
+                sendError("Cannot create a poll in a non-group chat", threadId);
+            }
+        });
     } else if (co["title"].m && co["title"].m[1]) {
         const title = co["title"].m[1];
         api.setTitle(title, threadId, (err) => {
@@ -757,21 +772,6 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 }
             });
         });
-    } else if (co["poll"].m && co["poll"].m[1]) {
-        const title = co["poll"].m[1];
-        const opts = co["poll"].m[2];
-        let optsObj = {};
-        if (opts) {
-            const items = opts.split(",");
-            for (let i = 0; i < items.length; i++) {
-                optsObj[items[i]] = false; // Initialize options to unselected in poll
-            }
-        }
-        api.createPoll(title, threadId, optsObj, (err) => {
-            if (err) {
-                sendError("Cannot create a poll in a non-group chat", threadId);
-            }
-        });
     } else if (co["psa"].m) {
         sendToAll(`"${co["psa"].m[1]}"\n\nThis has been a public service announcement from ${config.owner.names.short}.`);
     } else if (co["mute"].m) {
@@ -787,7 +787,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["bug"].m) {
         sendMessage(`-------BUG-------\nMessage: ${co["bug"].m[1]}\nSender: ${groupInfo.names[fromUserId]}\nTime: ${getTimeString()} (${getDateString()})\nGroup: ${groupInfo.name}\nID: ${groupInfo.threadId}\nInfo: ${JSON.stringify(groupInfo)}`, config.owner.id, (err) => {
             if (!err) {
-                if (groupInfo.isGroup && !groupInfo.members[config.owner.id]) { // If is a group and owner is not in it, add
+                if (groupInfo.isGroup && !utils.contains(config.owner.id, groupInfo)) { // If is a group and owner is not in it, add
                     sendMessage(`Report sent. Adding ${config.owner.names.short} to the chat for debugging purposes...`, groupInfo.threadId, () => {
                         addUser(config.owner.id, groupInfo, false);
                     });
@@ -953,13 +953,7 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                 if (data) {
                     let info = existingInfo || {};
                     info.threadId = threadId;
-                    info.name = data.name || (() => {
-                        let names = [];
-                        for (let n in data.names) {
-                            names.push(data.names[n]);
-                        }
-                        return (names.join("/") || "Unnamed chat");
-                    })();
+                    info.name = data.name || "Unnamed chat";
                     info.emoji = data.emoji ? data.emoji.emoji : null;
                     info.color = data.color;
                     info.nicknames = data.nicknames || {};
@@ -976,6 +970,14 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                                 }
                             }
                             info.userRegExp = utils.getRegexFromMembers(Object.keys(info.members));
+                            // Attempt to give chat a more descriptive name than "Unnamed chat" if possible
+                            if (!data.name) {
+                                let names = [];
+                                for (let n in info.names) {
+                                    names.push(info.names[n]);
+                                }
+                                info.name = names.join("/") || "Unnamed chat";
+                            }
                         }
                         setGroupInfo(info, (err) => {
                             if (!err && !existingInfo) {

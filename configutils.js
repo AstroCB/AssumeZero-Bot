@@ -25,8 +25,8 @@ exports.getRegexFromMembers = (names) => {
     return regstr;
 }
 
-exports.contains = (a, groupId = ids.group) => {
-    const vals = Object.keys(ids.members[groupId]).map(function(key) {
+exports.contains = (a, groupInfo, groupId = ids.group) => {
+    const vals = Object.keys(groupInfo.members).map(function(key) {
         return ids.members[groupId][key];
     });
     return (vals.indexOf(a) > -1);
