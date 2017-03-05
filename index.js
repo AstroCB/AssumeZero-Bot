@@ -65,7 +65,6 @@ function main(err, api) {
 // Passed as callback to API's listen, but can also be called externally
 // (function is exported as a part of this module)
 function handleMessage(err, message, external = false, api = gapi) { // New message received from listen()
-    console.log(message);
     if (message && !err) {
         // Update info of group where message came from in the background (unless it's an external call)
         if (!external) {
