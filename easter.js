@@ -1,3 +1,4 @@
+const fs = require("fs");
 const m = require("./index"); // For function access
 const config = require("./config");
 
@@ -118,7 +119,7 @@ exports.handleEasterEggs = (message, fromUserId, groupInfo, api) => {
             m.sendMessage("Are you threatening me, Master Jedi?", threadId);
         }
         if (message.match(/drunk/i)) {
-            m.sendFile("media/drunk.jpg", threadId);
+            m.sendFilesFromDir("media/yiyi", threadId);
         }
     }
 }

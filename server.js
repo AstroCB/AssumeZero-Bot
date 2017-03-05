@@ -4,7 +4,6 @@ const app = express();
 const bodyParser = require("body-parser");
 const main = require("./index");
 
-// Bind to ports to make Heroku happy even though it doesn't use them
 app.set("port", (process.env.PORT || 3000));
 app.listen(app.get("port"));
 
@@ -54,8 +53,8 @@ app.post("/command", (req, res) => {
 const local_low = 3;
 const local_high = 9;
 const offset = 5;
-setInterval(function() {
-    var now = new Date();
+setInterval(() => {
+    const now = new Date();
     if (now.getUTCHours() < (local_low + offset) || now.getUTCHours() >= (local_high + offset)) {
         console.log("Pinging server");
         http.get("http://assume-bot.herokuapp.com");

@@ -1073,12 +1073,18 @@ function isBanned(senderId) {
     return (config.banned.indexOf(senderId) > -1);
 }
 
-// Sends file where filename is a relative path to the file from root
-// Accepts an optional message body parameter and callback
-function sendFile(filename, threadId, message = "", callback = () => {}, api = gapi) {
+// Sends file(s) where each filename is a relative path to the file from root
+// Accepts a string filename or an array of filename strings, an optional message body parameter, and a callback
+function sendFile(filenames, threadId, message = "", callback = () => {}, api = gapi) {
+    if (typeof(filenames) == "string") { // If only one is passed
+        filenames = [filenames];
+    }
+    for (let i = 0; i < filenames.length; i++) {
+        filenames[i] = fs.createReadStream(`${__dirname}/${filenames[i]}`);
+    }
     const msg = {
         "body": message,
-        "attachment": fs.createReadStream(`${__dirname}/${filename}`)
+        "attachment": filenames
     }
     sendMessage(msg, threadId, callback);
 }
@@ -1325,3 +1331,17 @@ function sendToAll(msg) {
         }
     });
 }
+
+// Sends all files in a directory
+function sendFilesFromDir(dir, threadId) {
+    fs.readdir(dir, (err, filenames) => {
+        if (!err) {
+            sendFile(filenames.map((f) => {
+                return `${dir}/${f}`
+            }), threadId);
+        } else {
+            console.log(err);
+        }
+    });
+}
+exports.sendFilesFromDir = sendFilesFromDir;
