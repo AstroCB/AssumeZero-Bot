@@ -30,6 +30,7 @@ app.post("/command", (req, res) => {
                     "body": req.body.message,
                     "senderID": req.body.senderId,
                     "threadID": req.body.threadId,
+                    "attachments": [],
                     "type": "message"
                 }, true, api);
                 res.sendStatus(200);
