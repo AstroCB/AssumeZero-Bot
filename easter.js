@@ -121,5 +121,8 @@ exports.handleEasterEggs = (message, fromUserId, groupInfo, api) => {
         if (message.match(/drunk/i)) {
             m.sendFilesFromDir("media/yiyi", threadId);
         }
+        if (message.match(/flush/i)) {
+            m.sendFile("media/flush.png", threadId);
+        }
     }
 }
