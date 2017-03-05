@@ -32,9 +32,7 @@ var gapi; // Global API for external functions (set on login)
 
 // Log in
 if (require.main === module) { // Called directly; login immediately
-    login((err, api) => {
-        main(err, api);
-    });
+    login(main);
 }
 
 function login(callback) {
@@ -43,14 +41,14 @@ function login(callback) {
     try {
         messenger({
             appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))
-        }, main);
+        }, callback);
     } catch (e) { // No app state saved
         messenger({
             email: credentials.EMAIL,
             password: credentials.PASSWORD
         }, (err, api) => {
             fs.writeFileSync('appstate.json', JSON.stringify(api.getAppState()));
-            main(err, api);
+            callback(err, api);
         });
     }
 }
