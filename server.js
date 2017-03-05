@@ -37,7 +37,7 @@ app.post("/command", (req, res) => {
             } else {
                 console.log(err);
                 res.status(500).send({
-                    "error": `Unable to login`
+                    "error": "Unable to login"
                 });
             }
         });
