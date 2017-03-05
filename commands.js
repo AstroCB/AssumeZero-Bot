@@ -16,6 +16,21 @@ exports.commands = {
         "regex": /help(.*)/i,
         "experimental": false
     },
+    "psa": {
+        "display_names": ["psa"],
+        "pretty_name": "PSA",
+        "short_description": "Messages all the bot's groups",
+        "description": "Announces a message to all of the group chats that the bot is present in",
+        "syntax": "psa {message}",
+        "sudo": true,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /psa (.*)/i,
+        "experimental": false
+    },
     "kick": {
         "display_names": ["kick"],
         "pretty_name": "Kick",
@@ -494,21 +509,6 @@ exports.commands = {
             "optional": false
         },
         "regex": /(brighten|darken) (\d*)(?: ((?:http|ftp|https):\/\/(?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i,
-        "experimental": false
-    },
-    "psa": {
-        "display_names": ["psa"],
-        "pretty_name": "PSA",
-        "short_description": "Messages all the bot's groups",
-        "description": "Announces a message to all of the group chats that the bot is present in",
-        "syntax": "psa {message}",
-        "sudo": true,
-        "attachments": false,
-        "user_input": {
-            "accepts": false,
-            "optional": false
-        },
-        "regex": /psa (.*)/i,
         "experimental": false
     },
     "mute": {

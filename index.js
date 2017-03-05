@@ -166,6 +166,8 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             mess += `The bot goes to sleep every night from ~3 AM - 9 AM ET. Contact ${config.owner.names.long} with any questions, or use "${config.trigger} bug" to report bugs directly.\n\nTip: for more detailed descriptions, use "${config.trigger} help {command}"`;
             sendMessage(mess, threadId);
         }
+    } else if (co["psa"].m) { // This needs to be high up so that I can actually put commands in the PSA without triggering them
+        sendToAll(`"${co["psa"].m[1]}"\n\nThis has been a public service announcement from ${config.owner.names.short}.`);
     } else if (co["kick"].m && co["kick"].m[1]) {
         const user = co["kick"].m[1].toLowerCase();
         const optTime = co["kick"].m[2] ? parseInt(co["kick"].m[2]) : undefined;
@@ -775,8 +777,6 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 }
             });
         });
-    } else if (co["psa"].m) {
-        sendToAll(`"${co["psa"].m[1]}"\n\nThis has been a public service announcement from ${config.owner.names.short}.`);
     } else if (co["mute"].m) {
         const getCallback = (muted) => {
             return (err) => {
