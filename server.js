@@ -31,7 +31,7 @@ app.post("/command", (req, res) => {
                     "senderID": req.body.senderId,
                     "threadID": req.body.threadId,
                     "type": "message"
-                }, api);
+                }, true, api);
                 res.sendStatus(200);
             } else {
                 console.log(err);

@@ -61,10 +61,16 @@ function main(err, api) {
     api.listen(handleMessage);
 }
 
-function handleMessage(err, message, api = gapi) { // New message received from listen()
+// Processes incoming messages
+// Passed as callback to API's listen, but can also be called externally
+// (function is exported as a part of this module)
+function handleMessage(err, message, external = false, api = gapi) { // New message received from listen()
+    console.log(message);
     if (message && !err) {
-        // Update info of group where message came from in the background
-        updateGroupInfo(message.threadID, message.isGroup);
+        // Update info of group where message came from in the background (unless it's an external call)
+        if (!external) {
+            updateGroupInfo(message.threadID, message.isGroup);
+        }
         // Load existing group data
         getGroupInfo(message.threadID, (err, info) => {
             if (err || !info) {
