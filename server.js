@@ -26,7 +26,7 @@ app.post("/command", (req, res) => {
     if (req.body && req.body.message && req.body.senderId && req.body.threadId) {
         main.login((err, api) => {
             if (!err) {
-                main.handleMessage({
+                main.handleMessage(err, {
                     "body": req.body.message,
                     "senderID": req.body.senderId,
                     "threadID": req.body.threadId,
