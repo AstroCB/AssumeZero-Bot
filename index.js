@@ -1332,7 +1332,7 @@ function sendToAll(msg) {
     });
 }
 
-// Sends all files in a directory
+// Sends all files in a directory (relative to root)
 function sendFilesFromDir(dir, threadId) {
     fs.readdir(dir, (err, filenames) => {
         if (!err) {
