@@ -28,7 +28,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /psa ([\s\S])*/i, // Match EVERYTHING
+        "regex": /psa ([\s\S]*)/i, // Match EVERYTHING
         "experimental": false
     },
     "kick": {
