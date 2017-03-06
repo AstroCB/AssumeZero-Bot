@@ -1161,8 +1161,8 @@ function sendFileFromUrl(url, path = "media/temp.jpg", message = "", threadId, a
 // Gets a random hex color
 function getRandomColor() {
     const letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++) { // Hex
+    let color = '#';
+    for (let i = 0; i < 6; i++) { // Hex
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
