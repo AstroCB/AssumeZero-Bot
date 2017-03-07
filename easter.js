@@ -130,8 +130,8 @@ exports.handleEasterEggs = (message, fromUserId, groupInfo, api) => {
         if (message.match(/subaru/i)) {
             m.sendFile("media/subaru.png", threadId);
         }
-        if(message.match(/ironic/i)) {
-          m.sendFile("media/ironic.jpg", threadId);
+        if (message.match(/ironic/i)) {
+            m.sendFile("media/ironic.jpg", threadId);
         }
     }
 }
