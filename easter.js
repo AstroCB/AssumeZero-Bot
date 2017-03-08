@@ -21,7 +21,7 @@ exports.handleEasterEggs = (message, fromUserId, groupInfo, api) => {
             m.sendFile("media/umd.png", threadId);
         }
         if (message.match(/cornell/i)) {
-            m.m.sendMessage({
+            m.sendMessage({
                 "url": "https://www.youtube.com/watch?v=yBUz4RnoWSM"
             }, threadId);
         }

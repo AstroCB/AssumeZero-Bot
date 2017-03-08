@@ -315,33 +315,34 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["song"].m) {
         logInSpotify((err) => {
             if (!err) {
-                spotify.setAccessToken(data.body.access_token);
                 const user = co["song"].m[1] ? co["song"].m[1].toLowerCase() : null;
                 const userId = groupInfo.members[user];
                 const playlists = groupInfo.playlists;
-                let playlist;
-                if (playlists) {
+                const ids = Object.keys(playlists || {});
+
+                let playlist; // Determine which to use
+                if (playlists && ids.length > 0) { // At least 1 playlist stored
+                    // Find random playlist in case one isn't specified or can't be found
+                    const randPlaylist = playlists[ids[Math.floor(Math.random() * playlists.length)]];
                     if (user && userId) {
                         // User specified
-                        const users = playlists.map((plst) => {
-                            return plst.id;
-                        });
-                        if (users.indexOf(userId) > -1) {
+                        if (playlists[userId]) {
                             // User has a playlist
-                            playlist = playlists[users.indexOf(userId)];
+                            playlist = playlists[userId];
                         } else {
-                            // User doesn't have playlist; pick random one
-                            playlist = playlists[Math.floor(Math.random() * playlists.length)];
-                            sendMessage(`User ${groupInfo.names[user]} does not have a stored playlist; using ${playlist.name}'s instead`, threadId);
+                            // User doesn't have playlist; use random one
+                            playlist = randPlaylist;
+                            sendMessage(`User ${groupInfo.names[userId]} does not have a stored playlist; using ${playlist.name}'s instead`, threadId);
                         }
                     } else {
                         // No playlist specified; grab random one from group
-                        playlist = playlists[Math.floor(Math.random() * playlists.length)];
+                        playlist = randPlaylist;
                     }
                 } else {
                     playlist = config.defaultPlaylist;
-                    sendMessage(`No playlists found for this group. To add one, use "${config.trigger} playlist" (see help for more info).\nFor now, using the default playlist, ${playlist.name}`, threadId);
+                    sendMessage(`No playlists found for this group. To add one, use "${config.trigger} playlist" (see help for more info).\nFor now, using the default playlist.`, threadId);
                 }
+
                 spotify.getPlaylist(playlist.user, playlist.uri, {}, (err, data) => {
                     if (!err) {
                         const name = data.body.name;
@@ -386,7 +387,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                                 const songs = data.body.tracks.items;
                                 for (let i = 0; i < config.spotifySearchLimit; i++) {
                                     if (songs[i]) {
-                                      let track = songs[i].track;
+                                        let track = songs[i].track;
                                         message += `– ${track.name}${track.explicit ? " (Explicit)" : ""} (from ${track.album.name})${(i != config.spotifySearchLimit - 1) ? "\n" : ""}`;
                                     }
                                 }
