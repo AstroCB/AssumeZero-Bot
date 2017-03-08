@@ -347,7 +347,12 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                     if (!err) {
                         const name = data.body.name;
                         const songs = data.body.tracks.items;
-                        const track = songs[Math.floor(Math.random() * songs.length)].track;
+                        let track = songs[Math.floor(Math.random() * songs.length)].track;
+                        let buffer = 0;
+                        while (!track.preview_url && buffer < songs.length) { // Don't use songs without previews if possible
+                            track = songs[Math.floor(Math.random() * songs.length)].track;
+                            buffer++;
+                        }
                         sendMessage(`Grabbing a song from ${playlist.name}'s playlist, "${name}"...`, threadId);
                         const msg = `How about ${track.name} (from "${track.album.name}") by ${getArtists(track)}${track.explicit ? " (Explicit)" : ""}?`;
                         if (track.preview_url) {
