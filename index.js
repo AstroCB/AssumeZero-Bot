@@ -323,7 +323,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 let playlist; // Determine which to use
                 if (playlists && ids.length > 0) { // At least 1 playlist stored
                     // Find random playlist in case one isn't specified or can't be found
-                    const randPlaylist = playlists[ids[Math.floor(Math.random() * playlists.length)]];
+                    const randPlaylist = playlists[ids[Math.floor(Math.random() * ids.length)]];
                     if (user && userId) {
                         // User specified
                         if (playlists[userId]) {
