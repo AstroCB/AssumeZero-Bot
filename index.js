@@ -155,7 +155,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         } else {
             // No command passed; give overview of all of them
             let mess = `Quick help for AØBøt:\n\nPrecede these commands with "${config.trigger}":\n`;
-            for (var c in co) {
+            for (let c in co) {
                 if (co.hasOwnProperty(c)) {
                     const entry = co[c];
                     // Only display short description if one exists
@@ -235,7 +235,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             });
         }
     } else if (co["spotsearch"].m && co["spotsearch"].m[1] && co["spotsearch"].m[2]) {
-        logInSpotify((err, data) => {
+        logInSpotify((err) => {
             if (!err) {
                 const query = co["spotsearch"].m[2];
                 if (co["spotsearch"].m[1].toLowerCase() == "artist") {
@@ -312,31 +312,93 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 console.log(err);
             }
         });
-    } else if (co["spotadd"].m && co["spotadd"].m[1]) {
-        logInSpotify((err, data) => {
+    } else if (co["song"].m) {
+        logInSpotify((err) => {
             if (!err) {
-                const query = co["spotadd"].m[1];
-                spotify.searchTracks(query, {}, (err, data) => {
-                    if (!err) {
-                        const bestMatch = data.body.tracks.items[0];
-
-                        if (bestMatch) {
-                            spotify.addTracksToPlaylist(config.groupPlaylist.user, config.groupPlaylist.uri, [bestMatch.uri], (err) => {
-                                if (!err) {
-                                    sendMessage(`Added ${bestMatch.name} by ${getArtists(bestMatch)} to ${config.groupPlaylist.name}'s playlist'`, threadId);
-                                } else {
-                                    sendError(`Couldn't add ${bestMatch.name} to playlist`, threadId);
-                                }
-                            });
+                spotify.setAccessToken(data.body.access_token);
+                const user = co["song"].m[1] ? co["song"].m[1].toLowerCase() : null;
+                const userId = groupInfo.members[user];
+                const playlists = groupInfo.playlists;
+                let playlist;
+                if (playlists) {
+                    if (user && userId) {
+                        // User specified
+                        const users = playlists.map((plst) => {
+                            return plst.id;
+                        });
+                        if (users.indexOf(userId) > -1) {
+                            // User has a playlist
+                            playlist = playlists[users.indexOf(userId)];
                         } else {
-                            sendError(`Song not found for query ${query}`, threadId);
+                            // User doesn't have playlist; pick random one
+                            playlist = playlists[Math.floor(Math.random() * playlists.length)];
+                            sendMessage(`User ${groupInfo.names[user]} does not have a stored playlist; using ${playlist.name}'s instead`, threadId);
                         }
                     } else {
-                        sendError(err, threadId);
+                        // No playlist specified; grab random one from group
+                        playlist = playlists[Math.floor(Math.random() * playlists.length)];
                     }
-                })
-            } else {
-                console.log(err);
+                } else {
+                    playlist = config.defaultPlaylist;
+                    sendMessage(`No playlists found for this group. To add one, use "${config.trigger} playlist" (see help for more info).\nFor now, using the default playlist, ${playlist.name}`, threadId);
+                }
+                spotify.getPlaylist(playlist.user, playlist.uri, {}, (err, data) => {
+                    if (!err) {
+                        const name = data.body.name;
+                        const songs = data.body.tracks.items;
+                        const track = songs[Math.floor(Math.random() * songs.length)].track;
+                        sendMessage(`Grabbing a song from ${playlist.name}'s playlist, "${name}"...`, threadId);
+                        const msg = `How about ${track.name} (from "${track.album.name}") by ${getArtists(track)}${track.explicit ? " (Explicit)" : ""}?`;
+                        if (track.preview_url) {
+                            // Send preview MP3 to chat if exists
+                            sendFileFromUrl(track.preview_url, "media/preview.mp3", msg, threadId);
+                        } else {
+                            sendMessage({
+                                "body": msg,
+                                "url": track.external_urls.spotify // Should always exist
+                            }, threadId);
+                        }
+                    } else {
+                        console.log(err);
+                    }
+                });
+            }
+        });
+    } else if (co["playlist"].m) {
+        const playlists = groupInfo["playlists"];
+        const user = co["playlist"].m[1].toLowerCase();
+        const userId = groupInfo.members[user];
+        const name = groupInfo.names[userId];
+        const newPlaylist = {
+            "name": name,
+            "id": userId,
+            "user": co["playlist"].m[2],
+            "uri": co["playlist"].m[3]
+        };
+        playlists[userId] = newPlaylist;
+        setGroupProperty("playlists", playlists, groupInfo, (err) => {
+            if (!err) {
+                logInSpotify((err) => {
+                    if (!err) {
+                        spotify.getPlaylist(newPlaylist.user, newPlaylist.uri, {}, (err, data) => {
+                            if (!err) {
+                                let message = `Playlist "${data.body.name}" added to the group. Here are some sample tracks:\n`;
+                                const songs = data.body.tracks.items;
+                                for (let i = 0; i < config.spotifySearchLimit; i++) {
+                                    if (songs[i]) {
+                                      let track = songs[i].track;
+                                        message += `– ${track.name}${track.explicit ? " (Explicit)" : ""} (from ${track.album.name})${(i != config.spotifySearchLimit - 1) ? "\n" : ""}`;
+                                    }
+                                }
+                                sendMessage(message, threadId);
+                            } else {
+                                sendError("Playlist couldn't be added; check the URI and make sure that you've set the playlist to public.", threadId);
+                            }
+                        });
+                    } else {
+                        console.log(err);
+                    }
+                });
             }
         });
     } else if (co["addsearch"].m && co["addsearch"].m[1] && co["addsearch"].m[3]) {
@@ -426,8 +488,8 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["wakeup"].m && co["wakeup"].m[1]) {
         const user = co["wakeup"].m[1].toLowerCase();
         const members = groupInfo.members; // Save in case it changes
-        for (var i = 0; i < config.wakeUpTimes; i++) {
-            setTimeout(function() {
+        for (let i = 0; i < config.wakeUpTimes; i++) {
+            setTimeout(() => {
                 sendMessage("Wake up", members[user]);
             }, 500 + (500 * i));
         }
@@ -437,18 +499,18 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         api.getThreadInfo(threadId, function(err, data) {
             if (!err) {
                 const count = data.messageCount;
-                var randMessage = Math.floor(Math.random() * (count + 1));
+                let randMessage = Math.floor(Math.random() * (count + 1));
                 api.getThreadHistory(threadId, 0, count, (new Date()).getTime(), function(err, data) {
                     if (err) {
                         console.log(err);
                         sendMessage("Error: Message could not be found", threadId);
                     } else {
-                        var m = data[randMessage];
+                        let m = data[randMessage];
                         while (!(m && m.body)) {
                             randMessage = Math.floor(Math.random() * (count + 1));
                             m = data[randMessage];
                         }
-                        var b = m.body,
+                        let b = m.body,
                             name = m.senderName,
                             time = new Date(m.timestamp);
                         sendMessage(`${b} - ${name} (${time.toLocaleDateString()})`, threadId);
@@ -478,7 +540,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         updateGroupInfo(threadId); // Update emoji
     } else if (co["echo"].m && co["echo"].m[1] && co["echo"].m[2]) {
         const command = co["echo"].m[1].toLowerCase();
-        var message = `${co["echo"].m[2]}`;
+        let message = `${co["echo"].m[2]}`;
         if (command == "echo") {
             // Just an echo – repeat message
             sendMessage(message, threadId);
@@ -572,54 +634,6 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["restart"].m) {
         restart(() => {
             sendMessage("Restarting...", threadId);
-        });
-    } else if (co["song"].m) {
-        spotify.clientCredentialsGrant({}, (err, data) => {
-            if (!err) {
-                spotify.setAccessToken(data.body.access_token);
-                const user = co["song"].m[1] ? co["song"].m[1].toLowerCase() : null;
-                const userId = groupInfo.members[user];
-                const playlists = config.spotifyPlaylists; // Provide data in config
-                let playlist;
-                if (user && userId) {
-                    // User specified
-                    const users = playlists.map((plst) => {
-                        return plst.id;
-                    });
-                    if (users.indexOf(userId) > -1) {
-                        // User has a playlist
-                        playlist = playlists[users.indexOf(userId)];
-                    } else {
-                        playlist = config.defaultPlaylist;
-                        sendMessage(`User ${user.substring(0,1).toUpperCase() + user.substring(1)} does not have a stored playlist; using ${playlist.name}'s instead`, threadId);
-                    }
-                } else {
-                    // No playlist specified; grab random one
-                    playlist = playlists[Math.floor(Math.random() * playlists.length)];
-                }
-
-                spotify.getPlaylist(playlist.user, playlist.uri, {}, (err, data) => {
-                    if (!err) {
-                        const name = data.body.name;
-                        const songs = data.body.tracks.items;
-                        const track = songs[Math.floor(Math.random() * songs.length)].track;
-                        sendMessage(`Grabbing a song from ${playlist.name}'s playlist, "${name}"...`, threadId);
-                        const msg = `How about ${track.name} (from "${track.album.name}") by ${getArtists(track)}${track.explicit ? " (Explicit)" : ""}?`;
-                        if (track.preview_url) {
-                            // Send preview MP3 to chat if exists
-                            sendFileFromUrl(track.preview_url, "media/preview.mp3", msg, threadId);
-                        } else {
-                            sendMessage({
-                                "body": msg,
-                                "url": track.external_urls.spotify // Should always exist
-                            }, threadId);
-                        }
-
-                    } else {
-                        console.log(err);
-                    }
-                });
-            }
         });
     } else if (co["photo"].m) {
         // Set group photo to photo at provided URL
@@ -852,7 +866,7 @@ exports.sendError = sendError;
 
 function debugCommandOutput(flag) {
     if (flag) {
-        var co = commands.commands;
+        const co = commands.commands;
         console.log(Object.keys(co).map(function(c) {
             return `${c}: ${co[c].m}`
         }));
@@ -962,6 +976,7 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                     info.nicknames = data.nicknames || {};
                     info.isGroup = (typeof(isGroup) == "boolean") ? isGroup : info.isGroup;
                     info.muted = (typeof(info.muted) == "undefined") ? true : info.muted;
+                    info.playlists = info.playlists || {};
                     api.getUserInfo(data.participantIDs, (err, userData) => {
                         if (!err) {
                             info.members = {};

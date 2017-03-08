@@ -76,19 +76,34 @@ exports.commands = {
         "regex": /search (artist|song|track) (.*)/i,
         "experimental": false
     },
-    "spotadd": {
-        "display_names": ["add song", "add track"],
-        "pretty_name": "Add song",
-        "short_description": "Add to group playlist",
-        "description": "Adds a song (top Spotify search result) to the group's playlist",
-        "syntax": "add (song|track) {query}",
+    "song": {
+        "display_names": ["song", "get song"],
+        "pretty_name": "Song",
+        "short_description": "Random song",
+        "description": "Grabs a random song from member playlists added with 'playlist' command",
+        "syntax": "song ({member})",
         "sudo": false,
         "attachments": false,
         "user_input": {
-            "accepts": false,
+            "accepts": true,
+            "optional": true
+        },
+        "regex": "song",
+        "experimental": false
+    },
+    "playlist": {
+        "display_names": ["add playlist", "playlist"],
+        "pretty_name": "Playlist",
+        "short_description": "Add or update playlist",
+        "description": "Add or update playlist for the group – to find a playlist's URI (e.g. spotify:user:astrocb:playlist:05zXCuscrw1BW5NyeN45DB), right click on it and click 'Copy Spotify URI'",
+        "syntax": "playlist {member} {playlist URI}",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": true,
             "optional": false
         },
-        "regex": /add (?:song|track) (.*)/i,
+        "regex": ["playlist", " spotify:user:([^:]+):playlist:([A-z0-9]+)"],
         "experimental": false
     },
     "addsearch": {
@@ -314,21 +329,6 @@ exports.commands = {
             "optional": false
         },
         "regex": /restart/i,
-        "experimental": false
-    },
-    "song": {
-        "display_names": ["song", "get song"],
-        "pretty_name": "Song",
-        "short_description": "Random song",
-        "description": "Grabs a random song from member playlist",
-        "syntax": "(get) song ({member})",
-        "sudo": false,
-        "attachments": false,
-        "user_input": {
-            "accepts": true,
-            "optional": true
-        },
-        "regex": "(?:get )?song",
         "experimental": false
     },
     "photo": {

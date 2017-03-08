@@ -100,15 +100,12 @@ exports.spotifyPlaylists = [{
     }
 ];
 
-// Group's Spotify playlist
-exports.groupPlaylist = {
+// Default playlist to use if group has no added playlists
+exports.defaultPlaylist = {
     "name": "Assume Zero Brain Power",
     "user": "astrocb",
     "uri": "4joxRVv8wzT4keFzCS3gAt"
 };
-
-// Default playlist used if invalid user passed
-exports.defaultPlaylist = exports.groupPlaylist;
 
 // Number of top tracks to display for Spotify searches
 exports.spotifySearchLimit = 3;
