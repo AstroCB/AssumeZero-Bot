@@ -332,7 +332,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                         } else {
                             // User doesn't have playlist; use random one
                             playlist = randPlaylist;
-                            sendMessage(`User ${groupInfo.names[userId]} does not have a stored playlist; using ${playlist.name}'s instead`, threadId);
+                            sendMessage(`User ${groupInfo.names[userId]} does not have a stored playlist; using ${playlist.name}'s instead.`, threadId);
                         }
                     } else {
                         // No playlist specified; grab random one from group
