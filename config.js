@@ -53,53 +53,6 @@ exports.xkcd = {
 // See commands.js for more info
 exports.votePoints = 5;
 
-// Specify here user Spotify playlists to select from with the "song" command
-exports.spotifyPlaylists = [{
-        "name": "Cameron",
-        "id": "100007016509302",
-        "user": "astrocb",
-        "uri": "5y1RF0Qzrh7ZLpPYRk7vPZ"
-    },
-    {
-        "name": "Justin",
-        "id": "100000284649585",
-        "user": "zhiyikuang",
-        "uri": "53Bq3HDhuLlpTYutbeAT53"
-    }, {
-        "name": "Larry",
-        "id": "100002237228114",
-        "user": "1211218832",
-        "uri": "3L1HbTx5JPlvoYzebh2cq9"
-    }, {
-        "name": "Jonah",
-        "id": "100004639632165",
-        "user": "jzl003",
-        "uri": "0ohKnensHQhhKtNCaBIKmQ"
-    }, {
-        "name": "Colin",
-        "id": "100003158871750",
-        "user": "colinam1",
-        "uri": "5DLJfgTgZ041ykJgH1Ior4"
-    },
-    {
-        "name": "Anton",
-        "id": "100010603296156",
-        "user": "apozharski",
-        "uri": "4aWii0hXP9A73HcGm9NUII"
-    },
-    {
-        "name": "Kevin",
-        "id": "100004459232882",
-        "user": "kwang21093",
-        "uri": "5891o4biUm1gPGgNd2JGPg"
-    }, {
-        "name": "Matthew",
-        "id": "100006496860557",
-        "user": "powerplayer117",
-        "uri": "2fdwKfdyavl28cVOWOjBkB"
-    }
-];
-
 // Default playlist to use if group has no added playlists
 exports.defaultPlaylist = {
     "name": "Assume Zero Brain Power",
