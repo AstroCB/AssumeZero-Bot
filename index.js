@@ -372,41 +372,65 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         });
     } else if (co["playlist"].m) {
         const playlists = groupInfo["playlists"];
-        const user = co["playlist"].m[1].toLowerCase();
-        const userId = groupInfo.members[user];
-        const name = groupInfo.names[userId];
-        const newPlaylist = {
-            "name": name,
-            "id": userId,
-            "user": co["playlist"].m[2],
-            "uri": co["playlist"].m[3]
-        };
-        playlists[userId] = newPlaylist;
-        setGroupProperty("playlists", playlists, groupInfo, (err) => {
-            if (!err) {
-                logInSpotify((err) => {
+        if (co["playlist"].m[1]) { // User provided
+            if (co["playlist"].m[2]) { // Data provided
+                const user = co["playlist"].m[1].toLowerCase();
+                const userId = groupInfo.members[user];
+                const name = groupInfo.names[userId];
+                const newPlaylist = {
+                    "name": name,
+                    "id": userId,
+                    "user": co["playlist"].m[3],
+                    "uri": co["playlist"].m[4]
+                };
+                playlists[userId] = newPlaylist;
+                setGroupProperty("playlists", playlists, groupInfo, (err) => {
                     if (!err) {
-                        spotify.getPlaylist(newPlaylist.user, newPlaylist.uri, {}, (err, data) => {
+                        logInSpotify((err) => {
                             if (!err) {
-                                let message = `Playlist "${data.body.name}" added to the group. Here are some sample tracks:\n`;
-                                const songs = data.body.tracks.items;
-                                for (let i = 0; i < config.spotifySearchLimit; i++) {
-                                    if (songs[i]) {
-                                        let track = songs[i].track;
-                                        message += `– ${track.name}${track.explicit ? " (Explicit)" : ""} (from ${track.album.name})${(i != config.spotifySearchLimit - 1) ? "\n" : ""}`;
+                                spotify.getPlaylist(newPlaylist.user, newPlaylist.uri, {}, (err, data) => {
+                                    if (!err) {
+                                        let message = `Playlist "${data.body.name}" added to the group. Here are some sample tracks:\n`;
+                                        const songs = data.body.tracks.items;
+                                        for (let i = 0; i < config.spotifySearchLimit; i++) {
+                                            if (songs[i]) {
+                                                let track = songs[i].track;
+                                                message += `– ${track.name}${track.explicit ? " (Explicit)" : ""} (from ${track.album.name})${(i != config.spotifySearchLimit - 1) ? "\n" : ""}`;
+                                            }
+                                        }
+                                        sendMessage(message, threadId);
+                                    } else {
+                                        sendError("Playlist couldn't be added; check the URI and make sure that you've set the playlist to public.", threadId);
                                     }
-                                }
-                                sendMessage(message, threadId);
+                                });
                             } else {
-                                sendError("Playlist couldn't be added; check the URI and make sure that you've set the playlist to public.", threadId);
+                                console.log(err);
                             }
                         });
-                    } else {
-                        console.log(err);
                     }
                 });
+            } else {
+                sendError("Please include a Spotify URI to add a playlist (see help for more info)", threadId);
             }
-        });
+        } else { // No user provided; just display current playlists
+            const pArr = Object.keys(playlists).map((p) => {
+                return playlists[p];
+            });
+            logInSpotify((err) => {
+                if (!err) {
+                    for (let i = 0; i < pArr.length; i++) {
+                        if (i == 0) {
+                            sendMessage("Playlists for this group:", threadId);
+                        }
+                        spotify.getPlaylist(pArr[i].user, pArr[i].uri, {}, (err, data) => {
+                            if (!err) {
+                                sendMessage(`"${data.body.name}" by ${pArr[i].name} (${data.body.tracks.items.length} songs)`, threadId);
+                            }
+                        });
+                    }
+                }
+            });
+        }
     } else if (co["addsearch"].m && co["addsearch"].m[1] && co["addsearch"].m[3]) {
         // Fields 1 & 3 are are for the command and the user, respectively
         // Field 2 is for an optional number parameter specifying the number of search results

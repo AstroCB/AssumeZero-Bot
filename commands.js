@@ -101,9 +101,9 @@ exports.commands = {
         "attachments": false,
         "user_input": {
             "accepts": true,
-            "optional": false
+            "optional": true
         },
-        "regex": ["playlist", " spotify:user:([^:]+):playlist:([A-z0-9]+)"],
+        "regex": ["playlist", "( spotify:user:([^:]+):playlist:([A-z0-9]+))?"],
         "experimental": false
     },
     "addsearch": {
