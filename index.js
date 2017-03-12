@@ -850,7 +850,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["wolfram"].m) {
         const query = encodeURIComponent(co["wolfram"].m[1]);
         request(`http://api.wolframalpha.com/v1/result?appid=${config.wolframKey}&i=${query}`, (err, res, body) => {
-            if (!err) {
+            if (!(err || body == "Wolfram|Alpha did not understand your input")) {
                 sendMessage(body, threadId);
             } else {
                 sendError(`No results found for "${query}"`, threadId);
