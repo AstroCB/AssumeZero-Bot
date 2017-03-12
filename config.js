@@ -12,6 +12,18 @@ exports.owner = {
     "id": "100007016509302" // ID of bot owner (for secure commands and reports)
 };
 
+// Heroku settings
+
+// Bot server URL
+exports.serverURL = "http://assume-bot.herokuapp.com";
+// Whether the bot should sleep at night to preserve dyno hours
+// If not, it will ping the server every 20 min to keep it awake
+exports.shouldSleep = false;
+// Sleep settings (24h time)
+exports.localSleepTime = 3;
+exports.localWakeTime = 9;
+exports.serverUTCOffset = 5;
+
 // Time in seconds to ban users for Order 66
 exports.order66Time = 15;
 

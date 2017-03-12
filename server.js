@@ -3,6 +3,7 @@ const http = require("http");
 const app = express();
 const bodyParser = require("body-parser");
 const main = require("./index");
+const config = require("./config");
 
 app.set("port", (process.env.PORT || 3000));
 app.listen(app.get("port"));
@@ -49,14 +50,10 @@ app.post("/command", (req, res) => {
 });
 
 // Ping every 20 minutes to keep awake
-// Sleep from 3 AM to 9 AM to preserve time (UTC)
-const local_low = 3;
-const local_high = 9;
-const offset = 5;
 setInterval(() => {
     const now = new Date();
-    if (now.getUTCHours() < (local_low + offset) || now.getUTCHours() >= (local_high + offset)) {
+    if (now.getUTCHours() < (config.localSleepTime + config.serverUTCOffset) || now.getUTCHours() >= (config.localWakeTime + config.serverUTCOffset)) {
         console.log("Pinging server");
-        http.get("http://assume-bot.herokuapp.com");
+        http.get(config.serverURL);
     }
 }, 1200000);

@@ -163,7 +163,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                     mess += "------------------\n"; // Suffix for separating commands
                 }
             }
-            mess += `The bot goes to sleep every night from ~3 AM - 9 AM ET. Contact ${config.owner.names.long} with any questions, or use "${config.trigger} bug" to report bugs directly.\n\nTip: for more detailed descriptions, use "${config.trigger} help {command}"`;
+            mess += `Contact ${config.owner.names.long} with any questions, or use "${config.trigger} bug" to report bugs directly.\n\nTip: for more detailed descriptions, use "${config.trigger} help {command}"`;
             sendMessage(mess, threadId);
         }
     } else if (co["psa"].m) { // This needs to be high up so that I can actually put commands in the PSA without triggering them
