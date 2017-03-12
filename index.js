@@ -853,7 +853,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             if (!(err || body == "Wolfram|Alpha did not understand your input")) {
                 sendMessage(body, threadId);
             } else {
-                sendError(`No results found for "${query}"`, threadId);
+                sendMessage(`No results found for "${query}"`, threadId);
             }
         });
     }
