@@ -540,5 +540,20 @@ exports.commands = {
         },
         "regex": /(un)?mute/i,
         "experimental": false
+    },
+    "christen": {
+      "display_names": ["christen"],
+      "pretty_name": "Christen",
+      "short_description": "Names the bot",
+      "description": "The bot doesn't see itself as a user for security purposes, so the name command will not work on it, but this command allows you to name it",
+      "syntax": "christen {name}",
+      "sudo": false,
+      "attachments": false,
+      "user_input": {
+          "accepts": false,
+          "optional": false
+      },
+      "regex": /christen (.*)/i,
+      "experimental": false
     }
 };

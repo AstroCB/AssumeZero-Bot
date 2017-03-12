@@ -845,6 +845,8 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         }
         const mute = !(co["mute"].m[1]); // True if muting; false if unmuting
         setGroupProperty("muted", mute, groupInfo, getCallback(mute));
+    } else if (co["christen"].m) {
+        api.changeNickname(co["christen"].m[1], threadId, ids.bot);
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
