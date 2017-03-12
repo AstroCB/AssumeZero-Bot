@@ -542,18 +542,33 @@ exports.commands = {
         "experimental": false
     },
     "christen": {
-      "display_names": ["christen"],
-      "pretty_name": "Christen",
-      "short_description": "Names the bot",
-      "description": "The bot doesn't see itself as a user for security purposes, so the name command will not work on it, but this command allows you to name it",
-      "syntax": "christen {name}",
-      "sudo": false,
-      "attachments": false,
-      "user_input": {
-          "accepts": false,
-          "optional": false
-      },
-      "regex": /christen (.*)/i,
-      "experimental": false
+        "display_names": ["christen"],
+        "pretty_name": "Christen",
+        "short_description": "Names the bot",
+        "description": "The bot doesn't see itself as a user for security purposes, so the name command will not work on it, but this command allows you to name it",
+        "syntax": "christen {name}",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /christen (.*)/i,
+        "experimental": false
+    },
+    "wolfram": {
+        "display_names": ["wolfram"],
+        "pretty_name": "Wolfram",
+        "short_description": "Searches Wolfram Alpha",
+        "description": "Performs a search using Wolfram Alpha (http://www.wolframalpha.com)",
+        "syntax": "wolfram {query}",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /wolfram (.*)/i,
+        "experimental": false
     }
 };

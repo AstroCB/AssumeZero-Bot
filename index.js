@@ -847,6 +847,11 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         setGroupProperty("muted", mute, groupInfo, getCallback(mute));
     } else if (co["christen"].m) {
         api.changeNickname(co["christen"].m[1], threadId, ids.bot);
+    } else if (co["wolfram"].m) {
+        const query = encodeURIComponent(co["wolfram"].m[1]);
+        request(`http://api.wolframalpha.com/v1/result?appid=${config.wolframKey}&i=${query}`, (err, res, body) => {
+            sendMessage(body, threadId);
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
