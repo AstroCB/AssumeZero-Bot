@@ -52,7 +52,8 @@ app.post("/command", (req, res) => {
 // Ping every 20 minutes to keep awake
 setInterval(() => {
     const now = new Date();
-    if (now.getUTCHours() < (config.localSleepTime + config.serverUTCOffset) || now.getUTCHours() >= (config.localWakeTime + config.serverUTCOffset)) {
+    const isPingTime = (now.getUTCHours() < (config.localSleepTime + config.serverUTCOffset) || now.getUTCHours() >= (config.localWakeTime + config.serverUTCOffset));
+    if (!shouldSleep || isPingTime) {
         console.log("Pinging server");
         http.get(config.serverURL);
     }

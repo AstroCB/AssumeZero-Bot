@@ -13,15 +13,20 @@ exports.owner = {
 };
 
 // Heroku settings
-
 // Bot server URL
 exports.serverURL = "http://assume-bot.herokuapp.com";
+
 // Whether the bot should sleep at night to preserve dyno hours
 // If not, it will ping the server every 20 min to keep it awake
 exports.shouldSleep = false;
-// Sleep settings (24h time)
+
+// What time the bot should sleep in your timezone
 exports.localSleepTime = 3;
+
+// What time the bot should wake up in your timezone
 exports.localWakeTime = 9;
+
+// Your server's UTC offset
 exports.serverUTCOffset = 5;
 
 // Time in seconds to ban users for Order 66
