@@ -168,6 +168,20 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         }
     } else if (co["psa"].m) { // This needs to be high up so that I can actually put commands in the PSA without triggering them
         sendToAll(`"${co["psa"].m[1]}"\n\nThis has been a public service announcement from ${config.owner.names.short}.`);
+    } else if (co["bug"].m) {
+        sendMessage(`-------BUG-------\nMessage: ${co["bug"].m[1]}\nSender: ${groupInfo.names[fromUserId]}\nTime: ${getTimeString()} (${getDateString()})\nGroup: ${groupInfo.name}\nID: ${groupInfo.threadId}\nInfo: ${JSON.stringify(groupInfo)}`, config.owner.id, (err) => {
+            if (!err) {
+                if (groupInfo.isGroup && !utils.contains(config.owner.id, groupInfo)) { // If is a group and owner is not in it, add
+                    sendMessage(`Report sent. Adding ${config.owner.names.short} to the chat for debugging purposes...`, groupInfo.threadId, () => {
+                        addUser(config.owner.id, groupInfo, false);
+                    });
+                } else { // Otherwise, just send confirmation
+                    sendMessage(`Report sent to ${config.owner.names.short}.`, groupInfo.threadId);
+                }
+            } else {
+                sendMessage(`Report could not be sent; please message ${config.owner.names.short} directly.`, groupInfo.threadId);
+            }
+        });
     } else if (co["kick"].m && co["kick"].m[1]) {
         const user = co["kick"].m[1].toLowerCase();
         const optTime = co["kick"].m[2] ? parseInt(co["kick"].m[2]) : undefined;
@@ -831,20 +845,6 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         }
         const mute = !(co["mute"].m[1]); // True if muting; false if unmuting
         setGroupProperty("muted", mute, groupInfo, getCallback(mute));
-    } else if (co["bug"].m) {
-        sendMessage(`-------BUG-------\nMessage: ${co["bug"].m[1]}\nSender: ${groupInfo.names[fromUserId]}\nTime: ${getTimeString()} (${getDateString()})\nGroup: ${groupInfo.name}\nID: ${groupInfo.threadId}\nInfo: ${JSON.stringify(groupInfo)}`, config.owner.id, (err) => {
-            if (!err) {
-                if (groupInfo.isGroup && !utils.contains(config.owner.id, groupInfo)) { // If is a group and owner is not in it, add
-                    sendMessage(`Report sent. Adding ${config.owner.names.short} to the chat for debugging purposes...`, groupInfo.threadId, () => {
-                        addUser(config.owner.id, groupInfo, false);
-                    });
-                } else { // Otherwise, just send confirmation
-                    sendMessage(`Report sent to ${config.owner.names.short}.`, groupInfo.threadId);
-                }
-            } else {
-                sendMessage(`Report could not be sent; please message ${config.owner.names.short} directly.`, groupInfo.threadId);
-            }
-        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
