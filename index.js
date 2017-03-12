@@ -848,8 +848,8 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["christen"].m) {
         api.changeNickname(co["christen"].m[1], threadId, ids.bot);
     } else if (co["wolfram"].m) {
-        const query = encodeURIComponent(co["wolfram"].m[1]);
-        request(`http://api.wolframalpha.com/v1/result?appid=${config.wolframKey}&i=${query}`, (err, res, body) => {
+        const query = co["wolfram"].m[1];
+        request(`http://api.wolframalpha.com/v1/result?appid=${config.wolframKey}&i=${encodeURIComponent(query)}`, (err, res, body) => {
             if (!(err || body == "Wolfram|Alpha did not understand your input")) {
                 sendMessage(body, threadId);
             } else {
