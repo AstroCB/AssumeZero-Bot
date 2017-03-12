@@ -159,7 +159,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 if (co.hasOwnProperty(c)) {
                     const entry = co[c];
                     // Only display short description if one exists
-                    mess += `${entry.syntax}${entry.short_description ? `: ${entry.short_description}` : ""}\n`
+                    mess += `${entry.syntax}${entry.short_description ? `: ${entry.short_description}` : ""}${entry.sudo ? " [ADMIN]" : ""}\n`
                     mess += "------------------\n"; // Suffix for separating commands
                 }
             }

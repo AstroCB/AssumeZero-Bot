@@ -109,7 +109,7 @@ exports.commands = {
     "playlist": {
         "display_names": ["add playlist", "playlist"],
         "pretty_name": "Playlist",
-        "short_description": "Add or update playlist",
+        "short_description": "Add/update playlist",
         "description": "Add or update playlist for the group – to find a playlist's URI (e.g. spotify:user:astrocb:playlist:05zXCuscrw1BW5NyeN45DB), right click on it and click 'Copy Spotify URI'",
         "syntax": "playlist {member} {playlist URI}",
         "sudo": false,
