@@ -850,7 +850,11 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["wolfram"].m) {
         const query = encodeURIComponent(co["wolfram"].m[1]);
         request(`http://api.wolframalpha.com/v1/result?appid=${config.wolframKey}&i=${query}`, (err, res, body) => {
-            sendMessage(body, threadId);
+            if (!err) {
+                sendMessage(body, threadId);
+            } else {
+                sendError(`No results found for "${query}"`, threadId);
+            }
         });
     }
 }
