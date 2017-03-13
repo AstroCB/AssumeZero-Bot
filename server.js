@@ -53,7 +53,7 @@ app.post("/command", (req, res) => {
 setInterval(() => {
     const now = new Date();
     const isPingTime = (now.getUTCHours() < (config.localSleepTime + config.serverUTCOffset) || now.getUTCHours() >= (config.localWakeTime + config.serverUTCOffset));
-    if (!shouldSleep || isPingTime) {
+    if (!config.shouldSleep || isPingTime) {
         console.log("Pinging server");
         http.get(config.serverURL);
     }
