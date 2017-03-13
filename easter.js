@@ -45,7 +45,7 @@ exports.handleEasterEggs = (message, fromUserId, groupInfo, api) => {
         if (message.match(/(?:\s|^)shaw|mechanics|electricity|magnetism|pulley|massless|friction|acceleration|torque|impulse/i)) {
             m.sendFile("media/shaw.png", threadId);
         }
-        const bac = m.matchesWithUser("(?:get|measure) bac(?:[^k]|$)", message, fromUserId, groupInfo, true, "");
+        const bac = m.matchesWithUser("(?:get|measure|check) bac(?:[^k]|$)", message, fromUserId, groupInfo, true, "");
         if (bac) {
             const name = bac[1] || "Yiyi";
             m.sendMessage(`${name.substring(0,1).toUpperCase() + name.substring(1)}'s BAC is far above healthy levels`, threadId);
