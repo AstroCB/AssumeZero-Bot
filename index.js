@@ -1006,6 +1006,10 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
             if (!existingInfo) {
                 // Group not yet registered
                 sendMessage("Hello! I'm AssumeZero Bot, but you can call me AØBøt. Give me a moment to collect some information about this chat before you use any commands.", threadId);
+                // Mute chat
+                api.muteThread(threadId, -1);
+                // Alert owner that new chat was added
+                sendMessage("Bot added to new chat", config.owner.id);
             }
             api.getThreadInfo(threadId, (err, data) => {
                 if (data) {

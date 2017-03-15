@@ -9,7 +9,7 @@ exports.owner = {
         "short": "Cameron",
         "long": "Cameron Bernhardt"
     },
-    "id": "100007016509302" // ID of bot owner (for secure commands and reports)
+    "id": "100007016509302" // ID of bot owner (for secure commands, reports, and alerts)
 };
 
 // Heroku settings
