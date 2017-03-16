@@ -12,9 +12,21 @@ exports.owner = {
     "id": "100007016509302" // ID of bot owner (for secure commands, reports, and alerts)
 };
 
-// Heroku settings
-// Bot server URL
-exports.serverURL = "http://assume-bot.herokuapp.com";
+// Bot information
+exports.bot = {
+  "names": {
+    "short": "AØBøt", // Will be used as 'nickname' in chat (remove if same as account name)
+    "long": "AssumeZero Bot" // Name displayed in profile on bot's Facebook account
+  },
+  "id": "100015168671225" // Bot's ID (for security purposes in commands)
+}
+
+// Heroku settings (might need to tweak some things if using another host)
+// App name
+exports.appName = "assume-bot";
+
+// Server URL
+exports.serverURL = `http://${exports.appName}.herokuapp.com`;
 
 // Whether the bot should sleep at night to preserve dyno hours
 // If not, it will ping the server every 20 min to keep it awake

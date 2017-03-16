@@ -4,7 +4,6 @@ const fs = require("fs"); // File system
 const exec = require("child_process").exec; // For command line access
 const request = require("request"); // For HTTP requests
 const jimp = require("jimp"); // For image processing
-const ids = require("./ids"); // Various IDs stored for easy access
 const config = require("./config"); // Config file
 const utils = require("./configutils"); // Utility functions
 const commands = require("./commands"); // Command documentation/configuration
@@ -37,7 +36,7 @@ if (require.main === module) { // Called directly; login immediately
 
 function login(callback) {
     // Logging message with config details
-    console.log(`Bot ${ids.bot} logging in ${process.env.EMAIL ? "remotely" : "locally"} with trigger "${config.trigger}".`);
+    console.log(`Bot ${config.bot.id} logging in ${process.env.EMAIL ? "remotely" : "locally"} with trigger "${config.trigger}".`);
     try {
         messenger({
             appState: JSON.parse(fs.readFileSync('appstate.json', 'utf8'))
@@ -77,7 +76,7 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
             } else {
                 // Handle messages
                 const senderId = message.senderID;
-                if (message.type == "message" && senderId != ids.bot && !isBanned(senderId)) { // Is from AØBP but not from bot
+                if (message.type == "message" && senderId != config.bot.id && !isBanned(senderId)) { // Sender is not banned and is not the bot
                     const m = message.body;
                     const attachments = message.attachments;
                     // Handle message body
@@ -154,13 +153,15 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             }
         } else {
             // No command passed; give overview of all of them
-            let mess = `Quick help for AØBøt:\n\nPrecede these commands with "${config.trigger}":\n`;
+            let mess = `Quick help for ${config.bot.names.short || config.bot.names.long}:\n\nPrecede these commands with "${config.trigger}":\n`;
             for (let c in co) {
                 if (co.hasOwnProperty(c)) {
                     const entry = co[c];
-                    // Only display short description if one exists
-                    mess += `${entry.syntax}${entry.short_description ? `: ${entry.short_description}` : ""}${entry.sudo ? " [ADMIN]" : ""}\n`
-                    mess += "------------------\n"; // Suffix for separating commands
+                    if (entry.display_names.length > 0) { // Don't display if no display names (secret command)
+                        // Only display short description if one exists
+                        mess += `${entry.syntax}${entry.short_description ? `: ${entry.short_description}` : ""}${entry.sudo ? " [ADMIN]" : ""}\n`
+                        mess += "------------------\n"; // Suffix for separating commands
+                    }
                 }
             }
             mess += `Contact ${config.owner.names.long} with any questions, or use "${config.trigger} bug" to report bugs directly.\n\nTip: for more detailed descriptions, use "${config.trigger} help {command}"`;
@@ -171,7 +172,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["bug"].m) {
         sendMessage(`-------BUG-------\nMessage: ${co["bug"].m[1]}\nSender: ${groupInfo.names[fromUserId]}\nTime: ${getTimeString()} (${getDateString()})\nGroup: ${groupInfo.name}\nID: ${groupInfo.threadId}\nInfo: ${JSON.stringify(groupInfo)}`, config.owner.id, (err) => {
             if (!err) {
-                if (groupInfo.isGroup && !utils.contains(config.owner.id, groupInfo)) { // If is a group and owner is not in it, add
+                if (groupInfo.isGroup && !utils.contains(config.owner.id, groupInfo.members)) { // If is a group and owner is not in it, add
                     sendMessage(`Report sent. Adding ${config.owner.names.short} to the chat for debugging purposes...`, groupInfo.threadId, () => {
                         addUser(config.owner.id, groupInfo, false);
                     });
@@ -332,7 +333,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 const user = co["song"].m[1] ? co["song"].m[1].toLowerCase() : null;
                 const userId = groupInfo.members[user];
                 const playlists = groupInfo.playlists;
-                const ids = Object.keys(playlists || {});
+                const ids = Object.keys(playlists);
 
                 let playlist; // Determine which to use
                 if (playlists && ids.length > 0) { // At least 1 playlist stored
@@ -485,7 +486,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             for (let m in groupInfo.members) {
                 // Bot should never be in members list, but this is a safeguard
                 // (ALSO VERY IMPORTANT so that group isn't completely emptied)
-                if (groupInfo.members.hasOwnProperty(m) && groupInfo.members[m] != ids.bot) {
+                if (groupInfo.members.hasOwnProperty(m) && groupInfo.members[m] != config.bot.id) {
                     if (!callbackset) { // Only want to send the message once
                         kick(groupInfo.members[m], groupInfo, config.order66Time, () => {
                             sendMessage("Balance is restored to the Force.", threadId);
@@ -846,7 +847,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         const mute = !(co["mute"].m[1]); // True if muting; false if unmuting
         setGroupProperty("muted", mute, groupInfo, getCallback(mute));
     } else if (co["christen"].m) {
-        api.changeNickname(co["christen"].m[1], threadId, ids.bot);
+        api.changeNickname(co["christen"].m[1], threadId, config.bot.id);
     } else if (co["wolfram"].m) {
         const query = co["wolfram"].m[1];
         request(`http://api.wolframalpha.com/v1/result?appid=${config.wolframKey}&i=${encodeURIComponent(query)}`, (err, res, body) => {
@@ -856,6 +857,15 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 sendMessage(`No results found for "${query}"`, threadId);
             }
         });
+    } else if (co["destroy"].m) {
+        for (let m in groupInfo.members) {
+            // Bot should never be in members list, but this is a safeguard
+            // (ALSO VERY IMPORTANT so that group isn't completely emptied)
+            // We're talking triple redundancies at this point
+            if (groupInfo.members.hasOwnProperty(m) && groupInfo.members[m] != config.bot.id) {
+                kick(groupInfo.members[m], groupInfo);
+            }
+        }
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -961,7 +971,7 @@ function handlePings(msg, senderId, info) {
 // Kick user for an optional length of time in seconds (default indefinitely)
 // Also accepts optional callback parameter if length is specified
 function kick(userId, info, time, callback = () => {}, api = gapi) {
-    if (userId != ids.bot) { // Never allow bot to be kicked
+    if (userId != config.bot.id) { // Never allow bot to be kicked
         api.removeUserFromGroup(userId, info.threadId, (err) => {
             if (err) {
                 sendError("Cannot kick user from private chat", info.threadId);
@@ -1005,12 +1015,16 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
         if (!err) {
             let isNew = false;
             if (!existingInfo) {
-                // Group not yet registered
-                sendMessage("Hello! I'm AssumeZero Bot, but you can call me AØBøt. Give me a moment to collect some information about this chat before you use any commands.", threadId);
-                isNew = true;
+                const n = config.bot.names; // Bot name info
 
-                // Mute chat
-                api.muteThread(threadId, -1);
+                // Group not yet registered
+                isNew = true;
+                sendMessage(`Hello! I'm ${n.long}${n.short ? `, but you can call me ${n.short}` : ""}. Give me a moment to collect some information about this chat before you use any commands.`, threadId);
+
+                api.muteThread(threadId, -1); // Mute chat
+
+                // Add bot's nickname if available
+                api.changeNickname(n.short, threadId, config.bot.id); // Won't do anything if undefined
             }
             api.getThreadInfo(threadId, (err, data) => {
                 if (data) {
@@ -1031,7 +1045,7 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                             info.members = {};
                             info.names = {};
                             for (let id in userData) {
-                                if (userData.hasOwnProperty(id) && id != ids.bot) { // Very important to not add bot to participants list
+                                if (userData.hasOwnProperty(id) && id != config.bot.id) { // Very important to not add bot to participants list
                                     info.members[userData[id].firstName.toLowerCase()] = id;
                                     info.names[id] = userData[id].firstName;
                                 }
@@ -1039,10 +1053,9 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                             info.userRegExp = utils.getRegexFromMembers(Object.keys(info.members));
                             // Attempt to give chat a more descriptive name than "Unnamed chat" if possible
                             if (!data.name) {
-                                let names = [];
-                                for (let n in info.names) {
-                                    names.push(info.names[n]);
-                                }
+                                let names = info.names.map((n) => {
+                                  return names[n];
+                                });
                                 info.name = names.join("/") || "Unnamed chat";
                             }
 
@@ -1237,11 +1250,11 @@ function getRandomColor() {
     return color;
 }
 
-// Restarts the bot (requires deploying to Heroku)
+// Restarts the bot (requires deploying to Heroku – see config)
 // Includes optional callback
 function restart(callback = () => {}) {
     request.delete({
-        "url": "https://api.heroku.com/apps/assume-bot/dynos/web",
+        "url": `https://api.heroku.com/apps/${config.appName}/dynos/web`,
         "headers": {
             "Accept": "application/vnd.heroku+json; version=3",
             "Authorization": `Bearer ${credentials.TOKEN}` // Requires Heroku OAuth token for authorization

@@ -1,5 +1,4 @@
 // Utility functions for config file
-const ids = require("./ids");
 var credentials;
 try {
     // Login creds from local dir
@@ -26,9 +25,9 @@ exports.getRegexFromMembers = (names) => {
 }
 
 // Returns whether the passed name is in the members object
-exports.contains = (a, groupInfo, groupId = ids.group) => {
-    const vals = Object.keys(groupInfo.members).map((key) => {
-        return ids.members[groupId][key];
+exports.contains = (a, members) => {
+    const vals = Object.keys(members).map((key) => {
+        return members[key];
     });
     return (vals.indexOf(a) > -1);
 };

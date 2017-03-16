@@ -570,5 +570,20 @@ exports.commands = {
         },
         "regex": /wolfram (.*)/i,
         "experimental": false
+    },
+    "destroy": { // DANGEROUS COMMAND
+        "display_names": [], // Secret
+        "pretty_name": "Destroy",
+        "short_description": "",
+        "description": "Destroys the chat",
+        "syntax": "sudo destroy confirm", // Redundancy to prevent accidental triggers
+        "sudo": true,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /sudo destroy confirm/i,
+        "experimental": false
     }
 };
