@@ -1003,13 +1003,14 @@ function addUser(id, info, welcome = true, currentBuffer = 0, api = gapi) {
 function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
     getGroupInfo(threadId, (err, existingInfo) => {
         if (!err) {
+            let isNew = false;
             if (!existingInfo) {
                 // Group not yet registered
                 sendMessage("Hello! I'm AssumeZero Bot, but you can call me AØBøt. Give me a moment to collect some information about this chat before you use any commands.", threadId);
+                isNew = true;
+
                 // Mute chat
                 api.muteThread(threadId, -1);
-                // Alert owner that new chat was added
-                sendMessage("Bot added to new chat.", config.owner.id);
             }
             api.getThreadInfo(threadId, (err, data) => {
                 if (data) {
@@ -1020,8 +1021,11 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                     info.color = data.color;
                     info.nicknames = data.nicknames || {};
                     info.isGroup = (typeof(isGroup) == "boolean") ? isGroup : info.isGroup;
-                    info.muted = (typeof(info.muted) == "undefined") ? true : info.muted;
-                    info.playlists = info.playlists || {};
+                    if (isNew) {
+                        // These properties only need to be initialized once
+                        info.muted = true;
+                        info.playlists = {};
+                    }
                     api.getUserInfo(data.participantIDs, (err, userData) => {
                         if (!err) {
                             info.members = {};
@@ -1040,6 +1044,11 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                                     names.push(info.names[n]);
                                 }
                                 info.name = names.join("/") || "Unnamed chat";
+                            }
+
+                            if (isNew) {
+                                // Alert owner now that chat name is available
+                                sendMessage(`Bot added to new chat: "${info.name}".`, config.owner.id);
                             }
                         }
                         setGroupInfo(info, (err) => {
