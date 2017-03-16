@@ -1009,7 +1009,7 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                 // Mute chat
                 api.muteThread(threadId, -1);
                 // Alert owner that new chat was added
-                sendMessage("Bot added to new chat", config.owner.id);
+                sendMessage("Bot added to new chat.", config.owner.id);
             }
             api.getThreadInfo(threadId, (err, data) => {
                 if (data) {
