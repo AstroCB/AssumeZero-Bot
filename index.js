@@ -512,7 +512,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 }
             }, 2000); // Make sure people see the message (and impending doom)
         } else {
-            sendMessage("Cannot execute Order 66 on a non-group chat. You're safe for now, Master Jedi.", threadId);
+            sendMessage("Cannot execute Order 66 on a non-group chat. Safe for now, you are, Master Jedi.", threadId);
         }
     } else if (co["setcolor"].m) {
         if (co["setcolor"].m[1]) { // Reset
