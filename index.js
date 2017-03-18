@@ -492,24 +492,28 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["order66"].m) {
         // Remove everyone from the chat for configurable amount of time (see config.js)
         // Use stored threadId in case it changes later (very important)
-        sendMessage("I hate you all.", threadId);
-        setTimeout(() => {
-            let callbackset = false;
-            for (let m in groupInfo.members) {
-                // Bot should never be in members list, but this is a safeguard
-                // (ALSO VERY IMPORTANT so that group isn't completely emptied)
-                if (groupInfo.members.hasOwnProperty(m) && groupInfo.members[m] != config.bot.id) {
-                    if (!callbackset) { // Only want to send the message once
-                        kick(groupInfo.members[m], groupInfo, config.order66Time, () => {
-                            sendMessage("Balance is restored to the Force.", threadId);
-                        });
-                        callbackset = true;
-                    } else {
-                        kick(groupInfo.members[m], groupInfo, config.order66Time);
+        if (groupInfo.isGroup) {
+            sendMessage("I hate you all.", threadId);
+            setTimeout(() => {
+                let callbackset = false;
+                for (let m in groupInfo.members) {
+                    // Bot should never be in members list, but this is a safeguard
+                    // (ALSO VERY IMPORTANT so that group isn't completely emptied)
+                    if (groupInfo.members.hasOwnProperty(m) && groupInfo.members[m] != config.bot.id) {
+                        if (!callbackset) { // Only want to send the message once
+                            kick(groupInfo.members[m], groupInfo, config.order66Time, () => {
+                                sendMessage("Balance is restored to the Force.", threadId);
+                            });
+                            callbackset = true;
+                        } else {
+                            kick(groupInfo.members[m], groupInfo, config.order66Time);
+                        }
                     }
                 }
-            }
-        }, 2000); // Make sure people see the message (and impending doom)
+            }, 2000); // Make sure people see the message (and impending doom)
+        } else {
+            sendMessage("Cannot execute Order 66 on a non-group chat. You're safe for now, Master Jedi.", threadId);
+        }
     } else if (co["setcolor"].m) {
         if (co["setcolor"].m[1]) { // Reset
             api.changeThreadColor(groupInfo.color, threadId);
