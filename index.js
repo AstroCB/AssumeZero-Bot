@@ -134,6 +134,10 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 // Set match to null to prevent checking issues
                 co[c].m = null;
             }
+            // Update usage statistics if command is matched
+            if (co[c].m) {
+                updateStats(c);
+            }
         }
     }
     debugCommandOutput(false);
@@ -147,7 +151,15 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             // Give details of specific command
             const info = getHelpEntry(input, co);
             if (info) {
-                sendMessage(`Entry for command "${info.pretty_name}":\n${info.description}\n\nSyntax: ${config.trigger} ${info.syntax}${info.attachments ? "\n\n(This command accepts attachments)" : ""}${info.sudo ? "\n\n(This command requires admin privileges)" : ""}${info.experimental ? "\n\n(This command is experimental)" : ""}`, threadId);
+                const helpMsg = `Entry for command "${info.pretty_name}":\n${info.description}\n\nSyntax: ${config.trigger} ${info.syntax}`;
+                const addenda = `${info.attachments ? "\n\n(This command accepts attachments)" : ""}${info.sudo ? "\n\n(This command requires admin privileges)" : ""}${info.experimental ? "\n\n(This command is experimental)" : ""}`;
+                getStats(input, (err, stats) => {
+                    if (err) { // Couldn't retrieve stats; just show help message
+                        sendMessage(`${helpMsg}${addenda}`, threadId);
+                    } else {
+                        sendMessage(`${helpMsg}\n\nThis command has been used ${stats.count} ${stats.count == 1 ? "time" : "times"}, representing ${(((stats.count * 1.0) / stats.total) * 100).toFixed(3)}% of all invocations.${addenda}`, threadId);
+                    }
+                });
             } else {
                 sendError(`Help entry not found for ${input}`, threadId);
             }
@@ -1054,7 +1066,7 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                             // Attempt to give chat a more descriptive name than "Unnamed chat" if possible
                             if (!data.name) {
                                 let names = info.names.map((n) => {
-                                  return names[n];
+                                    return names[n];
                                 });
                                 info.name = names.join("/") || "Unnamed chat";
                             }
@@ -1427,3 +1439,45 @@ function sendFilesFromDir(dir, threadId) {
     });
 }
 exports.sendFilesFromDir = sendFilesFromDir;
+
+// Retrieve usage stats for a command from memory
+// Takes a command string and optional callback, which passes an object
+// containing both the count for that command and the total number of commands
+function getStats(command, callback = () => {}) {
+    mem.get(`usage_total_${command}`, (err, count) => {
+        mem.get(`usage_total_all`, (err, total) => {
+            if (!err) {
+                callback(null, {
+                    "count": (parseInt(count) || 0),
+                    "total": (parseInt(total) || 0)
+                });
+            } else {
+                callback(err);
+            }
+        });
+    });
+}
+
+// Updates the usage stats for a command in memory
+// Takes a command string and an object with `count` and `total` fields
+// (i.e. the output from `getStats()`)
+function setStats(command, stats, callback = () => {}) {
+    mem.set(`usage_total_all`, `${stats.total}`, (t_err, success) => {
+        mem.set(`usage_total_${command}`, `${stats.count}`, (c_err, success) => {
+            callback(t_err, c_err);
+        });
+    });
+}
+
+// Increments the usage statistics for a particular command
+function updateStats(command, callback = () => {}) {
+    getStats(command, (err, stats) => {
+        if (!err) {
+            stats.count++;
+            stats.total++;
+            setStats(command, stats, callback);
+        } else {
+            callback(err);
+        }
+    })
+}
