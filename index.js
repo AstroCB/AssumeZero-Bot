@@ -725,14 +725,14 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         }
         api.createPoll(title, threadId, optsObj, (err) => {
             if (err) {
-                sendError("Cannot create a poll in a non-group chat", threadId);
+                sendError("Cannot create a poll in a non-group chat.", threadId);
             }
         });
     } else if (co["title"].m && co["title"].m[1]) {
         const title = co["title"].m[1];
         api.setTitle(title, threadId, (err) => {
             if (err) {
-                sendError("Cannot set title for non-group chats", threadId);
+                sendError("Cannot set title for non-group chats.", threadId);
             }
         });
     } else if (co["answer"].m) {
