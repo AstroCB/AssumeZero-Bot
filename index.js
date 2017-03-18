@@ -149,11 +149,12 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         }
         if (input && input.length > 0) {
             // Give details of specific command
-            const info = getHelpEntry(input, co);
-            if (info) {
+            const entry = getHelpEntry(input, co);
+            if (entry) {
+                const info = entry.entry;
                 const helpMsg = `Entry for command "${info.pretty_name}":\n${info.description}\n\nSyntax: ${config.trigger} ${info.syntax}`;
                 const addenda = `${info.attachments ? "\n\n(This command accepts attachments)" : ""}${info.sudo ? "\n\n(This command requires admin privileges)" : ""}${info.experimental ? "\n\n(This command is experimental)" : ""}`;
-                getStats(input, (err, stats) => {
+                getStats(entry.key, (err, stats) => {
                     if (err) { // Couldn't retrieve stats; just show help message
                         sendMessage(`${helpMsg}${addenda}`, threadId);
                     } else {
@@ -1148,14 +1149,18 @@ function setGroupProperty(key, value, info, callback = () => {}) {
     });
 }
 
-// Searches help for a given entry
+// Searches help for a given entry and returns an object containing the entry
+// and its key if found
 function getHelpEntry(input, log) {
     for (let c in log) {
         if (log.hasOwnProperty(c)) {
             const names = log[c].display_names;
             for (let i = 0; i < names.length; i++) {
                 if (input == names[i]) {
-                    return log[c];
+                    return {
+                        "key": c,
+                        "entry": log[c]
+                    };
                 }
             }
         }
