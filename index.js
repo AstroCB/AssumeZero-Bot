@@ -136,7 +136,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             }
             // Update usage statistics if command is matched
             if (co[c].m) {
-                updateStats(c);
+                updateStats(c, fromUserId);
             }
         }
     }
@@ -154,11 +154,12 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 const info = entry.entry;
                 const helpMsg = `Entry for command "${info.pretty_name}":\n${info.description}\n\nSyntax: ${config.trigger} ${info.syntax}`;
                 const addenda = `${info.attachments ? "\n\n(This command accepts attachments)" : ""}${info.sudo ? "\n\n(This command requires admin privileges)" : ""}${info.experimental ? "\n\n(This command is experimental)" : ""}`;
-                getStats(entry.key, (err, stats) => {
+                getStats(entry.key, false, (err, stats) => {
                     if (err) { // Couldn't retrieve stats; just show help message
                         sendMessage(`${helpMsg}${addenda}`, threadId);
                     } else {
-                        sendMessage(`${helpMsg}\n\nThis command has been used ${stats.count} ${stats.count == 1 ? "time" : "times"}, representing ${(((stats.count * 1.0) / stats.total) * 100).toFixed(3)}% of all invocations.${addenda}`, threadId);
+                        const perc = (((stats.count * 1.0) / stats.total) * 100) || 0;
+                        sendMessage(`${helpMsg}\n\nThis command has been used ${stats.count} ${stats.count == 1 ? "time" : "times"}, representing ${perc.toFixed(3)}% of all invocations.${addenda}`, threadId);
                     }
                 });
             } else {
@@ -180,6 +181,54 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             mess += `Contact ${config.owner.names.long} with any questions, or use "${config.trigger} bug" to report bugs directly.\n\nTip: for more detailed descriptions, use "${config.trigger} help {command}"`;
             sendMessage(mess, threadId);
         }
+    } else if (co["stats"].m) {
+        const command = co["stats"].m[1];
+        getStats(command, true, (err, stats) => {
+            let input;
+            if (co["stats"].m[1]) {
+                input = co["stats"].m[1].trim().toLowerCase();
+            }
+            if (input && input.length > 0) {
+                // Give details of specific command
+                const entry = getHelpEntry(input, co);
+                if (entry) {
+                    const key = entry.key;
+                    const info = entry.entry;
+                    getStats(key, true, (err, stats) => {
+                        if (!err) {
+                            const perc = (((stats.count * 1.0) / stats.total) * 100) || 0;
+                            let m = `'${info.pretty_name}' has been used ${stats.count} ${stats.count == 1 ? "time" : "times"} out of a total of ${stats.total} ${stats.total == 1 ? "call" : "calls"}, representing ${perc.toFixed(3)}% of all bot invocations.`;
+
+                            // Time scopes
+                            const dayMarker = new Date();
+                            dayMarker.setDate(dayMarker.getDate() - 1); // Last day
+                            const monthMarker = new Date();
+                            monthMarker.setMonth(monthMarker.getMonth() - 1); // Last month
+
+                            const dateRecords = narrowedWithinTime(stats.record, dayMarker) // All command calls within the last day
+                            const monthRecords = narrowedWithinTime(stats.record, monthMarker) // All command calls within the last month
+
+                            const date = dateRecords ? dateRecords.length : 0;
+                            const month = monthRecords ? monthRecords.length : 0;
+
+                            m += `\n\nIt was used ${date} ${date == 1 ? "time" : "times"} within the last day and ${month} ${month == 1 ? "time" : "times"} within the last month.`;
+
+                            const user = getHighestUser(stats.record);
+                            if (user) { // Found a user with highest usage
+                                const name = groupInfo.names[user] || "not in this group";
+                                m += `\n\nIts most prolific user is ${name}.`
+                            }
+
+                            sendMessage(m, threadId);
+                        }
+                    });
+                } else {
+                    sendError(`Help entry not found for ${input}`, threadId);
+                }
+            } else {
+                // No command passed
+            }
+        });
     } else if (co["psa"].m) { // This needs to be high up so that I can actually put commands in the PSA without triggering them
         sendToAll(`"${co["psa"].m[1]}"\n\nThis has been a public service announcement from ${config.owner.names.short}.`);
     } else if (co["bug"].m) {
@@ -883,6 +932,8 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 kick(groupInfo.members[m], groupInfo);
             }
         }
+    } else if (co["clearstats"].m) {
+        resetStats();
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -1450,16 +1501,31 @@ function sendFilesFromDir(dir, threadId) {
 exports.sendFilesFromDir = sendFilesFromDir;
 
 // Retrieve usage stats for a command from memory
-// Takes a command string and optional callback, which passes an object
-// containing both the count for that command and the total number of commands
-function getStats(command, callback = () => {}) {
+// Takes a command string, a fullData flag, and optional callback
+// The callback passes an object containing the count for that command,
+// the total number of commands and, if the fullData flag is true, a log of
+// all the command's uses with an "at" timestamp and the "user" of the invoker
+// for each command as an array of dictionaries with these properties
+function getStats(command, fullData, callback = () => {}) {
     mem.get(`usage_total_${command}`, (err, count) => {
         mem.get(`usage_total_all`, (err, total) => {
             if (!err) {
-                callback(null, {
+                let stats = {
                     "count": (parseInt(count) || 0),
                     "total": (parseInt(total) || 0)
-                });
+                };
+                if (fullData) {
+                    mem.get(`usage_record_${command}`, (err, record) => {
+                        if (!err) {
+                            stats.record = (JSON.parse(record) || []);
+                            callback(null, stats);
+                        } else {
+                            callback(err);
+                        }
+                    });
+                } else {
+                    callback(null, stats);
+                }
             } else {
                 callback(err);
             }
@@ -1468,25 +1534,96 @@ function getStats(command, callback = () => {}) {
 }
 
 // Updates the usage stats for a command in memory
-// Takes a command string and an object with `count` and `total` fields
-// (i.e. the output from `getStats()`)
+// Takes a command string and a stats object with `count`, `total`, and
+// `record` fields (i.e. the output from `getStats()` with the `fullData`
+// flag set to true)
 function setStats(command, stats, callback = () => {}) {
     mem.set(`usage_total_all`, `${stats.total}`, (t_err, success) => {
         mem.set(`usage_total_${command}`, `${stats.count}`, (c_err, success) => {
-            callback(t_err, c_err);
+            mem.set(`usage_record_${command}`, `${JSON.stringify(stats.record)}`, (u_err, success) => {
+                callback(t_err, c_err, u_err);
+            });
         });
     });
 }
 
-// Increments the usage statistics for a particular command
-function updateStats(command, callback = () => {}) {
-    getStats(command, (err, stats) => {
+// Updates the usage statistics for a particular command (takes command name and
+// sending user's ID)
+function updateStats(command, senderID, callback = () => {}) {
+    getStats(command, true, (err, stats) => {
         if (!err) {
             stats.count++;
             stats.total++;
+            stats.record.push({
+                "at": (new Date()).toISOString(),
+                "user": senderID
+            });
             setStats(command, stats, callback);
         } else {
             callback(err);
         }
     })
+}
+
+// Clears the stats to start over
+function resetStats() {
+    const co = commands.commands;
+    for (let c in co) {
+        if (co.hasOwnProperty(c)) {
+            setStats(c, {
+                "count": 0,
+                "total": 0,
+                "record": []
+            })
+        }
+    }
+}
+
+// Outputs the statistics data for debugging/analysis
+function logStats() {
+    const co = commands.commands;
+    for (let c in co) {
+        if (co.hasOwnProperty(c)) {
+            getStats(c, true, (err, stats) => {
+                console.log(`${c}: ${stats.count}/${stats.total}`);
+                for (let i = 0; i < stats.record.length; i++) {
+                    console.log(stats.record[i]);
+                }
+            });
+        }
+    }
+}
+
+// Returns the passed list of record objects narrowed to those within the
+// specified time period
+function narrowedWithinTime(record, marker) {
+    return record.map((val) => {
+        if (new Date(val.at) > marker) {
+            return val;
+        }
+    });
+}
+
+// Gets the most active user of a given command using its passed records
+function getHighestUser(record) {
+    let usageMap = {}; // Map userIDs to number of invocations
+    for (let i = 0; i < record.length; i++) {
+        const id = record[i].user;
+        if (!usageMap[id]) {
+            usageMap[id] = 0;
+        }
+        usageMap[id]++;
+    }
+
+    let maxNum = 0;
+    let maxUser;
+    for (let u in usageMap) {
+        if (usageMap.hasOwnProperty(u)) {
+            if (usageMap[u] > maxNum) {
+                maxNum = usageMap[u];
+                maxUser = u;
+            }
+        }
+    }
+    return maxUser;
 }

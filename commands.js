@@ -16,6 +16,21 @@ exports.commands = {
         "regex": /help(.*)/i,
         "experimental": false
     },
+    "stats": {
+        "display_names": ["stats"],
+        "pretty_name": "Stats",
+        "short_description": "Get command/user stats",
+        "description": "Displays information about command or user usage",
+        "syntax": "stats {command}",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /stats (.*)/i,
+        "experimental": false
+    },
     "psa": {
         "display_names": ["psa"],
         "pretty_name": "PSA",
@@ -584,6 +599,21 @@ exports.commands = {
             "optional": false
         },
         "regex": /sudo destroy confirm/i,
+        "experimental": false
+    },
+    "clearstats": {
+        "display_names": ["clear stats"],
+        "pretty_name": "Clear Stats",
+        "short_description": "",
+        "description": "Wipes usage statistics to start over",
+        "syntax": "clear stats",
+        "sudo": true,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /clear stats/i,
         "experimental": false
     }
 };
