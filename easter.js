@@ -143,7 +143,7 @@ exports.handleEasterEggs = (message, fromUserId, groupInfo, api) => {
             m.sendFile("media/disappoint.jpg", threadId);
         }
         if (message.match(/flash/i)) {
-            m.sendFile("flash.mp3", threadId)
+            m.sendFile("media/flash.mp3", threadId)
         }
     }
 }
