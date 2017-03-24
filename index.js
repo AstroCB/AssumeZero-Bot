@@ -198,7 +198,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                         if (!err) {
                             stats = getExpandedStats(stats);
                             let m = `'${info.pretty_name}' has been used ${stats.count} ${stats.count == 1 ? "time" : "times"} out of a total of ${stats.total} ${stats.total == 1 ? "call" : "calls"}, representing ${stats.usage.perc.toFixed(3)}% of all bot invocations.`;
-                            m += `\n\nIt was used ${stats.usage.date} ${stats.usage.date == 1 ? "time" : "times"} within the last day and ${stats.usage.month} ${stats.usage.month == 1 ? "time" : "times"} within the last month.`;
+                            m += `\n\nIt was used ${stats.usage.day} ${stats.usage.day == 1 ? "time" : "times"} within the last day and ${stats.usage.month} ${stats.usage.month == 1 ? "time" : "times"} within the last month.`;
 
                             const user = getHighestUser(stats.record);
                             if (user) { // Found a user with highest usage
