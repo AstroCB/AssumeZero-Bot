@@ -1260,7 +1260,7 @@ exports.sendFile = sendFile;
 
 // Returns a string of the current time in EST
 function getTimeString() {
-    const offset = -5; // Eastern
+    const offset = -4; // Eastern
     const d = new Date();
     const utc = d.getTime() + (d.getTimezoneOffset() * 600000); // UTC milliseconds since 1970
     const eastern = new Date(utc + (offset * 60 * 60000));
