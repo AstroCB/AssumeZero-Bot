@@ -14,11 +14,11 @@ exports.owner = {
 
 // Bot information
 exports.bot = {
-  "names": {
-    "short": "AØBøt", // Will be used as 'nickname' in chat (remove if same as account name)
-    "long": "AssumeZero Bot" // Name displayed in profile on bot's Facebook account
-  },
-  "id": "100015168671225" // Bot's ID (for security purposes in commands)
+    "names": {
+        "short": "AØBøt", // Will be used as 'nickname' in chat (remove if same as account name)
+        "long": "AssumeZero Bot" // Name displayed in profile on bot's Facebook account
+    },
+    "id": "100015168671225" // Bot's ID (for security purposes in commands)
 }
 
 // Heroku settings (might need to tweak some things if using another host)
@@ -106,3 +106,6 @@ exports.defaultRNGBounds = [1, 100];
 
 // API Key for the "wolfram" command
 exports.wolframKey = "P7JV58-H3923PPTGR";
+
+// Timeout in milliseconds for gathering all statistics
+exports.statsTimeout = 5000;

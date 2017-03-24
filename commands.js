@@ -28,7 +28,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /stats (.*)/i,
+        "regex": /stats(.*)/i,
         "experimental": false
     },
     "psa": {
@@ -603,7 +603,7 @@ exports.commands = {
     },
     "clearstats": {
         "display_names": ["clear stats"],
-        "pretty_name": "Clear Stats",
+        "pretty_name": "Clear stats",
         "short_description": "",
         "description": "Wipes usage statistics to start over",
         "syntax": "clear stats",

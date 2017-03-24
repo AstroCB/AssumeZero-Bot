@@ -196,22 +196,9 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                     const info = entry.entry;
                     getStats(key, true, (err, stats) => {
                         if (!err) {
-                            const perc = (((stats.count * 1.0) / stats.total) * 100) || 0;
-                            let m = `'${info.pretty_name}' has been used ${stats.count} ${stats.count == 1 ? "time" : "times"} out of a total of ${stats.total} ${stats.total == 1 ? "call" : "calls"}, representing ${perc.toFixed(3)}% of all bot invocations.`;
-
-                            // Time scopes
-                            const dayMarker = new Date();
-                            dayMarker.setDate(dayMarker.getDate() - 1); // Last day
-                            const monthMarker = new Date();
-                            monthMarker.setMonth(monthMarker.getMonth() - 1); // Last month
-
-                            const dateRecords = narrowedWithinTime(stats.record, dayMarker) // All command calls within the last day
-                            const monthRecords = narrowedWithinTime(stats.record, monthMarker) // All command calls within the last month
-
-                            const date = dateRecords ? dateRecords.length : 0;
-                            const month = monthRecords ? monthRecords.length : 0;
-
-                            m += `\n\nIt was used ${date} ${date == 1 ? "time" : "times"} within the last day and ${month} ${month == 1 ? "time" : "times"} within the last month.`;
+                            stats = getExpandedStats(stats);
+                            let m = `'${info.pretty_name}' has been used ${stats.count} ${stats.count == 1 ? "time" : "times"} out of a total of ${stats.total} ${stats.total == 1 ? "call" : "calls"}, representing ${stats.usage.perc.toFixed(3)}% of all bot invocations.`;
+                            m += `\n\nIt was used ${stats.usage.date} ${stats.usage.date == 1 ? "time" : "times"} within the last day and ${stats.usage.month} ${stats.usage.month == 1 ? "time" : "times"} within the last month.`;
 
                             const user = getHighestUser(stats.record);
                             if (user) { // Found a user with highest usage
@@ -223,10 +210,29 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                         }
                     });
                 } else {
-                    sendError(`Help entry not found for ${input}`, threadId);
+                    sendError(`Entry not found for ${input}`, threadId);
                 }
             } else {
-                // No command passed
+                // No command passed; show all
+                getAllStats((success, data) => {
+                    if (!success) {
+                        console.log("Failed to retrieve all stats")
+                    }
+                    for (let i = 0; i < data.length; i++) {
+                        data[i].stats = getExpandedStats(data[i].stats); // Get usage stats for sorting
+                    }
+                    data = data.sort((a, b) => {
+                        return (b.stats.usage.perc - a.stats.usage.perc); // Sort greatest to least
+                    })
+
+                    let msg = "Command: % of total usage | # today | # this month\n";
+
+                    data.forEach((co) => {
+                        msg += `\n${co.pretty_name}: ${co.stats.usage.perc.toFixed(3)}% | ${co.stats.usage.day} | ${co.stats.usage.month}`;
+                    });
+
+                    sendMessage(msg, threadId);
+                });
             }
         });
     } else if (co["psa"].m) { // This needs to be high up so that I can actually put commands in the PSA without triggering them
@@ -1514,7 +1520,7 @@ exports.sendFilesFromDir = sendFilesFromDir;
 // the total number of commands and, if the fullData flag is true, a log of
 // all the command's uses with an "at" timestamp and the "user" of the invoker
 // for each command as an array of dictionaries with these properties
-function getStats(command, fullData, callback = () => {}) {
+function getStats(command, fullData, callback) {
     mem.get(`usage_total_${command}`, (err, count) => {
         mem.get(`usage_total_all`, (err, total) => {
             if (!err) {
@@ -1553,6 +1559,39 @@ function setStats(command, stats, callback = () => {}) {
             });
         });
     });
+}
+
+function getAllStats(callback) {
+    const co = commands.commands;
+    const names = Object.keys(co).filter((c) => {
+        return (co[c].display_names.length > 0); // Don't show secret commands
+    });
+    let results = [];
+    let now = current = (new Date()).getTime();
+
+    function updateResults(value) {
+        results.push(value);
+
+        const success = (results.length == names.length);
+        current = (new Date()).getTime();
+
+        if (success || (current - now) >= config.statsTimeout) {
+            callback(success, results)
+        }
+    }
+
+    for (let i = 0; i < names.length; i++) {
+        let key = names[i];
+        getStats(key, true, (err, stats) => {
+            if (!err) {
+                updateResults({
+                    "key": key,
+                    "pretty_name": co[key].pretty_name,
+                    "stats": stats
+                });
+            }
+        });
+    }
 }
 
 // Updates the usage statistics for a particular command (takes command name and
@@ -1634,4 +1673,28 @@ function getHighestUser(record) {
         }
     }
     return maxUser;
+}
+/* Given a stats object, it adds a `usage` field containing the following:
+  `perc`: Percentage of total usage
+  `day`: # of times used in the last day
+  `month`: # of times used in the last month
+*/
+function getExpandedStats(stats) {
+    const usage = {};
+    usage.perc = (((stats.count * 1.0) / stats.total) * 100) || 0;
+
+    // Time scopes
+    const dayMarker = new Date();
+    dayMarker.setDate(dayMarker.getDate() - 1); // Last day
+    const monthMarker = new Date();
+    monthMarker.setMonth(monthMarker.getMonth() - 1); // Last month
+
+    const dateRecords = narrowedWithinTime(stats.record, dayMarker) // All command calls within the last day
+    const monthRecords = narrowedWithinTime(stats.record, monthMarker) // All command calls within the last month
+
+    usage.day = dateRecords ? dateRecords.length : 0;
+    usage.month = monthRecords ? monthRecords.length : 0;
+
+    stats.usage = usage;
+    return stats;
 }
