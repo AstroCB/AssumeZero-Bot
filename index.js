@@ -630,7 +630,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             }
         });
     } else if (co["alive"].m) {
-        sendEmoji(groupInfo);
+        sendGroupEmoji(groupInfo, "large");
     } else if (co["setemoji"].m) {
         if (co["setemoji"].m[1]) {
             // Reset
@@ -1219,8 +1219,16 @@ function getHelpEntry(input, log) {
 }
 
 // Wrapper for sending an emoji to the group quickly
-function sendEmoji(groupInfo, api = gapi) {
-    sendMessage(groupInfo.emoji || config.defaultEmoji, groupInfo.threadId);
+function sendGroupEmoji(groupInfo, size = "medium") {
+    sendEmoji(groupInfo.emoji || config.defaultEmoji, groupInfo.threadId, size);
+}
+
+// Specify size as a string: "small", "medium", or "large"
+function sendEmoji(emoji, threadId, size = "small") {
+    sendMessage({
+        "emoji": emoji,
+        "emojiSize": size
+    }, threadId);
 }
 
 function isBanned(senderId) {
