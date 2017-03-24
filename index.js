@@ -196,7 +196,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                     const info = entry.entry;
                     getStats(key, true, (err, stats) => {
                         if (!err) {
-                            stats = getExpandedStats(stats);
+                            stats = getComputedStats(stats);
                             let m = `'${info.pretty_name}' has been used ${stats.count} ${stats.count == 1 ? "time" : "times"} out of a total of ${stats.total} ${stats.total == 1 ? "call" : "calls"}, representing ${stats.usage.perc.toFixed(3)}% of all bot invocations.`;
                             m += `\n\nIt was used ${stats.usage.day} ${stats.usage.day == 1 ? "time" : "times"} within the last day and ${stats.usage.month} ${stats.usage.month == 1 ? "time" : "times"} within the last month.`;
 
@@ -219,7 +219,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                         console.log("Failed to retrieve all stats")
                     }
                     for (let i = 0; i < data.length; i++) {
-                        data[i].stats = getExpandedStats(data[i].stats); // Get usage stats for sorting
+                        data[i].stats = getComputedStats(data[i].stats); // Get usage stats for sorting
                     }
                     data = data.sort((a, b) => {
                         return (b.stats.usage.perc - a.stats.usage.perc); // Sort greatest to least
@@ -1679,7 +1679,7 @@ function getHighestUser(record) {
   `day`: # of times used in the last day
   `month`: # of times used in the last month
 */
-function getExpandedStats(stats) {
+function getComputedStats(stats) {
     const usage = {};
     usage.perc = (((stats.count * 1.0) / stats.total) * 100) || 0;
 
