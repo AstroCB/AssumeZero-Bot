@@ -151,5 +151,8 @@ exports.handleEasterEggs = (message, fromUserId, groupInfo, api) => {
         if (message.match(/greek/i)) {
             m.sendContentsOfFile("media/greek.txt", threadId);
         }
+        if (message.match(/racism/i)) {
+            m.sendFile("media/racism.jpg", threadId);
+        }
     }
 }
