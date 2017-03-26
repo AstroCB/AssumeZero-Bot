@@ -148,5 +148,8 @@ exports.handleEasterEggs = (message, fromUserId, groupInfo, api) => {
         if (message.match(/flash/i)) {
             m.sendFile("media/flash.mp3", threadId)
         }
+        if (message.match(/greek/i)) {
+            m.sendContentsOfFile("media/greek.txt", threadId);
+        }
     }
 }
