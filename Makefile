@@ -1,4 +1,4 @@
-m="Update commands" # Commit message parameter option in invocation
+m = "Update commands" # Commit message parameter option in invocation
 
 all:
 	git add .
