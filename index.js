@@ -89,7 +89,7 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
                             handleCommand(m.substring(cindex + config.trigger.length), senderId, info, message); // Pass full message obj in case it's needed in a command
                         }
                         // Check for Easter eggs
-                        easter.handleEasterEggs(m, senderId, info, api);
+                        easter.handleEasterEggs(m, senderId, attachments, info, api);
                     }
                 }
             }
