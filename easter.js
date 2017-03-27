@@ -5,7 +5,7 @@ const config = require("./config");
 // Check for commands that don't require a trigger (Easter eggs)
 // Some commands may require additional configuration (and most only make sense for
 // the original chat it was built for), so should probably be off by default
-exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) => {
+exports.handleEasterEggs = (message, fromUserId, attachmentsgroupInfo, api) => {
     const threadId = groupInfo.threadId;
     if (!groupInfo.muted) { // Don't check for Easter eggs if muted
         if (message.match(/genius/i)) {
@@ -71,8 +71,13 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/darth plagueis/i)) {
             m.sendContentsOfFile("media/plagueis.txt", threadId);
         }
-        if (message.match(/(\s|^)lit([^A-z0-9]|$)/i)) {
-            m.sendMessage("🔥", threadId);
+        const lit = message.match(/(?:\s|^)(lit)(?:[^A-z0-9]|$)/i)
+        if (lit) {
+            if (lit[1] == "LIT") { // Large if all caps
+                m.sendEmoji("🔥", threadId, "large");
+            } else {
+                m.sendEmoji("🔥", threadId);
+            }
         }
         if (message.match(/pozharski(y)?/i)) {
             m.sendFile("media/pozharskiy.mp4", threadId);

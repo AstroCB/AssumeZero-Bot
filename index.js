@@ -1228,6 +1228,7 @@ function sendEmoji(emoji, threadId, size = "small") {
         "emojiSize": size
     }, threadId);
 }
+exports.sendEmoji = sendEmoji; // Export for Easter eggs
 
 function isBanned(senderId) {
     return (config.banned.indexOf(senderId) > -1);
