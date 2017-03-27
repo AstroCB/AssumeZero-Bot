@@ -202,7 +202,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
 
                             const user = getHighestUser(stats.record);
                             if (user) { // Found a user with highest usage
-                                const name = groupInfo.names[user] || "not in this group";
+                                const name = groupInfo.names[user] || "not in this chat";
                                 m += `\n\nIts most prolific user is ${name}.`
                             }
 
@@ -1644,10 +1644,8 @@ function logStats() {
 // Returns the passed list of record objects narrowed to those within the
 // specified time period
 function narrowedWithinTime(record, marker) {
-    return record.map((val) => {
-        if (new Date(val.at) > marker) {
-            return val;
-        }
+    return record.filter((val) => {
+        return (new Date(val.at) > marker);
     });
 }
 

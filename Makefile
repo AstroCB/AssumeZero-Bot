@@ -10,3 +10,6 @@ restart:
 	heroku ps:restart web -a assume-bot
 logs:
 	heroku logs -n 100 -a assume-bot
+start:
+	npm start
+debug: disable start
