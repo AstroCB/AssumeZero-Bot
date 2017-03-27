@@ -2,7 +2,7 @@ m="Update commands" # Commit message parameter option in invocation
 
 all:
 	git add .
-	git commit -m m
+	git commit -m $(m)
 	git push origin
 enable:
 	heroku ps:scale web=1 -a assume-bot
