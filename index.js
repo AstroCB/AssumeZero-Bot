@@ -91,14 +91,6 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
                         // Check for Easter eggs
                         easter.handleEasterEggs(m, senderId, info, api);
                     }
-                    // Handle attachments
-                    for (let i = 0; i < attachments.length; i++) {
-                        if (attachments[i].type == "animated_image" && !attachments[i].filename) { // Should have filename if OC
-                            kick(senderId, info, config.banTime, () => {
-                                sendMessage("You have been kicked for violating the group chat GIF policy: only OC is allowed.", groupId);
-                            });
-                        }
-                    }
                 }
             }
         });
