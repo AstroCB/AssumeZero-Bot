@@ -159,11 +159,11 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/racism/i)) {
             m.sendFile("media/racism.jpg", threadId);
         }
-        if(message.match(/tired/i)) {
-          m.sendFile("media/tired.jpg", threadId);
+        if (message.match(/tired/i)) {
+            m.sendFile("media/tired.jpg", threadId);
         }
-        if(message.match(/good thing/i)) {
-          m.sendFile("media/segregation.jpg", threadId);
+        if (message.match(/good thing/i)) {
+            m.sendFile("media/segregation.jpg", threadId);
         }
     }
 }
