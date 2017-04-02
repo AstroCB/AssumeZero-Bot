@@ -933,24 +933,27 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["clearstats"].m) {
         resetStats();
     } else if (co["infiltrate"].m) {
-        const name = co["infiltrate"].m[1];
+        const searchName = co["infiltrate"].m[1];
         api.getThreadList(0, config.threadLimit, "inbox", (err, chats) => {
             if (!err) {
                 let chatFound = false;
                 for (let i = 0; i < chats.length; i++) {
-                    if (chats[i].name.toLowerCase() == name.toLowerCase()) {
+                    let chatName = chats[i].name;
+                    if (chatName.toLowerCase() == searchName.toLowerCase()) {
                         chatFound = true;
                         addUser(config.owner.id, {
                             "threadId": chats[i].threadID
                         }, false, (err) => {
                             if (err) {
-                                sendError(`Already in group "${chats[i].name}".`, threadId);
+                                sendError(`Already in group "${chatName}".`, threadId);
+                            } else {
+                                sendMessage(`Added to group "${chatName}".`, threadId);
                             }
-                        }, false);
+                        }, false); // Add admin to specified group, send confirmation
                     }
                 }
                 if (!chatFound) {
-                    sendError(`Chat with name "${name}" not found.`, threadId)
+                    sendError(`Chat with name "${searchName}" not found.`, threadId)
                 }
             } else {
                 sendError("Thread list couldn't be retrieved.", threadId);
