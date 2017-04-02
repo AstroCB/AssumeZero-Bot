@@ -1091,7 +1091,7 @@ function addUser(id, info, welcome = true, callback = () => {}, retry = true, cu
         if (!err) {
             updateGroupInfo(info.threadId, null, (err, info) => {
                 if (!err && welcome) {
-                    sendMessage(`Welcome to ${info.name}, ${info.names[id]}!`, info.threadId, callback);
+                    sendMessage(`Welcome to ${info.name}, ${info.names[id]}!`, info.threadId);
                 }
             });
             callback();
