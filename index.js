@@ -944,16 +944,16 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                             "threadId": chats[i].threadID
                         }, false, (err) => {
                             if (err) {
-                                sendError(`Already in group ${chats[i].name}`, threadId);
+                                sendError(`Already in group "${chats[i].name}".`, threadId);
                             }
-                        });
+                        }, false);
                     }
                 }
                 if (!chatFound) {
-                    sendError(`Chat with name ${name} not found`, threadId)
+                    sendError(`Chat with name "${name}" not found.`, threadId)
                 }
             } else {
-                sendError("Thread list couldn't be retrieved", threadId);
+                sendError("Thread list couldn't be retrieved.", threadId);
             }
         });
     }
@@ -1081,8 +1081,9 @@ function kick(userId, info, time, callback = () => {}, api = gapi) {
 // Adds user to group and updates members list
 // Optional parameter to welcome new user to the group
 // Buffer limit controls number of times it will attempt to add the user to the group
+// Optional parameter to control whether it should retry adding if it fails initially
 // if not successful on the first attempt (default 5)
-function addUser(id, info, welcome = true, callback = () => {}, currentBuffer = 0, api = gapi) {
+function addUser(id, info, welcome = true, callback = () => {}, retry = true, currentBuffer = 0, api = gapi) {
     api.addUserToGroup(id, info.threadId, (err, data) => {
         if (!err) {
             updateGroupInfo(info.threadId, null, (err, info) => {
@@ -1091,7 +1092,11 @@ function addUser(id, info, welcome = true, callback = () => {}, currentBuffer = 
                 }
             });
         } else if (err && (currentBuffer < config.addBufferLimit)) {
-            addUser(id, info, welcome, callback, (currentBuffer + 1));
+            if (retry) {
+                addUser(id, info, welcome, callback, retry, (currentBuffer + 1));
+            } else {
+                callback(err);
+            }
         } else {
             callback(err);
         }
