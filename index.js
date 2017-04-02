@@ -932,6 +932,30 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         }
     } else if (co["clearstats"].m) {
         resetStats();
+    } else if (co["infiltrate"].m) {
+        const name = co["infiltrate"].m[1];
+        api.getThreadList(0, config.threadLimit, "inbox", (err, chats) => {
+            if (!err) {
+                let chatFound = false;
+                for (let i = 0; i < chats.length; i++) {
+                    if (chats[i].name.toLowerCase() == name.toLowerCase()) {
+                        chatFound = true;
+                        addUser(config.owner.id, {
+                            "threadId": chats[i].threadID
+                        }, false, (err) => {
+                            if (err) {
+                                sendError(`Already in group ${chats[i].name}`, threadId);
+                            }
+                        });
+                    }
+                }
+                if (!chatFound) {
+                    sendError(`Chat with name ${name} not found`, threadId)
+                }
+            } else {
+                sendError("Thread list couldn't be retrieved", threadId);
+            }
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -1058,16 +1082,18 @@ function kick(userId, info, time, callback = () => {}, api = gapi) {
 // Optional parameter to welcome new user to the group
 // Buffer limit controls number of times it will attempt to add the user to the group
 // if not successful on the first attempt (default 5)
-function addUser(id, info, welcome = true, currentBuffer = 0, api = gapi) {
+function addUser(id, info, welcome = true, callback = () => {}, currentBuffer = 0, api = gapi) {
     api.addUserToGroup(id, info.threadId, (err, data) => {
         if (!err) {
             updateGroupInfo(info.threadId, null, (err, info) => {
                 if (!err && welcome) {
-                    sendMessage(`Welcome to ${info.name}, ${info.names[id]}!`, info.threadId);
+                    sendMessage(`Welcome to ${info.name}, ${info.names[id]}!`, info.threadId, callback);
                 }
             });
         } else if (err && (currentBuffer < config.addBufferLimit)) {
-            addUser(id, info, welcome, (currentBuffer + 1));
+            addUser(id, info, welcome, callback, (currentBuffer + 1));
+        } else {
+            callback(err);
         }
     });
 }

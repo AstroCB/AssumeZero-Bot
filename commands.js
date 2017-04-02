@@ -615,5 +615,20 @@ exports.commands = {
         },
         "regex": /clear stats/i,
         "experimental": false
+    },
+    "infiltrate": {
+        "display_names": [], // Secret command
+        "pretty_name": "Infiltrate",
+        "short_description": "",
+        "description": "Allows the bot to add the admin to groups that it's in",
+        "syntax": "infiltrate {group name}",
+        "sudo": true,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /infiltrate (.*)/i,
+        "experimental": false
     }
 };

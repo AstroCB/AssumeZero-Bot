@@ -109,3 +109,6 @@ exports.wolframKey = "P7JV58-H3923PPTGR";
 
 // Timeout in milliseconds for gathering all statistics
 exports.statsTimeout = 5000;
+
+// Number of chats to fetch when pulling thread history
+exports.threadLimit = 50;
