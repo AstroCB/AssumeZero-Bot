@@ -945,9 +945,9 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                             "threadId": chats[i].threadID
                         }, true, (err) => {
                             if (err) {
-                                sendError(`Already in group "${chatName}".`, threadId);
+                                sendError(`You're already in group "${chatName}".`, threadId);
                             } else {
-                                sendMessage(`Added to group "${chatName}".`, threadId);
+                                sendMessage(`Added you to group "${chatName}".`, threadId);
                             }
                         }, false); // Add admin to specified group; send confirmation to both chats
                     }
