@@ -949,7 +949,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                             } else {
                                 sendMessage(`Added to group "${chatName}".`, threadId);
                             }
-                        }, false); // Add admin to specified group, send confirmation
+                        }, false); // Add admin to specified group; send confirmation
                     }
                 }
                 if (!chatFound) {
@@ -1094,6 +1094,7 @@ function addUser(id, info, welcome = true, callback = () => {}, retry = true, cu
                     sendMessage(`Welcome to ${info.name}, ${info.names[id]}!`, info.threadId, callback);
                 }
             });
+            callback();
         } else if (err && (currentBuffer < config.addBufferLimit)) {
             if (retry) {
                 addUser(id, info, welcome, callback, retry, (currentBuffer + 1));
