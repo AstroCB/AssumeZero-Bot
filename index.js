@@ -943,13 +943,13 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                         chatFound = true;
                         addUser(config.owner.id, {
                             "threadId": chats[i].threadID
-                        }, false, (err) => {
+                        }, true, (err) => {
                             if (err) {
                                 sendError(`Already in group "${chatName}".`, threadId);
                             } else {
                                 sendMessage(`Added to group "${chatName}".`, threadId);
                             }
-                        }, false); // Add admin to specified group; send confirmation
+                        }, false); // Add admin to specified group; send confirmation to both chats
                     }
                 }
                 if (!chatFound) {
