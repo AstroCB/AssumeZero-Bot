@@ -163,5 +163,8 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/good thing/i)) {
             m.sendFile("media/segregation.jpg", threadId);
         }
+        if (message.match(/terps/i)) {
+            m.sendEmoji("🐢", threadId);
+        }
     }
 }
