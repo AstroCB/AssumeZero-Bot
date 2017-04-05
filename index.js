@@ -713,32 +713,50 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         } else {
             sendError(`User ${user_cap} not found`, threadId);
         }
-    } else if (co["score"].m && co["score"].m[2]) {
-        const user = co["score"].m[2].toLowerCase();
-        const userId = groupInfo.members[user];
-        const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
-        if (userId) {
-            const new_score = co["score"].m[1];
-            if (new_score || new_score == "0") { // Set to provided score if valid (0 is falsey)
-                setScore(userId, new_score, (err, success) => {
-                    if (success) {
-                        sendMessage(`${user_cap}'s score updated to ${new_score}.`, threadId);
-                    } else {
-                        sendError(err, threadId);
+    } else if (co["score"].m) {
+        if (co["score"].m[1].toLowerCase() == "board") { // Display scoreboard
+            getAllScores(groupInfo, (success, scores) => {
+                if (success) {
+                    scores = scores.sort((a, b) => {
+                        return (b.score - a.score); // Sort greatest to least
+                    });
+
+                    let message = `Rankings for "${groupInfo.name}"`;
+                    for (let i = 0; i < scores.length; i++) {
+                        message += `\n${i+1}. ${scores[i].name}: ${scores[i].score}`;
                     }
-                });
-            } else { // No value provided; just display score
-                getScore(`${userId}`, (err, val) => {
-                    if (!err) {
-                        const stored_score = val ? val.toString() : 0;
-                        sendMessage(`${user_cap}'s current score is ${stored_score}.`, threadId);
-                    } else {
-                        console.log(err);
-                    }
-                });
-            }
+                    sendMessage(message, threadId);
+                } else {
+                    sendError("Scores couldn't be retrieved for this group.", threadId);
+                }
+            });
         } else {
-            sendError(`User ${user_cap} not found`, threadId);
+            const user = co["score"].m[3].toLowerCase();
+            const userId = groupInfo.members[user];
+            const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
+            if (userId) {
+                const new_score = co["score"].m[2];
+                if (new_score || new_score == "0") { // Set to provided score if valid (0 is falsey)
+                    setScore(userId, new_score, (err, success) => {
+                        if (success) {
+                            sendMessage(`${user_cap}'s score updated to ${new_score}.`, threadId);
+                        } else {
+                            sendError(err, threadId);
+                        }
+                    });
+                } else { // No value provided; just display score
+                    getScore(`${userId}`, (err, val) => {
+                        if (!err) {
+                            const stored_score = val ? val.toString() : 0;
+                            sendMessage(`${user_cap}'s current score is ${stored_score}.`, threadId);
+                        } else {
+                            console.log(err);
+                        }
+                    });
+                }
+            } else {
+                sendError(`User ${user_cap} not found`, threadId);
+            }
         }
     } else if (co["restart"].m) {
         restart(() => {
@@ -1445,6 +1463,33 @@ function updateScore(isAdd, userId, callback) {
     });
 }
 
+function getAllScores(groupInfo, callback = () => {}) {
+    const members = groupInfo.names;
+    let results = [];
+    let now = current = (new Date()).getTime();
+
+    function updateResults(value) {
+        results.push(value);
+        const success = (results.length == Object.keys(members).length);
+
+        current = (new Date()).getTime();
+        if (success || (current - now) >= config.asyncTimeout) {
+            callback(success, results)
+        }
+    }
+
+    for (let m in members) {
+        if (members.hasOwnProperty(m)) {
+            getScore(m, (err, val) => {
+                updateResults({
+                    "name": members[m],
+                    "score": parseInt(val) || "0"
+                });
+            });
+        }
+    }
+}
+
 // Sets group image to image found at given URL
 // Accepts url, threadId, and optional error message parameter to be displayed if changing the group image fails
 function setGroupImageFromUrl(url, threadId, errMsg = "Photo couldn't download properly", api = gapi) {
@@ -1603,7 +1648,7 @@ function getAllStats(callback) {
         const success = (results.length == names.length);
         current = (new Date()).getTime();
 
-        if (success || (current - now) >= config.statsTimeout) {
+        if (success || (current - now) >= config.asyncTimeout) {
             callback(success, results)
         }
     }

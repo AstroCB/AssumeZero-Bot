@@ -107,8 +107,8 @@ exports.defaultRNGBounds = [1, 100];
 // API Key for the "wolfram" command
 exports.wolframKey = "P7JV58-H3923PPTGR";
 
-// Timeout in milliseconds for gathering all statistics
-exports.statsTimeout = 5000;
+// Timeout in milliseconds for functions that gather data asynchronously
+exports.asyncTimeout = 5000;
 
 // Number of chats to fetch when pulling thread history
 exports.threadLimit = 50;
