@@ -7,6 +7,7 @@ exports.commands = {
         "short_description": "",
         "description": "Get more information about a command, or open quick help",
         "syntax": "help ({command})",
+        "example": "help stats",
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -22,6 +23,7 @@ exports.commands = {
         "short_description": "Get command/user stats",
         "description": "Displays information about command or user usage",
         "syntax": "stats {command}",
+        "example": "stats alive",
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -37,6 +39,7 @@ exports.commands = {
         "short_description": "Messages all the bot's groups",
         "description": "Announces a message to all of the group chats that the bot is present in",
         "syntax": "psa {message}",
+        "example": "psa Hello, world!",
         "sudo": true,
         "attachments": false,
         "user_input": {
@@ -52,6 +55,7 @@ exports.commands = {
         "short_description": "File a bug report",
         "description": `Messages ${config.owner.names.short} directly with your message and adds to your chat for debugging`,
         "syntax": "bug {message}",
+        "example": "bug Pinging is broken",
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -67,6 +71,7 @@ exports.commands = {
         "short_description": "Removes member",
         "description": "Removes a given member from the chat for an optional amount of time",
         "syntax": "kick {member} ({number of seconds})",
+        "example": ["kick me", "kick me 25"],
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -82,6 +87,7 @@ exports.commands = {
         "short_description": "Links xkcd",
         "description": "Outputs the numbered xkcd or search result (or a random one if none was specified)",
         "syntax": "xkcd (new|{comic number}|search {search query})",
+        "example": ["xkcd new", "xkcd 303", "xkcd search Wisdom of the Ancients"],
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -97,6 +103,7 @@ exports.commands = {
         "short_description": "Search for music",
         "description": "Searches Spotify's database for artists and songs",
         "syntax": "search (artist|(song|track)) {query}",
+        "example": ["search artist The Goo Goo Dolls", "search song Back in Black"],
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -112,6 +119,7 @@ exports.commands = {
         "short_description": "Random song",
         "description": "Grabs a random song from member playlists added with 'playlist' command",
         "syntax": "song ({member})",
+        "example": "song me",
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -122,11 +130,12 @@ exports.commands = {
         "experimental": false
     },
     "playlist": {
-        "display_names": ["add playlist", "playlist"],
+        "display_names": ["playlist"],
         "pretty_name": "Playlist",
         "short_description": "Add/update playlist",
-        "description": "Add or update playlist for the group – to find a playlist's URI (e.g. spotify:user:astrocb:playlist:05zXCuscrw1BW5NyeN45DB), right click on it and click 'Copy Spotify URI'",
+        "description": "Add or update playlist for the group – to find a playlist's URI in Spotify desktop, right click on it, select 'Share', and click 'URI'",
         "syntax": "playlist {member} {playlist URI}",
+        "example": "playlist me spotify:user:astrocb:playlist:05zXCuscrw1BW5NyeN45DB",
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -142,6 +151,7 @@ exports.commands = {
         "short_description": "",
         "description": "Searches for the given user and either outputs the best match (for searching) or adds it to the chat (for adding)",
         "syntax": "(add|search ({number of results})) {user}",
+        "example": ["search Physics Resurrected", "add Physics Resurrected"],
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -157,6 +167,7 @@ exports.commands = {
         "short_description": "Destroy group temporarily",
         "description": `Every single group member, including your Socialpath Yiyi Kuang, is now an enemy of the group chat (for ${config.order66Time} seconds)`,
         "syntax": "execute order 66",
+        "example": "",
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -166,19 +177,20 @@ exports.commands = {
         "regex": /execute order 66/i,
         "experimental": false
     },
-    "setcolor": {
-        "display_names": ["reset color", "set color"],
-        "pretty_name": "(Re)set color",
+    "color": {
+        "display_names": ["color", "set color"],
+        "pretty_name": "Set color",
         "short_description": "",
         "description": "(Re)sets the color to the specified hex value and outputs previous color",
-        "syntax": "set color(s) (to) (#{six-digit hex color}|rand(om))",
+        "syntax": "color (#{six-digit hex color}|rand(om))",
+        "example": ["color #c93028", "color random"],
         "sudo": false,
         "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
         },
-        "regex": /(re)?set color(?:s)?(?: (?:to )?(#(?:[a-f]|\d){6}|rand(?:om)?))?/i,
+        "regex": /color (#(?:[a-f]|\d){6}|rand(?:om)?)/i,
         "experimental": false
     },
     "hitlights": {
@@ -187,6 +199,7 @@ exports.commands = {
         "short_description": "Random chat colors",
         "description": "Changes the group colors to random colors in quick succession",
         "syntax": "hit the lights",
+        "example": "",
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -196,12 +209,13 @@ exports.commands = {
         "regex": /hit the lights/i,
         "experimental": false
     },
-    "resetnick": {
+    "clearnick": {
         "display_names": ["clear nickname"],
         "pretty_name": "Clear nickname",
         "short_description": "",
         "description": "Clears the nickname for the given member",
         "syntax": "clear (nick)name {member}",
+        "example": "clear name me",
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -212,18 +226,19 @@ exports.commands = {
         "experimental": false
     },
     "setnick": {
-        "display_names": ["set nickname", "change nickname", "set name", "change name", "rename"],
+        "display_names": ["nickname", "name", "rename"],
         "pretty_name": "Set nickname",
         "short_description": "",
         "description": "Sets the given nickname for the given member",
-        "syntax": "(((set|change) (nick)name)|rename) {member} {nickname}",
+        "syntax": "((nick|re)name) {member} {nickname}",
+        "example": ["nickname me Bot Impersonator", "rename me Bot Impersonator"],
         "sudo": false,
         "attachments": false,
         "user_input": {
             "accepts": true,
             "optional": false
         },
-        "regex": ["(?:(?:(?:set|change) (?:nick)?name)|rename)", " (.*)"],
+        "regex": ["(?:(?:nick|re)?name)", " (.*)"],
         "experimental": false
     },
     "wakeup": {
@@ -232,6 +247,7 @@ exports.commands = {
         "short_description": "Message user repeatedly",
         "description": `Sends ${config.wakeUpTimes} messages to the given member`,
         "syntax": "wake up {member}",
+        "example": "wake up me",
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -247,6 +263,7 @@ exports.commands = {
         "short_description": "",
         "description": "Retrieves a random message from the recent history of the group",
         "syntax": "random message",
+        "example": "",
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -262,6 +279,7 @@ exports.commands = {
         "short_description": "Is the bot awake?",
         "description": "Tests whether the bot is running",
         "syntax": "alive(?)",
+        "example": "alive?",
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -271,19 +289,20 @@ exports.commands = {
         "regex": /alive(?:\?)?/i,
         "experimental": false
     },
-    "setemoji": {
-        "display_names": ["set emoji", "reset emoji", "emoji"],
-        "pretty_name": "Set emoji",
+    "emoji": {
+        "display_names": ["emoji"],
+        "pretty_name": "Emoji",
         "short_description": "",
-        "description": "(Re)sets the emoji to the specified Unicode value",
-        "syntax": "(re)set emoji (to) #{emoji}",
+        "description": "Sets the emoji to the specified Unicode value",
+        "syntax": "emoji {emoji}",
+        "example": "emoji 🚀",
         "sudo": false,
         "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
         },
-        "regex": /(re)?set emoji(?: (?:to )?([\uD83C-\uDBFF\uDC00-\uDFFF]{1,2}))?/iu, // Match emoji w/ Unicode modifier (1-2 chars)
+        "regex": /emoji ([\uD83C-\uDBFF\uDC00-\uDFFF]{1,2})/iu, // Match emoji w/ Unicode modifier (1-2 chars)
         "experimental": false
     },
     "echo": {
@@ -292,6 +311,7 @@ exports.commands = {
         "short_description": "",
         "description": "Echoes or quotes the provided statement",
         "syntax": "(echo|quote) {statement}",
+        "example": ["echo Hello, world!", "quote I am not a bot"],
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -307,6 +327,7 @@ exports.commands = {
         "short_description": "",
         "description": "Bans or unbans the provided member",
         "syntax": "(un)ban {member}",
+        "example": "ban me",
         "sudo": true,
         "attachments": false,
         "user_input": {
@@ -322,6 +343,7 @@ exports.commands = {
         "short_description": "Vote on users",
         "description": "Allows users to upvote (>) or downvote (<) a given user to influence their current point total",
         "syntax": "(<|>) {member}",
+        "example": ["> me", "< me"],
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -332,18 +354,19 @@ exports.commands = {
         "experimental": false
     },
     "score": {
-        "display_names": ["score", "set score", "get score", "scoreboard"],
+        "display_names": ["score", "scoreboard"],
         "pretty_name": "Score",
         "short_description": "Get/set user score",
         "description": "Displays the user's current point score or sets it to a new provided value (must be ≥ 0)",
-        "syntax": "score (new score) {member}",
+        "syntax": "score(board|({new score}) {member})",
+        "example": ["scoreboard", "score me", "score me 20"],
         "sudo": false,
         "attachments": false,
         "user_input": {
             "accepts": true,
             "optional": false
         },
-        "regex": ["score(board|(?: (\\d+))?", ")"],
+        "regex": ["score(board|", "(?: (\\d+))?)"],
         "experimental": false
     },
     "restart": {
@@ -352,6 +375,7 @@ exports.commands = {
         "short_description": "",
         "description": "Restarts the bot (requires remote deployment to Heroku)",
         "syntax": "restart",
+        "example": "",
         "sudo": true,
         "attachments": false,
         "user_input": {
@@ -362,18 +386,19 @@ exports.commands = {
         "experimental": false
     },
     "photo": {
-        "display_names": ["set picture", "set photo", "set image", "change picture", "change photo", "set photo", "picture", "photo", "image"],
-        "pretty_name": "Group photo",
+        "display_names": ["picture", "photo", "image"],
+        "pretty_name": "Photo",
         "short_description": "Sets group photo to URL",
         "description": "Changes the group's photo to the image at the specified URL or the attached image",
-        "syntax": "(set|change) (photo|picture|image) (url)",
+        "syntax": "(photo|picture|image) ({url})",
+        "example": ["photo http://i.imgur.com/tzwVWot.png", "photo [attach an image]"],
         "sudo": false,
         "attachments": true,
         "user_input": {
             "accepts": false,
             "optional": false
         },
-        "regex": /(?:(?:set|change) )?(?:photo|picture|image)(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i, // URL
+        "regex": /(?:photo|picture|image)(?: ((?:http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?))?/i, // URL
         "experimental": false
     },
     "poll": {
@@ -382,6 +407,7 @@ exports.commands = {
         "short_description": "Creates a group poll",
         "description": "Creates a poll in the group with the given title and optional comma-delimited initial options in brackets",
         "syntax": "poll {title} ([opt1,opt2,opt3])",
+        "example": ["poll What time should we eat dinner? [6 PM, 6:30 PM, Tomorrow]", "poll Which restaurant should we go to?"],
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -396,14 +422,15 @@ exports.commands = {
         "pretty_name": "Set title",
         "short_description": "",
         "description": "Sets the title to the specified value",
-        "syntax": "(set|change) title {title}",
+        "syntax": "title {title}",
+        "example": "title One Chat to Rule Them All",
         "sudo": false,
         "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
         },
-        "regex": /(?:(?:set|change) )?title (.*)/i,
+        "regex": /title (.*)/i,
         "experimental": false
     },
     "answer": {
@@ -412,6 +439,7 @@ exports.commands = {
         "short_description": "",
         "description": "Answers your yes/no question with a random value",
         "syntax": "(ask|answer) {question}",
+        "example": ["ask Do you believe in magic?", "answer Will we have school tomorrow?"],
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -426,7 +454,8 @@ exports.commands = {
         "pretty_name": "Random number generator",
         "short_description": "",
         "description": `Generates a random number in the given range (between two args if passed, between ${config.lowerBoundDefault} and the arg if one is passed, or between ${config.lowerBoundDefault} and ${config.upperBoundDefault} otherwise)`,
-        "syntax": "(rng|rand(om)) ({lower bound}) ({upper bound})",
+        "syntax": "(rng|rand(om)) (({lower bound}) {upper bound})",
+        "example": ["rand", "rng 0 50", "rng 100"],
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -442,6 +471,7 @@ exports.commands = {
         "short_description": "Converts an image to black and white",
         "description": "Converts an image to black and white with either a URL or an uploaded image",
         "syntax": "bw ({url})",
+        "example": ["bw http://i.imgur.com/tzwVWot.png", "bw [attach an image]"],
         "sudo": false,
         "attachments": true,
         "user_input": {
@@ -457,6 +487,7 @@ exports.commands = {
         "short_description": "Converts an image to sepia tone",
         "description": "Converts an image to sepia tone with either a URL or an uploaded image",
         "syntax": "sepia ({url})",
+        "example": ["sepia http://i.imgur.com/tzwVWot.png", "sepia [attach an image]"],
         "sudo": false,
         "attachments": true,
         "user_input": {
@@ -472,6 +503,7 @@ exports.commands = {
         "short_description": "Flips/mirrors an image",
         "description": "Flips/mirrors the image from the given URL or attachments",
         "syntax": "flip (horiz(ontal)|vert(ical)) ({url})",
+        "example": ["flip http://i.imgur.com/tzwVWot.png", "flip horizontal http://i.imgur.com/tzwVWot.png", "flip vert [attach an image]"],
         "sudo": false,
         "attachments": true,
         "user_input": {
@@ -487,6 +519,7 @@ exports.commands = {
         "short_description": "Invert image colors",
         "description": "Inverts the colors of the image from the given URL or attachments",
         "syntax": "invert ({url})",
+        "example": ["invert http://i.imgur.com/tzwVWot.png", "invert [attach an image]"],
         "sudo": false,
         "attachments": true,
         "user_input": {
@@ -500,8 +533,9 @@ exports.commands = {
         "display_names": ["blur"],
         "pretty_name": "Blur",
         "short_description": "Blurs an image",
-        "description": "Blurs the image by the given number of pixels from the given URL or attachments; optional param to do a Gaussian blur, which is very slow",
-        "syntax": "blur {pixels} (gauss) ({url})",
+        "description": "Blurs the image by the given number of pixels from the given URL or attachments; optional param to do a Gaussian blur, which is very slow (< 15 pixels recommended for this one)",
+        "syntax": "blur {# of pixels} (gauss) ({url})",
+        "example": ["blur 50 http://i.imgur.com/tzwVWot.png", "blur 10 gauss [attach an image]"],
         "sudo": false,
         "attachments": true,
         "user_input": {
@@ -517,6 +551,7 @@ exports.commands = {
         "short_description": "Overlays text on an image",
         "description": "Overlays text on an image from the given URL or attachments",
         "syntax": "overlay ({url}) {text}",
+        "example": ["overlay http://i.imgur.com/tzwVWot.png Hello there!", "overlay Wake up! [attach an image]"],
         "sudo": false,
         "attachments": true,
         "user_input": {
@@ -530,8 +565,9 @@ exports.commands = {
         "display_names": ["brighten", "darken"],
         "pretty_name": "Brighten/darken",
         "short_description": "Alters image brightness",
-        "description": "Brightens or darkens an image by the given percent",
+        "description": "Brightens or darkens an image by the given percentage",
         "syntax": "(brighten|darken) {percentage} ({url})",
+        "example": ["brighten 10 http://i.imgur.com/tzwVWot.png", "darken 20 [attach an image]"],
         "sudo": false,
         "attachments": true,
         "user_input": {
@@ -547,6 +583,7 @@ exports.commands = {
         "short_description": "Turns on/off easter eggs",
         "description": "Turns on/off easter eggs until they are turned back on",
         "syntax": "(un)mute",
+        "example": ["mute", "unmute"],
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -562,6 +599,7 @@ exports.commands = {
         "short_description": "Names the bot",
         "description": "The bot doesn't see itself as a user for security purposes, so the name command will not work on it, but this command allows you to name it",
         "syntax": "christen {name}",
+        "example": `christen ${config.bot.names.short || config.bot.names.long}`,
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -577,6 +615,7 @@ exports.commands = {
         "short_description": "Searches Wolfram Alpha",
         "description": "Performs a search using Wolfram Alpha (http://www.wolframalpha.com)",
         "syntax": "wolfram {query}",
+        "example": ["wolfram ∫(5x^2 + 10x + 34)dx", "wolfram Who is the president of the United States?"],
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -592,6 +631,7 @@ exports.commands = {
         "short_description": "",
         "description": "Destroys the chat",
         "syntax": "sudo destroy confirm", // Redundancy to prevent accidental triggers
+        "example": "",
         "sudo": true,
         "attachments": false,
         "user_input": {
@@ -607,6 +647,7 @@ exports.commands = {
         "short_description": "",
         "description": "Wipes usage statistics to start over",
         "syntax": "clear stats",
+        "example": "",
         "sudo": true,
         "attachments": false,
         "user_input": {
@@ -622,6 +663,7 @@ exports.commands = {
         "short_description": "",
         "description": "Allows the bot to add the admin to groups that it's in",
         "syntax": "infiltrate {group name}",
+        "example": "infiltrate Assume Zero Brain Power",
         "sudo": true,
         "attachments": false,
         "user_input": {

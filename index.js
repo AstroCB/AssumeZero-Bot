@@ -144,7 +144,19 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             const entry = getHelpEntry(input, co);
             if (entry) {
                 const info = entry.entry;
-                const helpMsg = `Entry for command "${info.pretty_name}":\n${info.description}\n\nSyntax: ${config.trigger} ${info.syntax}`;
+
+                const example = {}; // Fill example data (sometimes array; sometimes string)
+                if (Array.isArray(info.example)) {
+                    example.header = "Examples:\n";
+                    example.body = info.example.map((e) => {
+                        return `${config.trigger} ${e}`; // Add trigger to example
+                    }).join("\n");
+                } else if (info.example.length > 0) {
+                    example.header = "Example: ";
+                    example.body = `${config.trigger} ${info.example}`;
+                }
+
+                const helpMsg = `Entry for command "${info.pretty_name}":\n${info.description}\n\nSyntax: ${config.trigger} ${info.syntax}${example.header ? `\n\n${example.header}${example.body}` : ""}`;
                 const addenda = `${info.attachments ? "\n\n(This command accepts attachments)" : ""}${info.sudo ? "\n\n(This command requires admin privileges)" : ""}${info.experimental ? "\n\n(This command is experimental)" : ""}`;
                 getStats(entry.key, false, (err, stats) => {
                     if (err) { // Couldn't retrieve stats; just show help message
@@ -155,7 +167,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                     }
                 });
             } else {
-                sendError(`Help entry not found for ${input}`, threadId);
+                sendError(`Help entry not found for "${input}"`, threadId);
             }
         } else {
             // No command passed; give overview of all of them
@@ -562,18 +574,14 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         } else {
             sendMessage("Cannot execute Order 66 on a non-group chat. Safe for now, you are, Master Jedi.", threadId);
         }
-    } else if (co["setcolor"].m) {
-        if (co["setcolor"].m[1]) { // Reset
-            api.changeThreadColor(groupInfo.color, threadId);
-        } else if (co["setcolor"].m[2]) {
-            const colorToSet = (co["setcolor"].m[2].match(/rand(om)?/i)) ? getRandomColor() : co["setcolor"].m[2];
-            const ogColor = groupInfo.color || "default"; // Will be null if no custom color set
-            api.changeThreadColor(colorToSet, threadId, (err, data) => {
-                if (!err) {
-                    sendMessage(`Last color was ${ogColor}`, threadId);
-                }
-            });
-        }
+    } else if (co["color"].m) {
+        const colorToSet = (co["color"].m[1].match(/rand(om)?/i)) ? getRandomColor() : co["color"].m[1];
+        const ogColor = groupInfo.color || "default"; // Will be null if no custom color set
+        api.changeThreadColor(colorToSet, threadId, (err) => {
+            if (!err) {
+                sendMessage(`Last color was ${ogColor}.`, threadId);
+            }
+        });
     } else if (co["hitlights"].m) {
         const ogColor = groupInfo.color || config.defaultColor; // Will be null if no custom color set
         const delay = 500; // Delay between color changes (half second is a good default)
@@ -587,8 +595,8 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 }
             }, delay + (i * delay)); // Queue color changes
         }
-    } else if (co["resetnick"].m && co["resetnick"].m[1]) {
-        const user = co["resetnick"].m[1].toLowerCase();
+    } else if (co["clearnick"].m && co["clearnick"].m[1]) {
+        const user = co["clearnick"].m[1].toLowerCase();
         api.changeNickname("", threadId, groupInfo.members[user]);
     } else if (co["setnick"].m && co["setnick"].m[1] && co["setnick"].m[2]) {
         const user = co["setnick"].m[1].toLowerCase();
@@ -629,23 +637,13 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         });
     } else if (co["alive"].m) {
         sendGroupEmoji(groupInfo, "large");
-    } else if (co["setemoji"].m) {
-        if (co["setemoji"].m[1]) {
-            // Reset
-            api.changeThreadEmoji(groupInfo.emoji, threadId, (err) => {
-                if (err) {
-                    console.log(err);
-                }
-            });
-        } else if (co["setemoji"].m[2]) {
-            // Set
-            api.changeThreadEmoji(co["setemoji"].m[2], threadId, (err) => {
-                if (err) {
-                    // Set to default as backup if errors
-                    api.changeThreadEmoji(groupInfo.emoji, threadId);
-                }
-            });
-        }
+    } else if (co["emoji"].m) {
+        api.changeThreadEmoji(co["emoji"].m[1], threadId, (err) => {
+            if (err) {
+                // Set to default as backup if errors
+                api.changeThreadEmoji(groupInfo.emoji, threadId);
+            }
+        });
         updateGroupInfo(threadId); // Update emoji
     } else if (co["echo"].m && co["echo"].m[1] && co["echo"].m[2]) {
         const command = co["echo"].m[1].toLowerCase();
@@ -721,7 +719,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                         return (b.score - a.score); // Sort greatest to least
                     });
 
-                    let message = `Rankings for "${groupInfo.name}"`;
+                    let message = `Rankings for ${groupInfo.name}`;
                     for (let i = 0; i < scores.length; i++) {
                         message += `\n${i+1}. ${scores[i].name}: ${scores[i].score}`;
                     }
@@ -731,11 +729,11 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 }
             });
         } else {
-            const user = co["score"].m[3].toLowerCase();
+            const user = co["score"].m[2].toLowerCase();
             const userId = groupInfo.members[user];
             const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
             if (userId) {
-                const new_score = co["score"].m[2];
+                const new_score = co["score"].m[3];
                 if (new_score || new_score == "0") { // Set to provided score if valid (0 is falsey)
                     setScore(userId, new_score, (err, success) => {
                         if (success) {
