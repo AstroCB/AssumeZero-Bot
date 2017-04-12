@@ -453,7 +453,7 @@ exports.commands = {
         "display_names": ["random", "rand", "rng"],
         "pretty_name": "Random number generator",
         "short_description": "",
-        "description": `Generates a random number in the given range (between two args if passed, between ${config.lowerBoundDefault} and the arg if one is passed, or between ${config.lowerBoundDefault} and ${config.upperBoundDefault} otherwise)`,
+        "description": `Generates a random number in the given range (between two args if passed, between ${config.defaultRNGBounds[0]} and the arg if one is passed, or between ${config.defaultRNGBounds[0]} and ${config.defaultRNGBounds[1]} otherwise)`,
         "syntax": "(rng|rand(om)) (({lower bound}) {upper bound})",
         "example": ["rand", "rng 0 50", "rng 100"],
         "sudo": false,

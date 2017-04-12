@@ -719,7 +719,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                         return (b.score - a.score); // Sort greatest to least
                     });
 
-                    let message = `Rankings for ${groupInfo.name}`;
+                    let message = `Rankings for ${groupInfo.name}:`;
                     for (let i = 0; i < scores.length; i++) {
                         message += `\n${i+1}. ${scores[i].name}: ${scores[i].score}`;
                     }
