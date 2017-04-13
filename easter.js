@@ -17,23 +17,20 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/(?:problem |p)set(?:s)?/i)) {
             m.sendContentsOfFile("media/monologue.txt", threadId);
         }
-        if (message.match(/umd/i)) {
+        if (message.match(/(?:hard work)|(?:work(?:ing)? hard)/i)) {
             m.sendFile("media/umd.png", threadId);
         }
-        if (message.match(/cornell/i)) {
+        if (message.match(/bingalee dingalee/i)) {
             m.sendFile("media/cornell.mp4", threadId);
         }
-        if (message.match(/swarthmore/i)) {
+        if (message.match(/boxed wine/i)) {
             m.sendFile("media/jonah.png", threadId);
         }
-        if (message.match(/purdue/i)) {
-            m.sendMessage("I hear they have good chicken", threadId);
+        if (message.match(/where have you been/i)) {
+            m.sendFile("media/purdue.png", threadId);
         }
         if (message.match(/nyu/i)) {
             m.sendMessage("We don't speak of it", threadId);
-        }
-        if (message.match(/commit seppuku/i)) {
-            m.sendMessage("RIP", threadId);
         }
         if (message.match(/physics c(?:[^A-z]|$)/i)) {
             m.sendMessage({
@@ -47,9 +44,6 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (bac) {
             const name = bac[1] || "Yiyi";
             m.sendMessage(`${name.substring(0,1).toUpperCase() + name.substring(1)}'s BAC is far above healthy levels`, threadId);
-        }
-        if (message.match(new RegExp(`${config.trigger} .* cam$`, "i"))) {
-            m.sendMessage("eron", threadId);
         }
         if (message.match(/socialis(?:t|m)/i)) {
             m.sendFile("media/anton.png", threadId);
@@ -80,7 +74,7 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/pozharski(y)?/i)) {
             m.sendFile("media/pozharskiy.mp4", threadId);
         }
-        if (message.match(/money/i)) {
+        if (message.match(/(?:\s|^)rich(?:[^A-z0-9]|$)/i)) {
             m.sendFile("media/money.png", threadId);
         }
         if (message.match(/rest of the country/i)) {
@@ -97,7 +91,7 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/(^|\s)frat/i)) {
             m.sendFile("media/frat.jpg", threadId);
         }
-        if (message.match(/(^|\s)life([^A-z]|$)/i)) {
+        if (message.match(/(?:girlfriend|gf)/i)) {
             m.sendFile("media/girlfriend.png", threadId);
         }
         if (message.match(/el spaniard/i)) {
@@ -115,7 +109,7 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/wrong chat/i)) {
             m.sendFile("media/background.png", threadId);
         }
-        if (message.match(/brown/i)) {
+        if (message.match(/brown(?:[^A-z0-9]|$)/i)) {
             m.sendFile("media/brown.jpg", threadId);
         }
         if (message.match(/kys/i)) {
