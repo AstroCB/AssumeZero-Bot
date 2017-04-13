@@ -160,5 +160,8 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/terps/i)) {
             m.sendEmoji("🐢", threadId);
         }
+        if (message.match(/tl(?:\;)?dr/i)) {
+            m.sendMessage("Scroll up", threadId);
+        }
     }
 }
