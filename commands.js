@@ -662,15 +662,15 @@ exports.commands = {
         "pretty_name": "Infiltrate",
         "short_description": "",
         "description": "Allows the bot to add the admin to groups that it's in",
-        "syntax": "infiltrate {group name}",
-        "example": "infiltrate Assume Zero Brain Power",
+        "syntax": "infiltrate ({threadId}|{group name})",
+        "example": ["infiltrate", "infiltrate 883154065107088", "infiltrate Assume Zero Brain Power"],
         "sudo": true,
         "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
         },
-        "regex": /infiltrate (.*)/i,
+        "regex": /infiltrate(?: ([0-9]+|.+))?/i,
         "experimental": false
     }
 };

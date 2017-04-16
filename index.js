@@ -952,24 +952,44 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         const searchName = co["infiltrate"].m[1];
         api.getThreadList(0, config.threadLimit, "inbox", (err, chats) => {
             if (!err) {
-                let chatFound = false;
-                for (let i = 0; i < chats.length; i++) {
-                    let chatName = chats[i].name;
-                    if (chatName.toLowerCase() == searchName.toLowerCase()) {
-                        chatFound = true;
-                        addUser(config.owner.id, {
-                            "threadId": chats[i].threadID
-                        }, true, (err) => {
-                            if (err) {
-                                sendError(`You're already in group "${chatName}".`, threadId);
-                            } else {
-                                sendMessage(`Added you to group "${chatName}".`, threadId);
-                            }
-                        }, false); // Add admin to specified group; send confirmation to both chats
+                if (!searchName) { // Just list chats
+                    let message = "Available chats:";
+                    message += chats.filter((c) => {
+                        // Check if can add admin
+                        const members = c.participantIDs;
+                        const botLoc = members.indexOf(config.bot.id);
+                        if (botLoc > -1) {
+                            members.splice(botLoc, 1);
+                            // Can add to chat and more than the bot & one other in the chat
+                            return (c.canReply && members.length > 1);
+                        }
+                        return false;
+                    }).map((c) => {
+                        const numMembers = c.participants.length - 1; // Exclude bot
+                        return `\n– ${c.name || c.threadID} (${numMembers} ${numMembers == 1 ? "member" : "members"})`;
+                    }).join("");
+                    sendMessage(message, threadId);
+                } else {
+                    let chatFound = false;
+                    for (let i = 0; i < chats.length; i++) {
+                        const chatName = chats[i].name;
+                        const chatId = chats[i].threadID;
+                        if (chatId == searchName || chatName.toLowerCase().indexOf(searchName.toLowerCase()) > -1) {
+                            chatFound = true;
+                            addUser(config.owner.id, {
+                                "threadId": chatId
+                            }, true, (err) => {
+                                if (err) {
+                                    sendError(`You're already in group "${chatName}".`, threadId);
+                                } else {
+                                    sendMessage(`Added you to group "${chatName}".`, threadId);
+                                }
+                            }, false); // Add admin to specified group; send confirmation to both chats
+                        }
                     }
-                }
-                if (!chatFound) {
-                    sendError(`Chat with name "${searchName}" not found.`, threadId)
+                    if (!chatFound) {
+                        sendError(`Chat with name "${searchName}" not found.`, threadId)
+                    }
                 }
             } else {
                 sendError("Thread list couldn't be retrieved.", threadId);
