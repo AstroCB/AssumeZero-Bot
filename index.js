@@ -1190,8 +1190,8 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                             info.userRegExp = utils.getRegexFromMembers(Object.keys(info.members));
                             // Attempt to give chat a more descriptive name than "Unnamed chat" if possible
                             if (!data.name) {
-                                let names = info.names.map((n) => {
-                                    return names[n];
+                                let names = Object.keys(info.names).map((n) => {
+                                    return info.names[n];
                                 });
                                 info.name = names.join("/") || "Unnamed chat";
                             }
