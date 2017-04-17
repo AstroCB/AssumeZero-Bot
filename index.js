@@ -258,7 +258,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["suggest"].m) {
         sendMessage(`Feature request from ${groupInfo.names[fromUserId]} in ${groupInfo.name}: ${co["suggest"].m[1]}`, config.owner.id, (err) => {
             if (!err) {
-                sendMessage(`Request sent to ${config.owner.names.short}`, threadId);
+                sendMessage(`Request sent to ${config.owner.names.short}.`, threadId);
             }
         });
     } else if (co["kick"].m && co["kick"].m[1]) {
