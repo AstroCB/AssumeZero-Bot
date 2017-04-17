@@ -164,7 +164,7 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
             m.sendMessage("Scroll up", threadId);
         }
         if (message.match(/internet/i)) {
-            m.sendMessage("media/internet.png", threadId);
+            m.sendFile("media/internet.png", threadId);
         }
         if (message.match(/email/i)) {
             m.sendFile("media/email.png", threadId);
