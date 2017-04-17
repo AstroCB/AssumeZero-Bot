@@ -255,6 +255,12 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 sendMessage(`Report could not be sent; please message ${config.owner.names.short} directly.`, groupInfo.threadId);
             }
         });
+    } else if (co["suggest"].m) {
+        sendMessage(`Feature request from ${groupInfo.names[fromUserId]} in ${groupInfo.name}: ${co["suggest"].m[1]}`, config.owner.id, (err) => {
+            if (!err) {
+                sendMessage(`Request sent to ${config.owner.names.short}`, threadId);
+            }
+        });
     } else if (co["kick"].m && co["kick"].m[1]) {
         const user = co["kick"].m[1].toLowerCase();
         const optTime = co["kick"].m[2] ? parseInt(co["kick"].m[2]) : undefined;
