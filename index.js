@@ -943,17 +943,16 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             // (ALSO VERY IMPORTANT so that group isn't completely emptied)
             // We're talking triple redundancies at this point
             if (groupInfo.members.hasOwnProperty(m) && groupInfo.members[m] != config.bot.id) {
-                kick(groupInfo.members[m], groupInfo, null, () => {
-                    // Archive the thread afterwards to avoid clutter in the messages list
-                    // (bot will still have access and be able to add people back if necessary)
-                    api.changeArchivedStatus(threadId, true, (err) => {
-                        if (err) {
-                            console.log(`Error archiving thread ${threadId}`);
-                        }
-                    })
-                });
+                kick(groupInfo.members[m], groupInfo);
             }
         }
+        // Archive the thread afterwards to avoid clutter in the messages list
+        // (bot will still have access and be able to add people back if necessary)
+        api.changeArchivedStatus(threadId, true, (err) => {
+            if (err) {
+                console.log(`Error archiving thread ${threadId}`);
+            }
+        });
     } else if (co["clearstats"].m) {
         resetStats();
     } else if (co["infiltrate"].m) {
