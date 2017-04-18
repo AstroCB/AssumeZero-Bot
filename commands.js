@@ -688,5 +688,21 @@ exports.commands = {
         },
         "regex": /infiltrate(?: ([0-9]+|.+))?/i,
         "experimental": false
+    },
+    "space": {
+        "display_names": ["space"],
+        "pretty_name": "Space",
+        "short_description": "Search for images from the NASA database",
+        "description": "Performs a search on NASA's database of space imagery, found at https://images.nasa.gov/",
+        "syntax": "space {search query}",
+        "example": ["space mars", "space milky way"],
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /space (.*)/i,
+        "experimental": false
     }
 };
