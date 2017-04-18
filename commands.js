@@ -693,16 +693,16 @@ exports.commands = {
         "display_names": ["space"],
         "pretty_name": "Space",
         "short_description": "Search for images from the NASA database",
-        "description": "Performs a search on NASA's database of space imagery, found at https://images.nasa.gov/",
-        "syntax": "space {search query}",
-        "example": ["space mars", "space milky way"],
+        "description": "Performs a search on NASA's database of space imagery, found at https://images.nasa.gov/; use 'random' to get a random result rather than the top",
+        "syntax": "space (random) {search query}",
+        "example": ["space mars", "space milky way", "space random sun"],
         "sudo": false,
         "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
         },
-        "regex": /space (.*)/i,
+        "regex": /space (rand(?:om)? )?(.*)/i,
         "experimental": false
     }
 };

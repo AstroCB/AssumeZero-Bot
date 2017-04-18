@@ -1009,12 +1009,12 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             }
         });
     } else if (co["space"].m) {
-        const search = co["space"].m[1];
+        const search = co["space"].m[2];
         request.get(`https://images-api.nasa.gov/search?q=${encodeURIComponent(search)}&media_type=image`, (err, res, body) => {
             if (!err) {
                 const results = JSON.parse(body).collection.items;
                 if(results) {
-                  const chosen = Math.floor(Math.random() * results.length);
+                  const chosen = co["space"].m[1] ? Math.floor(Math.random() * results.length) : 0; // If rand specified
                   const link = results[chosen].links[0].href;
                   const data = results[chosen].data[0];
                   sendFileFromUrl(link, `media/${data.nasa_id}.jpg`, `"${data.title}"\n${data.description}`, threadId);
