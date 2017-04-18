@@ -172,5 +172,8 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/microsoft windows/i)) {
             m.sendFile("media/windows.jpg", threadId);
         }
+        if (message.match(/bad taste/i)) {
+            m.sendFile("media/taste.png", threadId);
+        }
     }
 }
