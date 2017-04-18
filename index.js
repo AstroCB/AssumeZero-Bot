@@ -1012,10 +1012,11 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         const search = co["space"].m[1];
         request.get(`https://images-api.nasa.gov/search?q=${encodeURIComponent(search)}&media_type=image`, (err, res, body) => {
             if (!err) {
-                const result = JSON.parse(body).collection.items[0];
-                if(result) {
-                  const link = result.links[0].href;
-                  const data = result.data[0];
+                const results = JSON.parse(body).collection.items;
+                if(results) {
+                  const chosen = Math.floor(Math.random() * results.length);
+                  const link = results[chosen].links[0].href;
+                  const data = results[chosen].data[0];
                   sendFileFromUrl(link, `media/${data.nasa_id}.jpg`, `"${data.title}"\n${data.description}`, threadId);
                 } else {
                   sendError(`No results found for ${search}`, threadId);
