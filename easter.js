@@ -175,5 +175,8 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/bad taste/i)) {
             m.sendFile("media/taste.png", threadId);
         }
+        if (message.match(/how it(?: all)? began/i)) {
+            m.sendFile("media/began.png", threadId);
+        }
     }
 }
