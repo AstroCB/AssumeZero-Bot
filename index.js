@@ -812,7 +812,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             if (!err) {
                 const results = JSON.parse(body).collection.items;
                 if (results && results.length > 0) {
-                    const chosen = co["space"].m[1] ? Math.floor(Math.random() * results.length) : 0; // If rand specified
+                    const chosen = co["space"].m[1] ? Math.floor(Math.random() * results.length) : 0; // If rand not specified, use top result
                     const link = results[chosen].links[0].href;
                     const data = results[chosen].data[0];
                     sendFileFromUrl(link, `media/${data.nasa_id}.jpg`, `"${data.title}"\n${data.description}`, threadId);
