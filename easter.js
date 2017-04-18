@@ -169,5 +169,8 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/email/i)) {
             m.sendFile("media/email.png", threadId);
         }
+        if (message.match(/microsoft windows/i)) {
+            m.sendFile("media/windows.jpg", threadId);
+        }
     }
 }
