@@ -51,8 +51,8 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/pre(?:-|\s)?med/i)) {
             m.sendFile("media/premed.png", threadId);
         }
-        if (message.match(/(\s|^)sleep/i)) {
-            m.sendMessage("Have I got a story to tell you about various fruits...", threadId);
+        if (message.match(/fruit/i)) {
+            m.sendMessage("Just don't sleep for three days and you'll be good", threadId);
         }
         if (message.match(/good(?:\s)?night(?:\, )?bot/i)) {
             m.sendMessage("Night!", threadId);
