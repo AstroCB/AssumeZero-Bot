@@ -37,7 +37,7 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
                 "url": "https://www.youtube.com/watch?v=HydsTDvEINo"
             }, threadId);
         }
-        if (message.match(/(?:\s|^)|mechanics|electricity|magnetism|pulley|massless|friction|acceleration|torque|impulse/i)) {
+        if (message.match(/(?:\s|^)mechanics|electricity|magnetism|pulley|massless|friction|acceleration|torque|impulse/i)) {
             m.sendFile("media/shaw.png", threadId);
         }
         const bac = m.matchesWithUser("(?:get|measure|check) bac(?:[^k]|$)", message, fromUserId, groupInfo, true, "");
@@ -172,11 +172,14 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/microsoft windows/i)) {
             m.sendFile("media/windows.jpg", threadId);
         }
+<<<<<<< HEAD
         if (message.match(/bad taste/i)) {
             m.sendFile("media/taste.png", threadId);
         }
         if (message.match(/how it(?: all)? began/i)) {
             m.sendFile("media/began.png", threadId);
         }
+=======
+>>>>>>> parent of 9a70941... Update commands
     }
 }
