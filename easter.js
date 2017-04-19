@@ -172,14 +172,11 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/microsoft windows/i)) {
             m.sendFile("media/windows.jpg", threadId);
         }
-<<<<<<< HEAD
         if (message.match(/bad taste/i)) {
             m.sendFile("media/taste.png", threadId);
         }
         if (message.match(/how it(?: all)? began/i)) {
             m.sendFile("media/began.png", threadId);
         }
-=======
->>>>>>> parent of 9a70941... Update commands
     }
 }
