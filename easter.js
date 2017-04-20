@@ -29,7 +29,7 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/where have you been/i)) {
             m.sendFile("media/purdue.png", threadId);
         }
-        if (message.match(/nyu/i)) {
+        if (message.match(/nyc/i)) {
             m.sendMessage("We don't speak of it", threadId);
         }
         if (message.match(/physics c(?:[^A-z]|$)/i)) {
@@ -166,7 +166,7 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/internet/i)) {
             m.sendFile("media/internet.png", threadId);
         }
-        if (message.match(/email/i)) {
+        if (message.match(/star wars/i)) {
             m.sendFile("media/email.png", threadId);
         }
         if (message.match(/microsoft windows/i)) {
@@ -177,6 +177,9 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         }
         if (message.match(/how it(?: all)? began/i)) {
             m.sendFile("media/began.png", threadId);
+        }
+        if (message.match(/russian/i)) {
+            m.sendFile("media/russian.m4a", threadId);
         }
     }
 }
