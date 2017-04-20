@@ -391,7 +391,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                                     sendMessage({
                                         "body": message,
                                         "url": url
-                                    }), threadId);
+                                    }, threadId);
                                 }
                             } else {
                                 sendError(`No results found for query "${query}"`, threadId);
