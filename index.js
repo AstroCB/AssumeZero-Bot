@@ -1056,7 +1056,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         aliases[user] = alias;
         setGroupProperty("aliases", aliases, groupInfo, (err) => {
             if (!err) {
-                sendMessage(`${groupInfo.names[groupInfo.members[user]]} can now be called "${aliasInput}"`, threadId);
+                sendMessage(`${groupInfo.names[groupInfo.members[user]]} can now be called "${aliasInput}".`, threadId);
             }
         });
     }
