@@ -1005,7 +1005,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         api.getThreadList(0, config.threadLimit, "inbox", (err, chats) => {
             if (!err) {
                 if (!searchName) { // Just list chats
-                    let message = "Available chats:";
+                    let message = "Available groups:";
                     message += chats.filter((c) => {
                         // Check if can add admin
                         const members = c.participantIDs;
