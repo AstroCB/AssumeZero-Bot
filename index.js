@@ -509,20 +509,42 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             const pArr = Object.keys(playlists).map((p) => {
                 return playlists[p];
             });
-            logInSpotify((err) => {
-                if (!err) {
-                    for (let i = 0; i < pArr.length; i++) {
-                        if (i == 0) {
-                            sendMessage("Playlists for this group:", threadId);
-                        }
-                        spotify.getPlaylist(pArr[i].user, pArr[i].uri, {}, (err, data) => {
-                            if (!err) {
-                                sendMessage(`"${data.body.name}" by ${pArr[i].name} (${data.body.tracks.items.length} songs)`, threadId);
+            if (pArr.length == 0) {
+                sendMessage(`No playlists for this group. To add one, use "${config.trigger} playlist" (see help).`, threadId);
+            } else {
+                logInSpotify((err) => {
+                    if (!err) {
+                        let results = [];
+                        let now = current = (new Date()).getTime();
+
+                        function updateResults(value) {
+                            results.push(value);
+
+                            const success = (results.length == pArr.length);
+                            current = (new Date()).getTime();
+
+                            if (success || (current - now) >= config.asyncTimeout) {
+                                const descs = results.map((p) => {
+                                    return `"${p.name}" by ${p.user} (${p.length} songs)`;
+                                });
+                                sendMessage(`Playlists for this group:\n${descs.join("\n")}`, threadId);
                             }
-                        });
+                        }
+
+                        for (let i = 0; i < pArr.length; i++) {
+                            spotify.getPlaylist(pArr[i].user, pArr[i].uri, {}, (err, data) => {
+                                if (!err) {
+                                    updateResults({
+                                        "name": data.body.name,
+                                        "user": pArr[i].name,
+                                        "length": data.body.tracks.items.length
+                                    });
+                                }
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     } else if (co["addsearch"].m && co["addsearch"].m[1] && co["addsearch"].m[3]) {
         // Fields 1 & 3 are are for the command and the user, respectively
@@ -1206,6 +1228,7 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                         // These properties only need to be initialized once
                         info.muted = true;
                         info.playlists = {};
+                        info.aliases = {};
                     }
                     api.getUserInfo(data.participantIDs, (err, userData) => {
                         if (!err) {
