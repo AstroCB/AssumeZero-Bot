@@ -527,7 +527,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                                 const descs = results.map((p) => {
                                     return `"${p.name}" by ${p.user} (${p.length} songs)`;
                                 });
-                                sendMessage(`Playlists for this group:\n${descs.join("\n")}`, threadId);
+                                sendMessage(`Playlists for this group:\n${descs.join("\n— ")}`, threadId);
                             }
                         }
 
