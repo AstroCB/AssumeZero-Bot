@@ -177,7 +177,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                     const entry = co[c];
                     if (entry.display_names.length > 0) { // Don't display if no display names (secret command)
                         // Only display short description if one exists
-                        mess += `${entry.syntax}${entry.short_description ? `: ${entry.short_description}` : ""}${entry.sudo ? " [ADMIN]" : ""}\n`
+                        mess += `${entry.syntax}${entry.short_description ? `: ${entry.short_description}` : ""}${entry.sudo ? " [ADMIN]" : ""}\n`;
                         mess += "------------------\n"; // Suffix for separating commands
                     }
                 }
@@ -207,7 +207,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                             const user = getHighestUser(stats.record);
                             if (user) { // Found a user with highest usage
                                 const name = groupInfo.names[user] || "not in this chat";
-                                m += `\n\nIts most prolific user is ${name}.`
+                                m += `\n\nIts most prolific user is ${name}.`;
                             }
 
                             sendMessage(m, threadId);
@@ -220,14 +220,14 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 // No command passed; show all
                 getAllStats((success, data) => {
                     if (!success) {
-                        console.log("Failed to retrieve all stats")
+                        console.log("Failed to retrieve all stats");
                     }
                     for (let i = 0; i < data.length; i++) {
                         data[i].stats = getComputedStats(data[i].stats); // Get usage stats for sorting
                     }
                     data = data.sort((a, b) => {
                         return (b.stats.usage.perc - a.stats.usage.perc); // Sort greatest to least
-                    })
+                    });
 
                     let msg = "Command: % of total usage | # today | # this month\n";
 
@@ -344,7 +344,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                                         const link = bestMatch.external_urls.spotify;
                                         const image = bestMatch.images[0];
                                         const popularity = bestMatch.popularity;
-                                        let message = `Best match: ${bestMatch.name}\nPopularity: ${popularity}%\n\nTop tracks:\n`
+                                        let message = `Best match: ${bestMatch.name}\nPopularity: ${popularity}%\n\nTop tracks:\n`;
                                         for (let i = 0; i < config.spotifySearchLimit; i++) {
                                             if (tracks[i]) {
                                                 message += `${tracks[i].name}${tracks[i].explicit ? " (Explicit)" : ""} (from ${tracks[i].album.name})${(i != config.spotifySearchLimit - 1) ? "\n" : ""}`;
@@ -370,7 +370,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                                 sendError(`No results found for query "${query}"`, threadId);
                             }
                         } else {
-                            sendError(err, threadId)
+                            sendError(err, threadId);
                         }
                     });
                 } else {
@@ -391,7 +391,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                                     sendMessage({
                                         "body": message,
                                         "url": url
-                                    }), threadId;
+                                    }), threadId);
                                 }
                             } else {
                                 sendError(`No results found for query "${query}"`, threadId);
@@ -509,7 +509,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             const pArr = Object.keys(playlists).map((p) => {
                 return playlists[p];
             });
-            if (pArr.length == 0) {
+            if (pArr.length === 0) {
                 sendMessage(`No playlists for this group. To add one, use "${config.trigger} playlist" (see help).`, threadId);
             } else {
                 logInSpotify((err) => {
@@ -1427,7 +1427,7 @@ function getDateString() {
 // and uploads it with the description if it finds one
 // Optional parameter to specify which level of match it is (1st, 2nd, 3rd, etc.)
 function searchForUser(match, threadId, num = 0, api = gapi) {
-    const desc = `${(num == 0) ? "Best match" : "Match " + (num+1)}: ${match.name}\n${match.profileUrl}\nRank: ${match.score}`;
+    const desc = `${(num === 0) ? "Best match" : "Match " + (num+1)}: ${match.name}\n${match.profileUrl}\nRank: ${match.score}`;
 
     // Try to get large propic URL from Facebook Graph API using user ID
     // If propic exists, combine it with the description
