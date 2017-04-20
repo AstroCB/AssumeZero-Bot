@@ -110,7 +110,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     const co = commands.commands; // Short var names since I'll be typing them a lot
     for (let c in co) {
         if (co.hasOwnProperty(c)) {
-            // Check whether command is sudo-protected and, if so, whether the user is the admin
+            // Check whether command is sudo-protected and, if so, whether the user is the owner
             if ((co[c].sudo && fromUserId == config.owner.id) || !co[c].sudo) {
                 // Set match vals
                 if (co[c].user_input.accepts) { // Takes a match from the members dict
@@ -1047,6 +1047,18 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 sendError("Thread list couldn't be retrieved.", threadId);
             }
         });
+    } else if (co["alias"].m) {
+        const user = co["alias"].m[1].toLowerCase();
+        const aliasInput = co["alias"].m[2]
+        const alias = aliasInput.toLowerCase();
+        const aliases = groupInfo.aliases;
+
+        aliases[user] = alias;
+        setGroupProperty("aliases", aliases, groupInfo, (err) => {
+            if (!err) {
+                sendMessage(`${groupInfo.names[groupInfo.members[user]]} can now be called "${aliasInput}"`, threadId);
+            }
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -1063,7 +1075,16 @@ function matchesWithUser(command, message, fromUserId, groupData, optional = fal
         const input = match.input;
         match = match.map((m) => {
             if (m) {
-                return m.replace(/(^| )me(?:[^A-z0-9]|$)/i, "$1" + groupData.names[fromUserId]);
+                // Any post-match changes that need to be made
+                let fixes = m;
+                // "Me" -> current user
+                fixes = fixes.replace(/(^| )me(?:[^A-z0-9]|$)/i, "$1" + groupData.names[fromUserId]);
+                // {alias} -> corresponding user
+                for (let a in groupData.aliases) {
+                    fixes = fixes.replace(new RegExp(`(^| )${groupData.aliases[a]}(?:[^A-z0-9]|$)`, "i"), "$1" + a);
+                }
+                // console.log(fixes);
+                return fixes;
             }
         });
         match.index = index;
@@ -1118,9 +1139,13 @@ function parsePing(m, fromUserId, groupInfo) {
         while (matches && matches[1]) {
             users.push(matches[1].toLowerCase());
             const beforeSplit = m;
-            m = m.split("@@" + matches[1]).join(""); // Remove discovered match from string
-            if (m == beforeSplit) { // Discovered match was "me"
+            m = m.split(`@@${matches[1]}`).join(""); // Remove discovered match from string
+            if (m == beforeSplit) { // Discovered match was "me" or alias
                 m = m.split("@@me").join("");
+                const alias = groupInfo.aliases[matches[1]];
+                if (alias) {
+                    m = m.split(`@@${alias}`).join("");
+                }
             }
             matches = matchesWithUser("@@", m, fromUserId, groupInfo, false, "");
         }
@@ -1222,6 +1247,9 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                     info.name = data.name || "Unnamed chat";
                     info.emoji = data.emoji ? data.emoji.emoji : null;
                     info.color = data.color;
+                    if (data.nicknames[config.bot.id]) { // Don't add bot to nicknames list
+                        delete data.nicknames[config.bot.id];
+                    }
                     info.nicknames = data.nicknames || {};
                     info.isGroup = (typeof(isGroup) == "boolean") ? isGroup : info.isGroup;
                     if (isNew) {
@@ -1240,7 +1268,12 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                                     info.names[id] = userData[id].firstName;
                                 }
                             }
-                            info.userRegExp = utils.getRegexFromMembers(Object.keys(info.members));
+                            // Set regex to search for member first names and any included aliases
+                            const aliases = Object.keys(info.aliases).map((n) => {
+                                return info.aliases[n];
+                            });
+                            const matches = Object.keys(info.members).concat(aliases);
+                            info.userRegExp = utils.getRegexFromMembers(matches);
                             // Attempt to give chat a more descriptive name than "Unnamed chat" if possible
                             if (!data.name) {
                                 let names = Object.keys(info.names).map((n) => {
