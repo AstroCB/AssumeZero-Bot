@@ -85,7 +85,7 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/(^|\s)drug/i)) {
             m.sendFile("media/drugs.png", threadId);
         }
-        if (message.match(/(^|\s)how(\?|$)/i)) {
+        if (message.match(/how is that even possible/i)) {
             m.sendFile("media/speedforce.mp4", threadId);
         }
         if (message.match(/(^|\s)frat/i)) {
