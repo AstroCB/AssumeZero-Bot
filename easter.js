@@ -184,5 +184,8 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
 	if (message.match(/semicolon/i)) {
 	    m.sendFile("media/semicolons.png", threadId);
 	}
+	if (message.match(/me irl/i)) {
+	    m.sendFile("media/meirl.png", threadId);
+	}
     }
 }
