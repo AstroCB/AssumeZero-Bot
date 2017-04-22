@@ -712,13 +712,13 @@ exports.commands = {
         "description": "A member's default username is their first name; this command allows a user to assign an alternate username, which will be accepted in any command where a member name is required",
         "syntax": "alias (clear {member}|{member} {alternate name})",
         "example": [`alias me ${config.bot.names.short || "Bot"}`, `alias clear me`],
-        "sudo": true,
+        "sudo": false,
         "attachments": false,
         "user_input": {
             "accepts": true,
             "optional": false
         },
         "regex": ["alias( clear)?", "(?: (.*))?"],
-        "experimental": true
+        "experimental": false
     }
 };
