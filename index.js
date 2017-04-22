@@ -740,7 +740,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             sendError(`User ${user_cap} not found`, threadId);
         }
     } else if (co["score"].m) {
-        if (co["score"].m[1].toLowerCase() == "board") { // Display scoreboard
+        if (co["score"].m[1]) { // Display scoreboard
             getAllScores(groupInfo, (success, scores) => {
                 if (success) {
                     scores = scores.sort((a, b) => {
@@ -1048,17 +1048,28 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             }
         });
     } else if (co["alias"].m) {
-        const user = co["alias"].m[1].toLowerCase();
-        const aliasInput = co["alias"].m[2]
-        const alias = aliasInput.toLowerCase();
+        const user = co["alias"].m[2].toLowerCase();
+        const aliasInput = co["alias"].m[3]
         const aliases = groupInfo.aliases;
+        if (co["alias"].m[1]) { // Clear
+            delete aliases[user];
+            setGroupProperty("aliases", aliases, groupInfo, (err) => {
+                if (!err) {
+                    sendMessage(`Alias cleared for ${groupInfo.names[groupInfo.members[user]]}.`, threadId);
+                }
+            });
+        } else if (aliasInput) { // Set new alias
+            const alias = aliasInput.toLowerCase();
 
-        aliases[user] = alias;
-        setGroupProperty("aliases", aliases, groupInfo, (err) => {
-            if (!err) {
-                sendMessage(`${groupInfo.names[groupInfo.members[user]]} can now be called "${aliasInput}".`, threadId);
-            }
-        });
+            aliases[user] = alias;
+            setGroupProperty("aliases", aliases, groupInfo, (err) => {
+                if (!err) {
+                    sendMessage(`${groupInfo.names[groupInfo.members[user]]} can now be called "${aliasInput}".`, threadId);
+                }
+            });
+        } else {
+            sendError("Please pass a value for this user's alias.", threadId);
+        }
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -1068,25 +1079,39 @@ exports.handleCommand = handleCommand; // Export for external use
 function matchesWithUser(command, message, fromUserId, groupData, optional = false, sep = " ", suffix = "") {
     // Construct regex string
     let match = message.match(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${groupData.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
-    // Now look for instances of "me" in the command and replace with the calling user
     if (match) {
         // Preserve properties
         const index = match.index;
         const input = match.input;
-        match = match.map((m) => {
-            if (m) {
+        for (let i = 1; i < match.length; i++) { // Start offset one to skip full match at [0]
+            let m = match[i];
+            if (m) { // Make sure only modifying the user field (no aliases here)
                 // Any post-match changes that need to be made
                 let fixes = m;
-                // "Me" -> current user
+                // "Me" -> calling user
                 fixes = fixes.replace(/(^| )me(?:[^A-z0-9]|$)/i, "$1" + groupData.names[fromUserId]);
                 // {alias} -> corresponding user
                 for (let a in groupData.aliases) {
-                    fixes = fixes.replace(new RegExp(`(^| )${groupData.aliases[a]}(?:[^A-z0-9]|$)`, "i"), "$1" + a);
+                    if (groupData.aliases.hasOwnProperty(a)) {
+                        fixes = fixes.replace(new RegExp(`(^| )${groupData.aliases[a]}(?:[^A-z0-9]|$)`, "i"), "$1" + a);
+                    }
                 }
-                // console.log(fixes);
-                return fixes;
+                match[i] = fixes;
+                if (m != fixes) {
+                    /*
+                    NOTE: If a username has been replaced, no more changes are needed
+                    The username change should always be the first (and only) change
+                    to trigger this block, but it may not always be (esp. for future commands)
+                    so be careful and revisit this if a better solution can be found (nothing else
+                    has worked thus far).
+
+                    For instance, I had to update the "score" command after implementing this since it
+                    had an erroneous capturing group that contained a username before the main username field.
+                    */
+                    break;
+                }
             }
-        });
+        }
         match.index = index;
         match.input = input;
     }
@@ -1272,8 +1297,8 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                             const aliases = Object.keys(info.aliases).map((n) => {
                                 return info.aliases[n];
                             });
-                            const matches = Object.keys(info.members).concat(aliases);
-                            info.userRegExp = utils.getRegexFromMembers(matches);
+                            const matches = Object.keys(info.members);
+                            info.userRegExp = utils.getRegexFromMembers(matches.concat(aliases));
                             // Attempt to give chat a more descriptive name than "Unnamed chat" if possible
                             if (!data.name) {
                                 let names = Object.keys(info.names).map((n) => {
