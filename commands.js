@@ -380,7 +380,7 @@ exports.commands = {
         "attachments": false,
         "user_input": {
             "accepts": true,
-            "optional": false
+            "optional": true
         },
         "regex": ["score(board)?", "(?: (\\d+))?"],
         "experimental": false
