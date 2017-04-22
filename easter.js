@@ -91,7 +91,7 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/(^|\s)frat/i)) {
             m.sendFile("media/frat.jpg", threadId);
         }
-        if (message.match(/(?:girlfriend|gf)/i)) {
+        if (message.match(/(?:girlfriend|(?:(?:^| )gf(?:$|[^A-z0-9])))/i)) {
             m.sendFile("media/girlfriend.png", threadId);
         }
         if (message.match(/el spaniard/i)) {
