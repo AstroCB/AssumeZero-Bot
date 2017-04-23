@@ -1901,7 +1901,7 @@ function getComputedStats(stats) {
 
 // Allows the bot to react to a message given a message ID (from listen)
 // Possible reactions: 'love', 'funny', 'wow', 'sad', 'angry', 'like', and 'dislike'
-function reactToMessage(messageId, reaction = "like") {
+function reactToMessage(messageId, reaction = "like", api = gapi) {
     const reactions = {
         "love": "😍",
         "funny": "😆",
