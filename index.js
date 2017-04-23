@@ -664,7 +664,8 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             }
         });
     } else if (co["alive"].m) {
-        sendGroupEmoji(groupInfo, "large");
+        sendGroupEmoji(groupInfo, "large"); // Send emoji and react to message in response
+        api.setMessageReaction("👍", messageLiteral.messageID);
     } else if (co["emoji"].m) {
         api.changeThreadEmoji(co["emoji"].m[1], threadId, (err) => {
             if (err) {
