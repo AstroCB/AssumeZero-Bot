@@ -89,7 +89,7 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
                             handleCommand(m.substring(cindex + config.trigger.length), senderId, info, message); // Pass full message obj in case it's needed in a command
                         }
                         // Check for Easter eggs
-                        easter.handleEasterEggs(m, senderId, attachments, info, api);
+                        easter.handleEasterEggs(m, senderId, message.messageID, attachments, info, api);
                     }
                 }
             }
@@ -665,7 +665,6 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         });
     } else if (co["alive"].m) {
         sendGroupEmoji(groupInfo, "large"); // Send emoji and react to message in response
-        api.setMessageReaction("👍", messageLiteral.messageID);
     } else if (co["emoji"].m) {
         api.changeThreadEmoji(co["emoji"].m[1], threadId, (err) => {
             if (err) {
@@ -1899,3 +1898,19 @@ function getComputedStats(stats) {
     stats.usage = usage;
     return stats;
 }
+
+// Allows the bot to react to a message given a message ID (from listen)
+// Possible reactions: 'love', 'funny', 'wow', 'sad', 'angry', 'like', and 'dislike'
+function reactToMessage(messageId, reaction = "like") {
+    const reactions = {
+        "love": "😍",
+        "funny": "😆",
+        "wow": "😮",
+        "sad": "😢",
+        "angry": "😠",
+        "like": "👍",
+        "dislike": "👎"
+    };
+    api.setMessageReaction(reactions[reaction], messageId);
+}
+exports.reactToMessage = reactToMessage;

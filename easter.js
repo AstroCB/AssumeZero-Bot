@@ -5,7 +5,7 @@ const config = require("./config");
 // Check for commands that don't require a trigger (Easter eggs)
 // Some commands may require additional configuration (and most only make sense for
 // the original chat it was built for), so should probably be off by default
-exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) => {
+exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupInfo, api) => {
     const threadId = groupInfo.threadId;
     if (!groupInfo.muted) { // Don't check for Easter eggs if muted
         if (message.match(/genius/i)) {
@@ -13,6 +13,7 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         }
         if (message.match(/cuck(?:ed)?/i)) {
             m.sendMessage("Delete your account.", threadId)
+            m.reactToMessage(messageId, "angry");
         }
         if (message.match(/(?:problem |p)set(?:s)?/i)) {
             m.sendContentsOfFile("media/monologue.txt", threadId);
@@ -181,11 +182,11 @@ exports.handleEasterEggs = (message, fromUserId, attachments, groupInfo, api) =>
         if (message.match(/russian/i)) {
             m.sendFile("media/russian.m4a", threadId);
         }
-	if (message.match(/semicolon/i)) {
-	    m.sendFile("media/semicolons.png", threadId);
-	}
-	if (message.match(/me irl/i)) {
-	    m.sendFile("media/meirl.png", threadId);
-	}
+        if (message.match(/semicolon/i)) {
+            m.sendFile("media/semicolons.png", threadId);
+        }
+        if (message.match(/me irl/i)) {
+            m.sendFile("media/meirl.png", threadId);
+        }
     }
 }
