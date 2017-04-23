@@ -641,7 +641,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         sendMessage(`Messaged ${user.substring(0, 1).toUpperCase()}${user.substring(1)} ${config.wakeUpTimes} times`, threadId);
     } else if (co["randmess"].m) {
         // Get thread length
-        api.getThreadInfo(threadId, function(err, data) {
+        api.getThreadInfo(threadId, (err, data) => {
             if (!err) {
                 const count = data.messageCount; // Probably isn't that accurate
                 let randMessage = Math.floor(Math.random() * (count + 1));
