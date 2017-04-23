@@ -12,7 +12,6 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
             m.sendFile("media/genius.jpg", threadId);
         }
         if (message.match(/cuck(?:ed)?/i)) {
-            m.sendMessage("Delete your account.", threadId)
             m.reactToMessage(messageId, "angry");
         }
         if (message.match(/(?:problem |p)set(?:s)?/i)) {
