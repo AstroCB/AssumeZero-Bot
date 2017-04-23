@@ -645,7 +645,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             if (!err) {
                 const count = data.messageCount; // Probably isn't that accurate
                 let randMessage = Math.floor(Math.random() * (count + 1));
-                api.getThreadHistory(threadId, count, null, (err, data) => {
+                api.getThreadHistory(threadId, (count/4), null, (err, data) => { // Most recent quarter to prevent overload
                     if (err) {
                         sendMessage("Error: Messages could not be loaded", threadId);
                     } else {
