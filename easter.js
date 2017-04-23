@@ -187,5 +187,8 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         if (message.match(/me irl/i)) {
             m.sendFile("media/meirl.png", threadId);
         }
+        if(message.match(/you are a mank/)) {
+          m.sendFile("media/mank.png", threadId);
+        }
     }
 }
