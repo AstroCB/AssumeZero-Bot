@@ -29,8 +29,8 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         if (message.match(/where have you been/i)) {
             m.sendFile("media/purdue.png", threadId);
         }
-        if (message.match(/nyc/i)) {
-            m.sendMessage("We don't speak of it", threadId);
+        if (message.match(/nyu/i)) {
+            m.reactToMessage(messageId, "sad");
         }
         if (message.match(/physics c(?:[^A-z]|$)/i)) {
             m.sendMessage({
