@@ -274,7 +274,7 @@ exports.commands = {
         "experimental": false
     },
     "randmess": {
-        "display_names": ["get random message", "random message"],
+        "display_names": ["random message"],
         "pretty_name": "Random message",
         "short_description": "",
         "description": "Retrieves a random message from the recent history of the group",
@@ -287,7 +287,7 @@ exports.commands = {
             "optional": false
         },
         "regex": /random message/i,
-        "experimental": true
+        "experimental": false
     },
     "alive": {
         "display_names": ["alive", "alive?"],

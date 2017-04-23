@@ -643,12 +643,11 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         // Get thread length
         api.getThreadInfo(threadId, function(err, data) {
             if (!err) {
-                const count = data.messageCount;
+                const count = data.messageCount; // Probably isn't that accurate
                 let randMessage = Math.floor(Math.random() * (count + 1));
-                api.getThreadHistory(threadId, 0, count, (new Date()).getTime(), function(err, data) {
+                api.getThreadHistory(threadId, (count/2), null, (err, data) => { // Grab from most recent half of chat
                     if (err) {
-                        console.log(err);
-                        sendMessage("Error: Message could not be found", threadId);
+                        sendMessage("Error: Messages could not be loaded", threadId);
                     } else {
                         let m = data[randMessage];
                         while (!(m && m.body)) {
