@@ -645,7 +645,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             if (!err) {
                 const count = data.messageCount; // Probably isn't that accurate
                 let randMessage = Math.floor(Math.random() * (count + 1));
-                api.getThreadHistory(threadId, (count/4), null, (err, data) => { // Most recent quarter to prevent overload
+                api.getThreadHistory(threadId, (count / 4), null, (err, data) => { // Most recent quarter to prevent overload
                     if (err) {
                         sendMessage("Error: Messages could not be loaded", threadId);
                     } else {
@@ -1050,24 +1050,28 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         const user = co["alias"].m[2].toLowerCase();
         const aliasInput = co["alias"].m[3]
         const aliases = groupInfo.aliases;
+        const name = groupInfo.names[groupInfo.members[user]];
         if (co["alias"].m[1]) { // Clear
             delete aliases[user];
             setGroupProperty("aliases", aliases, groupInfo, (err) => {
                 if (!err) {
-                    sendMessage(`Alias cleared for ${groupInfo.names[groupInfo.members[user]]}.`, threadId);
+                    sendMessage(`Alias cleared for ${name}.`, threadId);
                 }
             });
         } else if (aliasInput) { // Set new alias
             const alias = aliasInput.toLowerCase();
-
             aliases[user] = alias;
             setGroupProperty("aliases", aliases, groupInfo, (err) => {
                 if (!err) {
-                    sendMessage(`${groupInfo.names[groupInfo.members[user]]} can now be called "${aliasInput}".`, threadId);
+                    sendMessage(`${name} can now be called "${aliasInput}".`, threadId);
                 }
             });
-        } else {
-            sendError("Please pass a value for this user's alias.", threadId);
+        } else { // Display alias for user if exists
+            if (aliases[user]) {
+                sendMessage(`${name} can also be called "${aliases[user]}".`, threadId);
+            } else {
+                sendMessage(`${name} does not have an alias.`, threadId);
+            }
         }
     }
 }
