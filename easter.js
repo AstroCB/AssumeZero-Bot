@@ -193,5 +193,12 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         if (message.match(/capitalone/i)) {
             m.sendFile("media/capitalone.png", threadId);
         }
+
+        if (message.match(/assume zero brain power/i)) {
+            m.sendFile("media/aøbp.png", threadId)
+        }
+        if (message.match(/langlieb/i)) {
+            m.sendFile("media/langlieb.png", threadId);
+        }
     }
 }
