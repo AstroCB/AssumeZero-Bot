@@ -200,5 +200,8 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         if (message.match(/langlieb/i)) {
             m.sendFile("media/langlieb.png", threadId);
         }
+        if (message.match(/(?:^|\s)vr($|[^A-z0-9])/i)) {
+            m.reactToMessage(messageId, "funny");
+        }
     }
 }
