@@ -1145,6 +1145,17 @@ function sendError(m, threadId) {
 }
 exports.sendError = sendError;
 
+// Wrapper function for using mentions
+// Mentions parameter is an array of dictionaries for each mention
+// Each dict contains "tag" and "id" keys that should be set to
+// the text and the id of the mention respectively
+function sendMessageWithMentions(message, mentions, threadId) {
+    sendMessage({
+        "body": message,
+        "mentions": mentions,
+    }, threadId);
+}
+
 function debugCommandOutput(flag) {
     if (flag) {
         const co = commands.commands;
@@ -1197,7 +1208,14 @@ function handlePings(msg, senderId, info) {
                 message = `"${pingMessage}" – ${sender} in ${info.name}`;
             }
             message += ` at ${getTimeString()}` // Time stamp
-            sendMessage(message, info.members[pingUsers[i]]);
+            // Send message with links to chat/sender
+            sendMessageWithMentions(message, [{
+                "tag": sender,
+                "id": senderId
+            }, {
+                "tag": info.name,
+                "id": info.threadId
+            }], info.members[pingUsers[i]]);
         }
     }
 }
