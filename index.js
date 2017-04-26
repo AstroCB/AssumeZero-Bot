@@ -1150,6 +1150,7 @@ exports.sendError = sendError;
 // Each dict contains "tag" and "id" keys that should be set to
 // the text and the id of the mention respectively
 function sendMessageWithMentions(message, mentions, threadId) {
+  console.log(mentions);
     sendMessage({
         "body": message,
         "mentions": mentions,
