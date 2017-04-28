@@ -1728,7 +1728,7 @@ function sendFilesFromDir(dir, threadId) {
     fs.readdir(dir, (err, filenames) => {
         if (!err) {
             sendFile(filenames.map((f) => {
-                return `${dir}/${f}`
+                return `${dir}/${f}`;
             }), threadId);
         } else {
             console.log(err);
