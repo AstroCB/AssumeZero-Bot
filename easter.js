@@ -203,7 +203,7 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         if (message.match(/(?:^|\s)(?:v|a)r($|[^A-z0-9])/i)) {
             m.reactToMessage(messageId, "funny");
         }
-        if (message.match(/(?:yo)u right/i)) {
+        if (message.match(/(?:yo)?u(?:\'re|r)? ri(?:ght|te)/i)) {
             m.reactToMessage(messageId, "angry");
         }
     }
