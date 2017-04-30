@@ -206,5 +206,8 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         if (message.match(/(?:yo)?u(?:\'re|r)? ri(?:ght|te)/i)) {
             m.reactToMessage(messageId, "angry");
         }
+        if (message.match(/d(?:ropbox|bx)/i)) {
+            m.sendFile("media/dropbox.jpg", threadId);
+        }
     }
 }
