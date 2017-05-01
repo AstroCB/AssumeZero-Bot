@@ -67,7 +67,7 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
     if (message && !err) {
         // Update info of group where message came from in the background (unless it's an external call)
         if (!external) {
-            updateGroupInfo(message.threadID, message.isGroup);
+            updateGroupInfo(message.threadID, message);
         }
         // Load existing group data
         getGroupInfo(message.threadID, (err, info) => {
@@ -862,7 +862,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         sendMessage(`${rand}\n\nWith bounds of (${lowerBound}, ${upperBound}), the chances of receiving this result were ${chance}%`, threadId);
     } else if (co["bw"].m) {
         const url = co["bw"].m[1];
-        processImage(url, attachments, threadId, (img, filename) => {
+        processImage(url, attachments, groupInfo, (img, filename) => {
             img.greyscale().write(filename, (err) => {
                 if (!err) {
                     sendFile(filename, threadId, "", () => {
@@ -873,7 +873,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         });
     } else if (co["sepia"].m) {
         const url = co["sepia"].m[1];
-        processImage(url, attachments, threadId, (img, filename) => {
+        processImage(url, attachments, groupInfo, (img, filename) => {
             img.sepia().write(filename, (err) => {
                 if (!err) {
                     sendFile(filename, threadId, "", () => {
@@ -885,7 +885,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["flip"].m) {
         const horiz = (co["flip"].m[1].toLowerCase().indexOf("horiz") > -1); // Horizontal or vertical
         const url = co["flip"].m[2];
-        processImage(url, attachments, threadId, (img, filename) => {
+        processImage(url, attachments, groupInfo, (img, filename) => {
             img.flip(horiz, !horiz).write(filename, (err) => {
                 if (!err) {
                     sendFile(filename, threadId, "", () => {
@@ -896,7 +896,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         });
     } else if (co["invert"].m) {
         const url = co["invert"].m[1];
-        processImage(url, attachments, threadId, (img, filename) => {
+        processImage(url, attachments, groupInfo, (img, filename) => {
             img.invert().write(filename, (err) => {
                 if (!err) {
                     sendFile(filename, threadId, "", () => {
@@ -909,7 +909,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         const pixels = parseInt(co["blur"].m[1]) || 2;
         const gauss = co["blur"].m[2];
         const url = co["blur"].m[3];
-        processImage(url, attachments, threadId, (img, filename) => {
+        processImage(url, attachments, groupInfo, (img, filename) => {
             const callback = (err) => {
                 if (!err) {
                     sendFile(filename, threadId, "", () => {
@@ -926,7 +926,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["overlay"].m) {
         const url = co["overlay"].m[1];
         const overlay = co["overlay"].m[2];
-        processImage(url, attachments, threadId, (img, filename) => {
+        processImage(url, attachments, groupInfo, (img, filename) => {
             jimp.loadFont(jimp.FONT_SANS_32_BLACK, (err, font) => {
                 if (!err) {
                     const width = img.bitmap.width; // Image width
@@ -951,7 +951,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         perc = (perc > 100) ? 1 : (perc / 100.0);
         perc = bright ? perc : (-1 * perc);
         const url = co["brightness"].m[3];
-        processImage(url, attachments, threadId, (img, filename) => {
+        processImage(url, attachments, groupInfo, (img, filename) => {
             img.brightness(perc).write(filename, (err) => {
                 if (!err) {
                     sendFile(filename, threadId, "", () => {
@@ -1267,10 +1267,12 @@ function addUser(id, info, welcome = true, callback = () => {}, retry = true, cu
 }
 
 // Update stored info about groups after every message in the background
+// Takes an optional message object when called by the update subroutine,
+// but can be ignored when called from anywhere else
 // Using callback is discouraged as the idea of this function is to update in
 // the background to decrease lag, but it may be useful if updates are required
 // to continue
-function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
+function updateGroupInfo(threadId, message, callback = () => {}, api = gapi) {
     getGroupInfo(threadId, (err, existingInfo) => {
         if (!err) {
             let isNew = false;
@@ -1290,6 +1292,7 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                 if (data) {
                     let info = existingInfo || {};
                     info.threadId = threadId;
+                    info.lastMessage = message;
                     info.name = data.name || "Unnamed chat";
                     info.emoji = data.emoji ? data.emoji.emoji : null;
                     info.color = data.color;
@@ -1297,7 +1300,7 @@ function updateGroupInfo(threadId, isGroup, callback = () => {}, api = gapi) {
                         delete data.nicknames[config.bot.id];
                     }
                     info.nicknames = data.nicknames || {};
-                    info.isGroup = (typeof(isGroup) == "boolean") ? isGroup : info.isGroup;
+                    info.isGroup = message ? message.isGroup : info.isGroup;
                     if (isNew) {
                         // These properties only need to be initialized once
                         info.muted = true;
@@ -1397,7 +1400,7 @@ function setGroupInfo(info, callback = () => {}) {
 function setGroupProperty(key, value, info, callback = () => {}) {
     info[key] = value;
     setGroupInfo(info, () => {
-        updateGroupInfo(info.threadId, info.isGroup, callback);
+        updateGroupInfo(info.threadId, info.lastMessage, callback);
     });
 }
 
@@ -1661,7 +1664,8 @@ function setGroupImageFromUrl(url, threadId, errMsg = "Photo couldn't download p
 
 // Processes an image or images by sifting between URL input and attachments and downloading
 // Returns a JIMP image object and filename where the image was stored
-function processImage(url, attachments, threadId, callback = () => {}) {
+function processImage(url, attachments, info, callback = () => {}) {
+  const threadId = info.threadId;
     if (url) { // URL passed
         const filename = `media/${encodeURIComponent(url)}.png`;
         jimp.read(url, (err, file) => {
@@ -1671,11 +1675,12 @@ function processImage(url, attachments, threadId, callback = () => {}) {
                 callback(file, filename);
             }
         });
-    } else if (attachments) {
-        for (let i = 0; i < attachments.length; i++) {
-            if (attachments[i].type == "photo") {
-                const filename = `media/${attachments[i].name}.png`;
-                jimp.read(attachments[i].largePreviewUrl, (err, file) => {
+    } else if (attachments || (info.lastMessage && info.lastMessage.attachments.length > 0)) {
+        const attaches = attachments || info.lastMessage.attachments; // Either current message or last
+        for (let i = 0; i < attaches.length; i++) {
+            if (attaches[i].type == "photo") {
+                const filename = `media/${attaches[i].name}.png`;
+                jimp.read(attaches[i].largePreviewUrl, (err, file) => {
                     if (err) {
                         sendError("Invalid file", threadId);
                     } else {
@@ -1683,7 +1688,7 @@ function processImage(url, attachments, threadId, callback = () => {}) {
                     }
                 });
             } else {
-                sendError(`Sorry, but ${attachments[i].name} is not an acceptable file type`, threadId);
+                sendError(`Sorry, but ${attaches[i].name} is not an acceptable file type`, threadId);
             }
         }
     } else {
