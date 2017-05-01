@@ -71,7 +71,7 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
                 m.sendEmoji("🔥", threadId);
             }
         }
-        if (message.match(/pozharski(y)?/i)) {
+        if (message.match(/pozharski(y)? theorem/i)) {
             m.sendFile("media/pozharskiy.mp4", threadId);
         }
         if (message.match(/(?:\s|^)rich(?:[^A-z0-9]|$)/i)) {
