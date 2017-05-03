@@ -19,11 +19,11 @@
   "dependencies": {
     "body-parser": "^1.16.0",
     "express": "^4.14.1",
-    "facebook-chat-api": "schmavery/facebook-chat-api",
+    "facebook-chat-api": "github:schmavery/facebook-chat-api",
     "http": "0.0.0",
     "jimp": "^0.2.27",
     "memjs": "^0.10.0",
     "request": "^2.79.0",
-    "spotify-web-api-node": "^2.3.6"
+    "spotify-web-api-node": "^2.4.0"
   }
 }
