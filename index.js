@@ -755,7 +755,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                     sendError("Scores couldn't be retrieved for this group.", threadId);
                 }
             });
-        } else {
+        } else if (co["score"].m[2]) {
             const user = co["score"].m[2].toLowerCase();
             const userId = groupInfo.members[user];
             const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
@@ -1665,7 +1665,7 @@ function setGroupImageFromUrl(url, threadId, errMsg = "Photo couldn't download p
 // Processes an image or images by sifting between URL input and attachments and downloading
 // Returns a JIMP image object and filename where the image was stored
 function processImage(url, attachments, info, callback = () => {}) {
-  const threadId = info.threadId;
+    const threadId = info.threadId;
     if (url) { // URL passed
         const filename = `media/${encodeURIComponent(url)}.png`;
         jimp.read(url, (err, file) => {
