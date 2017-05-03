@@ -14,7 +14,7 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         if (message.match(/cuck(?:ed)?/i)) {
             m.reactToMessage(messageId, "angry");
         }
-        if (message.match(/(?:problem |p)set(?:s)?/i)) {
+        if (message.match(/(?:^|\s)(?:problem |p)set(?:s)?/i)) {
             m.sendContentsOfFile("media/monologue.txt", threadId);
         }
         if (message.match(/(?:hard work)|(?:work(?:ing)? hard)/i)) {
