@@ -167,7 +167,7 @@ exports.commands = {
         "short_description": "",
         "description": "Searches for the given user and either outputs the best match (for searching) or adds it to the chat (for adding)",
         "syntax": "(add|search ({number of results})) {user}",
-        "example": ["search Physics Resurrected", "add Physics Resurrected"],
+        "example": ["search Physics Resurrected", "add Physics Resurrected", "search 5 Physics Resurrected"],
         "sudo": false,
         "attachments": false,
         "user_input": {

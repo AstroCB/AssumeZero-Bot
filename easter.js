@@ -209,5 +209,8 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         if (message.match(/d(?:ropbox|bx)/i)) {
             m.sendFile("media/dropbox.jpg", threadId);
         }
+        if (message.match(/citizen/i)) {
+            m.sendFile("media/citizen.jpg", threadId);
+        }
     }
 }
