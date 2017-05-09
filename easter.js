@@ -215,7 +215,7 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         if (message.match(/boosted/i)) {
             m.sendFile("media/kevin.mp4", threadId);
         }
-        if (message.match(/(^|\s)d(o|ew) it([^A-z0-9])/i)) {
+        if (message.match(/(^|\s)d(o|ew) it([^A-z0-9]|$)/i)) {
             m.sendFile("media/palp.gif", threadId);
         }
     }
