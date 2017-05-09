@@ -910,17 +910,24 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         const gauss = co["blur"].m[2];
         const url = co["blur"].m[3];
         processImage(url, attachments, groupInfo, (img, filename) => {
-            const callback = (err) => {
-                if (!err) {
-                    sendFile(filename, threadId, "", () => {
-                        fs.unlink(filename);
-                    });
-                }
-            };
             if (gauss) {
-                img.gaussian(pixels).write(filename, callback);
+                // Gaussian blur (extremely resource-intensive – will pretty much halt the bot while processing)
+                const now = (new Date()).getTime();
+                img.gaussian(pixels).write(filename, (err) => {
+                    if (!err) {
+                        sendFile(filename, threadId, `Processing took ${((new Date()).getTime() - now)/1000} seconds.`, () => {
+                            fs.unlink(filename);
+                        });
+                    }
+                });
             } else {
-                img.blur(pixels).write(filename, callback);
+                img.blur(pixels).write(filename, (err) => {
+                    if (!err) {
+                        sendFile(filename, threadId, "", () => {
+                            fs.unlink(filename);
+                        });
+                    }
+                });
             }
         });
     } else if (co["overlay"].m) {
