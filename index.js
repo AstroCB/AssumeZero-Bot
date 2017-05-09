@@ -1290,7 +1290,7 @@ function updateGroupInfo(threadId, message, callback = () => {}, api = gapi) {
 
                 // Group not yet registered
                 isNew = true;
-                // sendMessage(`Hello! I'm ${n.long}${n.short ? `, but you can call me ${n.short}` : ""}. Give me a moment to collect some information about this chat before you use any commands.`, threadId);
+                sendMessage(`Hello! I'm ${n.long}${n.short ? `, but you can call me ${n.short}` : ""}. Give me a moment to collect some information about this chat before you use any commands.`, threadId);
 
                 api.muteThread(threadId, -1); // Mute chat
 
@@ -1347,7 +1347,7 @@ function updateGroupInfo(threadId, message, callback = () => {}, api = gapi) {
                         }
                         setGroupInfo(info, (err) => {
                             if (!err && !existingInfo) {
-                                // sendMessage(`All done! Use '${config.trigger} help' to see what I can do.`, threadId);
+                                sendMessage(`All done! Use '${config.trigger} help' to see what I can do.`, threadId);
                             }
                             callback(err, info);
                         });
