@@ -912,14 +912,15 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         processImage(url, attachments, groupInfo, (img, filename) => {
             if (gauss) {
                 // Gaussian blur (extremely resource-intensive – will pretty much halt the bot while processing)
-                sendMessage("This could take awhile...", threadId);
-                const now = (new Date()).getTime();
-                img.gaussian(pixels).write(filename, (err) => {
-                    if (!err) {
-                        sendFile(filename, threadId, `Processing took ${((new Date()).getTime() - now)/1000} seconds.`, () => {
-                            fs.unlink(filename);
-                        });
-                    }
+                sendMessage("This could take awhile...", threadId, () => {
+                    const now = (new Date()).getTime();
+                    img.gaussian(pixels).write(filename, (err) => {
+                        if (!err) {
+                            sendFile(filename, threadId, `Processing took ${((new Date()).getTime() - now)/1000} seconds.`, () => {
+                                fs.unlink(filename);
+                            });
+                        }
+                    });
                 });
             } else {
                 img.blur(pixels).write(filename, (err) => {
