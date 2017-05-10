@@ -218,5 +218,8 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         if (message.match(/^d(o|ew) it$/i)) {
             m.sendFile("media/palp.gif", threadId);
         }
+        if (message.match(/are you sure/i)) {
+            m.sendFile("media/sure.png", threadId);
+        }
     }
 }
