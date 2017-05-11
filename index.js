@@ -1309,12 +1309,15 @@ function updateGroupInfo(threadId, message, callback = () => {}, api = gapi) {
                         delete data.nicknames[config.bot.id];
                     }
                     info.nicknames = data.nicknames || {};
-                    info.isGroup = message ? message.isGroup : info.isGroup;
+                    if (!info.hasOwnProperty(isGroup) && typeof(message.isGroup) == "boolean") {
+                        info.isGroup = message.isGroup;
+                    }
                     if (isNew) {
                         // These properties only need to be initialized once
                         info.muted = true;
                         info.playlists = {};
                         info.aliases = {};
+                        info.isGroup = message.isGroup;
                     }
                     api.getUserInfo(data.participantIDs, (err, userData) => {
                         if (!err) {
