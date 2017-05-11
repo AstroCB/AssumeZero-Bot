@@ -1309,7 +1309,7 @@ function updateGroupInfo(threadId, message, callback = () => {}, api = gapi) {
                         delete data.nicknames[config.bot.id];
                     }
                     info.nicknames = data.nicknames || {};
-                    if (!info.hasOwnProperty(isGroup) && typeof(message.isGroup) == "boolean") {
+                    if (!info.hasOwnProperty("isGroup") && typeof(message.isGroup) == "boolean") {
                         info.isGroup = message.isGroup;
                     }
                     if (isNew) {
@@ -1357,7 +1357,7 @@ function updateGroupInfo(threadId, message, callback = () => {}, api = gapi) {
                     });
                 } else {
                     // Errors are logged here despite being a utility func b/c errors here are critical
-                    const err = new Error(`Thread info not found for ${threadId}`);
+                    console.log(new Error(`Thread info not found for ${threadId}`));
                     console.log(err);
                     callback(err);
                 }
