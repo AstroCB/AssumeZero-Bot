@@ -224,5 +224,12 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         if (message.match(/slope day/i)) {
             m.sendFile("media/slope.png", threadId);
         }
+        if (message.match(new RegExp(`${config.trigger} spam`, "i"))) {
+            let emoji = [];
+            for (let i = 0; i < 45; i++) { // Full row of emoji
+                emoji.push(groupInfo.emoji);
+            }
+            m.sendMessage(emoji.join(""), threadId);
+        }
     }
 }
