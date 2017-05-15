@@ -222,7 +222,8 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
             m.sendFile("media/sure.png", threadId);
         }
         if (message.match(/slope day/i)) {
-            m.sendFile("media/slope.png", threadId);
+            m.sendFile("media/slopejustin.png", threadId);
+            m.sendFile("media/slopemarin.png", threadId);
         }
         if (message.match(new RegExp(`${config.trigger} spam`, "i"))) {
             let emoji = [];
@@ -230,6 +231,9 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
                 emoji.push(groupInfo.emoji);
             }
             m.sendMessage(emoji.join(""), threadId);
+        }
+        if (message.match(/new-age kevin/i)) {
+            m.sendFile("newkevin.jpeg", threadId)
         }
     }
 }
