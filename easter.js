@@ -97,7 +97,7 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         if (message.match(/el spaniard/i)) {
             m.sendFile("media/sols.pdf", threadId);
         }
-        if (message.match(/xps/i)) {
+        if (message.match(/xps (?:13|15)/i)) {
             m.sendFile("media/xps.jpg", threadId);
         }
         if (message.match(/gender/i)) {
@@ -142,7 +142,7 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         if (message.match(/disappoint(?:ed|ment)/i)) {
             m.sendFile("media/disappoint.jpg", threadId);
         }
-        if (message.match(/flash/i)) {
+        if (message.match(/the flash/i)) {
             m.sendFile("media/flash.mp3", threadId)
         }
         if (message.match(/greek/i)) {
@@ -222,8 +222,7 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
             m.sendFile("media/sure.png", threadId);
         }
         if (message.match(/slope day/i)) {
-            m.sendFile("media/slopejustin.png", threadId);
-            m.sendFile("media/slopemarin.jpeg", threadId);
+            m.sendFile(["media/slopejustin.png", "media/slopemarin.png"], threadId);
         }
         if (message.match(new RegExp(`${config.trigger} spam`, "i"))) {
             let emoji = [];
