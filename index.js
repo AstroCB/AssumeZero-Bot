@@ -702,7 +702,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 sendError(err, threadId);
             } else {
                 config.banned = users;
-                sendMessage(`User successfully ${status}`, threadId);
+                sendMessage(`${groupInfo.names[userId]} successfully ${status}.`, threadId);
             }
         }
         if (user) {
