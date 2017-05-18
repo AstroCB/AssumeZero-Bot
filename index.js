@@ -66,7 +66,7 @@ function main(err, api) {
 function handleMessage(err, message, external = false, api = gapi) { // New message received from listen()
     if (message && !err) {
         // Update info of group where message came from in the background (unless it's an external call)
-        if (!external && message.body) {
+        if (!external && message.type == "message") {
             updateGroupInfo(message.threadID, message);
         }
         // Load existing group data
@@ -1400,19 +1400,16 @@ function setGroupInfo(info, callback = () => {}) {
         const groupData = JSON.parse(groups) || {};
         groupData[info.threadId] = info;
         mem.set(`groups`, JSON.stringify(groupData), (err, success) => {
-            if (success) {
-                callback();
-            } else {
-                callback(err);
-            }
+            callback(success ? null : err);
         });
     });
 }
 
+// Wrapper for updating a group property
 function setGroupProperty(key, value, info, callback = () => {}) {
     info[key] = value;
-    setGroupInfo(info, () => {
-        updateGroupInfo(info.threadId, info.lastMessage, callback);
+    setGroupInfo(info, (err) => {
+        callback(err);
     });
 }
 

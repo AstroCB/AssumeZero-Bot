@@ -233,7 +233,7 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
             m.sendMessage(emoji.join(""), threadId);
         }
         if (message.match(/new-age kevin/i)) {
-            m.sendFile("newkevin.jpeg", threadId);
+            m.sendFile("media/newkevin.jpeg", threadId);
         }
         if (message.match(/badass/i)) {
             m.sendFile("media/mass.png", threadId);
