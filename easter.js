@@ -222,7 +222,7 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
             m.sendFile("media/sure.png", threadId);
         }
         if (message.match(/slope day/i)) {
-            m.sendFile(["media/slopejustin.png", "media/slopemarin.png"], threadId);
+            m.sendFile(["media/slopejustin.png", "media/slopemarin.jpeg"], threadId);
         }
         if (message.match(new RegExp(`${config.trigger} spam`, "i"))) {
             let emoji = [];
