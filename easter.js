@@ -353,6 +353,5 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
             } else {
                 console.error("No conditions found for egg");
             }
-        `
     }
 }
