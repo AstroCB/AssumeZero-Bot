@@ -331,6 +331,10 @@ const eggs = [
     {
         "regex": /boosted/i,
         "func": (threadId) => { m.sendFile("media/kevin.mp4", threadId); }
+    },
+    {
+        "regex": /squash/i,
+        "func": (threadId) => { m.sendFile("media/squash.png", threadId); }
     }
 ];
 
@@ -349,6 +353,6 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
             } else {
                 console.error("No conditions found for egg");
             }
-        }
+        `
     }
 }
