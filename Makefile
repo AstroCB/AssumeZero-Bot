@@ -14,4 +14,6 @@ logs:
 	heroku logs -n 100 -a assume-bot
 start:
 	npm start
+archive:
+	node archive.js
 debug: disable start

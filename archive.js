@@ -19,9 +19,9 @@ mem.get("groups", (err, info) => {
             fs.writeFile("archive.json", JSON.stringify(data), (err) => {
                 if (err) { console.error(`Couldn't create backup: ${err}`); }
                 process.exit();
-            })
-        })
+            });
+        });
     } else {
         console.error(`No group data found: ${err}`);
     }
-})
+});
