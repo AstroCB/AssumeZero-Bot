@@ -237,7 +237,7 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         if (message.match(/badass/i)) {
             m.sendFile("media/mass.png", threadId);
         }
-        if (mesage.match(/the ultimate driving machine/i)) {
+        if (message.match(/the ultimate driving machine/i)) {
             m.sendFile("media/bmw.png", threadId);
         }
     }
