@@ -43,7 +43,7 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
         const bac = m.matchesWithUser("(?:get|measure|check) bac(?:[^k]|$)", message, fromUserId, groupInfo, true, "");
         if (bac) {
             const name = bac[1] || "Yiyi";
-            m.sendMessage(`${name.substring(0,1).toUpperCase() + name.substring(1)}'s BAC is far above healthy levels`, threadId);
+            m.sendMessage(`${name.substring(0, 1).toUpperCase() + name.substring(1)}'s BAC is far above healthy levels`, threadId);
         }
         if (message.match(/socialis(?:t|m)/i)) {
             m.sendFile("media/anton.png", threadId);

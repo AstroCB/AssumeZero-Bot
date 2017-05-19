@@ -23,7 +23,7 @@ const mem = require("memjs").Client.create(credentials.MEMCACHIER_SERVERS, {
     "password": credentials.MEMCACHIER_PASSWORD
 });
 // Spotify API (requires credentials)
-const spotify = new(require("spotify-web-api-node"))({
+const spotify = new (require("spotify-web-api-node"))({
     "clientId": credentials.SPOTIFY_CLIENTID,
     "clientSecret": credentials.SPOTIFY_CLIENTSECRET
 }); // Spotify API
@@ -282,7 +282,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             if (query && param == "search") {
                 // Perform search using Google Custom Search API (provide API key / custom engine in config.js)
                 const url = `https://www.googleapis.com/customsearch/v1?key=${config.xkcd.key}&cx=${config.xkcd.engine}&q=${encodeURIComponent(query)}`;
-                request(url, function(err, res, body) {
+                request(url, (err, res, body) => {
                     if (!err && res.statusCode == 200) {
                         const results = JSON.parse(body).items;
                         if (results.length > 0) {
@@ -297,7 +297,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                     }
                 });
             } else if (param == "new") { // Get most recent (but send as permalink for future reference)
-                request("http://xkcd.com/info.0.json", function(err, res, body) {
+                request("http://xkcd.com/info.0.json", (err, res, body) => {
                     if (!err && res.statusCode == 200) {
                         const num = parseInt(JSON.parse(body).num); // Number of most recent xkcd
                         sendMessage({
@@ -317,7 +317,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             }
         } else { // No parameter passed; send random xkcd
             // Get info of most current xkcd to find out the number of existing xkcd (i.e. the rand ceiling)
-            request("http://xkcd.com/info.0.json", function(err, res, body) {
+            request("http://xkcd.com/info.0.json", (err, res, body) => {
                 if (!err && res.statusCode == 200) {
                     const num = parseInt(JSON.parse(body).num); // Number of most recent xkcd
                     const randxkcd = Math.floor(Math.random() * num) + 1;
@@ -680,7 +680,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             sendMessage(message, threadId);
         } else {
             // Quote - use name
-            api.getUserInfo(fromUserId, function(err, data) {
+            api.getUserInfo(fromUserId, (err, data) => {
                 if (!err) {
                     // Date formatting
                     const now = new Date();
@@ -748,7 +748,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
 
                     let message = `Rankings for ${groupInfo.name}:`;
                     for (let i = 0; i < scores.length; i++) {
-                        message += `\n${i+1}. ${scores[i].name}: ${scores[i].score}`;
+                        message += `\n${i + 1}. ${scores[i].name}: ${scores[i].score}`;
                     }
                     sendMessage(message, threadId);
                 } else {
@@ -916,7 +916,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                     const now = (new Date()).getTime();
                     img.gaussian(pixels).write(filename, (err) => {
                         if (!err) {
-                            sendFile(filename, threadId, `Processing took ${((new Date()).getTime() - now)/1000} seconds.`, () => {
+                            sendFile(filename, threadId, `Processing took ${((new Date()).getTime() - now) / 1000} seconds.`, () => {
                                 fs.unlink(filename);
                             });
                         }
@@ -1138,7 +1138,7 @@ exports.matchesWithUser = matchesWithUser; // Export for external use
 // Accepts either a simple string or a message object with URL/attachment fields
 // Probably a good idea to use this wrapper for all sending instances for debug purposes
 // and consistency
-function sendMessage(m, threadId, callback = () => {}, api = gapi) {
+function sendMessage(m, threadId, callback = () => { }, api = gapi) {
     try {
         api.sendMessage(m, threadId, callback);
     } catch (e) { // For debug mode (API not available)
@@ -1168,7 +1168,7 @@ function sendMessageWithMentions(message, mentions, threadId) {
 function debugCommandOutput(flag) {
     if (flag) {
         const co = commands.commands;
-        console.log(Object.keys(co).map(function(c) {
+        console.log(Object.keys(co).map((c) => {
             return `${c}: ${co[c].m}`
         }));
     }
@@ -1231,14 +1231,14 @@ function handlePings(msg, senderId, info) {
 
 // Kick user for an optional length of time in seconds (default indefinitely)
 // Also accepts optional callback parameter if length is specified
-function kick(userId, info, time, callback = () => {}, api = gapi) {
+function kick(userId, info, time, callback = () => { }, api = gapi) {
     if (userId != config.bot.id) { // Never allow bot to be kicked
         api.removeUserFromGroup(userId, info.threadId, (err) => {
             if (err) {
                 sendError("Cannot kick user from private chat", info.threadId);
             } else {
                 if (time) {
-                    setTimeout(function() {
+                    setTimeout(() => {
                         addUser(userId, info, false); // Don't welcome if they're not new to the group
                         callback();
                     }, time * 1000);
@@ -1254,7 +1254,7 @@ function kick(userId, info, time, callback = () => {}, api = gapi) {
 // Buffer limit controls number of times it will attempt to add the user to the group
 // Optional parameter to control whether it should retry adding if it fails initially
 // if not successful on the first attempt (default 5)
-function addUser(id, info, welcome = true, callback = () => {}, retry = true, currentBuffer = 0, api = gapi) {
+function addUser(id, info, welcome = true, callback = () => { }, retry = true, currentBuffer = 0, api = gapi) {
     api.addUserToGroup(id, info.threadId, (err, data) => {
         if (!err) {
             updateGroupInfo(info.threadId, null, (err, info) => {
@@ -1281,7 +1281,7 @@ function addUser(id, info, welcome = true, callback = () => {}, retry = true, cu
 // Using callback is discouraged as the idea of this function is to update in
 // the background to decrease lag, but it may be useful if updates are required
 // to continue
-function updateGroupInfo(threadId, message, callback = () => {}, api = gapi) {
+function updateGroupInfo(threadId, message, callback = () => { }, api = gapi) {
     getGroupInfo(threadId, (err, existingInfo) => {
         if (!err) {
             let isNew = false;
@@ -1309,7 +1309,7 @@ function updateGroupInfo(threadId, message, callback = () => {}, api = gapi) {
                         delete data.nicknames[config.bot.id];
                     }
                     info.nicknames = data.nicknames || {};
-                    if (!info.hasOwnProperty("isGroup") && typeof(message.isGroup) == "boolean") {
+                    if (!info.hasOwnProperty("isGroup") && typeof (message.isGroup) == "boolean") {
                         info.isGroup = message.isGroup;
                     }
                     if (isNew) {
@@ -1395,7 +1395,7 @@ function getGroups(callback) {
 }
 
 // Updates stored information about a group
-function setGroupInfo(info, callback = () => {}) {
+function setGroupInfo(info, callback = () => { }) {
     getGroups((err, groups) => {
         const groupData = JSON.parse(groups) || {};
         groupData[info.threadId] = info;
@@ -1406,7 +1406,7 @@ function setGroupInfo(info, callback = () => {}) {
 }
 
 // Wrapper for updating a group property
-function setGroupProperty(key, value, info, callback = () => {}) {
+function setGroupProperty(key, value, info, callback = () => { }) {
     info[key] = value;
     setGroupInfo(info, (err) => {
         callback(err);
@@ -1451,8 +1451,8 @@ function isBanned(senderId) {
 
 // Sends file(s) where each filename is a relative path to the file from root
 // Accepts a string filename or an array of filename strings, an optional message body parameter, and a callback
-function sendFile(filenames, threadId, message = "", callback = () => {}, api = gapi) {
-    if (typeof(filenames) == "string") { // If only one is passed
+function sendFile(filenames, threadId, message = "", callback = () => { }, api = gapi) {
+    if (typeof (filenames) == "string") { // If only one is passed
         filenames = [filenames];
     }
     for (let i = 0; i < filenames.length; i++) {
@@ -1485,7 +1485,7 @@ function getDateString() {
 // and uploads it with the description if it finds one
 // Optional parameter to specify which level of match it is (1st, 2nd, 3rd, etc.)
 function searchForUser(match, threadId, num = 0, api = gapi) {
-    const desc = `${(num === 0) ? "Best match" : "Match " + (num+1)}: ${match.name}\n${match.profileUrl}\nRank: ${match.score}`;
+    const desc = `${(num === 0) ? "Best match" : "Match " + (num + 1)}: ${match.name}\n${match.profileUrl}\nRank: ${match.score}`;
 
     // Try to get large propic URL from Facebook Graph API using user ID
     // If propic exists, combine it with the description
@@ -1546,7 +1546,7 @@ function getRandomColor() {
 
 // Restarts the bot (requires deploying to Heroku – see config)
 // Includes optional callback
-function restart(callback = () => {}) {
+function restart(callback = () => { }) {
     request.delete({
         "url": `https://api.heroku.com/apps/${config.appName}/dynos/web`,
         "headers": {
@@ -1571,7 +1571,7 @@ function getArtists(track) {
 }
 
 // Logs into Spotify API & sets the appropriate credentials
-function logInSpotify(callback = () => {}) {
+function logInSpotify(callback = () => { }) {
     spotify.clientCredentialsGrant({}, (err, data) => {
         if (!err) {
             spotify.setAccessToken(data.body.access_token);
@@ -1625,7 +1625,7 @@ function updateScore(isAdd, userId, callback) {
     });
 }
 
-function getAllScores(groupInfo, callback = () => {}) {
+function getAllScores(groupInfo, callback = () => { }) {
     const members = groupInfo.names;
     let results = [];
     let now = current = (new Date()).getTime();
@@ -1673,7 +1673,7 @@ function setGroupImageFromUrl(url, threadId, errMsg = "Photo couldn't download p
 
 // Processes an image or images by sifting between URL input and attachments and downloading
 // Returns a JIMP image object and filename where the image was stored
-function processImage(url, attachments, info, callback = () => {}) {
+function processImage(url, attachments, info, callback = () => { }) {
     const threadId = info.threadId;
     if (url) { // URL passed
         const filename = `media/${encodeURIComponent(url)}.png`;
@@ -1788,7 +1788,7 @@ function getStats(command, fullData, callback) {
 // Takes a command string and a stats object with `count`, `total`, and
 // `record` fields (i.e. the output from `getStats()` with the `fullData`
 // flag set to true)
-function setStats(command, stats, callback = () => {}) {
+function setStats(command, stats, callback = () => { }) {
     mem.set(`usage_total_all`, `${stats.total}`, (t_err, success) => {
         mem.set(`usage_total_${command}`, `${stats.count}`, (c_err, success) => {
             mem.set(`usage_record_${command}`, `${JSON.stringify(stats.record)}`, (u_err, success) => {
@@ -1833,7 +1833,7 @@ function getAllStats(callback) {
 
 // Updates the usage statistics for a particular command (takes command name and
 // sending user's ID)
-function updateStats(command, senderID, callback = () => {}) {
+function updateStats(command, senderID, callback = () => { }) {
     getStats(command, true, (err, stats) => {
         if (!err) {
             stats.count++;
