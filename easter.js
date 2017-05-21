@@ -15,8 +15,9 @@ const config = require("./config");
     the message, the sending user ID, and the groupInfo object
  and will return a non-null value if the egg should be triggered.
  The entry also includes function "func" to be called if either condition is met,
- which can accept a threadId as the first parameter, a messageId as the second, and
- a data object as the third containing the data from the "regex" match or anything returned by "alt"
+ which can accept a threadId as the first parameter, a messageId as the second, a
+ data object as the third containing the data from the "regex" match or anything returned by "alt",
+ and lastly, the groupInfo object as the fourth in case any group-specific information is needed
  */
 const eggs = [
     {
@@ -308,7 +309,7 @@ const eggs = [
     },
     {
         "regex": new RegExp(`${config.trigger} spam`, "i"),
-        "func": (threadId) => {
+        "func": (threadId, mId, data, groupInfo) => {
             let emoji = [];
             for (let i = 0; i < 45; i++) { // Full row of emoji
                 emoji.push(groupInfo.emoji);
@@ -346,10 +347,10 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
             // If matched, pass data to trigger function
             if (eggs[i].regex) {
                 let match = message.match(eggs[i].regex);
-                if (match) { eggs[i].func(groupInfo.threadId, messageId, match); }
+                if (match) { eggs[i].func(groupInfo.threadId, messageId, match, groupInfo); }
             } else if (eggs[i].alt) {
                 let alt = eggs[i].alt(message, fromUserId, groupInfo);
-                if (alt) { eggs[i].func(groupInfo.threadId, messageId, alt); }
+                if (alt) { eggs[i].func(groupInfo.threadId, messageId, alt, groupInfo); }
             } else {
                 console.error("No conditions found for egg");
             }

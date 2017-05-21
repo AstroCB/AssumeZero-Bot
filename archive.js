@@ -9,7 +9,7 @@ const mem = require("memjs").Client.create(credentials.MEMCACHIER_SERVERS, {
 mem.get("groups", (err, info) => {
     if (!err) {
         fs.readFile("archive.json", (err, exData) => {
-            const data = err ? {} : exData;
+            const data = err ? {} : JSON.parse(exData);
             const groupInfo = JSON.parse(info);
             for (let g in groupInfo) {
                 if (groupInfo.hasOwnProperty(g)) {

@@ -1408,9 +1408,13 @@ function setGroupInfo(info, callback = () => { }) {
 // Wrapper for updating a group property
 function setGroupProperty(key, value, info, callback = () => { }) {
     info[key] = value;
-    setGroupInfo(info, (err) => {
-        callback(err);
-    });
+    setTimeout(() => {
+        setGroupInfo(info, (err) => {
+            callback(err);
+        });
+    }, 1500);
+    // NOTE: temporary arbitrary delay until I can figure out how to prevent
+    // the background update calls from overwriting these property changes
 }
 
 // Searches help for a given entry and returns an object containing the entry
