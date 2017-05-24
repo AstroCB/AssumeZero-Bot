@@ -261,7 +261,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 sendMessage(`Request sent to ${config.owner.names.short}.`, threadId);
             }
         });
-    } else if (co["kick"].m && co["kick"].m[1]) {
+    } else if (co["kick"].m) {
         const user = co["kick"].m[1].toLowerCase();
         const optTime = co["kick"].m[2] ? parseInt(co["kick"].m[2]) : undefined;
         try {
@@ -327,7 +327,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 }
             });
         }
-    } else if (co["spotsearch"].m && co["spotsearch"].m[1] && co["spotsearch"].m[2]) {
+    } else if (co["spotsearch"].m) {
         logInSpotify((err) => {
             if (!err) {
                 const query = co["spotsearch"].m[2];
@@ -546,7 +546,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 });
             }
         }
-    } else if (co["addsearch"].m && co["addsearch"].m[1] && co["addsearch"].m[3]) {
+    } else if (co["addsearch"].m) {
         // Fields 1 & 3 are are for the command and the user, respectively
         // Field 2 is for an optional number parameter specifying the number of search results
         // for a search command (default is 1)
@@ -623,14 +623,14 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 }
             }, delay + (i * delay)); // Queue color changes
         }
-    } else if (co["clearnick"].m && co["clearnick"].m[1]) {
+    } else if (co["clearnick"].m) {
         const user = co["clearnick"].m[1].toLowerCase();
         api.changeNickname("", threadId, groupInfo.members[user]);
-    } else if (co["setnick"].m && co["setnick"].m[1] && co["setnick"].m[2]) {
+    } else if (co["setnick"].m) {
         const user = co["setnick"].m[1].toLowerCase();
         const newName = co["setnick"].m[2];
         api.changeNickname(newName, threadId, groupInfo.members[user]);
-    } else if (co["wakeup"].m && co["wakeup"].m[1]) {
+    } else if (co["wakeup"].m) {
         const user = co["wakeup"].m[1].toLowerCase();
         const members = groupInfo.members; // Save in case it changes
         for (let i = 0; i < config.wakeUpTimes; i++) {
@@ -672,7 +672,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             }
         });
         updateGroupInfo(threadId); // Update emoji
-    } else if (co["echo"].m && co["echo"].m[1] && co["echo"].m[2]) {
+    } else if (co["echo"].m) {
         const command = co["echo"].m[1].toLowerCase();
         let message = `${co["echo"].m[2]}`;
         if (command == "echo") {
@@ -694,7 +694,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 }
             });
         }
-    } else if (co["ban"].m && co["ban"].m[2]) {
+    } else if (co["ban"].m) {
         const user = co["ban"].m[2].toLowerCase();
         const userId = groupInfo.members[user];
         const callback = (err, users, status) => {
@@ -714,7 +714,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         } else {
             sendError(`User ${user} not found`);
         }
-    } else if (co["vote"].m && co["vote"].m[1] && co["vote"].m[2]) {
+    } else if (co["vote"].m) {
         const user = co["vote"].m[2].toLowerCase();
         const userId = groupInfo.members[user];
         const user_cap = user.substring(0, 1).toUpperCase() + user.substring(1);
@@ -803,7 +803,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         } else {
             sendError("This command requires either a valid image URL or a photo attachment", threadId);
         }
-    } else if (co["poll"].m && co["poll"].m[1]) {
+    } else if (co["poll"].m) {
         const title = co["poll"].m[1];
         const opts = co["poll"].m[2];
         let optsObj = {};
@@ -813,12 +813,12 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 optsObj[items[i]] = false; // Initialize options to unselected in poll
             }
         }
-        api.createPoll(title, threadId, optsObj, (err) => {
+        api.createPoll(title, threadId, optsObj, (err) => { // I contributed this func to the API!
             if (err) {
                 sendError("Cannot create a poll in a non-group chat.", threadId);
             }
         });
-    } else if (co["title"].m && co["title"].m[1]) {
+    } else if (co["title"].m) {
         const title = co["title"].m[1];
         api.setTitle(title, threadId, (err) => {
             if (err) {
@@ -953,7 +953,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 }
             });
         });
-    } else if (co["brightness"].m && co["brightness"].m[1] && co["brightness"].m[2]) {
+    } else if (co["brightness"].m) {
         const bright = (co["brightness"].m[1].toLowerCase() == "brighten");
         // Value must range from -1 to 1
         let perc = parseInt(co["brightness"].m[2]);
@@ -1088,6 +1088,24 @@ exports.handleCommand = handleCommand; // Export for external use
 
 // Utility functions
 
+/*
+This is used in place of (or in conjunction with) a regex for command matching.
+It combines any passed regular expressions with a capturing group that looks for
+a username (or alias) match and returns a regex match object containing the username
+of the person matched (even if an alias was used – the function handles aliases on its
+own and converts them back to usernames) in the order described below.
+
+It takes a `command` (a regex to be matched *before* the username), the `message` to be
+searched, the `fromUserId` of the sender (for converting "me" to a username), the group's
+`groupData` object, whether the username match should be `optional` (default `false`), any
+separator `sep` to be placed between the prefix match and the username (default 1 space), and
+any `suffix` match to be matched *after* the username match.
+
+Returns a RegExp match object containing the matches in the following order:
+1. {prefix match(es)}
+2. {username match}
+3. {suffix match(es)}
+*/
 function matchesWithUser(command, message, fromUserId, groupData, optional = false, sep = " ", suffix = "") {
     // Construct regex string
     let match = message.match(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${groupData.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
@@ -1131,13 +1149,17 @@ function matchesWithUser(command, message, fromUserId, groupData, optional = fal
 }
 exports.matchesWithUser = matchesWithUser; // Export for external use
 
-// Wrapper function for sending messages easily
-// Isn't that much simpler than the actual message function, but it
-// allows for an optional thread parameter (default is currently stored ID)
-// and for outputting messages to stdout when the API isn't available (e.g. before login)
-// Accepts either a simple string or a message object with URL/attachment fields
-// Probably a good idea to use this wrapper for all sending instances for debug purposes
-// and consistency
+/*
+Wrapper function for sending messages easily
+Isn't that much simpler than the actual message function, but it
+allows for an optional thread parameter (default is currently stored ID)
+and for outputting messages to stdout when the API isn't available (e.g. before login)
+
+Accepts either a simple string or a message object with URL/attachment fields.
+
+Probably a good idea to use this wrapper for all sending instances for debug purposes
+and consistency.
+*/
 function sendMessage(m, threadId, callback = () => { }, api = gapi) {
     try {
         api.sendMessage(m, threadId, callback);
@@ -1154,10 +1176,12 @@ function sendError(m, threadId) {
 }
 exports.sendError = sendError;
 
-// Wrapper function for using mentions
-// Mentions parameter is an array of dictionaries for each mention
-// Each dict contains "tag" and "id" keys that should be set to
-// the text and the id of the mention respectively
+/*
+Wrapper function for using mentions
+Mentions parameter is an array of dictionaries for each mention
+Each dict contains "tag" and "id" keys that should be set to
+the text and the id of the mention respectively
+*/
 function sendMessageWithMentions(message, mentions, threadId) {
     sendMessage({
         "body": message,
@@ -1249,11 +1273,13 @@ function kick(userId, info, time, callback = () => { }, api = gapi) {
     }
 }
 
-// Adds user to group and updates members list
-// Optional parameter to welcome new user to the group
-// Buffer limit controls number of times it will attempt to add the user to the group
-// Optional parameter to control whether it should retry adding if it fails initially
-// if not successful on the first attempt (default 5)
+/*
+Adds user to group and updates members list
+Optional parameter to welcome new user to the group
+Buffer limit controls number of times it will attempt to add the user to the group
+Optional parameter to control whether it should retry adding if it fails initially
+if not successful on the first attempt (default 5)
+*/
 function addUser(id, info, welcome = true, callback = () => { }, retry = true, currentBuffer = 0, api = gapi) {
     api.addUserToGroup(id, info.threadId, (err, data) => {
         if (!err) {
@@ -1275,12 +1301,14 @@ function addUser(id, info, welcome = true, callback = () => { }, retry = true, c
     });
 }
 
-// Update stored info about groups after every message in the background
-// Takes an optional message object when called by the update subroutine,
-// but can be ignored when called from anywhere else
-// Using callback is discouraged as the idea of this function is to update in
-// the background to decrease lag, but it may be useful if updates are required
-// to continue
+/*
+Update stored info about groups after every message in the background
+Takes an optional message object when called by the update subroutine,
+but can be ignored when called from anywhere else
+Using callback is discouraged as the idea of this function is to update in
+the background to decrease lag, but it may be useful if updates are required
+to continue
+*/
 function updateGroupInfo(threadId, message, callback = () => { }, api = gapi) {
     getGroupInfo(threadId, (err, existingInfo) => {
         if (!err) {
@@ -1484,10 +1512,12 @@ function getDateString() {
     return (new Date()).toLocaleDateString();
 }
 
-// Creates a description for a user search result given the match's data from the chat API
-// Also performs a Graph API search for a high-res version of the user's profile picture
-// and uploads it with the description if it finds one
-// Optional parameter to specify which level of match it is (1st, 2nd, 3rd, etc.)
+/*
+Creates a description for a user search result given the match's data from the chat API
+Also performs a Graph API search for a high-res version of the user's profile picture
+and uploads it with the description if it finds one
+Optional parameter to specify which level of match it is (1st, 2nd, 3rd, etc.)
+*/
 function searchForUser(match, threadId, num = 0, api = gapi) {
     const desc = `${(num === 0) ? "Best match" : "Match " + (num + 1)}: ${match.name}\n${match.profileUrl}\nRank: ${match.score}`;
 
@@ -1508,11 +1538,13 @@ function searchForUser(match, threadId, num = 0, api = gapi) {
     });
 }
 
-// Sends a file to the group from a URL by temporarily downloading it
-// and re-uploading it as part of the message (useful for images on Facebook
-// domains, which are blocked by Facebook for URL auto-detection)
-// Accepts url, optional file download location/name, optional message, and optional
-// threadId parameters
+/*
+Sends a file to the group from a URL by temporarily downloading it
+and re-uploading it as part of the message (useful for images on Facebook
+domains, which are blocked by Facebook for URL auto-detection)
+Accepts url, optional file download location/name, optional message, and optional
+threadId parameters
+*/
 function sendFileFromUrl(url, path = "media/temp.jpg", message = "", threadId, api = gapi) {
     request.head(url, (err, res, body) => {
         // Download file and pass to chat API
@@ -1755,12 +1787,14 @@ function sendFilesFromDir(dir, threadId) {
 }
 exports.sendFilesFromDir = sendFilesFromDir;
 
-// Retrieve usage stats for a command from memory
-// Takes a command string, a fullData flag, and optional callback
-// The callback passes an object containing the count for that command,
-// the total number of commands and, if the fullData flag is true, a log of
-// all the command's uses with an "at" timestamp and the "user" of the invoker
-// for each command as an array of dictionaries with these properties
+/*
+Retrieve usage stats for a command from memory
+Takes a command string, a fullData flag, and optional callback
+The callback passes an object containing the count for that command,
+the total number of commands and, if the fullData flag is true, a log of
+all the command's uses with an "at" timestamp and the "user" of the invoker
+for each command as an array of dictionaries with these properties
+*/
 function getStats(command, fullData, callback) {
     mem.get(`usage_total_${command}`, (err, count) => {
         mem.get(`usage_total_all`, (err, total) => {
