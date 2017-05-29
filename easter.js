@@ -292,7 +292,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/aøbp.png", threadId) }
     },
     {
-        "regex": /capitalone/i,
+        "regex": /capital( )?one/i,
         "func": (threadId) => { m.sendFile("media/capitalone.png", threadId); }
     },
     {
