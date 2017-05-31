@@ -340,6 +340,10 @@ const eggs = [
     {
         "regex": /corporate (yiyi|justin)/i,
         "func": (threadId) => { m.sendFile("media/corporate.jpg", threadId); }
+    },
+    {
+        "regex": /clock out/i,
+        "func": (threadId) => { m.sendFile("media/clockout.png", threadId); }
     }
 ];
 
