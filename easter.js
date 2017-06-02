@@ -344,6 +344,10 @@ const eggs = [
     {
         "regex": /clock out/i,
         "func": (threadId) => { m.sendFile("media/clockout.png", threadId); }
+    },
+    {
+        "regex": /devil(')?s lettuce/i,
+        "func": (threadId) => { m.sendFile("media/devil.png", threadId); }
     }
 ];
 
