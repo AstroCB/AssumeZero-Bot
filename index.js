@@ -1092,7 +1092,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 const weather = data.weather[0];
                 const cur = data.main;
 
-                const msg = `Weather for ${name} (${country}):\nConditions: ${weather.description}\nTemp: ${cur.temp} ºF (L-${cur.temp_min} H-${cur.temp_max})\nCloud cover: ${data.clouds.all}`;
+                const msg = `Weather for ${name} (${country}):\nConditions: ${weather.description}\nTemp: ${cur.temp} ºF (L-${cur.temp_min} H-${cur.temp_max})\nCloud cover: ${data.clouds.all}%`;
                 sendFileFromUrl(`http://openweathermap.org/img/w/${weather.icon}.png`, `media/${weather.icon}.png`, msg, threadId);
             } else {
                 sendError("Couldn't retrieve weather for that location.", threadId);
