@@ -720,5 +720,21 @@ exports.commands = {
         },
         "regex": ["alias( clear)?", "(?: (.*))?"],
         "experimental": false
+    },
+    "weather": {
+        "display_names": ["weather"],
+        "pretty_name": "Weather",
+        "short_description": "",
+        "description": "Get current weather for a given city",
+        "syntax": "weather {city name}",
+        "example": ["weather Timonium"],
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /weather (.+)/i,
+        "experimental": false
     }
 };

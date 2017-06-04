@@ -983,7 +983,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         api.changeNickname(co["christen"].m[1], threadId, config.bot.id);
     } else if (co["wolfram"].m) {
         const query = co["wolfram"].m[1];
-        request(`http://api.wolframalpha.com/v1/result?appid=${config.wolframKey}&i=${encodeURIComponent(query)}`, (err, res, body) => {
+        request(`http://api.wolframalpha.com/v1/result?appid=${credentials.WOLFRAM_KEY}&i=${encodeURIComponent(query)}`, (err, res, body) => {
             if (!(err || body == "Wolfram|Alpha did not understand your input")) {
                 sendMessage(body, threadId);
             } else {
@@ -1082,6 +1082,22 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 sendMessage(`${name} does not have an alias.`, threadId);
             }
         }
+    } else if (co["weather"].m) {
+        const city = co["weather"].m[1];
+        request(`http://openweathermap.org/data/2.5/weather?appid=${credentials.WEATHER_KEY}&q=${city}&units=imperial`, (err, res, body) => {
+            if (!err && res.statusCode == 200) {
+                const data = JSON.parse(body);
+                const name = data.name;
+                const country = data.sys.country;
+                const weather = data.weather[0];
+                const cur = data.main;
+
+                const msg = `Weather for ${name} (${country}):\nConditions: ${weather.description}\nTemp: ${cur.temp} ºF (L-${cur.temp_min} H-${cur.temp_max})\nCloud cover: ${data.clouds.all}`;
+                sendFileFromUrl(`http://openweathermap.org/img/w/${weather.icon}.png`, `media/${weather.icon}.png`, msg, threadId);
+            } else {
+                sendError("Couldn't retrieve weather for that location.", threadId);
+            }
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
