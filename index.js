@@ -1084,7 +1084,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         }
     } else if (co["weather"].m) {
         const city = co["weather"].m[1];
-        request(`http://openweathermap.org/data/2.5/weather?appid=${credentials.WEATHER_KEY}&q=${city}&units=imperial`, (err, res, body) => {
+        request(`http://api.openweathermap.org/data/2.5/weather?appid=${credentials.WEATHER_KEY}&q=${city}&units=imperial`, (err, res, body) => {
             if (!err && res.statusCode == 200) {
                 const data = JSON.parse(body);
                 const name = data.name;
