@@ -1443,7 +1443,7 @@ function setGroupInfo(info, callback = () => { }) {
     getGroups((err, groups) => {
         const groupData = JSON.parse(groups) || {};
         groupData[info.threadId] = info;
-        mem.set(`groups`, JSON.stringify(groupData), (err, success) => {
+        mem.set(`groups`, JSON.stringify(groupData), {}, (err, success) => {
             callback(success ? null : err);
         });
     });
@@ -1650,7 +1650,7 @@ exports.sendContentsOfFile = sendContentsOfFile;
 // Functions for getting/setting user scores (doesn't save much in terms of
 // code/DRY, but wraps the functions so that it's easy to change how they're stored)
 function setScore(userId, score, callback) {
-    mem.set(`userscore_${userId}`, score, callback);
+    mem.set(`userscore_${userId}`, score, {}, callback);
 }
 
 function getScore(userId, callback) {
@@ -1843,9 +1843,9 @@ function getStats(command, fullData, callback) {
 // `record` fields (i.e. the output from `getStats()` with the `fullData`
 // flag set to true)
 function setStats(command, stats, callback = () => { }) {
-    mem.set(`usage_total_all`, `${stats.total}`, (t_err, success) => {
-        mem.set(`usage_total_${command}`, `${stats.count}`, (c_err, success) => {
-            mem.set(`usage_record_${command}`, `${JSON.stringify(stats.record)}`, (u_err, success) => {
+    mem.set(`usage_total_all`, `${stats.total}`, {}, (t_err, success) => {
+        mem.set(`usage_total_${command}`, `${stats.count}`, {}, (c_err, success) => {
+            mem.set(`usage_record_${command}`, `${JSON.stringify(stats.record)}`, {}, (u_err, success) => {
                 callback(t_err, c_err, u_err);
             });
         });

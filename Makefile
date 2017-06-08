@@ -16,4 +16,6 @@ start:
 	npm start
 archive:
 	node archive.js
+restore:
+	node archive.js --restore
 debug: disable start
