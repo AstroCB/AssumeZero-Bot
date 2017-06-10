@@ -4,7 +4,7 @@
   "description": "A group chat bot that performs a variety of functions.",
   "main": "index.js",
   "engines": {
-    "node": "6.9.1"
+    "node": "8.0.0"
   },
   "scripts": {
     "start": "node index.js",
