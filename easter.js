@@ -355,11 +355,11 @@ const eggs = [
     },
     {
         "regex": /UMD CS/i,
-        "func": (threadId) => { m.sendFile("media/umdcs.png", threadId); }
+        "func": (threadId) => { m.sendFile("media/umdcs.jpeg", threadId); }
     },
     {
         "regex": /thank you pizza/i,
-        "func": (threadId) => { m.sendFile("media/siri.png", threadId); }
+        "func": (threadId) => { m.sendFile("media/siri.jpg", threadId); }
     }
 ];
 
