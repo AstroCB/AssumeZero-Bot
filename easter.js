@@ -352,6 +352,14 @@ const eggs = [
     {
         "regex": /life advice/i,
         "func": (threadId) => { m.sendFile("media/advice.png", threadId); }
+    },
+    {
+        "regex": /UMD CS/i,
+        "func": (threadId) => { m.sendFile("media/umdcs.png", threadId); }
+    },
+    {
+        "regex": /thank you pizza/i,
+        "func": (threadId) => { m.sendFile("media/siri.png", threadId); }
     }
 ];
 
