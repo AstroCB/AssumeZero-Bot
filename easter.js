@@ -216,7 +216,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/racism.jpg", threadId); }
     },
     {
-        "regex": /tired/i,
+        "regex": /i('| a)m tired/i,
         "func": (threadId) => { m.sendFile("media/tired.jpg", threadId); }
     },
     {
