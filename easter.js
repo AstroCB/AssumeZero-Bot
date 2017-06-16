@@ -268,7 +268,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/mank.png", threadId); }
     },
     {
-        "regex": /citizen/i,
+        "regex": /citizen of the (united states|us)/i,
         "func": (threadId) => { m.sendFile("media/citizen.jpg", threadId); }
     },
     {
