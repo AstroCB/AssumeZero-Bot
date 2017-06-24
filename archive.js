@@ -12,7 +12,7 @@ const mem = require("memjs").Client.create(credentials.MEMCACHIER_SERVERS, {
     username: credentials.MEMCACHIER_USERNAME,
     password: credentials.MEMCACHIER_PASSWORD
 });
-process.argv[2] = "--restore"
+
 if (process.argv[2] == "--restore") { // Check command-line arguments
     // Restore database from archive
     console.log("Restoring...");
