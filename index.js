@@ -78,6 +78,7 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
                 const senderId = message.senderID;
                 if (message.type == "message" && senderId != config.bot.id && !isBanned(senderId)) { // Sender is not banned and is not the bot
                     const m = message.body;
+                    addToCorpus(m, senderID);
                     const attachments = message.attachments;
                     // Handle message body
                     if (m) {
@@ -2003,3 +2004,23 @@ function reactToMessage(messageId, reaction = "like", api = gapi) {
     api.setMessageReaction(reactions[reaction], messageId);
 }
 exports.reactToMessage = reactToMessage;
+
+/*
+  Adds user's message to his/her associated .txt, which acts as a corpus.
+  addToCorpus will normalize the message first, and then attempt to "append"
+  the message to <senderID-threadID>.txt. If the file doesn't exist, fs will create it.
+*/
+addToCorpus(message, senderID, threadID) {
+    var re = /[!?\.]$/
+    var re_lastSpace = /\s$/
+    if (message.length > 1) {
+      if (!message.match(re)) {
+          message.concat(". ");
+      } else if (!message.match(re)) {
+          message.concat(" ");
+      }
+      fs.appendFile('corpus/' + senderID + '-' + threadID + '.txt', message, function (err) {
+          if (err) throw err;
+      });
+    }
+}
