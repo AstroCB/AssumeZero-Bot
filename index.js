@@ -2014,11 +2014,8 @@ addToCorpus(message, senderID, threadID) {
     var re = /[!?\.]$/
     var re_lastSpace = /\s$/
     if (message.length > 1) {
-      if (!message.match(re)) {
-          message.concat(". ");
-      } else if (!message.match(re)) {
-          message.concat(" ");
-      }
+      if (!message.match(re)) message.concat(". ");
+      else if (!message.match(re)) message.concat(" ");
       fs.appendFile('corpus/' + senderID + '-' + threadID + '.txt', message, function (err) {
           if (err) throw err;
       });
