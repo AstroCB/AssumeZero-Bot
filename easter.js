@@ -360,6 +360,10 @@ const eggs = [
     {
         "regex": /thank you pizza/i,
         "func": (threadId) => { m.sendFile("media/siri.jpg", threadId); }
+    },
+    {
+        "regex": /happy birthday america/i,
+        "func": (threadId) => { m.sendFile("media/america.jpg", threadid); }
     }
 ];
 
