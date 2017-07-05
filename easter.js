@@ -364,6 +364,14 @@ const eggs = [
     {
         "regex": /happy birthday america/i,
         "func": (threadId) => { m.sendFile(["media/america.jpg", "media/russia.png"], threadId); }
+    },
+    {
+        "regex": /bellyaching/i,
+        "func": (threadId) => { m.sendFile("media/bellyaching.png", threadId); }
+    },
+    {
+        "regex": /all(\-|\s)wheel drive/i,
+        "func": (threadId) => { m.sendFile("media/awd.png", threadId); }
     }
 ];
 
