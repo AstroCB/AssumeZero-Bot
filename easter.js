@@ -363,7 +363,7 @@ const eggs = [
     },
     {
         "regex": /happy birthday america/i,
-        "func": (threadId) => { m.sendFile("media/america.jpg", threadId); }
+        "func": (threadId) => { m.sendFile(["media/america.jpg", "media/russia.png"], threadId); }
     }
 ];
 
