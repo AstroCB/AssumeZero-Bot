@@ -372,6 +372,10 @@ const eggs = [
     {
         "regex": /all(\-|\s)wheel drive/i,
         "func": (threadId) => { m.sendFile("media/awd.png", threadId); }
+    },
+    {
+        "regex": /i graduated/i,
+        "func": (threadId) => { m.sendFile("media/graduation.mp4", threadId); }
     }
 ];
 
