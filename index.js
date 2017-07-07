@@ -1098,6 +1098,15 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 sendError("Couldn't retrieve weather for that location.", threadId);
             }
         });
+    } else if (co["pin"].m) {
+        const msg = co["pin"].m[1];
+        if (!msg) { // No new message; display current
+            sendMessage(groupInfo.pinned ? groupInfo.pinned : "No pinned messages in this chat.", threadId);
+        } else { // Pin new message
+            const pin = `"${msg}" – ${groupInfo.names[fromUserId]} on ${getDateString()}`;
+            setGroupProperty("pinned", pin, groupInfo);
+            sendMessage(`Pinned new message to the chat: "${msg}"`, threadId);
+        }
     }
 }
 exports.handleCommand = handleCommand; // Export for external use

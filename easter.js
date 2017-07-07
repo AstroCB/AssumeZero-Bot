@@ -240,7 +240,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/semicolons.png", threadId); }
     },
     {
-        "regex": /russian/i,
+        "regex": /russian language/i,
         "func": (threadId) => { m.sendFile("media/russian.m4a", threadId); }
     },
     {
@@ -376,6 +376,10 @@ const eggs = [
     {
         "regex": /i graduated/i,
         "func": (threadId) => { m.sendFile("media/graduation.mp4", threadId); }
+    },
+    {
+        "regex": /russian hacker/i,
+        "func": (threadId) => { m.sendFile("media/hacker.jpeg", threadId); }
     }
 ];
 
