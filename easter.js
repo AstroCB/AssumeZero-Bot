@@ -380,6 +380,10 @@ const eggs = [
     {
         "regex": /russian hacker/i,
         "func": (threadId) => { m.sendFile("media/hacker.jpeg", threadId); }
+    },
+    {
+        "regex": /musk gone mad/i,
+        "func": (threadId) => { m.sendFile("media/musk.jpeg", threadId); }
     }
 ];
 
