@@ -384,6 +384,10 @@ const eggs = [
     {
         "regex": /musk gone mad/i,
         "func": (threadId) => { m.sendFile("media/musk.png", threadId); }
+    },
+    {
+        "regex": /the salesman/i,
+        "func": (threadId) => { m.sendFile("media/salesman.jpg", threadId); }
     }
 ];
 
