@@ -180,7 +180,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/flush.png", threadId); }
     },
     {
-        "regex": /(^|\s)dog(?:s)?([^A-z]|$)/i,
+        "regex": /(^|\s)pupper(?:s)?([^A-z]|$)/i,
         "func": (threadId) => { m.sendFile("media/dog.png", threadId); }
     },
     {
