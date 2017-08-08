@@ -180,7 +180,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/flush.png", threadId); }
     },
     {
-        "regex": /(^|\s)dog(?:s)?([^A-z]|$)/i,
+        "regex": /(^|\s)pupper(?:s)?([^A-z]|$)/i,
         "func": (threadId) => { m.sendFile("media/dog.png", threadId); }
     },
     {
@@ -311,7 +311,7 @@ const eggs = [
         "regex": new RegExp(`${config.trigger} spam`, "i"),
         "func": (threadId, mId, data, groupInfo) => {
             let emoji = [];
-            for (let i = 0; i < 45; i++) { // Full row of emoji
+            for (let i = 0; i < 36; i++) { // Full row of emoji
                 emoji.push(groupInfo.emoji);
             }
             m.sendMessage(emoji.join(""), threadId);
