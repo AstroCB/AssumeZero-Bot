@@ -1596,9 +1596,9 @@ function sendFileFromUrl(url, path = "media/temp.jpg", message = "", threadId, a
 }
 
 // Gets a random hex color from the list of supported values (now that Facebook has restricted it to
-// a certain subset of them)
+// a certain subset of them; more specifically, the lowercase hex values of colors in the palette UI)
 function getRandomColor() {
-	const colors = ["#44BEC7", "#FFC300", "#FA3C4C", "#D696BB", "#6699CC", "#13CF13", "#FF7E29", "#E68585", "#7646FF", "#20CEF5", "#67B868", "#D4A88C", "#FF5CA1", "#A695C"];
+	const colors = ["#44bec7", "#ffc300", "#fa3c4c", "#d696bb", "#6699cc", "#13cf13", "#ff7e29", "#e68585", "#7646ff", "#20cef5", "#67b868", "#d4a88c", "#ff5ca1", "#a695c"];
 	return colors[Math.floor(Math.random() * colors.length)];
 }
 
