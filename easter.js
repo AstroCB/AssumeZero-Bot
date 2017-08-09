@@ -112,7 +112,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/pozharskiy.mp4", threadId); }
     },
     {
-        "regex": /(?:\s|^)rich(?:[^A-z0-9]|$)/i,
+        "regex": /filthy rich/i,
         "func": (threadId) => { m.sendFile("media/money.png", threadId); }
     },
     {
