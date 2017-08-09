@@ -1595,14 +1595,11 @@ function sendFileFromUrl(url, path = "media/temp.jpg", message = "", threadId, a
     });
 }
 
-// Gets a random hex color
+// Gets a random hex color from the list of supported values (now that Facebook has restricted it to
+// a certain subset of them)
 function getRandomColor() {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
-    for (let i = 0; i < 6; i++) { // Hex
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
+	const colors = ["#44BEC7, #FFC300, #FA3C4C, #D696BB, #6699CC, #13CF13, #FF7E29, #E68585, #7646FF, #20CEF5, #67B868, #D4A88C, #FF5CA1, #A695C"];
+	return colors[Math.floor(Math.random() * colors.length)];
 }
 
 // Restarts the bot (requires deploying to Heroku – see config)
