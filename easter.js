@@ -397,11 +397,12 @@ const eggs = [
         "regex": /jazz grass/i,
         "func": (threadId) => { m.sendFile("media/jazzgrass.png", threadId); }
     },
+    {
         "alt": (message, fromUserId, groupInfo) => { // Check whether the bot was mentioned
-			return message.mentions && message.mentions.includes(config.bot.id);
-		},
-		"func": (threadId) => { m.sendMessage("Yo", threadId); }
-	}
+            return message.mentions && message.mentions.includes(config.bot.id);
+        },
+        "func": (threadId) => { m.sendMessage("Yo", threadId); }
+    }
 ];
 
 exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupInfo, api) => {
