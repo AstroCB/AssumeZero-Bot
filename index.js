@@ -604,12 +604,19 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         }
     } else if (co["color"].m) {
         const colorToSet = (co["color"].m[1].match(/rand(om)?/i)) ? getRandomColor() : co["color"].m[1];
-        const ogColor = groupInfo.color || "default"; // Will be null if no custom color set
-        api.changeThreadColor(colorToSet, threadId, (err) => {
-            if (!err) {
-                sendMessage(`Last color was ${ogColor}.`, threadId);
-            }
-        });
+		const colors = api.threadColors;
+		const hexVals = colors.map(n => colors[n]);
+		const usableVal = hexVals.includes(colorToSet) ? colorToSet : colors[colorToSet];
+        if (usableVal === undefined) { // Explicit equality check b/c it might be null (i.e. MessengerBlue)
+            sendError("Facebook no longer accepts arbitrary hexadecimal thread colors. See help for accepted values.", threadId);
+        } else {
+            const ogColor = groupInfo.color || "default"; // Will be null if no custom color set
+            api.changeThreadColor(colorToSet, threadId, (err) => {
+                if (!err) {
+                    sendMessage(`Last color was ${ogColor}.`, threadId);
+                }
+            });
+        }
     } else if (co["hitlights"].m) {
         const ogColor = groupInfo.color || config.defaultColor; // Will be null if no custom color set
         const delay = 500; // Delay between color changes (half second is a good default)
@@ -1598,8 +1605,7 @@ function sendFileFromUrl(url, path = "media/temp.jpg", message = "", threadId, a
 // Gets a random hex color from the list of supported values (now that Facebook has restricted it to
 // a certain subset of them; more specifically, the lowercase hex values of colors in the palette UI)
 function getRandomColor() {
-	const colors = ["#44bec7", "#ffc300", "#fa3c4c", "#d696bb", "#6699cc", "#13cf13", "#ff7e29", "#e68585", "#7646ff", "#20cef5", "#67b868", "#d4a88c", "#ff5ca1", "#a695c"];
-	return colors[Math.floor(Math.random() * colors.length)];
+	return api.threadColors[Math.floor(Math.random() * api.threadColors.length)];
 }
 
 // Restarts the bot (requires deploying to Heroku – see config)

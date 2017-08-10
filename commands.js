@@ -194,10 +194,10 @@ exports.commands = {
         "experimental": false
     },
     "color": {
-        "display_names": ["color", "set color"],
-        "pretty_name": "Set color",
+        "display_names": ["color"],
+        "pretty_name": "Color",
         "short_description": "",
-        "description": "(Re)sets the color to the specified hex value and outputs previous color",
+        "description": "Sets the chat color to one of several accepted values; see https://github.com/Schmavery/facebook-chat-api/blob/master/DOCS.md#threadColors for details (either the name or the hex value is accepted by the bot)",
         "syntax": "color (#{six-digit hex color}|rand(om))",
         "example": ["color #c93028", "color random"],
         "sudo": false,
@@ -206,7 +206,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /color (#(?:[a-f]|\d){6}|rand(?:om)?)/i,
+        "regex": /color (#(?:[a-f]|\d){6}|rand(?:om)?|[A-z]+)/i,
         "experimental": false
     },
     "hitlights": {
