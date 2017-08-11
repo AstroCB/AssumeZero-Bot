@@ -1606,8 +1606,9 @@ function sendFileFromUrl(url, path = "media/temp.jpg", message = "", threadId, a
 
 // Gets a random hex color from the list of supported values (now that Facebook has restricted it to
 // a certain subset of them; more specifically, the lowercase hex values of colors in the palette UI)
-function getRandomColor() {
-    return api.threadColors[Math.floor(Math.random() * api.threadColors.length)];
+function getRandomColor(api = gapi) {
+    const colors = Object.keys(api.threadColors).map(n => api.threadColors[n]);
+    return colors[Math.floor(Math.random() * colors.length)];
 }
 
 // Restarts the bot (requires deploying to Heroku – see config)
