@@ -89,7 +89,7 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
                             handleCommand(m.substring(cindex + config.trigger.length), senderId, info, message); // Pass full message obj in case it's needed in a command
                         }
                         // Check for Easter eggs
-                        easter.handleEasterEggs(m, senderId, message.messageID, attachments, info, api);
+                        easter.handleEasterEggs(message, senderId, attachments, info, api);
                     }
                 }
             }
@@ -604,14 +604,16 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         }
     } else if (co["color"].m) {
         const colorToSet = (co["color"].m[1].match(/rand(om)?/i)) ? getRandomColor() : co["color"].m[1];
-		const colors = api.threadColors;
-		const hexVals = colors.map(n => colors[n]);
-		const usableVal = hexVals.includes(colorToSet) ? colorToSet : colors[colorToSet];
+        const colors = api.threadColors;
+        const hexVals = Object.keys(colors).map(n => colors[n]);
+        const usableVal = hexVals.includes(colorToSet) ? colorToSet : colors[colorToSet];
+
         if (usableVal === undefined) { // Explicit equality check b/c it might be null (i.e. MessengerBlue)
             sendError("Facebook no longer accepts arbitrary hexadecimal thread colors. See help for accepted values.", threadId);
         } else {
-            const ogColor = groupInfo.color || "default"; // Will be null if no custom color set
-            api.changeThreadColor(colorToSet, threadId, (err) => {
+            const hexToName = Object.keys(colors).reduce((obj, key) => { obj[colors[key]] = key; return obj; }, {}); // Flip the map
+            const ogColor = hexToName[groupInfo.color ? groupInfo.color.toLowerCase() : groupInfo.color]; // Will be null if no custom color set
+            api.changeThreadColor(usableVal, threadId, (err) => {
                 if (!err) {
                     sendMessage(`Last color was ${ogColor}.`, threadId);
                 }
@@ -1605,7 +1607,7 @@ function sendFileFromUrl(url, path = "media/temp.jpg", message = "", threadId, a
 // Gets a random hex color from the list of supported values (now that Facebook has restricted it to
 // a certain subset of them; more specifically, the lowercase hex values of colors in the palette UI)
 function getRandomColor() {
-	return api.threadColors[Math.floor(Math.random() * api.threadColors.length)];
+    return api.threadColors[Math.floor(Math.random() * api.threadColors.length)];
 }
 
 // Restarts the bot (requires deploying to Heroku – see config)

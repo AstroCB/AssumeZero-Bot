@@ -12,7 +12,7 @@ const config = require("./config");
 /*
  Each entry contains either a "regex" with a regular expression for matching
  or an "alt" function that takes, optionally, the following params in order:
-    the message, the sending user ID, and the groupInfo object
+    the full message object, the sending user ID, and the groupInfo object
  and will return a non-null value if the egg should be triggered.
  The entry also includes function "func" to be called if either condition is met,
  which can accept a threadId as the first parameter, a messageId as the second, a
@@ -66,7 +66,7 @@ const eggs = [
     },
     {
         "alt": (message, fromUserId, groupInfo) => {
-            return m.matchesWithUser("(?:get|measure|check) bac(?:[^k]|$)", message, fromUserId, groupInfo, true, "");
+            return m.matchesWithUser("(?:get|measure|check) bac(?:[^k]|$)", message.body, fromUserId, groupInfo, true, "");
         },
         "func": (threadId, messageId, data) => {
             const name = data[1] || "Yiyi";
@@ -405,8 +405,10 @@ const eggs = [
     }
 ];
 
-exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupInfo, api) => {
+exports.handleEasterEggs = (messageObj, fromUserId, attachments, groupInfo, api) => {
     const threadId = groupInfo.threadId;
+    const message = messageObj.body;
+    const messageId = messageObj.messageID;
     if (!groupInfo.muted) { // Don't check for Easter eggs if muted
         for (let i = 0; i < eggs.length; i++) {
             // Check for regex first and then alt function
@@ -415,7 +417,7 @@ exports.handleEasterEggs = (message, fromUserId, messageId, attachments, groupIn
                 let match = message.match(eggs[i].regex);
                 if (match) { eggs[i].func(groupInfo.threadId, messageId, match, groupInfo); }
             } else if (eggs[i].alt) {
-                let alt = eggs[i].alt(message, fromUserId, groupInfo);
+                let alt = eggs[i].alt(messageObj, fromUserId, groupInfo);
                 if (alt) { eggs[i].func(groupInfo.threadId, messageId, alt, groupInfo); }
             } else {
                 console.error("No conditions found for egg");
