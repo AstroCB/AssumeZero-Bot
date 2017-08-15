@@ -422,7 +422,7 @@ exports.commands = {
         "pretty_name": "Poll",
         "short_description": "Creates a group poll",
         "description": "Creates a poll in the group with the given title and optional comma-delimited initial options in brackets",
-        "syntax": "poll {title} ([opt1,opt2,opt3])",
+        "syntax": "poll {title} ([{option 1}, {option 2}, {option 3}, {option n}])",
         "example": ["poll What time should we eat dinner? [6 PM, 6:30 PM, Tomorrow]", "poll Which restaurant should we go to?"],
         "sudo": false,
         "attachments": false,
@@ -727,7 +727,7 @@ exports.commands = {
         "short_description": "",
         "description": "Get current weather for a given city",
         "syntax": "weather {city name}",
-        "example": ["weather Timonium"],
+        "example": "weather Timonium",
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -751,6 +751,22 @@ exports.commands = {
             "optional": false
         },
         "regex": /pin(?: (.+))?/i,
+        "experimental": false
+    },
+    "branch": {
+        "display_names": ["branch"],
+        "pretty_name": "Branch",
+        "short_description": "Create a new group from a subset of the current members",
+        "description": "Creates a new group chat given members of the current chat",
+        "syntax": "branch [{member 1}, {member 2}, {member 3}, {member n}]",
+        "example": "branch [me, Cameron, Jonah, Justin]",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /branch ((?:[^,]+(?:,|$))+)/i,
         "experimental": false
     }
 };

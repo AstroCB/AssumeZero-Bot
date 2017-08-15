@@ -1116,6 +1116,17 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             setGroupProperty("pinned", pin, groupInfo);
             sendMessage(`Pinned new message to the chat: "${msg}"`, threadId);
         }
+    } else if (co["branch"].m) {
+        const input = co["branch"].m[1];
+        const members = input.split(",").map(m => parseNameReplacements(m.toLowerCase().trim(), fromUserId, groupInfo));
+        console.log(members);
+        const ids = members.map(m => groupInfo.members[m]);
+        // Start a new chat with the collected IDs and the bot
+        sendMessage(`Welcome! This group was created from ${groupInfo.name}.`, ids, (err, info) => {
+            if (!err) {
+                sendMessage("Subgroup created.", threadId);
+            }
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
@@ -1151,15 +1162,7 @@ function matchesWithUser(command, message, fromUserId, groupData, optional = fal
             let m = match[i];
             if (m) { // Make sure only modifying the user field (no aliases here)
                 // Any post-match changes that need to be made
-                let fixes = m;
-                // "Me" -> calling user
-                fixes = fixes.replace(/(^| )me(?:[^A-z0-9]|$)/i, "$1" + groupData.names[fromUserId]);
-                // {alias} -> corresponding user
-                for (let a in groupData.aliases) {
-                    if (groupData.aliases.hasOwnProperty(a)) {
-                        fixes = fixes.replace(new RegExp(`(^| )${groupData.aliases[a]}(?:[^A-z0-9]|$)`, "i"), "$1" + a);
-                    }
-                }
+                let fixes = parseNameReplacements(m, fromUserId, groupData);
                 match[i] = fixes;
                 if (m != fixes) {
                     /*
@@ -1338,10 +1341,11 @@ function addUser(id, info, welcome = true, callback = () => { }, retry = true, c
 /*
 Update stored info about groups after every message in the background
 Takes an optional message object when called by the update subroutine,
-but can be ignored when called from anywhere else
+but can be ignored when called from anywhere else.
+
 Using callback is discouraged as the idea of this function is to update in
 the background to decrease lag, but it may be useful if updates are required
-to continue
+to continue.
 */
 function updateGroupInfo(threadId, message, callback = () => { }, api = gapi) {
     getGroupInfo(threadId, (err, existingInfo) => {
@@ -1367,7 +1371,7 @@ function updateGroupInfo(threadId, message, callback = () => { }, api = gapi) {
                     info.name = data.name || "Unnamed chat";
                     info.emoji = data.emoji ? data.emoji.emoji : null;
                     info.color = data.color;
-                    if (data.nicknames[config.bot.id]) { // Don't add bot to nicknames list
+                    if (data.nicknames && data.nicknames[config.bot.id]) { // Don't add bot to nicknames list
                         delete data.nicknames[config.bot.id];
                     }
                     info.nicknames = data.nicknames || {};
@@ -1411,7 +1415,7 @@ function updateGroupInfo(threadId, message, callback = () => { }, api = gapi) {
                             }
                         }
                         setGroupInfo(info, (err) => {
-                            if (!err && !existingInfo) {
+                            if (!existingInfo) {
                                 sendMessage(`All done! Use '${config.trigger} help' to see what I can do.`, threadId);
                             }
                             callback(err, info);
@@ -2018,3 +2022,23 @@ function reactToMessage(messageId, reaction = "like", api = gapi) {
     api.setMessageReaction(reactions[reaction], messageId);
 }
 exports.reactToMessage = reactToMessage;
+
+/*
+Parses a given message and makes the necessary shortcut replacements, which currently include
+changing "me" to the current user and any aliases to the corresponding user based on the current
+group.
+
+Returns the parsed and replaced string.
+*/
+function parseNameReplacements(message, fromUserId, groupInfo) {
+    let fixes = message;
+    // "Me" -> calling user
+    fixes = fixes.replace(/(^| )me(?:[^A-z0-9]|$)/i, "$1" + groupInfo.names[fromUserId].toLowerCase());
+    // {alias} -> corresponding user
+    for (let a in groupInfo.aliases) {
+        if (groupInfo.aliases.hasOwnProperty(a)) {
+            fixes = fixes.replace(new RegExp(`(^| )${groupInfo.aliases[a]}(?:[^A-z0-9]|$)`, "i"), "$1" + a);
+        }
+    }
+    return fixes;
+}
