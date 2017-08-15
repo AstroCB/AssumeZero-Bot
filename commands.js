@@ -750,7 +750,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /pin(?: (.+))?/i,
+        "regex": /pin(?:(?:\s|$)([\s\S]+))?/im,
         "experimental": false
     },
     "branch": {
