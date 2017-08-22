@@ -1119,14 +1119,18 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["branch"].m) {
         const input = co["branch"].m[1];
         const members = input.split(",").map(m => parseNameReplacements(m.toLowerCase().trim(), fromUserId, groupInfo));
-        console.log(members);
         const ids = members.map(m => groupInfo.members[m]);
+        
         // Start a new chat with the collected IDs and the bot
         sendMessage(`Welcome! This group was created from ${groupInfo.name}.`, ids, (err, info) => {
             if (!err) {
                 sendMessage("Subgroup created.", threadId);
             }
         });
+    } else if (co["tab"].m) {
+        const op = co["tab"].m[1];
+        const amt = parseFloat(co["tab"].m[2]) || 1;
+        if()
     }
 }
 exports.handleCommand = handleCommand; // Export for external use

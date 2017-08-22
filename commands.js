@@ -750,7 +750,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /pin(?: (.+))?/i,
+        "regex": /pin(?:(?:\s|$)([\s\S]+))?/im,
         "experimental": false
     },
     "branch": {
@@ -767,6 +767,22 @@ exports.commands = {
             "optional": false
         },
         "regex": /branch ((?:[^,]+(?:,|$))+)/i,
+        "experimental": false
+    },
+    "tab": {
+        "display_names": ["tab"],
+        "pretty_name": "Tab",
+        "short_description": "Keeps a running total",
+        "description": "Maintains a running total for the group that can be incremented or decremented (default amount is 1)",
+        "syntax": "tab {add|subtract|clear} ({amount})",
+        "example": ["tab add 5.50", "tab subtract 2.10", "tab add", "tab subtract", "tab clear"],
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /(add|subtract|clear)( \d(?:\.\d+))/i,
         "experimental": false
     }
 };
