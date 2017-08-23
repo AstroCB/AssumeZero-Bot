@@ -546,6 +546,23 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 });
             }
         }
+    } else if (co["tab"].m) {
+        const op = co["tab"].m[1];
+        const amt = parseFloat(co["tab"].m[2]) || 1;
+        const cur = groupInfo.tab || 0;
+        const numMembers = Object.keys(groupInfo.members).length;
+        if (!op) { // No operation – just display total
+            sendMessage(`$${cur} ($${cur / numMembers} per person)`, threadId);
+        } else if (op == "clear") { // Clear tab
+            setGroupProperty("tab", 0, groupInfo, (err) => {
+                if (!err) { sendMessage("Tab cleared.", threadId); }
+            });
+        } else {
+            const newTab = (op == "add") ? (cur + amt) : (cur - amt);
+            setGroupProperty("tab", newTab, groupInfo, (err) => {
+                if (!err) { sendMessage(`Tab updated to $${newTab}.`, threadId); }
+            })
+        }
     } else if (co["addsearch"].m) {
         // Fields 1 & 3 are are for the command and the user, respectively
         // Field 2 is for an optional number parameter specifying the number of search results
@@ -1120,17 +1137,13 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         const input = co["branch"].m[1];
         const members = input.split(",").map(m => parseNameReplacements(m.toLowerCase().trim(), fromUserId, groupInfo));
         const ids = members.map(m => groupInfo.members[m]);
-        
+
         // Start a new chat with the collected IDs and the bot
         sendMessage(`Welcome! This group was created from ${groupInfo.name}.`, ids, (err, info) => {
             if (!err) {
                 sendMessage("Subgroup created.", threadId);
             }
         });
-    } else if (co["tab"].m) {
-        const op = co["tab"].m[1];
-        const amt = parseFloat(co["tab"].m[2]) || 1;
-        
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
