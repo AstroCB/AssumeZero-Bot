@@ -1130,7 +1130,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["tab"].m) {
         const op = co["tab"].m[1];
         const amt = parseFloat(co["tab"].m[2]) || 1;
-        if()
+        
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
