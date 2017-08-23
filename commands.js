@@ -782,7 +782,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /tab(?: (add|subtract|clear)(?: \$?((?:\d+)?(?:\.\d+)?))?)?/i,
+        "regex": /tab(?: (add|subtract|clear|split)(?: \$?((?:\d+)?(?:\.\d+)?))?|)?/i,
         "experimental": false
     }
 };
