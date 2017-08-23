@@ -552,7 +552,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         const cur = groupInfo.tab || 0;
         const numMembers = Object.keys(groupInfo.members).length;
         if (!op) { // No operation – just display total
-            sendMessage(`$${cur} ($${cur / numMembers} per person)`, threadId);
+            sendMessage(`$${cur.toFixed(2)} ($${(cur / numMembers).toFixed(2)} per person)`, threadId);
         } else if (op == "clear") { // Clear tab
             setGroupProperty("tab", 0, groupInfo, (err) => {
                 if (!err) { sendMessage("Tab cleared.", threadId); }
@@ -560,7 +560,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         } else {
             const newTab = (op == "add") ? (cur + amt) : (cur - amt);
             setGroupProperty("tab", newTab, groupInfo, (err) => {
-                if (!err) { sendMessage(`Tab updated to $${newTab}.`, threadId); }
+                if (!err) { sendMessage(`Tab updated to $${newTab.toFixed(2)}.`, threadId); }
             })
         }
     } else if (co["addsearch"].m) {
