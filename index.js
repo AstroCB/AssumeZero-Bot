@@ -546,6 +546,15 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 });
             }
         }
+    } else if (co["pin"].m) {
+        const msg = co["pin"].m[1];
+        if (!msg) { // No new message; display current
+            sendMessage(groupInfo.pinned ? groupInfo.pinned : "No pinned messages in this chat.", threadId);
+        } else { // Pin new message
+            const pin = `"${msg}" – ${groupInfo.names[fromUserId]} on ${getDateString()}`;
+            setGroupProperty("pinned", pin, groupInfo);
+            sendMessage(`Pinned new message to the chat: "${msg}"`, threadId);
+        }
     } else if (co["tab"].m) {
         const op = co["tab"].m[1];
         const amt = parseFloat(co["tab"].m[2]) || 1;
@@ -1127,15 +1136,6 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 sendError("Couldn't retrieve weather for that location.", threadId);
             }
         });
-    } else if (co["pin"].m) {
-        const msg = co["pin"].m[1];
-        if (!msg) { // No new message; display current
-            sendMessage(groupInfo.pinned ? groupInfo.pinned : "No pinned messages in this chat.", threadId);
-        } else { // Pin new message
-            const pin = `"${msg}" – ${groupInfo.names[fromUserId]} on ${getDateString()}`;
-            setGroupProperty("pinned", pin, groupInfo);
-            sendMessage(`Pinned new message to the chat: "${msg}"`, threadId);
-        }
     } else if (co["branch"].m) {
         const input = co["branch"].m[1];
         const members = input.split(",").map(m => parseNameReplacements(m.toLowerCase().trim(), fromUserId, groupInfo));
