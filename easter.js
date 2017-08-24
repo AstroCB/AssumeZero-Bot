@@ -402,6 +402,22 @@ const eggs = [
             return message.mentions && message.mentions.includes(config.bot.id);
         },
         "func": (threadId) => { m.sendMessage("Yo", threadId); }
+    },
+    {
+        "regex": /fratty/i,
+        "func": (threadId) => { m.sendFile("media/fratty.png", threadId); }
+    },
+    {
+        "regex": /deborah unhinge/i,
+        "func": (threadId) => { m.sendFile("media/unhinge.gif", threadId); }
+    },
+    {
+        "regex": /deborah lunge/i,
+        "func": (threadId) => { m.sendFile("media/lunge.gif", threadId); }
+    },
+    {
+        "regex": /deborah lag/i,
+        "func": (threadId) => { m.sendFile("media/lag.gif", threadId); }
     }
 ];
 
