@@ -418,6 +418,10 @@ const eggs = [
     {
         "regex": /deborah lag/i,
         "func": (threadId) => { m.sendFile("media/lag.gif", threadId); }
+    },
+    {
+        "regex": /genocide/i,
+        "func": (threadId) => { m.sendFile(["media/gen1.jpg", "media/gen2.jpg"], threadId); }
     }
 ];
 
