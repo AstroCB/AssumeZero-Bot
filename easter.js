@@ -399,7 +399,7 @@ const eggs = [
     },
     {
         "alt": (message, fromUserId, groupInfo) => { // Check whether the bot was mentioned
-            return message.mentions && message.mentions.includes(config.bot.id);
+            return (message.mentions && message.mentions.length && message.mentions.includes(config.bot.id));
         },
         "func": (threadId) => { m.sendMessage("Yo", threadId); }
     },
