@@ -422,6 +422,10 @@ const eggs = [
     {
         "regex": /genocide/i,
         "func": (threadId) => { m.sendFile(["media/gen1.jpg", "media/gen2.jpg"], threadId); }
+    },
+    {
+        "regex": /artemesia/i,
+        "func": (threadId) => { m.sendFile("artemesia.jpg", threadId); }
     }
 ];
 
