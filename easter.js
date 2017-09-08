@@ -86,8 +86,12 @@ const eggs = [
         "func": (threadId) => { m.sendMessage("Just don't sleep for three days and you'll be good", threadId); }
     },
     {
-        "regex": /good(?:\s)?ni(?:ght|te)(?:\,)? bot/i,
+        "regex": /(?:good)?(?:\s)?ni(?:ght|te)(?:\,)? bot/i,
         "func": (threadId) => { m.sendMessage("Night!", threadId); }
+    },
+    {
+        "regex": /(?:good)?(?:\s)?morning(?:\,)? bot/i,
+        "func": (threadId) => { m.sendMessage("Morning!", threadId); }
     },
     {
         "regex": /public funds/i,
