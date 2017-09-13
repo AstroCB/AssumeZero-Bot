@@ -326,7 +326,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile(["media/slopejustin.png", "media/slopemarin.jpeg"], threadId); }
     },
     {
-        "regex": /are you sure/i,
+        "regex": /^are you sure$/i,
         "func": (threadId) => { m.sendFile("media/sure.png", threadId); }
     },
     {
