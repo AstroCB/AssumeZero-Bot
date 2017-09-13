@@ -25,10 +25,6 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/genius.jpg", threadId); }
     },
     {
-        "regex": /cuck(?:ed)?/i,
-        "func": (threadId, messageId) => { m.reactToMessage(messageId, "angry"); }
-    },
-    {
         "regex": /(?:^|\s)(?:problem |p)set(?:s)?/i,
         "func": (threadId) => { m.sendContentsOfFile("media/monologue.txt", threadId); }
     },
@@ -82,20 +78,12 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/premed.png", threadId); }
     },
     {
-        "regex": /fruit/i,
-        "func": (threadId) => { m.sendMessage("Just don't sleep for three days and you'll be good", threadId); }
-    },
-    {
         "regex": /(?:good)?(?:\s)?ni(?:ght|te)(?:\,)? bot/i,
         "func": (threadId) => { m.sendMessage("Night!", threadId); }
     },
     {
         "regex": /(?:good)?(?:\s)?morning(?:\,)? bot/i,
         "func": (threadId) => { m.sendMessage("Morning!", threadId); }
-    },
-    {
-        "regex": /public funds/i,
-        "func": (threadId) => { m.sendFile("media/dirks.png", threadId); }
     },
     {
         "regex": /darth plagueis/i,
@@ -136,7 +124,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/speedforce.mp4", threadId); }
     },
     {
-        "regex": /fraternity/i,
+        "regex": /delta tau delta/i,
         "func": (threadId) => { m.sendFile("media/frat.jpg", threadId); }
     },
     {
@@ -164,7 +152,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/background.png", threadId); }
     },
     {
-        "regex": /brown(?:[^A-z0-9]|$)/i,
+        "regex": /^brown$/i,
         "func": (threadId) => { m.sendFile("media/brown.jpg", threadId); }
     },
     {
@@ -192,7 +180,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/subaru.png", threadId); }
     },
     {
-        "regex": /ironic/i,
+        "regex": /that(')?s ironic/i,
         "func": (threadId) => { m.sendFile("media/ironic.jpg", threadId); }
     },
     {
@@ -210,10 +198,6 @@ const eggs = [
     {
         "regex": /the flash/i,
         "func": (threadId) => { m.sendFile("media/flash.mp3", threadId) }
-    },
-    {
-        "regex": /greek/i,
-        "func": (threadId) => { m.sendContentsOfFile("media/greek.txt", threadId); }
     },
     {
         "regex": /racism/i,
@@ -264,7 +248,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/email.png", threadId); }
     },
     {
-        "regex": /internet/i,
+        "regex": /from the internet/i,
         "func": (threadId) => { m.sendFile("media/internet.png", threadId); }
     },
     {
@@ -296,7 +280,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/aøbp.png", threadId) }
     },
     {
-        "regex": /capital( )?one/i,
+        "regex": /capital(\s)?one/i,
         "func": (threadId) => { m.sendFile("media/capitalone.png", threadId); }
     },
     {
