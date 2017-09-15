@@ -296,7 +296,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/newkevin.jpeg", threadId); }
     },
     {
-        "regex": new RegExp(`${config.trigger} spam`, "i"),
+        "regex": new RegExp(`${config.trigger} (.*)spam`, "i"),
         "func": (threadId, mId, data, groupInfo) => {
             let emoji = [];
             for (let i = 0; i < 36; i++) { // Full row of emoji
