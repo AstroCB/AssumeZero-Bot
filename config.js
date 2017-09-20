@@ -109,3 +109,12 @@ exports.asyncTimeout = 5000;
 
 // Number of chats to fetch when pulling thread history
 exports.threadLimit = 50;
+
+// For Wikipedia searching capability
+// Custom search engine that searches Wikipedia only
+// (keep unless you want to customize the results) and an API key
+// from Google Dev Console
+exports.wiki = {
+    "engine": "017207449713114446929:cyipvxn5_rk",
+    "key": "AIzaSyCHfJCpWEYUCydDMbb9PqK42XpPQd9L-F8"
+};

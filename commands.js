@@ -113,6 +113,22 @@ exports.commands = {
         "regex": /xkcd(?: (new|\d+|search (.+)))?/i,
         "experimental": false
     },
+    "wiki": {
+        "display_names": ["wiki", "wikipedia", "wiki search"],
+        "pretty_name": "Wiki",
+        "short_description": "Searches Wikipedia",
+        "description": "Searches Wikipedia for a given query and returns the best result",
+        "syntax": "wiki {query}",
+        "example": ["wiki bots"],
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /wiki (.*)/i,
+        "experimental": false
+    },
     "spotsearch": {
         "display_names": ["search artist", "search song", "search track"],
         "pretty_name": "Spotify search",

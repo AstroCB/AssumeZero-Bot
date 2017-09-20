@@ -290,7 +290,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                                 "url": results[0].formattedUrl // Best match
                             }, threadId);
                         } else {
-                            sendMessage("Error: No results found", threadId);
+                            sendError("No results found", threadId);
                         }
                     } else {
                         console.log(err);
@@ -327,6 +327,24 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 }
             });
         }
+    } else if (co["wiki"].m) {
+        const query = co["wiki"].m[1];
+        // Perform search using Google Custom Search API (provide API key / custom engine in config.js)
+        const url = `https://www.googleapis.com/customsearch/v1?key=${config.wiki.key}&cx=${config.wiki.engine}&q=${encodeURIComponent(query)}`;
+        request(url, (err, res, body) => {
+            if (!err && res.statusCode == 200) {
+                const results = JSON.parse(body).items;
+                if (results.length > 0) {
+                    sendMessage({
+                        "url": results[0].formattedUrl // Best match
+                    }, threadId);
+                } else {
+                    sendError("No results found", threadId);
+                }
+            } else {
+                console.log(err);
+            }
+        });
     } else if (co["spotsearch"].m) {
         logInSpotify((err) => {
             if (!err) {
