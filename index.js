@@ -650,15 +650,26 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             sendMessage("Cannot execute Order 66 on a non-group chat. Safe for now, you are, Master Jedi.", threadId);
         }
     } else if (co["color"].m) {
-        const colorToSet = (co["color"].m[1].match(/rand(om)?/i)) ? getRandomColor() : co["color"].m[1];
-        const colors = api.threadColors;
+        // Extract input and pull valid colors from API
+        const colorToSet = ((co["color"].m[1].match(/rand(om)?/i)) ? getRandomColor() : co["color"].m[1]).toLowerCase();
+        const apiColors = api.threadColors;
+
+        // Construct a lowercased-key color dictionary to make input case insensitive
+        const colors = {};
+        for (let color in apiColors) {
+            if (apiColors.hasOwnProperty(color)) {
+                colors[color.toLowerCase()] = apiColors[color];
+            }
+        }
+
+        // Extract color values
         const hexVals = Object.keys(colors).map(n => colors[n]);
         const usableVal = hexVals.includes(colorToSet) ? colorToSet : colors[colorToSet];
 
         if (usableVal === undefined) { // Explicit equality check b/c it might be null (i.e. MessengerBlue)
-            sendError("Facebook no longer accepts arbitrary hexadecimal thread colors. See help for accepted values.", threadId);
+            sendError("Couldn't find this color. See help for accepted values.", threadId);
         } else {
-            const hexToName = Object.keys(colors).reduce((obj, key) => { obj[colors[key]] = key; return obj; }, {}); // Flip the map
+            const hexToName = Object.keys(apiColors).reduce((obj, key) => { obj[apiColors[key]] = key; return obj; }, {}); // Flip the map
             const ogColor = hexToName[groupInfo.color ? groupInfo.color.toLowerCase() : groupInfo.color]; // Will be null if no custom color set
             api.changeThreadColor(usableVal, threadId, (err) => {
                 if (!err) {
