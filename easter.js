@@ -128,7 +128,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/frat.jpg", threadId); }
     },
     {
-        "regex": /(?:girlfriend|(?:(?:^| )gf(?:$|[^A-z0-9])))/i,
+        "regex": /girlfriend/i,
         "func": (threadId) => { m.sendFile("media/girlfriend.png", threadId); }
     },
     {
