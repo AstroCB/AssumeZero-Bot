@@ -65,22 +65,6 @@ exports.commands = {
         "regex": /bug (.*)/i,
         "experimental": false
     },
-    "suggest": {
-        "display_names": ["suggest"],
-        "pretty_name": "Suggest",
-        "short_description": "Suggest a feature to the owner",
-        "description": "Sends a message to the owner with a feature request",
-        "syntax": "suggest {message}",
-        "example": "suggest self-destruct button",
-        "sudo": false,
-        "attachments": false,
-        "user_input": {
-            "accepts": false,
-            "optional": false
-        },
-        "regex": /suggest (.*)/i,
-        "experimental": false
-    },
     "kick": {
         "display_names": ["kick"],
         "pretty_name": "Kick",
