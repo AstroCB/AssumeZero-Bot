@@ -1,5 +1,5 @@
 {
-  "name": "assume-bot",
+  "name": "assumezero-bot",
   "version": "2.0.0",
   "description": "A group chat bot that performs a variety of functions.",
   "main": "index.js",
@@ -14,7 +14,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AstroCB/Assume-Bot"
+    "url": "https://github.com/AstroCB/AssumeZero-Bot"
   },
   "dependencies": {
     "body-parser": "^1.16.0",
