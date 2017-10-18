@@ -422,6 +422,10 @@ const eggs = [
     {
         "regex": /^sad$/i,
         "func": (threadId, messageId) => { m.reactToMessage(messageId, "sad"); }
+    },
+    {
+        "regex": /devry/i,
+        "func": (threadId, messageId) => { m.sendFile("media/devry.png", threadId); }
     }
 ];
 
