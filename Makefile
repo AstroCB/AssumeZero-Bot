@@ -18,4 +18,6 @@ archive:
 	node archive.js
 restore:
 	node archive.js --restore
+bash:
+	heroku run bash -a assume-bot
 debug: disable start
