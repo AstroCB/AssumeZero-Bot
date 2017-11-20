@@ -1282,9 +1282,10 @@ function debugCommandOutput(flag) {
 // and extracts the intended users from the ping to send the message to them
 function parsePing(m, fromUserId, groupInfo) {
     let users = [];
-    const allMatch = m.match(/@@(all|everyone)/i);
+    const allMatch = m.match(/@@(all|everyone|channel)/i);
     if (allMatch && allMatch[1]) { // Alert everyone
         users = Object.keys(groupInfo.members);
+        users.splice(users.indexOf(groupInfo.names[fromUserId]), 1);
         m = m.split("@@" + allMatch[1]).join("");
     } else {
         let matches = matchesWithUser("@@", m, fromUserId, groupInfo, false, "");
