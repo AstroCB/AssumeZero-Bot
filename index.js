@@ -1560,7 +1560,7 @@ function sendEmoji(emoji, threadId, size = "small") {
 exports.sendEmoji = sendEmoji; // Export for Easter eggs
 
 function isBanned(senderId, groupInfo) {
-    return (config.banned.indexOf(senderId) > -1 || !senderId || !groupInfo.members[senderID]);
+    return (config.banned.indexOf(senderId) > -1 || !senderId || !groupInfo.names[senderId]);
 }
 
 // Sends file(s) where each filename is a relative path to the file from root
