@@ -76,7 +76,7 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
             } else {
                 // Handle messages
                 const senderId = message.senderID;
-                if (message.type == "message" && senderId != config.bot.id && !isBanned(senderId)) { // Sender is not banned and is not the bot
+                if (message.type == "message" && senderId != config.bot.id && !isBanned(senderId, info)) { // Sender is not banned and is not the bot
                     const m = message.body;
                     const attachments = message.attachments;
                     // Handle message body
@@ -1559,8 +1559,8 @@ function sendEmoji(emoji, threadId, size = "small") {
 }
 exports.sendEmoji = sendEmoji; // Export for Easter eggs
 
-function isBanned(senderId) {
-    return (config.banned.indexOf(senderId) > -1);
+function isBanned(senderId, groupInfo) {
+    return (config.banned.indexOf(senderId) > -1 || !senderId || !groupInfo.members[senderID]);
 }
 
 // Sends file(s) where each filename is a relative path to the file from root
