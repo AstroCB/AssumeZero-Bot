@@ -244,7 +244,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/windows.jpg", threadId); }
     },
     {
-        "regex": /star wars/i,
+        "regex": /i love star wars/i,
         "func": (threadId) => { m.sendFile("media/email.png", threadId); }
     },
     {
