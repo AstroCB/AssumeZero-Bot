@@ -702,11 +702,11 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         sendMessage(`Messaged ${user.substring(0, 1).toUpperCase()}${user.substring(1)} ${config.wakeUpTimes} times`, threadId);
     } else if (co["randmess"].m) {
         // Get thread length
-        api.getThreadInfo(threadId, (err, data) => {
+        api.getThreadInfoGraphQL(threadId, (err, data) => {
             if (!err) {
                 const count = data.messageCount; // Probably isn't that accurate
                 let randMessage = Math.floor(Math.random() * (count + 1));
-                api.getThreadHistory(threadId, (count / 4), null, (err, data) => { // Most recent quarter to prevent overload
+                api.getThreadHistoryGraphQL(threadId, count, null, (err, data) => {
                     if (err) {
                         sendMessage("Error: Messages could not be loaded", threadId);
                     } else {
@@ -1407,14 +1407,14 @@ function updateGroupInfo(threadId, message, callback = () => { }, api = gapi) {
                 // Add bot's nickname if available
                 api.changeNickname(n.short, threadId, config.bot.id); // Won't do anything if undefined
             }
-            api.getThreadInfo(threadId, (err, data) => {
+            api.getThreadInfoGraphQL(threadId, (err, data) => {
                 if (data) {
                     let info = existingInfo || {};
                     info.threadId = threadId;
                     info.lastMessage = message;
                     info.name = data.name || "Unnamed chat";
-                    info.emoji = data.emoji ? data.emoji.emoji : null;
-                    info.color = data.color;
+                    info.emoji = data.emoji;
+                    info.color = `#${data.color}`;
                     if (data.nicknames && data.nicknames[config.bot.id]) { // Don't add bot to nicknames list
                         delete data.nicknames[config.bot.id];
                     }

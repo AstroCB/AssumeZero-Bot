@@ -19,7 +19,7 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
-    "facebook-chat-api": "github:schmavery/facebook-chat-api",
+    "facebook-chat-api": "github:Schmavery/facebook-chat-api",
     "http": "0.0.0",
     "jimp": "^0.2.27",
     "memjs": "^0.10.0",
