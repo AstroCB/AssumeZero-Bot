@@ -196,17 +196,17 @@ exports.commands = {
     "color": {
         "display_names": ["color"],
         "pretty_name": "Color",
-        "short_description": "",
-        "description": "Sets the chat color to one of several accepted values; see https://github.com/Schmavery/facebook-chat-api/blob/master/DOCS.md#threadColors for details (either the name or the hex value is accepted by the bot)",
+        "short_description": "Sets the chat color; see full help for accepted values",
+        "description": "Sets the chat color to one of several currently accepted values:\n\nMessengerBlue: none\nViking: #44bec7\nGoldenPoppy: #ffc300\nRadicalRed: #fa3c4c\nShocking: #d696bb\nPictonBlue: #6699cc\nFreeSpeechGreen: #13cf13\nPumpkin: #ff7e29\nLightCoral: #e68585 \nMediumSlateBlue: #7646ff\nDeepSkyBlue: #20cef5\nFern: #67b868\nCameo: #d4a88c\nBrilliantRose: #ff5ca1\nBilobaFlower: #a695c7\n\nThis command accepts either the name or hex value as input.",
         "syntax": "color (#{six-digit hex color}|rand(om))",
-        "example": ["color #c93028", "color random"],
+        "example": ["color", "color #ffc300", "color random"],
         "sudo": false,
         "attachments": false,
         "user_input": {
             "accepts": false,
             "optional": false
         },
-        "regex": /color (#(?:[a-f]|\d){6}|rand(?:om)?|[A-z]+)/i,
+        "regex": /color( (#(?:[a-f]|\d){6}|rand(?:om)?|[A-z]+))?/i,
         "experimental": false
     },
     "hitlights": {

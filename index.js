@@ -644,32 +644,38 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             sendMessage("Cannot execute Order 66 on a non-group chat. Safe for now, you are, Master Jedi.", threadId);
         }
     } else if (co["color"].m) {
-        // Extract input and pull valid colors from API
-        const colorToSet = ((co["color"].m[1].match(/rand(om)?/i)) ? getRandomColor() : co["color"].m[1]).toLowerCase();
+        // Extract input and pull valid colors from API as well as current thread color
         const apiColors = api.threadColors;
+        const hexToName = Object.keys(apiColors).reduce((obj, key) => { obj[apiColors[key]] = key; return obj; }, {}); // Flip the map
+        const ogColor = hexToName[groupInfo.color ? groupInfo.color.toLowerCase() : groupInfo.color]; // Will be null if no custom color set
 
-        // Construct a lowercased-key color dictionary to make input case insensitive
-        const colors = {};
-        for (let color in apiColors) {
-            if (apiColors.hasOwnProperty(color)) {
-                colors[color.toLowerCase()] = apiColors[color];
-            }
-        }
+        if (co["color"].m[1]) {
+            const inputColor = co["color"].m[2];
+            const colorToSet = (inputColor.match(/rand(om)?/i)) ? getRandomColor() : inputColor.toLowerCase();
 
-        // Extract color values
-        const hexVals = Object.keys(colors).map(n => colors[n]);
-        const usableVal = hexVals.includes(colorToSet) ? colorToSet : colors[colorToSet];
-
-        if (usableVal === undefined) { // Explicit equality check b/c it might be null (i.e. MessengerBlue)
-            sendError("Couldn't find this color. See help for accepted values.", threadId);
-        } else {
-            const hexToName = Object.keys(apiColors).reduce((obj, key) => { obj[apiColors[key]] = key; return obj; }, {}); // Flip the map
-            const ogColor = hexToName[groupInfo.color ? groupInfo.color.toLowerCase() : groupInfo.color]; // Will be null if no custom color set
-            api.changeThreadColor(usableVal, threadId, (err) => {
-                if (!err) {
-                    sendMessage(`Last color was ${ogColor}.`, threadId);
+            // Construct a lowercased-key color dictionary to make input case insensitive
+            const colors = {};
+            for (let color in apiColors) {
+                if (apiColors.hasOwnProperty(color)) {
+                    colors[color.toLowerCase()] = apiColors[color];
                 }
-            });
+            }
+
+            // Extract color values
+            const hexVals = Object.keys(colors).map(n => colors[n]);
+            const usableVal = hexVals.includes(colorToSet) ? colorToSet : colors[colorToSet];
+
+            if (usableVal === undefined) { // Explicit equality check b/c it might be null (i.e. MessengerBlue)
+                sendError("Couldn't find this color. See help for accepted values.", threadId);
+            } else {
+                api.changeThreadColor(usableVal, threadId, (err) => {
+                    if (!err) {
+                        sendMessage(`Last color was ${ogColor}.`, threadId);
+                    }
+                });
+            }
+        } else { // No color requested – show current color
+            sendMessage(`The current chat color is ${ogColor} (hex value: ${groupInfo.color ? groupInfo.color : "empty"}).`, threadId);
         }
     } else if (co["hitlights"].m) {
         const ogColor = groupInfo.color || config.defaultColor; // Will be null if no custom color set
@@ -1412,22 +1418,19 @@ function updateGroupInfo(threadId, message, callback = () => { }, api = gapi) {
                     let info = existingInfo || {};
                     info.threadId = threadId;
                     info.lastMessage = message;
-                    info.name = data.name || "Unnamed chat";
+                    info.name = data.threadName || "Unnamed chat";
                     info.emoji = data.emoji;
-                    info.color = `#${data.color}`;
+                    info.color = data.color ? `#${data.color}` : null;
                     if (data.nicknames && data.nicknames[config.bot.id]) { // Don't add bot to nicknames list
                         delete data.nicknames[config.bot.id];
                     }
                     info.nicknames = data.nicknames || {};
-                    if (!info.hasOwnProperty("isGroup") && typeof (message.isGroup) == "boolean") {
-                        info.isGroup = message.isGroup;
-                    }
                     if (isNew) {
                         // These properties only need to be initialized once
                         info.muted = true;
                         info.playlists = {};
                         info.aliases = {};
-                        info.isGroup = message.isGroup;
+                        info.isGroup = (data.threadType == "group");
                     }
                     api.getUserInfo(data.participantIDs, (err, userData) => {
                         if (!err) {
