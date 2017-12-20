@@ -1291,6 +1291,7 @@ function parsePing(m, fromUserId, groupInfo) {
     const allMatch = m.match(/@@(all|everyone|channel)/i);
     if (allMatch && allMatch[1]) { // Alert everyone
         users = Object.keys(groupInfo.members);
+        // Remove sending user from recipients
         users.splice(users.indexOf(groupInfo.names[fromUserId]), 1);
         m = m.split("@@" + allMatch[1]).join("");
     } else {
@@ -1418,7 +1419,7 @@ function updateGroupInfo(threadId, message, callback = () => { }, api = gapi) {
                     let info = existingInfo || {};
                     info.threadId = threadId;
                     info.lastMessage = message;
-                    info.name = data.threadName || "Unnamed chat";
+                    info.name = data.threadName || config.defaultTitle;
                     info.emoji = data.emoji;
                     info.color = data.color ? `#${data.color}` : null;
                     if (data.nicknames && data.nicknames[config.bot.id]) { // Don't add bot to nicknames list
@@ -1449,7 +1450,7 @@ function updateGroupInfo(threadId, message, callback = () => { }, api = gapi) {
                             const matches = Object.keys(info.members);
                             info.userRegExp = utils.getRegexFromMembers(matches.concat(aliases));
                             // Attempt to give chat a more descriptive name than "Unnamed chat" if possible
-                            if (!data.name) {
+                            if (info.name == config.defaultTitle) {
                                 let names = Object.keys(info.names).map((n) => {
                                     return info.names[n];
                                 });

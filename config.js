@@ -21,6 +21,9 @@ exports.bot = {
     "id": "100015168671225" // Bot's ID (for security purposes in commands)
 }
 
+// Default group name when no other information is available
+exports.defaultTitle = "Unnamed chat"
+
 // Heroku settings (might need to tweak some things if using another host)
 // App name
 exports.appName = "assume-bot";
