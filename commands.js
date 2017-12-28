@@ -258,19 +258,19 @@ exports.commands = {
         "experimental": false
     },
     "wakeup": {
-        "display_names": ["wake up"],
+        "display_names": ["wake up", "wake"],
         "pretty_name": "Wake up",
         "short_description": "Message user repeatedly",
         "description": `Sends ${config.wakeUpTimes} messages to the given member`,
         "syntax": "wake up {member}",
-        "example": "wake up me",
+        "example": ["wake me", "wake up me"],
         "sudo": false,
         "attachments": false,
         "user_input": {
             "accepts": true,
             "optional": false
         },
-        "regex": "wake up",
+        "regex": "wake(?: up)?",
         "experimental": false
     },
     "randmess": {
