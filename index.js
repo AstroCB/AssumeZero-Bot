@@ -1878,29 +1878,21 @@ the total number of commands and, if the fullData flag is true, a log of
 all the command's uses with an "at" timestamp and the "user" of the invoker
 for each command as an array of dictionaries with these properties
 */
-function getStats(command, fullData, callback) {
-    mem.get(`usage_total_${command}`, (err, count) => {
-        mem.get(`usage_total_all`, (err, total) => {
-            if (!err) {
-                let stats = {
-                    "count": (parseInt(count) || 0),
-                    "total": (parseInt(total) || 0)
-                };
-                if (fullData) {
-                    mem.get(`usage_record_${command}`, (err, record) => {
-                        if (!err) {
-                            stats.record = (JSON.parse(record) || []);
-                            callback(null, stats);
-                        } else {
-                            callback(err);
-                        }
-                    });
-                } else {
-                    callback(null, stats);
-                }
-            } else {
-                callback(err);
-            }
+async function getStats(command, fullData) {
+    mem.get(`usage_total_${command}`).then(count => {
+        mem.get(`usage_total_all`).then(total => {
+			let stats = {
+				"count": (parseInt(count) || 0),
+				"total": (parseInt(total) || 0)
+			};
+			if (fullData) {
+				mem.get(`usage_record_${command}`).then(record => {
+					stats.record = (JSON.parse(record) || []);
+					return new Promise(resolve => resolve(stats));
+				});
+			} else {
+				return new Promise(result => resolve(stats));
+			}
         });
     });
 }
@@ -1919,36 +1911,22 @@ function setStats(command, stats, callback = () => { }) {
     });
 }
 
-function getAllStats(callback) {
+async function getAllStats(callback) {
     const co = commands.commands;
     const names = Object.keys(co).filter((c) => {
         return (co[c].display_names.length > 0); // Don't show secret commands
     });
     let results = [];
-    let now = current = (new Date()).getTime();
-
-    function updateResults(value) {
-        results.push(value);
-
-        const success = (results.length == names.length);
-        current = (new Date()).getTime();
-
-        if (success || (current - now) >= config.asyncTimeout) {
-            callback(success, results)
-        }
-    }
 
     for (let i = 0; i < names.length; i++) {
         let key = names[i];
-        getStats(key, true, (err, stats) => {
-            if (!err) {
-                updateResults({
-                    "key": key,
-                    "pretty_name": co[key].pretty_name,
-                    "stats": stats
-                });
-            }
-        });
+        await getStats(key, true).then(stats => {
+			results.push({
+				"key": key,
+				"pretty_name": co[key].pretty_name,
+				"stats": stats
+			});
+		}).catch(err => console.log(err));
     }
 }
 
