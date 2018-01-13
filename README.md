@@ -23,7 +23,7 @@ As a rule of thumb, the bot is capable of doing everything that a human user can
 
 ![physics kick](media/docs/kick.png)
 
-![physics rename]()
+![physics rename](media/docs/rename.png)
 
 However, being a bot comes with its own set of advantages. For example, the bot can remove a user for a certain period of time before adding them back automatically!
 
@@ -37,7 +37,7 @@ For instance, it can set the chat emoji to any emoji supported by Messenger rath
 
 It can also query Facebook to perform searches for users, pages, and groups. This can be used to verify that the user being added via the "add" command is the one you actually want to add: the add command first performs a search for the given user that is weighted based on its Facebook-determined proximity (the "rank" in a search result) and then adds the first user to result from this query.
 
-![physics search]()
+![physics search](media/docs/search.png)
 
 There are plenty more commands like this, such as poll, title, and photo, but they all operate on a similar premise to these basic examples. Check out the help entries for these commands to learn more.
 
@@ -45,7 +45,7 @@ There are plenty more commands like this, such as poll, title, and photo, but th
 
 The bot stores information about each conversation that it is a part of in its database. This information is initialized the first time it is added to a chat, so you will see this message:
 
-![Init message]()
+![Init message](media/docs/init.png)
 
 After this, the group's information will be continously updated in the background as it receives new messages. This means that any changes to the group's properties, such as adding/removing users, changing the title or photo, or updating the colors or emoji, will be reflected in the bot's database entry for the conversation, which allows it to stay up-to-date and use these properties when needed without the need for a blocking network call.
 
@@ -53,35 +53,38 @@ As a result of this persistent storage, certain commands can store and retrieve 
 
 The simplest of these is the vote command, which comes in two variants, to increase and decrease a user's globally-tracked 'score' respectively:
 
-![physics \>]()
-![physics \<]()
+![physics \>](media/docs/scoreup.png)
+![physics \<](media/docs/scoredown.png)
 
 What this score indicates is arbitrary and is up to the user to decide, but regardless of its usage, the scores of any users in a group chat can be shown with the scoreboard command:
 
-![physics scoreboard]()
+![physics scoreboard](media/docs/scoreboard.png)
 
 Similarly, the score of a single user can be retrieved with the score command:
 
-![physics score]()
+![physics score](media/docs/score.png)
 
 The bot can list statistics for its usage with the stats command -- this command can list aggregated data for all commands, but it also takes an optional command argument to display more specific information about a given command, including its most prolific user (if they are in the chat<sup name="link1">[1](#note1)</sup>. The data collected for these statistics does not contain any specific messages from a conversation, but rather global counts of how many times a user has used that command. In other words, no private data is stored.
 
-![physics stats]()
+![physics stats](media/docs/stats.png)
 
 
 Now for some more interesting stuff -- the playlist command interfaces with the Spotify API<sup name="link2">[2](#note2)</sup> to store playlists for each user and retrieve songs from them on command. To add a playlist to the chat, you'll need its [Spotify URI](https://support.spotify.com/us/article/sharing-music) and a user to associate it to. Once stored, the song command can be used to get a random song from it. See the help entries for these commands for more information.
 
-![physics playlist]()
+![physics song](media/docs/song.png)
 
 The bot can keep a running tab for each conversation, allowing users to keep track of any shared finances and easily split costs between them. Several child commands exist for this command:
 
-![physics tab]()
+![physics tab](media/docs/tab.png)
+![physics tab add](media/docs/tabadd.png)
+![physics tab split](media/docs/tabsplit.png)
 
 Add and subtract have a default value of $1, and the split command will split between all members in the group by default, but it accepts an optional parameter to indicate how many people the tab should be split between.
 
 Lastly, the pin command will allow you to pin a message that can be recalled later; this is useful for keeping track of something in an active chat where it would otherwise get buried.
 
-![physics pin]()
+![physics pin message](media/docs/pinset.png)
+![physics pin](media/docs/pin.png)
 
 # Fun Commands
 
@@ -89,26 +92,26 @@ Lastly, the pin command will allow you to pin a message that can be recalled lat
 
 These commands are pretty simple, so I'll show them without explanation and you can get more info in the help entries:
 
-![physics xkcd]()
-![physics weather]()
-![physics space]()
-![physics wiki]()
-![physics wolfram]()
+![physics xkcd](media/docs/xkcd.png)
+![physics weather](media/docs/weather.png)
+![physics space](media/docs/space.png)
+![physics wiki](media/docs/wiki.png)
+![physics wolfram](media/docs/wolfram.png)
 
 Be careful with this one (see [Under the Hood](#under-the-hood) for safety precautions taken):
 
-![physics execute order 66]()
+![physics execute order 66](media/docs/order66.png)
 
 This command was a lot more interesting when Messenger's backend accepted arbitrary hex values for the group color, but it can still enumerate through all of the whitelisted colors in the palette.
 
-![physics hit the lights]()
+![physics hit the lights](media/docs/lights.png)
 
 This one can be pretty spammy (and can also get the Facebook account that the bot is using temporarily or permanently banned, speaking from experience). It is configurable in [`config.js`](config.js).
 
-![physics wake up]()
+![physics wake up](media/docs/wake.png)
 
 Lastly, the random message command will get a random message from the current conversation, but it is quite finnicky on Facebook's end, so YMMV.
 
-![physics random message]()
+![physics random message](media/docs/randmess.png)
 
 # Image Processing Commands
