@@ -1174,6 +1174,8 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         sendMessage(`Welcome! This group was created from ${groupInfo.name}.`, ids, (err, info) => {
             if (!err) {
                 sendMessage("Subgroup created.", threadId);
+            } else {
+                console.log(err);
             }
         });
     }
