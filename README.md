@@ -113,5 +113,3 @@ This one can be pretty spammy (and can also get the Facebook account that the bo
 Lastly, the random message command will get a random message from the current conversation, but it is quite finnicky on Facebook's end, so YMMV.
 
 ![physics random message](media/docs/randmess.png)
-
-# Image Processing Commands
