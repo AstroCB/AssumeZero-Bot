@@ -425,7 +425,11 @@ const eggs = [
     },
     {
         "regex": /devry/i,
-        "func": (threadId, messageId) => { m.sendFile("media/devry.png", threadId); }
+        "func": (threadId) => { m.sendFile("media/devry.png", threadId); },
+    },
+    {
+        "regex": /i\'m confused/i,
+        "func": (threadId) => { m.sendFile("media/kruskal.png", threadId); }
     }
 ];
 
