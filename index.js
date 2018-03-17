@@ -111,7 +111,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     for (let c in co) {
         if (co.hasOwnProperty(c)) {
             // Check whether command is sudo-protected and, if so, whether the user is the owner
-            if ((co[c].sudo && fromUserId == config.owner.id) || !co[c].sudo) {
+            if (!co[c].sudo || (co[c].sudo && fromUserId == config.owner.id)) {
                 // Set match vals
                 if (co[c].user_input.accepts) { // Takes a match from the members dict
                     if (Array.isArray(co[c].regex)) { // Also has a regex suffix (passed as length 2 array)
