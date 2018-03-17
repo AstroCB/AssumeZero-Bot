@@ -50,7 +50,7 @@ exports.addBannedUser = (id, callback) => {
         if (!err) {
             if (bannedUsers.indexOf(id) < 0) {
                 bannedUsers.push(id);
-                mem.set("banned", JSON.stringify(bannedUsers), (err, success) => {
+                mem.set("banned", JSON.stringify(bannedUsers), {}, (err, success) => {
                     if (success) {
                         console.log(`User ${id} banned`);
                     }
@@ -71,7 +71,7 @@ exports.removeBannedUser = (id, callback = () => {}) => {
             const ind = bannedUsers.indexOf(id);
             if (ind > -1) {
                 bannedUsers.splice(ind, 1);
-                mem.set("banned", JSON.stringify(bannedUsers), (err, success) => {
+                mem.set("banned", JSON.stringify(bannedUsers), {}, (err, success) => {
                     if (success) {
                         console.log(`User ${id} unbanned`);
                     }
