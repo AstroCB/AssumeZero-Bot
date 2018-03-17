@@ -18,7 +18,7 @@ exports.bot = {
         "short": "AØBøt", // Will be used as 'nickname' in chat (remove if same as account name)
         "long": "AssumeZero Bot" // Name displayed in profile on bot's Facebook account
     },
-    "id": "100015168671225" // Bot's ID (for security purposes in commands)
+    "id": "100024954724825" // Bot's ID (for security purposes in commands)
 }
 
 // Default group name when no other information is available
