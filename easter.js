@@ -164,7 +164,7 @@ const eggs = [
         "func": (threadId) => { m.sendFilesFromDir("media/yiyi", threadId); }
     },
     {
-        "regex": /I'?m not drunk/i,
+        "regex": /I(?:\'|’)?m not drunk/i,
         "func": (threadId) => { m.sendMessage("That's debatable...", threadId); }
     },
     {
@@ -180,7 +180,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/subaru.png", threadId); }
     },
     {
-        "regex": /that(')?s ironic/i,
+        "regex": /that(?:\'|’)?s ironic/i,
         "func": (threadId) => { m.sendFile("media/ironic.jpg", threadId); }
     },
     {
@@ -204,7 +204,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/racism.jpg", threadId); }
     },
     {
-        "regex": /i('| a)m tired/i,
+        "regex": /i((?:\'|’)| a)m tired/i,
         "func": (threadId) => { m.sendFile("media/tired.jpg", threadId); }
     },
     {
@@ -252,7 +252,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/internet.png", threadId); }
     },
     {
-        "regex": /you(?:\'re| are) a mank/i,
+        "regex": /you(?:(?:\'|’)re| are) a mank/i,
         "func": (threadId) => { m.sendFile("media/mank.png", threadId); }
     },
     {
@@ -264,7 +264,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/dropbox.jpg", threadId); }
     },
     {
-        "regex": /(?:yo)?u(?:\'re|r)? ri(?:ght|te)/i,
+        "regex": /(?:yo)?u(?:(?:\'|’)re|r)? ri(?:ght|te)/i,
         "func": (threadId, messageId) => { m.reactToMessage(messageId, "angry"); }
     },
     {
@@ -334,7 +334,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/clockout.png", threadId); }
     },
     {
-        "regex": /devil(')?s lettuce/i,
+        "regex": /devil(?:\'|’)?s lettuce/i,
         "func": (threadId) => { m.sendFile("media/devil.png", threadId); }
     },
     {
@@ -428,7 +428,7 @@ const eggs = [
         "func": (threadId) => { m.sendFile("media/devry.png", threadId); },
     },
     {
-        "regex": /i\'m confused/i,
+        "regex": /i(?:\'|’)?m confused/i,
         "func": (threadId) => { m.sendFile("media/kruskal.png", threadId); }
     }
 ];
