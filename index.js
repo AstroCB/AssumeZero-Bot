@@ -1375,7 +1375,15 @@ function addUser(id, info, welcome = true, callback = () => { }, retry = true, c
         if (!err) {
             updateGroupInfo(info.threadId, null, (err, info) => {
                 if (!err && welcome) {
-                    sendMessage(`Welcome to ${info.name}, ${info.names[id]}!`, info.threadId);
+                    if (info.names[id]) {
+                        sendMessage(`Welcome to ${info.name}, ${info.names[id]}!`, info.threadId);
+                    } else {
+                        api.getUserInfoGraphQL(id, (err, uinfo) => {
+                            if (!err && uinfo.name) {
+                                sendMessage(`${uinfo.name} will be added to ${info.name} pending admin approval.`, info.threadId);
+                            }
+                        });
+                    }
                 }
             });
             callback();
