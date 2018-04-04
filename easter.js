@@ -70,7 +70,7 @@ const eggs = [
         }
     },
     {
-        "regex": /socialis(?:t|m)/i,
+        "regex": /true socialis(?:t|m)/i,
         "func": (threadId) => { m.sendFile("media/anton.png", threadId); }
     },
     {
@@ -160,7 +160,7 @@ const eggs = [
         "func": (threadId) => { m.sendMessage("Are you threatening me, Master Jedi?", threadId); }
     },
     {
-        "regex": /drunk/i,
+        "regex": /drunk yiyi/i,
         "func": (threadId) => { m.sendFilesFromDir("media/yiyi", threadId); }
     },
     {
