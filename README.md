@@ -113,3 +113,44 @@ This one can be pretty spammy (and can also get the Facebook account that the bo
 Lastly, the random message command will get a random message from the current conversation, but it is quite finnicky on Facebook's end, so YMMV.
 
 ![physics random message](media/docs/randmess.png)
+
+# Under the Hood
+At the highest level, the bot listens to a stream of messages, calling the `handleMessage` function when one is received. This function has two main tasks: (1) parse the message to determine which (more specific) handler function it should be passed to and (2) update the information associated with the group in memory. These tasks are performed in parallel, and if no information is currently stored about the thread, it is initialized in the database.
+
+There are three main types of messages to handle: pings, Easter eggs, and commands. All of the associated handling functions (`handlePings`, `handleEasterEggs`, and `handleCommand`) are available externally by requiring the index module. If a message contains a ping, the named member(s) will be notified in a private message thread with the bot. Easter eggs are a set of hidden responses from the bot that can be configured in [`easter.js`](easter.js). These are off by default. Commands are the main feature of the bot and comprise the majority of its codebase.
+
+The bot's command structure is "context-free"; it doesn't care where in the message the trigger word is used and what comes before it -- as a result, only the text following the trigger word is passed to the `handleCommand`. The user ID of the sender, the `groupInfo` object for the thread, and the full message object from the listener are also passed.
+
+The `groupInfo` object is a record of the information stored in the database for a given thread, and it is passed to most utility functions used in [`index.js`](index.js) by `handleCommand`. Its structure changes with the internals of Facebook's message representation and the facebook-chat-api's parsing of it, but it is currently represented as follows:
+
+```js
+let groupInfo = {
+    // Thread's ID (used by facebook-chat-api)
+    "threadId": string,
+    // Last message received in the thread
+    "lastMessage": facebook_chat_api.messageObj,
+    // Name of the chat (if it exists), or the names of its members separated by '/'
+    "name": string,
+    // The current thread emoji
+    "emoji": string,
+    // The current thread color (as a hex string)
+    "color": string,
+    // A map from user IDs to nicknames
+    "nicknames": {string: string},
+    // Whether the chat has Easter eggs muted (true by default)
+    "muted": bool,
+    // A map from user IDs to stored Spotify playlist objects, which have these props:
+    // name, id, user, uri
+    "playlists": {string: playlistObj},
+    // A map from user IDs to name aliases (which can be used in commands)
+    "aliases": {string: string},
+    // A flag that records whether the thread is a group
+    "isGroup": bool,
+    // A map from user IDs to first names of thread members
+    "members": {string: string},
+    // A map from first names of thread members to user IDs
+    "names": {string: string},
+    // A regular expression that matches first names and aliases of members in the thread
+    "userRegExp": string
+}
+```
