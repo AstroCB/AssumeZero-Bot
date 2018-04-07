@@ -1349,7 +1349,11 @@ function kick(userId, info, time, callback = () => { }, api = gapi) {
     if (userId != config.bot.id) { // Never allow bot to be kicked
         api.removeUserFromGroup(userId, info.threadId, (err) => {
             if (err) {
-                sendError("Cannot kick user from private chat", info.threadId);
+                if (info.isGroup) {
+                    sendError("The bot must be an admin to kick members from the chat", info.threadId);
+                } else {
+                    sendError("Cannot kick user from private chat", info.threadId);
+                }
             } else {
                 if (time) {
                     setTimeout(() => {
