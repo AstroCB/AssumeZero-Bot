@@ -1314,7 +1314,8 @@ function parsePing(m, fromUserId, groupInfo) {
         // After loop, m will contain the message without the pings (the message to be sent)
     }
     return {
-        "users": users,
+        /* Return array of names to ping, but remove sending user */
+        "users": users.filter(e => (e != groupInfo.names[fromUserId].toLowerCase())),
         "message": m.trim() // Remove leading/trailing whitespace
     };
 }
