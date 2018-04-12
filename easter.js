@@ -430,6 +430,10 @@ const eggs = [
     {
         "regex": /i(?:\'|’)?m confused/i,
         "func": (threadId) => { m.sendFile("media/kruskal.png", threadId); }
+    },
+    {
+        "regex": /honey/i,
+        "func": (threadId) => { m.sendFile ("media/madagain.jpg", threadId); }
     }
 ];
 
