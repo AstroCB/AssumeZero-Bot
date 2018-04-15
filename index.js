@@ -1178,6 +1178,55 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 console.log(err);
             }
         });
+    } else if (co["restore"].m) {
+        const oldId = co["restore"].m[1];
+
+        // Collect properties about old chat
+        getGroupInfo(oldId, (err, info) => {
+            // Also collect info about current chat to check against
+            getGroupInfo(threadId, (curErr, curInfo) => {
+                if (err || !info) {
+                    sendError("Couldn't find any stored information for that chat; make sure the bot has been initialized in it previously.", threadId);
+                } else if (curErr || !curInfo) {
+                    sendError("Couldn't load information about this current chat; wait for initialization.", threadId);
+                } else {
+                    const restorables = {
+                        "title": (info.name == exports.defaultTitle) ? null : info.name,
+                        "emoji": info.emoji,
+                        "color": info.color,
+                        "nicknames": info.nicknames,
+                        "muted": info.muted,
+                        "playlists": info.playlists,
+                        "aliases": info.aliases,
+                        "tab": info.tab,
+                        "pinned": info.pinned
+                    }
+
+                    // Check for restorable properties and restore them
+                    if (restorables.title && curInfo.isGroup) { api.setTitle(restorables.title, threadId); }
+                    if (restorables.emoji) { api.changeThreadEmoji(restorables.emoji, threadId); }
+                    if (restorables.color) { api.changeThreadColor(restorables.color, threadId); }
+                    if (restorables.nicknames) {
+                        for (let id in restorables.nicknames) {
+                            // Check if member is in the current group first
+                            if (restorables.nicknames.hasOwnProperty(id) && utils.contains(id, curInfo.members)) {
+                                api.changeNickname(restorables.nicknames[id], threadId, id);
+                            }
+                        }
+                    }
+                    // Restore groupInfo properties (cascaded to avoid race conditions)
+                    setGroupProperty("muted", restorables.muted, curInfo, () => {
+                        setGroupProperty("playlists", restorables.playlists, curInfo, () => {
+                            setGroupProperty("aliases", restorables.aliases, curInfo, () => {
+                                setGroupProperty("tab", restorables.tab, curInfo, () => {
+                                    setGroupProperty("pinned", restorables.pinned, curInfo);
+                                });
+                            });
+                        });
+                    });
+                }
+            });
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use

@@ -784,5 +784,21 @@ exports.commands = {
         },
         "regex": /tab(?: (add|subtract|clear|split)(?: \$?((?:\d+)?(?:\.\d+)?))?|)?/i,
         "experimental": false
+    },
+    "restore": {
+        "display_names": ["restore"],
+        "pretty_name": "Restore",
+        "short_description": "Restores the properties of a previous chat",
+        "description": "Given a threadId for an existing chat that the bot is in, this will change the current chat's properties (color, nicknames, title, etc.) to match",
+        "syntax": "restore {threadId}",
+        "example": ["restore 883154065107088"],
+        "sudo": true,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /restore (\d+)/i,
+        "experimental": false
     }
 };

@@ -24,11 +24,9 @@ exports.getRegexFromMembers = (names) => {
     return regstr;
 }
 
-// Returns whether the passed name is in the members object
+// Returns whether the passed user ID is in the members object
 exports.contains = (a, members) => {
-    const vals = Object.keys(members).map((key) => {
-        return members[key];
-    });
+    const vals = Object.keys(members).map(key => members[key]);
     return (vals.indexOf(a) > -1);
 };
 
@@ -65,7 +63,7 @@ exports.addBannedUser = (id, callback) => {
     });
 }
 
-exports.removeBannedUser = (id, callback = () => {}) => {
+exports.removeBannedUser = (id, callback = () => { }) => {
     exports.getBannedUsers((err, bannedUsers) => {
         if (!err) {
             const ind = bannedUsers.indexOf(id);
