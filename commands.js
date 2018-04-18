@@ -789,8 +789,8 @@ exports.commands = {
         "display_names": ["restore"],
         "pretty_name": "Restore",
         "short_description": "Restores the properties of a previous chat",
-        "description": "Given a threadId for an existing chat that the bot is in, this will change the current chat's properties (color, nicknames, title, etc.) to match",
-        "syntax": "restore {threadId}",
+        "description": "Given a thread ID for an existing chat that the bot is in, this will change the current chat's properties (color, nicknames, title, etc.) to match",
+        "syntax": "restore {thread ID}",
         "example": ["restore 883154065107088"],
         "sudo": true,
         "attachments": false,
@@ -799,6 +799,22 @@ exports.commands = {
             "optional": false
         },
         "regex": /restore (\d+)/i,
+        "experimental": false
+    },
+    "google": {
+        "display_names": ["google"],
+        "pretty_name": "Google",
+        "short_description": "Generates a link to Google the given term",
+        "description": "Given a search query, the bot will create a link to a Google search for it",
+        "syntax": "google {query}",
+        "example": ["google UMD schedule of classes"],
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /google (.+)/i,
         "experimental": false
     }
 };

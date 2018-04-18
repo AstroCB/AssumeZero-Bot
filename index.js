@@ -1227,6 +1227,10 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 }
             });
         });
+    } else if (co["google"].m) {
+        const query = co["google"].m[1];
+        const encoded = encodeURI(query);
+        sendMessage(`https://www.google.com/search?q=${encoded}`, threadId);
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
