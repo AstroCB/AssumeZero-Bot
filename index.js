@@ -1494,6 +1494,7 @@ function updateGroupInfo(threadId, message, callback = () => { }, api = gapi) {
                         delete data.nicknames[config.bot.id];
                     }
                     info.nicknames = data.nicknames || {};
+                    info.admins = data.adminIDs || [];
                     if (isNew) {
                         // These properties only need to be initialized once
                         info.muted = true;
