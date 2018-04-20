@@ -137,6 +137,8 @@ let groupInfo = {
     "color": string,
     // A map from user IDs to nicknames
     "nicknames": {string: string},
+    // An array of user IDs representing the admins of the group
+    "admins": [string],
     // Whether the chat has Easter eggs muted (true by default)
     "muted": bool,
     // A map from user IDs to stored Spotify playlist objects, which have these props:
