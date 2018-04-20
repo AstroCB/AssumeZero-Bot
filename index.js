@@ -1404,7 +1404,7 @@ function kick(userId, info, time, callback = () => { }, api = gapi) {
         api.removeUserFromGroup(userId, info.threadId, (err) => {
             if (err) {
                 if (info.isGroup) {
-                    let admins = info.admins.map(id => info.members[id]);
+                    let admins = info.admins.map(id => info.names[id]);
                     sendError(`The bot must be an admin to kick members from the chat. Try asking ${admins.join("/")} to promote the bot.`, info.threadId);
                 } else {
                     sendError("Cannot kick user from private chat.", info.threadId);

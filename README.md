@@ -148,9 +148,9 @@ let groupInfo = {
     "aliases": {string: string},
     // A flag that records whether the thread is a group
     "isGroup": bool,
-    // A map from user IDs to first names of thread members
-    "members": {string: string},
     // A map from first names of thread members to user IDs
+    "members": {string: string},
+    // A map from user IDs to first names of thread members
     "names": {string: string},
     // A regular expression that matches first names and aliases of members in the thread
     "userRegExp": string
