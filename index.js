@@ -708,11 +708,11 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         sendMessage(`Messaged ${user.substring(0, 1).toUpperCase()}${user.substring(1)} ${config.wakeUpTimes} times`, threadId);
     } else if (co["randmess"].m) {
         // Get thread length
-        api.getThreadInfoGraphQL(threadId, (err, data) => {
+        api.getThreadInfo(threadId, (err, data) => {
             if (!err) {
                 const count = data.messageCount; // Probably isn't that accurate
                 let randMessage = Math.floor(Math.random() * (count + 1));
-                api.getThreadHistoryGraphQL(threadId, count, null, (err, data) => {
+                api.getThreadHistory(threadId, count, null, (err, data) => {
                     if (err) {
                         sendMessage("Error: Messages could not be loaded", threadId);
                     } else {
@@ -1436,7 +1436,7 @@ function addUser(id, info, welcome = true, callback = () => { }, retry = true, c
                     if (info.names[id]) {
                         sendMessage(`Welcome to ${info.name}, ${info.names[id]}!`, info.threadId);
                     } else {
-                        api.getUserInfoGraphQL(id, (err, uinfo) => {
+                        api.getUserInfo(id, (err, uinfo) => {
                             if (!err && uinfo.name) {
                                 sendMessage(`${uinfo.name} will be added to ${info.name} pending admin approval.`, info.threadId);
                             }
@@ -1482,7 +1482,7 @@ function updateGroupInfo(threadId, message, callback = () => { }, api = gapi) {
                 // Add bot's nickname if available
                 api.changeNickname(n.short, threadId, config.bot.id); // Won't do anything if undefined
             }
-            api.getThreadInfoGraphQL(threadId, (err, data) => {
+            api.getThreadInfo(threadId, (err, data) => {
                 if (data) {
                     let info = existingInfo || {};
                     info.threadId = threadId;
