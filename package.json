@@ -17,13 +17,13 @@
     "url": "https://github.com/AstroCB/AssumeZero-Bot"
   },
   "dependencies": {
-    "body-parser": "^1.18.2",
-    "express": "^4.16.2",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
     "facebook-chat-api": "github:Schmavery/facebook-chat-api",
     "http": "0.0.0",
     "jimp": "^0.2.27",
     "memjs": "^0.10.0",
-    "request": "^2.83.0",
+    "request": "^2.86.0",
     "spotify-web-api-node": "^2.5.0"
   }
 }
