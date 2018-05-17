@@ -434,6 +434,26 @@ const eggs = [
     {
         "regex": /honey/i,
         "func": (threadId) => { m.sendFile ("media/madagain.jpg", threadId); }
+    },
+    {
+        "regex": /i(?:\'|’)?ll lie/i,
+        "func": (threadId) => { m.sendFile ("media/lie.png", threadId); }
+    },
+    {
+        "regex": /dulaney high school/i,
+        "func": (threadId) => { m.sendFile ("media/dulaney.png", threadId); }
+    },
+    {
+        "regex": /university of maryland,? college park/i,
+        "func": (threadId) => { m.sendFile ("media/umdessay.png", threadId); }
+    },
+    {
+        "regex": /i(?:\'|’)?ll lie/i,
+        "func": (threadId) => { m.sendFile ("media/lie.png", threadId); }
+    },
+    {
+        "regex": /hi larry/i,
+        "func": (threadId) => { m.sendFile ("media/triggered.png", threadId); }
     }
 ];
 
