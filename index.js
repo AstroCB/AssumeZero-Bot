@@ -1062,7 +1062,8 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             // Bot should never be in members list, but this is a safeguard
             // (ALSO VERY IMPORTANT so that group isn't completely emptied)
             // We're talking triple redundancies at this point
-            if (groupInfo.members.hasOwnProperty(m) && groupInfo.members[m] != config.bot.id) {
+            if (groupInfo.members.hasOwnProperty(m) && groupInfo.members[m] != config.bot.id
+                && groupInfo.members[m] != api.getCurrentUserID()) {
                 kick(groupInfo.members[m], groupInfo);
             }
         }
@@ -1501,7 +1502,7 @@ function updateGroupInfo(threadId, message, callback = () => { }, api = gapi) {
                         info.muted = true;
                         info.playlists = {};
                         info.aliases = {};
-                        info.isGroup = (data.threadType == "group");
+                        info.isGroup = data.isGroup;
                     }
                     api.getUserInfo(data.participantIDs, (err, userData) => {
                         if (!err) {
