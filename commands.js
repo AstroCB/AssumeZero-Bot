@@ -816,5 +816,21 @@ exports.commands = {
         },
         "regex": /google (.+)/i,
         "experimental": false
+    },
+    "snap": {
+        "display_names": ["snap"],
+        "pretty_name": "Snap",
+        "short_description": "Destroy half the group temporarily",
+        "description": "Fun isn’t something one considers when balancing the group chat. But this...does put a smile on my face...",
+        "syntax": "snap",
+        "example": "",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /snap/i,
+        "experimental": false
     }
 };

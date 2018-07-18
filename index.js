@@ -1232,6 +1232,49 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         const query = co["google"].m[1];
         const encoded = encodeURI(query);
         sendMessage(`https://www.google.com/search?q=${encoded}`, threadId);
+    } else if (co["snap"].m) {
+        // Remove a random half of the members from the chat for configurable amount of time (see config.js)
+        // Use stored threadId in case it changes later (very important)
+        if (groupInfo.isGroup) {
+            api.getUserInfo(fromUserId, (err, info) => {
+                if (!err) {
+                    const sender = info[fromUserId].name.split(" ");
+                    sendMessage(`You have my respect, ${sender[sender.length - 1]}. I hope they remember you.`, threadId);
+                    setTimeout(() => {
+                        let callbackset = false;
+
+                        const mem = Object.keys(groupInfo.members);
+                        const len = mem.length;
+                        let selected = [];
+                        for (let i = 0; i < len / 2; i++) {
+                            let s = mem[Math.floor(Math.random() * len)];
+                            while (selected.indexOf(s) > -1) {
+                                s = mem[Math.floor(Math.random() * len)];
+                            }
+                            selected[i] = s;
+                        }
+                        const snapped = selected.map(key => groupInfo.members[key]);
+
+                        for (let i = 0; i < snapped.length; i++) {
+                            // Bot should never be in members list, but this is a safeguard
+                            // (ALSO VERY IMPORTANT so that group isn't completely emptied)
+                            if (snapped[i] != config.bot.id) {
+                                if (!callbackset) { // Only want to send the message once
+                                    kick(snapped[i], groupInfo, config.order66Time, () => {
+                                        sendMessage("Perfectly balanced, as all things should be.", threadId);
+                                    });
+                                    callbackset = true;
+                                } else {
+                                    kick(snapped[i], groupInfo, config.order66Time);
+                                }
+                            }
+                        }
+                    }, 2000); // Make sure people see the message (and impending doom)
+                }
+            });
+        } else {
+            sendMessage("Cannot perform The Snap on a non-group chat. The hardest choices require the strongest wills.", threadId);
+        }
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
