@@ -758,8 +758,8 @@ exports.commands = {
         "pretty_name": "Branch",
         "short_description": "Create a new group from a subset of the current members",
         "description": "Creates a new group chat given members of the current chat",
-        "syntax": "branch [{member 1}, {member 2}, {member 3}, {member n}]",
-        "example": "branch [me, Cameron, Jonah, Justin]",
+        "syntax": "branch {member 1}, {member 2}, {member 3}, {member n}",
+        "example": "branch me, Cameron, Jonah, Justin",
         "sudo": false,
         "attachments": false,
         "user_input": {
@@ -831,6 +831,22 @@ exports.commands = {
             "optional": false
         },
         "regex": /snap/i,
+        "experimental": false
+    },
+    "choose": {
+        "display_names": ["choose"],
+        "pretty_name": "Choose",
+        "short_description": "",
+        "description": "Choose one thing from a list of options",
+        "syntax": "choose {thing 1}, {thing 2}, {thing 3}",
+        "example": "choose Mr. Robot, Better Call Saul, Suits",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /choose ((?:[^,]+(?:,|$))+)/i,
         "experimental": false
     }
 };

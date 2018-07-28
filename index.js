@@ -1275,6 +1275,11 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         } else {
             sendMessage("Cannot perform The Snap on a non-group chat. The hardest choices require the strongest wills.", threadId);
         }
+    } else if (co["choose"].m) {
+        const choices = co["choose"].m[1].split(",");
+        const choice = choices[Math.floor(Math.random() * choices.length)];
+
+        sendMessage(choice, threadId);
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
