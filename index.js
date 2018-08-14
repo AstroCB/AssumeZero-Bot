@@ -1396,7 +1396,7 @@ function parsePing(m, fromUserId, groupInfo) {
     if (allMatch && allMatch[1]) { // Alert everyone
         users = Object.keys(groupInfo.members);
         // Remove sending user from recipients
-        users.splice(users.indexOf(groupInfo.names[fromUserId]), 1);
+        users.splice(users.indexOf(groupInfo.names[fromUserId].toLowerCase()), 1);
         m = m.split("@@" + allMatch[1]).join("");
     } else {
         let matches = matchesWithUser("@@", m, fromUserId, groupInfo, false, "");
