@@ -1280,6 +1280,19 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         const choice = choices[Math.floor(Math.random() * choices.length)];
 
         sendMessage(choice, threadId);
+    } else if (co["course"].m) {
+        const course = co["course"].m[1];
+        request.get(`https://api.umd.io/v0/courses/${course}`, (err, res, body) => {
+            if (err) {
+                if (err.message.indexOf("Invalid course_id") > -1) { 
+                    sendError("Course not found", threadId);
+                }
+            } else {
+                const data = JSON.parse(body);
+                const msg = `${data.name} (${data.course_id})\nCredits: ${data.credits}\n\n${data.description}`;
+                sendMessage(msg, threadId);
+            }
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use

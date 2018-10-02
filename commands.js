@@ -848,5 +848,21 @@ exports.commands = {
         },
         "regex": /choose ((?:[^,]+(?:,|$))+)/i,
         "experimental": false
+    },
+    "course": {
+        "display_names": ["course"],
+        "pretty_name": "Course",
+        "short_description": "UMD course info",
+        "description": "Gets information about a specific course at UMD",
+        "syntax": "course {course}",
+        "example": "course CMSC330",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /course ([A-z]{4}[0-9]{3}[A-z]?)/i,
+        "experimental": false
     }
 };
