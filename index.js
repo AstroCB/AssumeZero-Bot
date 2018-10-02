@@ -1293,6 +1293,20 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 }
             }
         });
+    } else if (co["professor"].m) {
+        const prof = co["professor"].m[1];
+        request.get(`https://api.umd.io/v0/professors?name=${encodeURIComponent(prof)}`, (err, res, body) => {
+            if (!err) {
+                const data = JSON.parse(body);
+                if (data.error_code && data.error_code == 404 || data.length < 1) { 
+                    sendError("Professor not found", threadId);
+                } else {
+                    const best = data[0];
+                    const msg = `${best.name} (${best.departments.join(", ")})\n\nCourses:\n${best.courses.join("\n")}`;
+                    sendMessage(msg, threadId);
+                }
+            }
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use

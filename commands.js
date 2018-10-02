@@ -864,5 +864,21 @@ exports.commands = {
         },
         "regex": /course ([A-z]{4}[0-9]{3}[A-z]?)/i,
         "experimental": false
+    },
+    "professor": {
+        "display_names": ["professor"],
+        "pretty_name": "Professor",
+        "short_description": "UMD professor info",
+        "description": "Gets information about a specific professor at UMD",
+        "syntax": "professor {professor}",
+        "example": "professor Allan Yashinski",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /professor (.+)/i,
+        "experimental": false
     }
 };
