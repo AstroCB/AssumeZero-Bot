@@ -885,7 +885,7 @@ exports.commands = {
         "display_names": ["remind"],
         "pretty_name": "Remind",
         "short_description": "",
-        "description": "Gets information about a specific professor at UMD",
+        "description": "Sends a reminder at a certain point in the future",
         "syntax": "remind {number of minutes} {reminder}",
         "example": "remind 20 let the dogs out",
         "sudo": false,
