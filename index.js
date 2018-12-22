@@ -1285,7 +1285,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         request.get(`https://api.umd.io/v0/courses/${course}`, (err, res, body) => {
             if (!err) {
                 const data = JSON.parse(body);
-                if (data.error_code && data.error_code == 404) { 
+                if (data.error_code && data.error_code == 404) {
                     sendError("Course not found", threadId);
                 } else {
                     const msg = `${data.name} (${data.course_id})\nCredits: ${data.credits}\n\n${data.description}`;
@@ -1298,7 +1298,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
         request.get(`https://api.umd.io/v0/professors?name=${encodeURIComponent(prof)}`, (err, res, body) => {
             if (!err) {
                 const data = JSON.parse(body);
-                if (data.error_code && data.error_code == 404 || data.length < 1) { 
+                if (data.error_code && data.error_code == 404 || data.length < 1) {
                     sendError("Professor not found", threadId);
                 } else {
                     const best = data[0];
@@ -1307,6 +1307,19 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
                 }
             }
         });
+    } else if (co["remind"].m) {
+        const time = parseInt(co["remind"].m[1]);
+        const timeMS = time * 60000;
+        const msg = co["remind"].m[2];
+        const user = groupInfo.names[fromUserId];
+        const tag = `@${user}`
+
+        sendMessage(`I'll remind you in ${time == 1 ? "1 minute" : `${time} minutes`}.`, threadId);
+
+        setTimeout(() => {
+            const mentions = [{ "tag": tag, "id": fromUserId }];
+            sendMessageWithMentions(`Reminder for ${tag}: ${msg}`, mentions, threadId);
+        }, timeMS)
     }
 }
 exports.handleCommand = handleCommand; // Export for external use

@@ -880,5 +880,21 @@ exports.commands = {
         },
         "regex": /professor (.+)/i,
         "experimental": false
+    },
+    "remind": {
+        "display_names": ["remind"],
+        "pretty_name": "Remind",
+        "short_description": "",
+        "description": "Gets information about a specific professor at UMD",
+        "syntax": "remind {number of minutes} {reminder}",
+        "example": "remind 20 let the dogs out",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /remind (\d+) (.+)/i,
+        "experimental": true
     }
 };
