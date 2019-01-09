@@ -118,7 +118,7 @@ Lastly, the random message command will get a random message from the current co
 
 # Setup
 
-To get your own instance of the bot, you'll first need to clone this repo. Once you've done that, you'll need to do several things to set up its associated services -- this project was written using Heroku for hosting (although it can be run locally) and memcache (via MemCachier) as a pseudo-database solution. The rest of these setup instructions will assume the use of these services, but the functionalities that they serve are encapsulated in wrapper functions that can be easily modified to use another solution if desired. If you decide to do this, you may wish to utilize [`config.js`](config.js) and read [Under the Hood](#under-the-hood).
+To get your own instance of the bot, you'll first need to clone this repo. Once you've done that, you'll need to do several things to set up its associated services – this project was written using Heroku for hosting (although it can be run locally) and memcache (via MemCachier) as a pseudo-database solution. The rest of these setup instructions will assume the use of these services, but the functionalities that they serve are encapsulated in wrapper functions that can be easily modified to use another solution if desired. If you decide to do this, you may wish to utilize [`config.js`](config.js) and read [Under the Hood](#under-the-hood).
 
 All of the following variables need to be exported from a `credentials.js` file (ideal if running locally) or exposed as environment variables (on Heroku, this can be done with config vars in the settings tab).
 
@@ -141,7 +141,7 @@ exports.WOLFRAM_KEY = "";
 exports.WEATHER_KEY = "";
 ```
 
-Some things to note: MemCachier can be configured from Heroku add-ons, and the email and password should be for the account you want to run the bot on, which isn't necessarily your own account. If you have trouble logging in, try logging in through a browser as Facebook may occasionally lock you out for suspicious behavior -- this can usually be fixed by logging in manually and completing a CAPTCHA.
+Some things to note: MemCachier can be configured from Heroku add-ons, and the email and password should be for the account you want to run the bot on, which isn't necessarily your own account. If you have trouble logging in, try logging in through a browser as Facebook may occasionally lock you out for suspicious behavior – this can usually be fixed by logging in manually and completing a CAPTCHA.
 
 You don't _need_ to set up all of these services, but if you don't, their associated commands will not be functional. At minimum however, you need to expose the email, password, and MemCachier variables for the bot to run.
 
