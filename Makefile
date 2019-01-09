@@ -20,4 +20,6 @@ restore:
 	node archive.js --restore
 bash:
 	heroku run bash -a assume-bot
+logout:
+	node logout.js
 debug: disable start
