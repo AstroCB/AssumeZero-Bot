@@ -66,12 +66,12 @@ Similarly, the score of a single user can be retrieved with the score command:
 
 ![physics score](media/docs/score.png)
 
-The bot can list statistics for its usage with the stats command -- this command can list aggregated data for all commands, but it also takes an optional command argument to display more specific information about a given command, including its most prolific user (if they are in the chat<sup name="link1">[1](#note1)</sup>. The data collected for these statistics does not contain any specific messages from a conversation, but rather global counts of how many times a user has used that command. In other words, no private data is stored.
+The bot can list statistics for its usage with the stats command – this command can list aggregated data for all commands, but it also takes an optional command argument to display more specific information about a given command, including its most prolific user (if they are in the chat<sup name="link1">[1](#note1)</sup>. The data collected for these statistics does not contain any specific messages from a conversation, but rather global counts of how many times a user has used that command. In other words, no private data is stored.
 
 ![physics stats](media/docs/stats.png)
 
 
-Now for some more interesting stuff -- the playlist command interfaces with the Spotify API<sup name="link2">[2](#note2)</sup> to store playlists for each user and retrieve songs from them on command. To add a playlist to the chat, you'll need its [Spotify URI](https://support.spotify.com/us/article/sharing-music) and a user to associate it to. Once stored, the song command can be used to get a random song from it. See the help entries for these commands for more information.
+Now for some more interesting stuff – the playlist command interfaces with the Spotify API<sup name="link2">[2](#note2)</sup> to store playlists for each user and retrieve songs from them on command. To add a playlist to the chat, you'll need its [Spotify URI](https://support.spotify.com/us/article/sharing-music) and a user to associate it to. Once stored, the song command can be used to get a random song from it. See the help entries for these commands for more information.
 
 ![physics song](media/docs/song.png)
 
@@ -150,7 +150,7 @@ At the highest level, the bot listens to a stream of messages, calling the `hand
 
 There are three main types of messages to handle: pings, Easter eggs, and commands. All of the associated handling functions (`handlePings`, `handleEasterEggs`, and `handleCommand`) are available externally by requiring the index module. If a message contains a ping, the named member(s) will be notified in a private message thread with the bot. Easter eggs are a set of hidden responses from the bot that can be configured in [`easter.js`](easter.js). These are off by default. Commands are the main feature of the bot and comprise the majority of its codebase.
 
-The bot's command structure is "context-free"; it doesn't care where in the message the trigger word is used and what comes before it -- as a result, only the text following the trigger word is passed to the `handleCommand`. The user ID of the sender, the `groupInfo` object for the thread, and the full message object from the listener are also passed.
+The bot's command structure is "context-free"; it doesn't care where in the message the trigger word is used and what comes before it – as a result, only the text following the trigger word is passed to the `handleCommand`. The user ID of the sender, the `groupInfo` object for the thread, and the full message object from the listener are also passed.
 
 The `groupInfo` object is a record of the information stored in the database for a given thread, and it is passed to most utility functions used in [`index.js`](index.js) by `handleCommand`. Its structure changes with the internals of Facebook's message representation and the facebook-chat-api's parsing of it, but it is currently represented as follows:
 
