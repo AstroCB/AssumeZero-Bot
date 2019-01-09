@@ -14,6 +14,8 @@ To see a list of commands, use:
 
 > physics help
 
+If you wish to use the bot's canonical instance, you can message it [here](https://www.facebook.com/assumezero.bot.3). Otherwise, you can [set up your own instance](#setup).
+
 ## Basic Commands
 As a rule of thumb, the bot is capable of doing everything that a human user can do on the desktop version of Messenger. This includes messaging the chat, adding and removing users, and modifying user nicknames. Let's take a look:
 
@@ -114,8 +116,37 @@ Lastly, the random message command will get a random message from the current co
 
 ![physics random message](media/docs/randmess.png)
 
+# Setup
+
+To get your own instance of the bot, you'll first need to clone this repo. Once you've done that, you'll need to do several things to set up its associated services -- this project was written using Heroku for hosting (although it can be run locally) and memcache (via MemCachier) as a pseudo-database solution. The rest of these setup instructions will assume the use of these services, but the functionalities that they serve are encapsulated in wrapper functions that can be easily modified to use another solution if desired. If you decide to do this, you may wish to utilize [`config.js`](config.js) and read [Under the Hood](#under-the-hood).
+
+All of the following variables need to be exported from a `credentials.js` file (ideal if running locally) or exposed as environment variables (on Heroku, this can be done with config vars in the settings tab).
+
+```js
+// Facebook log-in credentials for bot account
+exports.EMAIL = "";
+exports.PASSWORD = "";
+// Heroku application token
+exports.TOKEN = "";
+// MemCachier credentials (from MemCachier dashboard)
+exports.MEMCACHIER_PASSWORD = "";
+exports.MEMCACHIER_SERVERS = "";
+exports.MEMCACHIER_USERNAME = "";
+// Spotify API credentials
+exports.SPOTIFY_CLIENTID = "";
+exports.SPOTIFY_CLIENTSECRET = "";
+// Wolfram short-answer API key
+exports.WOLFRAM_KEY = "";
+// Open Weather Map API key
+exports.WEATHER_KEY = "";
+```
+
+Some things to note: MemCachier can be configured from Heroku add-ons, and the email and password should be for the account you want to run the bot on, which isn't necessarily your own account. If you have trouble logging in, try logging in through a browser as Facebook may occasionally lock you out for suspicious behavior -- this can usually be fixed by logging in manually and completing a CAPTCHA.
+
+You don't _need_ to set up all of these services, but if you don't, their associated commands will not be functional. At minimum however, you need to expose the email, password, and MemCachier variables for the bot to run.
+
 # Under the Hood
-At the highest level, the bot listens to a stream of messages, calling the `handleMessage` function when one is received. This function has two main tasks: (1) parse the message to determine which (more specific) handler function it should be passed to and (2) update the information associated with the group in memory. These tasks are performed in parallel, and if no information is currently stored about the thread, it is initialized in the database.
+At the highest level, the bot listens to a stream of messages, calling the `handleMessage` function when one is received. This function has two main tasks: (1) parse the message to determine which (more specific) handler function it should be passed to and (2) update the information associated with the group in memory. These tasks are performed in parallel, and if no information is currently stored about the thread, it is initialized in the database. The database also stores the appstate after logging in so that a hard user/password login doesn't have to be performed every time. To purge this appstate, use `make logout` or run [`logout.js`](logout.js).
 
 There are three main types of messages to handle: pings, Easter eggs, and commands. All of the associated handling functions (`handlePings`, `handleEasterEggs`, and `handleCommand`) are available externally by requiring the index module. If a message contains a ping, the named member(s) will be notified in a private message thread with the bot. Easter eggs are a set of hidden responses from the bot that can be configured in [`easter.js`](easter.js). These are off by default. Commands are the main feature of the bot and comprise the majority of its codebase.
 
