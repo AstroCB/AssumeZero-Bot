@@ -896,5 +896,21 @@ exports.commands = {
         },
         "regex": /remind (\d+) (.+)/i,
         "experimental": true
+    },
+    "whereis": {
+        "display_names": ["whereis"],
+        "pretty_name": "Whereis",
+        "short_description": "Find UMD buildings",
+        "description": "Find the location of different UMD buildings",
+        "syntax": "whereis {building name or code}",
+        "example": "whereis AVW",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /whereis (.+)/i,
+        "experimental": false
     }
 };

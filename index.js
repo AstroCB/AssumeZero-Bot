@@ -1240,7 +1240,9 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     } else if (co["google"].m) {
         const query = co["google"].m[1];
         const encoded = encodeURI(query);
-        sendMessage(`https://www.google.com/search?q=${encoded}`, threadId);
+        sendMessage({
+            "url": `https://www.google.com/search?q=${encoded}`
+        }, threadId);
     } else if (co["snap"].m) {
         // Remove a random half of the members from the chat for configurable amount of time (see config.js)
         // Use stored threadId in case it changes later (very important)
@@ -1329,6 +1331,34 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             const mentions = [{ "tag": tag, "id": fromUserId }];
             sendMessageWithMentions(`Reminder for ${tag}: ${msg}`, mentions, threadId);
         }, timeMS)
+    } else if (co["whereis"].m) {
+        const query = co["whereis"].m[1];
+        let url = "https://www.google.com/maps/search/?api=1&query=";
+        request.get("https://api.umd.io/v0/map/buildings", (err, res, body) => {
+            if (!err) {
+                const buildings = JSON.parse(body);
+                let match;
+                let i = 0;
+                while (!match && i < buildings.length) {
+                    const build = buildings[i];
+                    const name = build.name;
+                    const code = build.code;
+                    const matcher = new RegExp(query, "i");
+                    if (name.match(matcher) || code.match(matcher)) {
+                        match = build;
+                    }
+                    i++;
+                }
+
+                if (match) {
+                    sendMessage({
+                        "url": `${url}${match.lat},${match.lng}`
+                    }, threadId);
+                } else {
+                    sendError("No building matches found.", threadId);
+                }
+            }
+        });
     }
 }
 exports.handleCommand = handleCommand; // Export for external use
