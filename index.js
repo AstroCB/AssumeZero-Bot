@@ -35,28 +35,40 @@ if (require.main === module) { // Called directly; login immediately
 }
 
 function login(callback) {
+    function withAppstate(appstate, callback) {
+        console.log("Logging in with saved appstate...");
+        messenger({
+            appState: JSON.parse(appstate)
+        }, (err, api) => {
+            if (err) {
+                withCreds(callback);
+            } else {
+                callback(err, api);
+            }
+        });
+    }
+    function withCreds(callback) {
+        console.log("Logging in with credentials...");
+        messenger({
+            email: credentials.EMAIL,
+            password: credentials.PASSWORD
+        }, (err, api) => {
+            mem.set("appstate", JSON.stringify(api.getAppState()), {}, merr => {
+                if (err) {
+                    return console.error(merr);
+                } else {
+                    callback(err, api);
+                }
+            });
+        });
+    }
     // Logging message with config details
     console.log(`Bot ${config.bot.id} logging in ${process.env.EMAIL ? "remotely" : "locally"} with trigger "${config.trigger}".`);
     mem.get("appstate", (err, val) => {
         if (!err && val) {
-            console.log("Logging in with saved appstate...");
-            messenger({
-                appState: JSON.parse(val)
-            }, callback);
+            withAppstate(val, callback);
         } else {
-            console.log("Logging in with credentials...");
-            messenger({
-                email: credentials.EMAIL,
-                password: credentials.PASSWORD
-            }, (err, api) => {
-                mem.set("appstate", JSON.stringify(api.getAppState()), {}, merr => {
-                    if (err) {
-                        return console.error(merr);
-                    } else {
-                        callback(err, api);
-                    }
-                });
-            });
+            withCreds(callback);
         }
     });
 }
