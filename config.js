@@ -121,3 +121,7 @@ exports.wiki = {
     "engine": "017207449713114446929:cyipvxn5_rk",
     "key": "AIzaSyCHfJCpWEYUCydDMbb9PqK42XpPQd9L-F8"
 };
+
+// Max length of a file path (somewhat arbitrarily chosen by OS? Windows
+// has limit of 260; seems to be 220 for macOS)
+exports.MAXPATH = 219;

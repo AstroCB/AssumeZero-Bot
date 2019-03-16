@@ -1984,8 +1984,9 @@ function getAllScores(groupInfo, callback = () => { }) {
 // Sets group image to image found at given URL
 // Accepts url, threadId, and optional error message parameter to be displayed if changing the group image fails
 function setGroupImageFromUrl(url, threadId, errMsg = "Photo couldn't download properly", api = gapi) {
-    // Download file and pass to chat API
-    const path = `media/${encodeURIComponent(url)}.png`;
+    // Download file and pass to chat API (see config for details)
+    // 10 is length of rest of path string (media/.png)
+    const path = `media/${encodeURIComponent(url.substring(0, config.MAXPATH - 10))}.png`;
     request(url).pipe(fs.createWriteStream(path)).on('close', (err, data) => {
         if (!err) {
             api.changeGroupImage(fs.createReadStream(`${__dirname}/${path}`), threadId, (err) => {
