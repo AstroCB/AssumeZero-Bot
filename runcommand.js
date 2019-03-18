@@ -12,7 +12,7 @@ const funcs = {
         }
         if (input && input.length > 0) {
             // Give details of specific command
-            const entry = getHelpEntry(input, cmatch);
+            const entry = utils.getHelpEntry(input, cmatch);
             if (entry) {
                 const info = entry.entry;
 
@@ -29,7 +29,7 @@ const funcs = {
 
                 const helpMsg = `Entry for command "${info.pretty_name}":\n${info.description}\n\nSyntax: ${config.trigger} ${info.syntax}${example.header ? `\n\n${example.header}${example.body}` : ""}`;
                 const addenda = `${info.attachments ? "\n\n(This command accepts attachments)" : ""}${info.sudo ? "\n\n(This command requires admin privileges)" : ""}${info.experimental ? "\n\n(This command is experimental)" : ""}`;
-                getStats(entry.key, false, (err, stats) => {
+                utils.getStats(entry.key, false, (err, stats) => {
                     if (err) { // Couldn't retrieve stats; just show help message
                         utils.sendMessage(`${helpMsg}${addenda}`, threadId);
                     } else {
@@ -38,7 +38,7 @@ const funcs = {
                     }
                 });
             } else {
-                sendError(`Help entry not found for "${input}"`, threadId);
+                utils.sendError(`Help entry not found for "${input}"`, threadId);
             }
         } else {
             // No command passed; give overview of all of them
@@ -59,24 +59,24 @@ const funcs = {
     },
     "stats": (threadId, cmatch, groupInfo) => {
         const command = cmatch[1];
-        getStats(command, true, (err, stats) => {
+        utils.getStats(command, true, (err, stats) => {
             let input;
             if (cmatch[1]) {
                 input = cmatch[1].trim().toLowerCase();
             }
             if (input && input.length > 0) {
                 // Give details of specific command
-                const entry = getHelpEntry(input, cmatch);
+                const entry = utils.getHelpEntry(input, cmatch);
                 if (entry) {
                     const key = entry.key;
                     const info = entry.entry;
-                    getStats(key, true, (err, stats) => {
+                    utils.getStats(key, true, (err, stats) => {
                         if (!err) {
-                            stats = getComputedStats(stats);
+                            stats = utils.getComputedStats(stats);
                             let m = `'${info.pretty_name}' has been used ${stats.count} ${stats.count == 1 ? "time" : "times"} out of a total of ${stats.total} ${stats.total == 1 ? "call" : "calls"}, representing ${stats.usage.perc.toFixed(3)}% of all bot invocations.`;
                             m += `\n\nIt was used ${stats.usage.day} ${stats.usage.day == 1 ? "time" : "times"} within the last day and ${stats.usage.month} ${stats.usage.month == 1 ? "time" : "times"} within the last month.`;
 
-                            const user = getHighestUser(stats.record);
+                            const user = utils.getHighestUser(stats.record);
                             if (user) { // Found a user with highest usage
                                 const name = groupInfo.names[user] || "not in this chat";
                                 m += `\n\nIts most prolific user is ${name}.`;
@@ -86,7 +86,7 @@ const funcs = {
                         }
                     });
                 } else {
-                    sendError(`Entry not found for ${input}`, threadId);
+                    utils.sendError(`Entry not found for ${input}`, threadId);
                 }
             } else {
                 // No command passed; show all
@@ -95,7 +95,7 @@ const funcs = {
                         console.log("Failed to retrieve all stats");
                     }
                     for (let i = 0; i < data.length; i++) {
-                        data[i].stats = getComputedStats(data[i].stats); // Get usage stats for sorting
+                        data[i].stats = utils.getComputedStats(data[i].stats); // Get usage stats for sorting
                     }
                     data = data.sort((a, b) => {
                         return (b.stats.usage.perc - a.stats.usage.perc); // Sort greatest to least
@@ -113,14 +113,14 @@ const funcs = {
         });
     },
     "psa": (cmatch) => {
-        sendToAll(`"${cmatch[1]}"\n\nThis has been a public service announcement from ${config.owner.names.short}.`);
+        utils.sendToAll(`"${cmatch[1]}"\n\nThis has been a public service announcement from ${config.owner.names.short}.`);
     },
     "bug": (cmatch, groupInfo, _, fromUserId) => {
-        utils.sendMessage(`-------BUG-------\nMessage: ${cmatch[1]}\nSender: ${groupInfo.names[fromUserId]}\nTime: ${getTimeString()} (${getDateString()})\nGroup: ${groupInfo.name}\nID: ${groupInfo.threadId}\nInfo: ${JSON.stringify(groupInfo)}`, config.owner.id, (err) => {
+        utils.sendMessage(`-------BUG-------\nMessage: ${cmatch[1]}\nSender: ${groupInfo.names[fromUserId]}\nTime: ${utils.getTimeString()} (${utils.getDateString()})\nGroup: ${groupInfo.name}\nID: ${groupInfo.threadId}\nInfo: ${JSON.stringify(groupInfo)}`, config.owner.id, (err) => {
             if (!err) {
                 if (groupInfo.isGroup && !cutils.contains(config.owner.id, groupInfo.members)) { // If is a group and owner is not in it, add
                     utils.sendMessage(`Report sent. Adding ${config.owner.names.short} to the chat for debugging purposes...`, groupInfo.threadId, () => {
-                        addUser(config.owner.id, groupInfo, false);
+                        utils.addUser(config.owner.id, groupInfo, false);
                     });
                 } else { // Otherwise, just send confirmation
                     utils.sendMessage(`Report sent to ${config.owner.names.short}.`, groupInfo.threadId);
@@ -137,12 +137,12 @@ const funcs = {
             // Make sure already in group
             if (groupInfo.members[user]) {
                 // Kick with optional time specified in call only if specified in command
-                kick(groupInfo.members[user], groupInfo, optTime);
+                utils.kick(groupInfo.members[user], groupInfo, optTime);
             } else {
                 throw new Error(`User ${user} not recognized`);
             }
         } catch (e) {
-            sendError(e);
+            utils.sendError(e);
         }
     },
     "xkcd": (threadId, cmatch) => { // Check before regular searches to prevent collisions
@@ -160,7 +160,7 @@ const funcs = {
                                 "url": results[0].formattedUrl // Best match
                             }, threadId);
                         } else {
-                            sendError("No results found", threadId);
+                            utils.sendError("No results found", threadId);
                         }
                     } else {
                         console.log(err);
@@ -210,7 +210,7 @@ const funcs = {
                         "url": results[0].formattedUrl // Best match
                     }, threadId);
                 } else {
-                    sendError("No results found", threadId);
+                    utils.sendError("No results found", threadId);
                 }
             } else {
                 console.log(err);
@@ -218,7 +218,7 @@ const funcs = {
         });
     },
     "spotsearch": (threadId, cmatch) => {
-        logInSpotify((err) => {
+        utils.logInSpotify((err) => {
             if (!err) {
                 const query = cmatch[2];
                 if (cmatch[1].toLowerCase() == "artist") {
@@ -243,7 +243,7 @@ const funcs = {
 
                                         if (image) {
                                             // Send image of artist
-                                            sendFileFromUrl(image, "media/artist.png", message, threadId);
+                                            utils.sendFileFromUrl(image, "media/artist.png", message, threadId);
                                         } else if (link) {
                                             // Just send link
                                             utils.sendMessage({
@@ -257,10 +257,10 @@ const funcs = {
                                     }
                                 });
                             } else {
-                                sendError(`No results found for query "${query}"`, threadId);
+                                utils.sendError(`No results found for query "${query}"`, threadId);
                             }
                         } else {
-                            sendError(err, threadId);
+                            utils.sendError(err, threadId);
                         }
                     });
                 } else {
@@ -269,13 +269,13 @@ const funcs = {
                         if (!err) {
                             const bestMatch = data.body.tracks.items[0];
                             if (bestMatch) {
-                                const message = `Best match: ${bestMatch.name} by ${getArtists(bestMatch)} (from ${bestMatch.album.name})${bestMatch.explicit ? " (Explicit)" : ""}`;
+                                const message = `Best match: ${bestMatch.name} by ${utils.getArtists(bestMatch)} (from ${bestMatch.album.name})${bestMatch.explicit ? " (Explicit)" : ""}`;
                                 const url = bestMatch.external_urls.spotify;
                                 const preview = bestMatch.preview_url;
 
                                 if (preview) {
                                     // Upload preview
-                                    sendFileFromUrl(preview, "media/preview.mp3", message, threadId);
+                                    utils.sendFileFromUrl(preview, "media/preview.mp3", message, threadId);
                                 } else {
                                     // Just send Spotify URL
                                     utils.sendMessage({
@@ -284,10 +284,10 @@ const funcs = {
                                     }, threadId);
                                 }
                             } else {
-                                sendError(`No results found for query "${query}"`, threadId);
+                                utils.sendError(`No results found for query "${query}"`, threadId);
                             }
                         } else {
-                            sendError(err, threadId);
+                            utils.sendError(err, threadId);
                         }
                     });
                 }
@@ -297,7 +297,7 @@ const funcs = {
         });
     },
     "song": (threadId, cmatch, groupInfo) => {
-        logInSpotify((err) => {
+        utils.logInSpotify((err) => {
             if (!err) {
                 const user = cmatch[1] ? cmatch[1].toLowerCase() : null;
                 const userId = groupInfo.members[user];
@@ -338,10 +338,10 @@ const funcs = {
                             buffer++;
                         }
                         utils.sendMessage(`Grabbing a song from ${playlist.name}'s playlist, "${name}"...`, threadId);
-                        const msg = `How about ${track.name} (from "${track.album.name}") by ${getArtists(track)}${track.explicit ? " (Explicit)" : ""}?`;
+                        const msg = `How about ${track.name} (from "${track.album.name}") by ${utils.getArtists(track)}${track.explicit ? " (Explicit)" : ""}?`;
                         if (track.preview_url) {
                             // Send preview MP3 to chat if exists
-                            sendFileFromUrl(track.preview_url, "media/preview.mp3", msg, threadId);
+                            utils.sendFileFromUrl(track.preview_url, "media/preview.mp3", msg, threadId);
                         } else {
                             utils.sendMessage({
                                 "body": msg,
@@ -369,9 +369,9 @@ const funcs = {
                     "uri": cmatch[4]
                 };
                 playlists[userId] = newPlaylist;
-                setGroupProperty("playlists", playlists, groupInfo, (err) => {
+                utils.setGroupProperty("playlists", playlists, groupInfo, (err) => {
                     if (!err) {
-                        logInSpotify((err) => {
+                        utils.logInSpotify((err) => {
                             if (!err) {
                                 spotify.getPlaylist(newPlaylist.user, newPlaylist.uri, {}, (err, data) => {
                                     if (!err) {
@@ -385,7 +385,7 @@ const funcs = {
                                         }
                                         utils.sendMessage(message, threadId);
                                     } else {
-                                        sendError("Playlist couldn't be added; check the URI and make sure that you've set the playlist to public.", threadId);
+                                        utils.sendError("Playlist couldn't be added; check the URI and make sure that you've set the playlist to public.", threadId);
                                     }
                                 });
                             } else {
@@ -395,7 +395,7 @@ const funcs = {
                     }
                 });
             } else {
-                sendError("Please include a Spotify URI to add a playlist (see help for more info)", threadId);
+                utils.sendError("Please include a Spotify URI to add a playlist (see help for more info)", threadId);
             }
         } else { // No user provided; just display current playlists
             const pArr = Object.keys(playlists).map((p) => {
@@ -404,7 +404,7 @@ const funcs = {
             if (pArr.length === 0) {
                 utils.sendMessage(`No playlists for this group. To add one, use "${config.trigger} playlist" (see help).`, threadId);
             } else {
-                logInSpotify((err) => {
+                utils.logInSpotify((err) => {
                     if (!err) {
                         let results = [];
                         let now = current = (new Date()).getTime();
@@ -444,8 +444,8 @@ const funcs = {
         if (!msg) { // No new message; display current
             utils.sendMessage(groupInfo.pinned ? groupInfo.pinned : "No pinned messages in this chat.", threadId);
         } else { // Pin new message
-            const pin = `"${msg}" – ${groupInfo.names[fromUserId]} on ${getDateString()}`;
-            setGroupProperty("pinned", pin, groupInfo);
+            const pin = `"${msg}" – ${groupInfo.names[fromUserId]} on ${utils.getDateString()}`;
+            utils.setGroupProperty("pinned", pin, groupInfo);
             utils.sendMessage(`Pinned new message to the chat: "${msg}"`, threadId);
         }
     },
@@ -460,12 +460,12 @@ const funcs = {
             const num = parseFloat(cmatch[2]) || numMembers;
             utils.sendMessage(`$${cur.toFixed(2)}: $${(cur / num).toFixed(2)} per person for ${num} ${(num == 1) ? "person" : "people"}`, threadId);
         } else if (op == "clear") { // Clear tab
-            setGroupProperty("tab", 0, groupInfo, (err) => {
+            utils.setGroupProperty("tab", 0, groupInfo, (err) => {
                 if (!err) { utils.sendMessage("Tab cleared.", threadId); }
             });
         } else {
             const newTab = (op == "add") ? (cur + amt) : (cur - amt);
-            setGroupProperty("tab", newTab, groupInfo, (err) => {
+            utils.setGroupProperty("tab", newTab, groupInfo, (err) => {
                 if (!err) { utils.sendMessage(`Tab updated to $${newTab.toFixed(2)}.`, threadId); }
             });
         }
@@ -485,21 +485,21 @@ const funcs = {
                         // Output search results / propic
                         for (let i = 0; i < numResults; i++) {
                             // Passes number of match to indicate level (closeness to top)
-                            searchForUser(data[i], threadId, i);
+                            utils.searchForUser(data[i], threadId, i);
                         }
                     } else { // Is an add command
                         // Add best match to group and update log of member IDs
-                        addUser(bestMatch.userID, groupInfo);
+                        utils.addUser(bestMatch.userID, groupInfo);
                     }
                 } else {
                     if (err.error) {
                         // Fix typo in API error message
-                        sendError(`${err.error.replace("Bes", "Best")}`, threadId);
+                        utils.sendError(`${err.error.replace("Bes", "Best")}`, threadId);
                     }
                 }
             });
         } catch (e) {
-            sendError(`User ${user} not recognized`);
+            utils.sendError(`User ${user} not recognized`);
         }
     },
     "order66": (threadId, _, groupInfo) => {
@@ -514,12 +514,12 @@ const funcs = {
                     // (ALSO VERY IMPORTANT so that group isn't completely emptied)
                     if (groupInfo.members.hasOwnProperty(m) && groupInfo.members[m] != config.bot.id) {
                         if (!callbackset) { // Only want to send the message once
-                            kick(groupInfo.members[m], groupInfo, config.order66Time, () => {
+                            utils.kick(groupInfo.members[m], groupInfo, config.order66Time, () => {
                                 utils.sendMessage("Balance is restored to the Force.", threadId);
                             });
                             callbackset = true;
                         } else {
-                            kick(groupInfo.members[m], groupInfo, config.order66Time);
+                            utils.kick(groupInfo.members[m], groupInfo, config.order66Time);
                         }
                     }
                 }
@@ -536,7 +536,7 @@ const funcs = {
 
         if (cmatch[1]) {
             const inputColor = cmatch[2];
-            const colorToSet = (inputColor.match(/rand(om)?/i)) ? getRandomColor() : inputColor.toLowerCase();
+            const colorToSet = (inputColor.match(/rand(om)?/i)) ? utils.getRandomColor() : inputColor.toLowerCase();
 
             // Construct a lowercased-key color dictionary to make input case insensitive
             const colors = {};
@@ -551,7 +551,7 @@ const funcs = {
             const usableVal = hexVals.includes(colorToSet) ? colorToSet : colors[colorToSet];
 
             if (usableVal === undefined) { // Explicit equality check b/c it might be null (i.e. MessengerBlue)
-                sendError("Couldn't find this color. See help for accepted values.", threadId);
+                utils.sendError("Couldn't find this color. See help for accepted values.", threadId);
             } else {
                 api.changeThreadColor(usableVal, threadId, (err) => {
                     if (!err) {
@@ -568,7 +568,7 @@ const funcs = {
         const delay = 500; // Delay between color changes (half second is a good default)
         for (let i = 0; i < config.numColors; i++) { // Need block scoping for timeout
             setTimeout(() => {
-                api.changeThreadColor(getRandomColor(), threadId);
+                api.changeThreadColor(utils.getRandomColor(), threadId);
                 if (i == (config.numColors - 1)) { // Set back to original color on last
                     setTimeout(() => {
                         api.changeThreadColor(ogColor, threadId);
@@ -621,7 +621,7 @@ const funcs = {
         });
     },
     "alive": (_, __, groupInfo) => {
-        sendGroupEmoji(groupInfo, "large"); // Send emoji and react to message in response
+        utils.sendGroupEmoji(groupInfo, "large"); // Send emoji and react to message in response
     },
     "emoji": (threadId, cmatch, groupInfo, api) => {
         api.changeThreadEmoji(cmatch[1], threadId, (err) => {
@@ -630,7 +630,7 @@ const funcs = {
                 api.changeThreadEmoji(groupInfo.emoji, threadId);
             }
         });
-        updateGroupInfo(threadId); // Update emoji
+        utils.updateGroupInfo(threadId); // Update emoji
     },
     "echo": (threadId, cmatch, _, api, fromUserId) => {
         const command = cmatch[1].toLowerCase();
@@ -660,7 +660,7 @@ const funcs = {
         const userId = groupInfo.members[user];
         const callback = (err, users, status) => {
             if (err) {
-                sendError(err, threadId);
+                utils.sendError(err, threadId);
             } else {
                 config.banned = users;
                 utils.sendMessage(`${groupInfo.names[userId]} successfully ${status}.`, threadId);
@@ -673,7 +673,7 @@ const funcs = {
                 cutils.addBannedUser(userId, callback);
             }
         } else {
-            sendError(`User ${user} not found`);
+            utils.sendError(`User ${user} not found`);
         }
     },
     "vote": (threadId, cmatch, groupInfo) => {
@@ -685,25 +685,25 @@ const funcs = {
                 if (success) {
                     utils.sendMessage(`${user_cap}'s current score is now ${newScore}.`, threadId);
                 } else {
-                    sendError("Score update failed.", threadId);
+                    utils.sendError("Score update failed.", threadId);
                 }
             };
         };
         if (userId) {
             if (cmatch[1] == ">") {
                 // Upvote
-                updateScore(true, userId, getCallback(true));
+                utils.updateScore(true, userId, getCallback(true));
             } else {
                 // Downvote
-                updateScore(false, userId, getCallback(false));
+                utils.updateScore(false, userId, getCallback(false));
             }
         } else {
-            sendError(`User ${user_cap} not found`, threadId);
+            utils.sendError(`User ${user_cap} not found`, threadId);
         }
     },
     "score": (threadId, cmatch, groupInfo) => {
         if (cmatch[1]) { // Display scoreboard
-            getAllScores(groupInfo, (success, scores) => {
+            utils.getAllScores(groupInfo, (success, scores) => {
                 if (success) {
                     scores = scores.sort((a, b) => {
                         return (b.score - a.score); // Sort greatest to least
@@ -715,7 +715,7 @@ const funcs = {
                     }
                     utils.sendMessage(message, threadId);
                 } else {
-                    sendError("Scores couldn't be retrieved for this group.", threadId);
+                    utils.sendError("Scores couldn't be retrieved for this group.", threadId);
                 }
             });
         } else if (cmatch[2]) {
@@ -725,15 +725,15 @@ const funcs = {
             if (userId) {
                 const new_score = cmatch[3];
                 if (new_score || new_score == "0") { // Set to provided score if valid (0 is falsey)
-                    setScore(userId, new_score, (err, success) => {
+                    utils.setScore(userId, new_score, (err, success) => {
                         if (success) {
                             utils.sendMessage(`${user_cap}'s score updated to ${new_score}.`, threadId);
                         } else {
-                            sendError(err, threadId);
+                            utils.sendError(err, threadId);
                         }
                     });
                 } else { // No value provided; just display score
-                    getScore(`${userId}`, (err, val) => {
+                    utils.getScore(`${userId}`, (err, val) => {
                         if (!err) {
                             const stored_score = val ? val.toString() : 0;
                             utils.sendMessage(`${user_cap}'s current score is ${stored_score}.`, threadId);
@@ -743,12 +743,12 @@ const funcs = {
                     });
                 }
             } else {
-                sendError(`User ${user_cap} not found`, threadId);
+                utils.sendError(`User ${user_cap} not found`, threadId);
             }
         }
     },
     "restart": (threadId, ) => {
-        restart(() => {
+        utils.restart(() => {
             utils.sendMessage("Restarting...", threadId);
         });
     },
@@ -757,16 +757,16 @@ const funcs = {
         const url = cmatch[1];
         if (url) {
             // Use passed URL
-            setGroupImageFromUrl(url, threadId, "Can't set group image for this chat");
+            utils.setGroupImageFromUrl(url, threadId, "Can't set group image for this chat");
         } else if (attachments && attachments[0]) {
             if (attachments[0].type == "photo") {
                 // Use photo attachment
-                setGroupImageFromUrl(attachments[0].largePreviewUrl, threadId, "Attachment is invalid");
+                utils.setGroupImageFromUrl(attachments[0].largePreviewUrl, threadId, "Attachment is invalid");
             } else {
-                sendError("This command only accepts photo attachments", threadId);
+                utils.sendError("This command only accepts photo attachments", threadId);
             }
         } else {
-            sendError("This command requires either a valid image URL or a photo attachment", threadId);
+            utils.sendError("This command requires either a valid image URL or a photo attachment", threadId);
         }
     },
     "poll": (threadId, cmatch, _, api) => {
@@ -781,7 +781,7 @@ const funcs = {
         }
         api.createPoll(title, threadId, optsObj, (err) => { // I contributed this func to the API!
             if (err) {
-                sendError("Cannot create a poll in a non-group chat.", threadId);
+                utils.sendError("Cannot create a poll in a non-group chat.", threadId);
             }
         });
     },
@@ -789,7 +789,7 @@ const funcs = {
         const title = cmatch[1];
         api.setTitle(title, threadId, (err) => {
             if (err) {
-                sendError("Cannot set title for non-group chats.", threadId);
+                utils.sendError("Cannot set title for non-group chats.", threadId);
             }
         });
     },
@@ -805,12 +805,12 @@ const funcs = {
                     const chosen = cmatch[1] ? Math.floor(Math.random() * results.length) : 0; // If rand not specified, use top result
                     const link = results[chosen].links[0].href;
                     const data = results[chosen].data[0];
-                    sendFileFromUrl(link, `media/${data.nasa_id}.jpg`, `"${data.title}"\n${data.description}`, threadId);
+                    utils.sendFileFromUrl(link, `media/${data.nasa_id}.jpg`, `"${data.title}"\n${data.description}`, threadId);
                 } else {
-                    sendError(`No results found for ${search}`, threadId);
+                    utils.sendError(`No results found for ${search}`, threadId);
                 }
             } else {
-                sendError(`No results found for ${search}`, threadId);
+                utils.sendError(`No results found for ${search}`, threadId);
             }
         });
     },
@@ -833,10 +833,10 @@ const funcs = {
     },
     "bw": (threadId, cmatch, groupInfo, _, __, attachments) => {
         const url = cmatch[1];
-        processImage(url, attachments, groupInfo, (img, filename) => {
+        utils.processImage(url, attachments, groupInfo, (img, filename) => {
             img.greyscale().write(filename, (err) => {
                 if (!err) {
-                    sendFile(filename, threadId, "", () => {
+                    utils.sendFile(filename, threadId, "", () => {
                         fs.unlink(filename);
                     });
                 }
@@ -845,10 +845,10 @@ const funcs = {
     },
     "sepia": (threadId, cmatch, groupInfo, _, __, attachments) => {
         const url = cmatch[1];
-        processImage(url, attachments, groupInfo, (img, filename) => {
+        utils.processImage(url, attachments, groupInfo, (img, filename) => {
             img.sepia().write(filename, (err) => {
                 if (!err) {
-                    sendFile(filename, threadId, "", () => {
+                    utils.sendFile(filename, threadId, "", () => {
                         fs.unlink(filename);
                     });
                 }
@@ -858,10 +858,10 @@ const funcs = {
     "flip": (threadId, cmatch, groupInfo, _, __, attachments) => {
         const horiz = (cmatch[1].toLowerCase().indexOf("horiz") > -1); // Horizontal or vertical
         const url = cmatch[2];
-        processImage(url, attachments, groupInfo, (img, filename) => {
+        utils.processImage(url, attachments, groupInfo, (img, filename) => {
             img.flip(horiz, !horiz).write(filename, (err) => {
                 if (!err) {
-                    sendFile(filename, threadId, "", () => {
+                    utils.sendFile(filename, threadId, "", () => {
                         fs.unlink(filename);
                     });
                 }
@@ -870,10 +870,10 @@ const funcs = {
     },
     "invert": (threadId, cmatch, groupInfo, _, __, attachments) => {
         const url = cmatch[1];
-        processImage(url, attachments, groupInfo, (img, filename) => {
+        utils.processImage(url, attachments, groupInfo, (img, filename) => {
             img.invert().write(filename, (err) => {
                 if (!err) {
-                    sendFile(filename, threadId, "", () => {
+                    utils.sendFile(filename, threadId, "", () => {
                         fs.unlink(filename);
                     });
                 }
@@ -884,14 +884,14 @@ const funcs = {
         const pixels = parseInt(cmatch[1]) || 2;
         const gauss = cmatch[2];
         const url = cmatch[3];
-        processImage(url, attachments, groupInfo, (img, filename) => {
+        utils.processImage(url, attachments, groupInfo, (img, filename) => {
             if (gauss) {
                 // Gaussian blur (extremely resource-intensive – will pretty much halt the bot while processing)
                 utils.sendMessage("Hang on, this might take me a bit...", threadId, () => {
                     const now = (new Date()).getTime();
                     img.gaussian(pixels).write(filename, (err) => {
                         if (!err) {
-                            sendFile(filename, threadId, `Processing took ${((new Date()).getTime() - now) / 1000} seconds.`, () => {
+                            utils.sendFile(filename, threadId, `Processing took ${((new Date()).getTime() - now) / 1000} seconds.`, () => {
                                 fs.unlink(filename);
                             });
                         }
@@ -900,7 +900,7 @@ const funcs = {
             } else {
                 img.blur(pixels).write(filename, (err) => {
                     if (!err) {
-                        sendFile(filename, threadId, "", () => {
+                        utils.sendFile(filename, threadId, "", () => {
                             fs.unlink(filename);
                         });
                     }
@@ -911,7 +911,7 @@ const funcs = {
     "overlay": (threadId, cmatch, groupInfo, _, __, attachments) => {
         const url = cmatch[1];
         const overlay = cmatch[2];
-        processImage(url, attachments, groupInfo, (img, filename) => {
+        utils.processImage(url, attachments, groupInfo, (img, filename) => {
             jimp.loadFont(jimp.FONT_SANS_32_BLACK, (err, font) => {
                 if (!err) {
                     const width = img.bitmap.width; // Image width
@@ -919,13 +919,13 @@ const funcs = {
                     const textDims = measureText(font, overlay); // Get text dimensions (x,y)
                     img.print(font, (width - textDims[0]) / 2, (height - textDims[1]) / 2, overlay, (width + textDims[0])).write(filename, (err) => {
                         if (!err) {
-                            sendFile(filename, threadId, "", () => {
+                            utils.sendFile(filename, threadId, "", () => {
                                 fs.unlink(filename);
                             });
                         }
                     });
                 } else {
-                    sendError("Couldn't load font", threadId);
+                    utils.sendError("Couldn't load font", threadId);
                 }
             });
         });
@@ -937,10 +937,10 @@ const funcs = {
         perc = (perc > 100) ? 1 : (perc / 100.0);
         perc = bright ? perc : (-1 * perc);
         const url = cmatch[3];
-        processImage(url, attachments, groupInfo, (img, filename) => {
+        utils.processImage(url, attachments, groupInfo, (img, filename) => {
             img.brightness(perc).write(filename, (err) => {
                 if (!err) {
-                    sendFile(filename, threadId, "", () => {
+                    utils.sendFile(filename, threadId, "", () => {
                         fs.unlink(filename);
                     });
                 }
@@ -956,7 +956,7 @@ const funcs = {
             }
         }
         const mute = !(cmatch[1]); // True if muting; false if unmuting
-        setGroupProperty("muted", mute, groupInfo, getCallback(mute));
+        utils.setGroupProperty("muted", mute, groupInfo, getCallback(mute));
     },
     "christen": (threadId, cmatch, _, api) => {
         api.changeNickname(cmatch[1], threadId, config.bot.id);
@@ -978,7 +978,7 @@ const funcs = {
             // We're talking triple redundancies at this point
             if (groupInfo.members.hasOwnProperty(m) && groupInfo.members[m] != config.bot.id
                 && groupInfo.members[m] != api.getCurrentUserID()) {
-                kick(groupInfo.members[m], groupInfo);
+                utils.kick(groupInfo.members[m], groupInfo);
             }
         }
         // Archive the thread afterwards to avoid clutter in the messages list
@@ -990,7 +990,7 @@ const funcs = {
         });
     },
     "clearstats": () => {
-        resetStats();
+        utils.resetStats();
     },
     "infiltrate": (threadId, cmatch, _, api) => {
         const searchName = cmatch[1];
@@ -1020,11 +1020,11 @@ const funcs = {
                         const chatId = chats[i].threadID;
                         if (chatId == searchName || chatName.toLowerCase().indexOf(searchName.toLowerCase()) > -1) {
                             chatFound = true;
-                            addUser(config.owner.id, {
+                            utils.addUser(config.owner.id, {
                                 "threadId": chatId
                             }, true, (err) => {
                                 if (err) {
-                                    sendError(`You're already in group "${chatName}".`, threadId);
+                                    utils.sendError(`You're already in group "${chatName}".`, threadId);
                                 } else {
                                     utils.sendMessage(`Added you to group "${chatName}".`, threadId);
                                 }
@@ -1032,11 +1032,11 @@ const funcs = {
                         }
                     }
                     if (!chatFound) {
-                        sendError(`Chat with name "${searchName}" not found.`, threadId)
+                        utils.sendError(`Chat with name "${searchName}" not found.`, threadId)
                     }
                 }
             } else {
-                sendError("Thread list couldn't be retrieved.", threadId);
+                utils.sendError("Thread list couldn't be retrieved.", threadId);
             }
         });
     },
@@ -1047,7 +1047,7 @@ const funcs = {
         const name = groupInfo.names[groupInfo.members[user]];
         if (cmatch[1]) { // Clear
             delete aliases[user];
-            setGroupProperty("aliases", aliases, groupInfo, (err) => {
+            utils.setGroupProperty("aliases", aliases, groupInfo, (err) => {
                 if (!err) {
                     utils.sendMessage(`Alias cleared for ${name}.`, threadId);
                 }
@@ -1055,7 +1055,7 @@ const funcs = {
         } else if (aliasInput) { // Set new alias
             const alias = aliasInput.toLowerCase();
             aliases[user] = alias;
-            setGroupProperty("aliases", aliases, groupInfo, (err) => {
+            utils.setGroupProperty("aliases", aliases, groupInfo, (err) => {
                 if (!err) {
                     utils.sendMessage(`${name} can now be called "${aliasInput}".`, threadId);
                 }
@@ -1079,15 +1079,15 @@ const funcs = {
                 const cur = data.main;
 
                 const msg = `Weather for ${name} (${country}):\nConditions: ${weather.description}\nTemp: ${cur.temp} ºF (L-${cur.temp_min} H-${cur.temp_max})\nCloud cover: ${data.clouds.all}%`;
-                sendFileFromUrl(`http://openweathermap.org/img/w/${weather.icon}.png`, `media/${weather.icon}.png`, msg, threadId);
+                utils.sendFileFromUrl(`http://openweathermap.org/img/w/${weather.icon}.png`, `media/${weather.icon}.png`, msg, threadId);
             } else {
-                sendError("Couldn't retrieve weather for that location.", threadId);
+                utils.sendError("Couldn't retrieve weather for that location.", threadId);
             }
         });
     },
     "branch": (threadId, cmatch, groupInfo, _, fromUserId) => {
         const input = cmatch[1];
-        const members = input.split(",").map(m => parseNameReplacements(m.toLowerCase().trim(), fromUserId, groupInfo));
+        const members = input.split(",").map(m => utils.parseNameReplacements(m.toLowerCase().trim(), fromUserId, groupInfo));
         const ids = members.map(m => groupInfo.members[m]);
 
         // Start a new chat with the collected IDs and the bot
@@ -1103,13 +1103,13 @@ const funcs = {
         const oldId = cmatch[1];
 
         // Collect properties about old chat
-        getGroupInfo(oldId, (err, info) => {
+        utils.getGroupInfo(oldId, (err, info) => {
             // Also collect info about current chat to check against
-            getGroupInfo(threadId, (curErr, curInfo) => {
+            utils.getGroupInfo(threadId, (curErr, curInfo) => {
                 if (err || !info) {
-                    sendError("Couldn't find any stored information for that chat; make sure the bot has been initialized in it previously.", threadId);
+                    utils.sendError("Couldn't find any stored information for that chat; make sure the bot has been initialized in it previously.", threadId);
                 } else if (curErr || !curInfo) {
-                    sendError("Couldn't load information about this current chat; wait for initialization.", threadId);
+                    utils.sendError("Couldn't load information about this current chat; wait for initialization.", threadId);
                 } else {
                     const restorables = {
                         "title": (info.name == exports.defaultTitle) ? null : info.name,
@@ -1136,11 +1136,11 @@ const funcs = {
                         }
                     }
                     // Restore groupInfo properties (cascaded to avoid race conditions)
-                    setGroupProperty("muted", restorables.muted, curInfo, () => {
-                        setGroupProperty("playlists", restorables.playlists, curInfo, () => {
-                            setGroupProperty("aliases", restorables.aliases, curInfo, () => {
-                                setGroupProperty("tab", restorables.tab, curInfo, () => {
-                                    setGroupProperty("pinned", restorables.pinned, curInfo);
+                    utils.setGroupProperty("muted", restorables.muted, curInfo, () => {
+                        utils.setGroupProperty("playlists", restorables.playlists, curInfo, () => {
+                            utils.setGroupProperty("aliases", restorables.aliases, curInfo, () => {
+                                utils.setGroupProperty("tab", restorables.tab, curInfo, () => {
+                                    utils.setGroupProperty("pinned", restorables.pinned, curInfo);
                                 });
                             });
                         });
@@ -1184,12 +1184,12 @@ const funcs = {
                             // (ALSO VERY IMPORTANT so that group isn't completely emptied)
                             if (snapped[i] != config.bot.id) {
                                 if (!callbackset) { // Only want to send the message once
-                                    kick(snapped[i], groupInfo, config.order66Time, () => {
+                                    utils.kick(snapped[i], groupInfo, config.order66Time, () => {
                                         utils.sendMessage("Perfectly balanced, as all things should be.", threadId);
                                     });
                                     callbackset = true;
                                 } else {
-                                    kick(snapped[i], groupInfo, config.order66Time);
+                                    utils.kick(snapped[i], groupInfo, config.order66Time);
                                 }
                             }
                         }
@@ -1212,7 +1212,7 @@ const funcs = {
             if (!err) {
                 const data = JSON.parse(body);
                 if (data.error_code && data.error_code == 404) {
-                    sendError("Course not found", threadId);
+                    utils.sendError("Course not found", threadId);
                 } else {
                     const msg = `${data.name} (${data.course_id})\nCredits: ${data.credits}\n\n${data.description}`;
                     utils.sendMessage(msg, threadId);
@@ -1226,7 +1226,7 @@ const funcs = {
             if (!err) {
                 const data = JSON.parse(body);
                 if (data.error_code && data.error_code == 404 || data.length < 1) {
-                    sendError("Professor not found", threadId);
+                    utils.sendError("Professor not found", threadId);
                 } else {
                     const best = data[0];
                     const msg = `${best.name} (${best.departments.join(", ")})\n\nCourses:\n${best.courses.join("\n")}`;
@@ -1273,7 +1273,7 @@ const funcs = {
                         "url": `${url}${match.lat},${match.lng}`
                     }, threadId);
                 } else {
-                    sendError("No building matches found.", threadId);
+                    utils.sendError("No building matches found.", threadId);
                 }
             }
         });

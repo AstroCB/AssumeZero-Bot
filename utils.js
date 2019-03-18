@@ -34,7 +34,7 @@ exports.matchesWithUser = (command, message, fromUserId, groupData, optional = f
             let m = match[i];
             if (m) { // Make sure only modifying the user field (no aliases here)
                 // Any post-match changes that need to be made
-                let fixes = parseNameReplacements(m, fromUserId, groupData);
+                let fixes = exports.parseNameReplacements(m, fromUserId, groupData);
                 match[i] = fixes;
                 if (m != fixes) {
                     /*
@@ -110,11 +110,11 @@ exports.kick = (userId, info, time, callback = () => { }, api = gapi) => {
             } else {
                 if (time) {
                     setTimeout(() => {
-                        addUser(userId, info, false); // Don't welcome if they're not new to the group
+                        exports.addUser(userId, info, false); // Don't welcome if they're not new to the group
                         callback();
                     }, time * 1000);
                 }
-                updateGroupInfo(info.threadId);
+                exports.updateGroupInfo(info.threadId);
             }
         });
     }
@@ -130,7 +130,7 @@ if not successful on the first attempt (default 5)
 exports.addUser = (id, info, welcome = true, callback = () => { }, retry = true, currentBuffer = 0, api = gapi) => {
     api.addUserToGroup(id, info.threadId, (err, data) => {
         if (!err) {
-            updateGroupInfo(info.threadId, null, (err, info) => {
+            exports.updateGroupInfo(info.threadId, null, (err, info) => {
                 if (!err && welcome) {
                     if (info.names[id]) {
                         exports.sendMessage(`Welcome to ${info.name}, ${info.names[id]}!`, info.threadId);
@@ -146,7 +146,7 @@ exports.addUser = (id, info, welcome = true, callback = () => { }, retry = true,
             callback();
         } else if (err && (currentBuffer < config.addBufferLimit)) {
             if (retry) {
-                addUser(id, info, welcome, callback, retry, (currentBuffer + 1));
+                exports.addUser(id, info, welcome, callback, retry, (currentBuffer + 1));
             } else {
                 callback(err);
             }
@@ -166,7 +166,7 @@ the background to decrease lag, but it may be useful if updates are required
 to continue.
 */
 exports.updateGroupInfo = (threadId, message, callback = () => { }, api = gapi) => {
-    getGroupInfo(threadId, (err, existingInfo) => {
+    exports.getGroupInfo(threadId, (err, existingInfo) => {
         if (!err) {
             let isNew = false;
             if (!existingInfo) {
@@ -230,7 +230,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, api = gapi) 
                                 exports.sendMessage(`Bot added to new chat: "${info.name}".`, config.owner.id);
                             }
                         }
-                        setGroupInfo(info, (err) => {
+                        exports.setGroupInfo(info, (err) => {
                             if (!existingInfo) {
                                 exports.sendMessage(`All done! Use '${config.trigger} help' to see what I can do.`, threadId);
                             }
@@ -253,7 +253,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, api = gapi) 
 
 // Gets stored information about a group
 exports.getGroupInfo = (threadId, callback) => {
-    getGroups((err, groups) => {
+    exports.getGroups((err, groups) => {
         const groupData = JSON.parse(groups) || {};
         if (err) {
             // Error retrieving data
@@ -278,7 +278,7 @@ exports.getGroups = (callback) => {
 
 // Updates stored information about a group
 exports.setGroupInfo = (info, callback = () => { }) => {
-    getGroups((err, groups) => {
+    exports.getGroups((err, groups) => {
         const groupData = JSON.parse(groups) || {};
         groupData[info.threadId] = info;
         mem.set(`groups`, JSON.stringify(groupData), {}, (err, success) => {
@@ -291,12 +291,12 @@ exports.setGroupInfo = (info, callback = () => { }) => {
 exports.setGroupProperty = (key, value, info, callback = () => { }) => {
     info[key] = value;
     setTimeout(() => {
-        setGroupInfo(info, (err) => {
+        exports.setGroupInfo(info, (err) => {
             callback(err);
         });
     }, 1500);
     // NOTE: temporary arbitrary delay until I can figure out how to prevent
-    // the background update calls from overwriting these property changes
+    // the background update calls from overwriting these property changes (async/await?)
 }
 
 // Searches help for a given entry and returns an object containing the entry
@@ -319,7 +319,7 @@ exports.getHelpEntry = (input, log) => {
 
 // Wrapper for sending an emoji to the group quickly
 exports.sendGroupEmoji = (groupInfo, size = "medium") => {
-    sendEmoji(groupInfo.emoji || config.defaultEmoji, groupInfo.threadId, size);
+    exports.sendEmoji(groupInfo.emoji || config.defaultEmoji, groupInfo.threadId, size);
 }
 
 // Specify size as a string: "small", "medium", or "large"
@@ -329,7 +329,6 @@ exports.sendEmoji = (emoji, threadId, size = "small") => {
         "emojiSize": size
     }, threadId);
 }
-exports.sendEmoji = sendEmoji; // Export for Easter eggs
 
 exports.isBanned = (senderId, groupInfo) => {
     return (config.banned.indexOf(senderId) > -1 || !senderId || !groupInfo.names[senderId]);
@@ -350,7 +349,6 @@ exports.sendFile = (filenames, threadId, message = "", callback = () => { }, api
     }
     exports.sendMessage(msg, threadId, callback);
 }
-exports.sendFile = sendFile;
 
 // Returns a string of the current time in EST
 exports.getTimeString = () => {
@@ -384,7 +382,7 @@ exports.searchForUser = (match, threadId, num = 0, api = gapi) => {
             const url = JSON.parse(body).data.url; // Photo URL from Graph API
             const photoUrl = `media/profiles/${userId}.jpg`; // Location of downloaded file
             if (url) {
-                sendFileFromUrl(url, photoUrl, desc, threadId);
+                exports.sendFileFromUrl(url, photoUrl, desc, threadId);
             } else {
                 exports.sendMessage(desc, threadId);
             }
@@ -466,7 +464,6 @@ exports.logInSpotify = (callback = () => { }) => {
         } else {
             callback(err);
         }
-
     });
 }
 
@@ -480,7 +477,6 @@ exports.sendContentsOfFile = (file, threadId) => {
         }
     });
 }
-exports.sendContentsOfFile = sendContentsOfFile;
 
 // Functions for getting/setting user scores (doesn't save much in terms of
 // code/DRY, but wraps the functions so that it's easy to change how they're stored)
@@ -496,7 +492,7 @@ exports.getScore = (userId, callback) => {
 // the user's score by the default value set in config, or 5 points if not set
 // Returns a callback with error, success, and a value equal to the user's new score
 exports.updateScore = (isAdd, userId, callback) => {
-    getScore(userId, (err, val) => {
+    exports.getScore(userId, (err, val) => {
         if (err) {
             callback(err);
         }
@@ -506,7 +502,7 @@ exports.updateScore = (isAdd, userId, callback) => {
         // Can be easily customized to accept a score parameter if so desired
         const points = config.votePoints || 5; // Default to five points
         const newScore = isAdd ? (score + points) : (score - points);
-        setScore(userId, `${newScore}`, (err, success) => {
+        exports.setScore(userId, `${newScore}`, (err, success) => {
             callback(err, success, newScore);
         });
     });
@@ -529,8 +525,8 @@ exports.getAllScores = (groupInfo, callback = () => { }) => {
 
     for (let m in members) {
         if (members.hasOwnProperty(m)) {
-            getScore(m, (err, val) => {
-                updateResults({
+            exports.getScore(m, (err, val) => {
+                exports.updateResults({
                     "name": members[m],
                     "score": parseInt(val) || "0"
                 });
@@ -613,7 +609,7 @@ exports.measureText = (font, text) => {
 
 // Sends a message to all of the chats that the bot is currenty in (use sparingly)
 exports.sendToAll = (msg) => {
-    getGroups((err, groupData) => {
+    exports.getGroups((err, groupData) => {
         const groups = JSON.parse(groupData);
         if (groups) {
             for (let g in groups) {
@@ -629,7 +625,7 @@ exports.sendToAll = (msg) => {
 exports.sendFilesFromDir = (dir, threadId) => {
     fs.readdir(dir, (err, filenames) => {
         if (!err) {
-            sendFile(filenames.map((f) => {
+            exports.sendFile(filenames.map((f) => {
                 return `${dir}/${f}`;
             }), threadId);
         } else {
@@ -637,7 +633,6 @@ exports.sendFilesFromDir = (dir, threadId) => {
         }
     });
 }
-exports.sendFilesFromDir = sendFilesFromDir;
 
 /*
 Retrieve usage stats for a command from memory
@@ -709,7 +704,7 @@ exports.getAllStats = (callback) => {
 
     for (let i = 0; i < names.length; i++) {
         let key = names[i];
-        getStats(key, true, (err, stats) => {
+        exports.getStats(key, true, (err, stats) => {
             if (!err) {
                 updateResults({
                     "key": key,
@@ -724,7 +719,7 @@ exports.getAllStats = (callback) => {
 // Updates the usage statistics for a particular command (takes command name and
 // sending user's ID)
 exports.updateStats = (command, senderID, callback = () => { }) => {
-    getStats(command, true, (err, stats) => {
+    exports.getStats(command, true, (err, stats) => {
         if (!err) {
             stats.count++;
             stats.total++;
@@ -732,7 +727,7 @@ exports.updateStats = (command, senderID, callback = () => { }) => {
                 "at": (new Date()).toISOString(),
                 "user": senderID
             });
-            setStats(command, stats, callback);
+            exports.setStats(command, stats, callback);
         } else {
             callback(err);
         }
@@ -744,7 +739,7 @@ exports.resetStats = () => {
     const co = commands.commands;
     for (let c in co) {
         if (co.hasOwnProperty(c)) {
-            setStats(c, {
+            exports.setStats(c, {
                 "count": 0,
                 "total": 0,
                 "record": []
@@ -758,7 +753,7 @@ exports.logStats = () => {
     const co = commands.commands;
     for (let c in co) {
         if (co.hasOwnProperty(c)) {
-            getStats(c, true, (err, stats) => {
+            exports.getStats(c, true, (err, stats) => {
                 console.log(`${c}: ${stats.count}/${stats.total}`);
                 for (let i = 0; i < stats.record.length; i++) {
                     console.log(stats.record[i]);
@@ -814,8 +809,8 @@ exports.getComputedStats = (stats) => {
     const monthMarker = new Date();
     monthMarker.setMonth(monthMarker.getMonth() - 1); // Last month
 
-    const dateRecords = narrowedWithinTime(stats.record, dayMarker) // All command calls within the last day
-    const monthRecords = narrowedWithinTime(stats.record, monthMarker) // All command calls within the last month
+    const dateRecords = exports.narrowedWithinTime(stats.record, dayMarker) // All command calls within the last day
+    const monthRecords = exports.narrowedWithinTime(stats.record, monthMarker) // All command calls within the last month
 
     usage.day = dateRecords ? dateRecords.length : 0;
     usage.month = monthRecords ? monthRecords.length : 0;
@@ -838,7 +833,6 @@ exports.reactToMessage = (messageId, reaction = "like", api = gapi) => {
     };
     api.setMessageReaction(reactions[reaction], messageId);
 }
-exports.reactToMessage = reactToMessage;
 
 /*
 Parses a given message and makes the necessary shortcut replacements, which currently include
