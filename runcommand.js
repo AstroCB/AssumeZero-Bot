@@ -1,6 +1,19 @@
 const config = require("./config");
 const utils = require("./utils");
-const cutils = require("./commandutils");
+const cutils = require("./configutils");
+let credentials;
+try {
+    // Login creds from local dir
+    credentials = require("./credentials");
+} catch (e) {
+    // Deployed to Heroku or config file is missing
+    credentials = process.env;
+}
+// Spotify API (requires credentials)
+const spotify = new (require("spotify-web-api-node"))({
+    "clientId": credentials.SPOTIFY_CLIENTID,
+    "clientSecret": credentials.SPOTIFY_CLIENTSECRET
+}); // Spotify API
 
 // Stores user commands (accessible via trigger word set in config.js)
 // Command order indicates (and determines) precedence
@@ -218,7 +231,7 @@ const funcs = {
         });
     },
     "spotsearch": (threadId, cmatch) => {
-        utils.logInSpotify((err) => {
+        utils.logInSpotify(spotify, (err) => {
             if (!err) {
                 const query = cmatch[2];
                 if (cmatch[1].toLowerCase() == "artist") {
@@ -563,7 +576,7 @@ const funcs = {
             utils.sendMessage(`The current chat color is ${ogColor} (hex value: ${groupInfo.color ? groupInfo.color : "empty"}).`, threadId);
         }
     },
-    "hitlights": (threadId, _, groupInfo) => {
+    "hitlights": (threadId, _, groupInfo, api) => {
         const ogColor = groupInfo.color || config.defaultColor; // Will be null if no custom color set
         const delay = 500; // Delay between color changes (half second is a good default)
         for (let i = 0; i < config.numColors; i++) { // Need block scoping for timeout

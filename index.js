@@ -6,7 +6,7 @@ const commands = require("./commands"); // Command documentation/configuration
 const runner = require("./runcommand"); // For command handling code
 const _ = require("./server"); // Server configuration (just needs to be loaded)
 const easter = require("./easter"); // Easter eggs
-var credentials;
+let credentials;
 try {
     // Login creds from local dir
     credentials = require("./credentials");
@@ -19,11 +19,6 @@ const mem = require("memjs").Client.create(credentials.MEMCACHIER_SERVERS, {
     "username": credentials.MEMCACHIER_USERNAME,
     "password": credentials.MEMCACHIER_PASSWORD
 });
-// Spotify API (requires credentials)
-const spotify = new (require("spotify-web-api-node"))({
-    "clientId": credentials.SPOTIFY_CLIENTID,
-    "clientSecret": credentials.SPOTIFY_CLIENTSECRET
-}); // Spotify API
 var gapi; // Global API for external functions (set on login)
 
 // Log in
@@ -75,6 +70,7 @@ exports.login = login; // Export for external use
 function main(err, api) {
     if (err) return console.error(err);
     gapi = api; // Initialize global API variable
+    utils.setglobals(api, mem); // Initialize in utils module as well
     api.listen(handleMessage);
 }
 
@@ -104,7 +100,7 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
                         // Pass to commands testing for trigger word
                         const cindex = m.toLowerCase().indexOf(config.trigger);
                         if (cindex > -1) { // Trigger command mode
-                            utils.handleCommand(m.substring(cindex + config.trigger.length), senderId, info, message); // Pass full message obj in case it's needed in a command
+                            handleCommand(m.substring(cindex + config.trigger.length), senderId, info, message); // Pass full message obj in case it's needed in a command
                         }
                         // Check for Easter eggs
                         easter.handleEasterEggs(message, senderId, attachments, info, api);

@@ -1,7 +1,21 @@
 const fs = require("fs"); // File system
 const request = require("request"); // For HTTP requests
 const jimp = require("jimp"); // For image processing
+const config = require("./config");
 const utils = require("./configutils");
+let gapi;
+let mem;
+let credentials;
+
+// Initialize the global variables in this module
+// MUST be called before other functions in this module
+// Values to be initialized: api instance, memjs instance,
+// credentials object
+exports.setglobals = (api, gmem, gcreds) => {
+    gapi = api;
+    mem = gmem;
+    credentials = gcreds;
+}
 
 // Assorted utility functions
 
@@ -456,7 +470,7 @@ exports.getArtists = (track) => {
 }
 
 // Logs into Spotify API & sets the appropriate credentials
-exports.logInSpotify = (callback = () => { }) => {
+exports.logInSpotify = (spotify, callback = () => { }) => {
     spotify.clientCredentialsGrant({}, (err, data) => {
         if (!err) {
             spotify.setAccessToken(data.body.access_token);
