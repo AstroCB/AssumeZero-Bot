@@ -51,7 +51,7 @@ const eggs = [
     {
         "regex": /physics c(?:[^A-z]|$)/i,
         "func": (threadId) => {
-            m.sendMessage({
+            utils.sendMessage({
                 "url": "https://www.youtube.com/watch?v=HydsTDvEINo"
             }, threadId);
         }
@@ -62,11 +62,11 @@ const eggs = [
     },
     {
         "alt": (message, fromUserId, groupInfo) => {
-            return m.matchesWithUser("(?:get|measure|check) bac(?:[^k]|$)", message.body, fromUserId, groupInfo, true, "");
+            return utils.matchesWithUser("(?:get|measure|check) bac(?:[^k]|$)", message.body, fromUserId, groupInfo, true, "");
         },
         "func": (threadId, messageId, data) => {
             const name = data[1] || "Yiyi";
-            m.sendMessage(`${name.substring(0, 1).toUpperCase() + name.substring(1)}'s BAC is far above healthy levels`, threadId);
+            utils.sendMessage(`${name.substring(0, 1).toUpperCase() + name.substring(1)}'s BAC is far above healthy levels`, threadId);
         }
     },
     {
@@ -79,11 +79,11 @@ const eggs = [
     },
     {
         "regex": /(?:good)?(?:\s)?ni(?:ght|te)(?:\,)? bot/i,
-        "func": (threadId) => { m.sendMessage("Night!", threadId); }
+        "func": (threadId) => { utils.sendMessage("Night!", threadId); }
     },
     {
         "regex": /(?:good)?(?:\s)?morning(?:\,)? bot/i,
-        "func": (threadId) => { m.sendMessage("Morning!", threadId); }
+        "func": (threadId) => { utils.sendMessage("Morning!", threadId); }
     },
     {
         "regex": /darth plagueis/i,
@@ -110,7 +110,7 @@ const eggs = [
     {
         "regex": /rest of the country/i,
         "func": (threadId) => {
-            m.sendMessage({
+            utils.sendMessage({
                 "url": "https://secure-media.collegeboard.org/digitalServices/pdf/ap/ap16_physics_c_mech_sg.pdf"
             }, threadId);
         }
@@ -157,7 +157,7 @@ const eggs = [
     },
     {
         "regex": /kys/i,
-        "func": (threadId) => { m.sendMessage("Are you threatening me, Master Jedi?", threadId); }
+        "func": (threadId) => { utils.sendMessage("Are you threatening me, Master Jedi?", threadId); }
     },
     {
         "regex": /drunk yiyi/i,
@@ -165,7 +165,7 @@ const eggs = [
     },
     {
         "regex": /I(?:\'|’)?m not drunk/i,
-        "func": (threadId) => { m.sendMessage("That's debatable...", threadId); }
+        "func": (threadId) => { utils.sendMessage("That's debatable...", threadId); }
     },
     {
         "regex": /flush/i,
@@ -185,7 +185,7 @@ const eggs = [
     },
     {
         "regex": /shrug/i,
-        "func": (threadId) => { m.sendMessage(`¯\\_(ツ)_/¯`, threadId); }
+        "func": (threadId) => { utils.sendMessage(`¯\\_(ツ)_/¯`, threadId); }
     },
     {
         "regex": /mario/i,
@@ -217,7 +217,7 @@ const eggs = [
     },
     {
         "regex": /tl(?:\;)?dr/i,
-        "func": (threadId) => { m.sendMessage("Scroll up", threadId); }
+        "func": (threadId) => { utils.sendMessage("Scroll up", threadId); }
     },
     {
         "regex": /me irl/i,
@@ -302,7 +302,7 @@ const eggs = [
             for (let i = 0; i < 36; i++) { // Full row of emoji
                 emoji.push(groupInfo.emoji);
             }
-            m.sendMessage(emoji.join(""), threadId);
+            utils.sendMessage(emoji.join(""), threadId);
         }
     },
     {
@@ -389,7 +389,7 @@ const eggs = [
         "alt": (message, fromUserId, groupInfo) => { // Check whether the bot was mentioned
             return (message.mentions && message.mentions.length && message.mentions.includes(config.bot.id));
         },
-        "func": (threadId) => { m.sendMessage("Yo", threadId); }
+        "func": (threadId) => { utils.sendMessage("Yo", threadId); }
     },
     {
         "regex": /fratty/i,

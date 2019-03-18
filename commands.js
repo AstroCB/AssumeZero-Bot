@@ -161,6 +161,38 @@ exports.commands = {
         "regex": ["playlist", "( spotify:user:([^:]+):playlist:([A-z0-9]+))?"],
         "experimental": false
     },
+    "pin": {
+        "display_names": ["pin"],
+        "pretty_name": "Pin",
+        "short_description": "Pin a message",
+        "description": "Pins a message to be accessed later",
+        "syntax": "pin ({new message})",
+        "example": ["pin Test message", "pin"],
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /pin(?:(?:\s|$)([\s\S]+))?/im,
+        "experimental": false
+    },
+    "tab": {
+        "display_names": ["tab"],
+        "pretty_name": "Tab",
+        "short_description": "Keeps a running total",
+        "description": "Maintains a running total for the group that can be incremented or decremented (default amount is 1)",
+        "syntax": "tab {add|subtract|clear} ({amount})",
+        "example": ["tab add 5.50", "tab subtract 2.10", "tab add", "tab subtract", "tab clear"],
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /tab(?: (add|subtract|clear|split)(?: \$?((?:\d+)?(?:\.\d+)?))?|)?/i,
+        "experimental": false
+    },
     "addsearch": {
         "display_names": ["add", "search"],
         "pretty_name": "Add/search",
@@ -737,22 +769,6 @@ exports.commands = {
         "regex": /weather (.+)/i,
         "experimental": false
     },
-    "pin": {
-        "display_names": ["pin"],
-        "pretty_name": "Pin",
-        "short_description": "Pin a message",
-        "description": "Pins a message to be accessed later",
-        "syntax": "pin ({new message})",
-        "example": ["pin Test message", "pin"],
-        "sudo": false,
-        "attachments": false,
-        "user_input": {
-            "accepts": false,
-            "optional": false
-        },
-        "regex": /pin(?:(?:\s|$)([\s\S]+))?/im,
-        "experimental": false
-    },
     "branch": {
         "display_names": ["branch"],
         "pretty_name": "Branch",
@@ -767,22 +783,6 @@ exports.commands = {
             "optional": false
         },
         "regex": /branch ((?:[^,]+(?:,|$))+)/i,
-        "experimental": false
-    },
-    "tab": {
-        "display_names": ["tab"],
-        "pretty_name": "Tab",
-        "short_description": "Keeps a running total",
-        "description": "Maintains a running total for the group that can be incremented or decremented (default amount is 1)",
-        "syntax": "tab {add|subtract|clear} ({amount})",
-        "example": ["tab add 5.50", "tab subtract 2.10", "tab add", "tab subtract", "tab clear"],
-        "sudo": false,
-        "attachments": false,
-        "user_input": {
-            "accepts": false,
-            "optional": false
-        },
-        "regex": /tab(?: (add|subtract|clear|split)(?: \$?((?:\d+)?(?:\.\d+)?))?|)?/i,
         "experimental": false
     },
     "restore": {
