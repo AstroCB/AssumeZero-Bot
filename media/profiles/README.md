@@ -1,1 +1,1 @@
-This is an empty folder (or at least it should be) that temporarily holds profile pictures downloaded for the purposes of the `physics search` command. See its implementation in [`index.js`](../../index.js) for more information.
+This is an empty folder (or at least it should be) that temporarily holds profile pictures downloaded for the purposes of the `physics search` command. See its implementation in [`main.js`](../../main.js) for more information.

@@ -2,14 +2,14 @@ const express = require("express");
 const http = require("http");
 const app = express();
 const bodyParser = require("body-parser");
-const main = require("./index");
+const main = require("./main");
 const config = require("./config");
 
 app.set("port", (process.env.PORT || 3000));
 app.listen(app.get("port"));
 
 // Landing page
-app.get("/", function(req, res) {
+app.get("/", function (req, res) {
     res.sendFile("index.html", {
         "root": __dirname
     });
