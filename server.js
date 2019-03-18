@@ -9,7 +9,7 @@ app.set("port", (process.env.PORT || 3000));
 app.listen(app.get("port"));
 
 // Landing page
-app.get("/", function(req, res) {
+app.get("/", function (req, res) {
     res.sendFile("index.html", {
         "root": __dirname
     });
