@@ -15,9 +15,9 @@ logs:
 start:
 	npm start
 archive:
-	node archive.js
+	node src/archive.js
 restore:
-	node archive.js --restore
+	node src/archive.js --restore
 bash:
 	heroku run bash -a assume-bot
 logout:
