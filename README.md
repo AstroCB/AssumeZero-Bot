@@ -6,7 +6,7 @@ AssumeZero Bot is a highly configurable bot that can be added to Facebook Messen
 The bot was written with [Node.js](https://nodejs.org/) and the incredible [Facebook Chat API](https://github.com/Schmavery/facebook-chat-api), which allows the bot to emulate a Facebook user who can be added and removed from chats. As of this writing, Facebook's [official API](https://developers.facebook.com/docs/chat) can still only be used in one-on-one conversations.
 
 ## Usage
-Most of the bot's features are activated with a "trigger word," which can be changed in [`config.js`](config.js). The default trigger word is "physics" and most commands will be in the form:
+Most of the bot's features are activated with a "trigger word," which can be changed in [`config.js`](src/config.js). The default trigger word is "physics" and most commands will be in the form:
 
 > physics command [options]
 
@@ -90,7 +90,7 @@ Lastly, the pin command will allow you to pin a message that can be recalled lat
 
 # Fun Commands
 
-**Note**: Several of these commands interface with external APIs that may require configuration in [`config.js`](config.js), but for the most part can be used with the keys I've already provided (although you may want to generate your own for each API so that we're not sharing usage limits).
+**Note**: Several of these commands interface with external APIs that may require configuration in [`config.js`](src/config.js), but for the most part can be used with the keys I've already provided (although you may want to generate your own for each API so that we're not sharing usage limits).
 
 These commands are pretty simple, so I'll show them without explanation and you can get more info in the help entries:
 
@@ -118,9 +118,9 @@ Lastly, the random message command will get a random message from the current co
 
 # Setup
 
-To get your own instance of the bot, you'll first need to clone this repo. Once you've done that, you'll need to do several things to set up its associated services – this project was written using Heroku for hosting (although it can be run locally) and memcache (via MemCachier) as a pseudo-database solution. The rest of these setup instructions will assume the use of these services, but the functionalities that they serve are encapsulated in wrapper functions that can be easily modified to use another solution if desired. If you decide to do this, you may wish to utilize [`config.js`](config.js) and read [Under the Hood](#under-the-hood).
+To get your own instance of the bot, you'll first need to clone this repo. Once you've done that, you'll need to do several things to set up its associated services – this project was written using Heroku for hosting (although it can be run locally) and memcache (via MemCachier) as a pseudo-database solution. The rest of these setup instructions will assume the use of these services, but the functionalities that they serve are encapsulated in wrapper functions that can be easily modified to use another solution if desired. If you decide to do this, you may wish to utilize [`config.js`](src/config.js) and read [Under the Hood](#under-the-hood).
 
-All of the following variables need to be exported from a `credentials.js` file (ideal if running locally) or exposed as environment variables (on Heroku, this can be done with config vars in the settings tab).
+All of the following variables need to be exported from a `credentials.js` file in the `src` directory (ideal if running locally) or exposed as environment variables (on Heroku, this can be done with config vars in the settings tab).
 
 ```js
 // Facebook log-in credentials for bot account
@@ -146,13 +146,13 @@ Some things to note: MemCachier can be configured from Heroku add-ons, and the e
 You don't _need_ to set up all of these services, but if you don't, their associated commands will not be functional. At minimum however, you need to expose the email, password, and MemCachier variables for the bot to run.
 
 # Under the Hood
-At the highest level, the bot listens to a stream of messages, calling the `handleMessage` function when one is received. This function has two main tasks: (1) parse the message to determine which (more specific) handler function it should be passed to and (2) update the information associated with the group in memory. These tasks are performed in parallel, and if no information is currently stored about the thread, it is initialized in the database. The database also stores the appstate after logging in so that a hard user/password login doesn't have to be performed every time. To purge this appstate, use `make logout` or run [`logout.js`](logout.js).
+At the highest level, the bot listens to a stream of messages, calling the `handleMessage` function when one is received. This function has two main tasks: (1) parse the message to determine which (more specific) handler function it should be passed to and (2) update the information associated with the group in memory. These tasks are performed in parallel, and if no information is currently stored about the thread, it is initialized in the database. The database also stores the appstate after logging in so that a hard user/password login doesn't have to be performed every time. To purge this appstate, use `make logout` or run [`logout.js`](src/logout.js).
 
-There are three main types of messages to handle: pings, Easter eggs, and commands. All of the associated handling functions (`handlePings`, `handleEasterEggs`, and `handleCommand`) are available externally by requiring the main module. If a message contains a ping, the named member(s) will be notified in a private message thread with the bot. Easter eggs are a set of hidden responses from the bot that can be configured in [`easter.js`](easter.js). These are off by default. Commands are the main feature of the bot and comprise the majority of its codebase.
+There are three main types of messages to handle: pings, Easter eggs, and commands. All of the associated handling functions (`handlePings`, `handleEasterEggs`, and `handleCommand`) are available externally by requiring the main module. If a message contains a ping, the named member(s) will be notified in a private message thread with the bot. Easter eggs are a set of hidden responses from the bot that can be configured in [`easter.js`](src/easter.js). These are off by default. Commands are the main feature of the bot and comprise the majority of its codebase.
 
 The bot's command structure is "context-free"; it doesn't care where in the message the trigger word is used and what comes before it – as a result, only the text following the trigger word is passed to the `handleCommand`. The user ID of the sender, the `groupInfo` object for the thread, and the full message object from the listener are also passed.
 
-The `groupInfo` object is a record of the information stored in the database for a given thread, and it is passed to most utility functions used in [`main.js`](main.js) by `handleCommand`. Its structure changes with the internals of Facebook's message representation and the facebook-chat-api's parsing of it, but it is currently represented as follows:
+The `groupInfo` object is a record of the information stored in the database for a given thread, and it is passed to most utility functions used in [`main.js`](src/main.js) by `handleCommand`. Its structure changes with the internals of Facebook's message representation and the facebook-chat-api's parsing of it, but it is currently represented as follows:
 
 ```js
 let groupInfo = {

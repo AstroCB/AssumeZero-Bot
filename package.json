@@ -7,7 +7,7 @@
     "node": "8.0.0"
   },
   "scripts": {
-    "start": "node main.js",
+    "start": "node src/main.js",
     "test": "node tests/tests.js"
   },
   "author": "Cameron Bernhardt (AstroCB)",
