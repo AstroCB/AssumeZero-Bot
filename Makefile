@@ -21,5 +21,5 @@ restore:
 bash:
 	heroku run bash -a assume-bot
 logout:
-	node logout.js
+	node src/logout.js
 debug: disable start
