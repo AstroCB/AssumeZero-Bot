@@ -49,7 +49,7 @@ The bot stores information about each conversation that it is a part of in its d
 
 ![Init message](media/docs/init.png)
 
-After this, the group's information will be continously updated in the background as it receives new messages. This means that any changes to the group's properties, such as adding/removing users, changing the title or photo, or updating the colors or emoji, will be reflected in the bot's database entry for the conversation, which allows it to stay up-to-date and use these properties when needed without the need for a blocking network call.
+After this, the group's information will be continously updated in the background as it receives new messages. This means that any changes to the group's properties, such as adding/removing users, changing the title or photo, or updating the colors or emoji, will be reflected in the bot's database entry for the conversation, which allows it to stay up-to-date and use these properties when needed without the need for a blocking network call. The properties that are stored reflect only metadata about the chat, and no personal data from chat (such as message history) is stored – the exact list of things stored in the database can be viewed in [the definition of the `groupInfo` object](#under-the-hood).
 
 As a result of this persistent storage, certain commands can store and retrieve information about the conversation and its participants.
 
@@ -66,7 +66,7 @@ Similarly, the score of a single user can be retrieved with the score command:
 
 ![physics score](media/docs/score.png)
 
-The bot can list statistics for its usage with the stats command – this command can list aggregated data for all commands, but it also takes an optional command argument to display more specific information about a given command, including its most prolific user (if they are in the chat<sup name="link1">[1](#note1)</sup>. The data collected for these statistics does not contain any specific messages from a conversation, but rather global counts of how many times a user has used that command. In other words, no private data is stored.
+The bot can list statistics for its usage with the stats command – this command can list aggregated data for all commands, but it also takes an optional command argument to display more specific information about a given command, including its most prolific user (if they are in the chat<sup name="link1">[1](#note1))</sup>. The data collected for these statistics does not contain any specific messages from a conversation, but rather global counts of how many times a user has triggered that command. In other words, no private data is stored.
 
 ![physics stats](media/docs/stats.png)
 
