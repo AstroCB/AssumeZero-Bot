@@ -66,7 +66,7 @@ Similarly, the score of a single user can be retrieved with the score command:
 
 ![physics score](media/docs/score.png)
 
-The bot can list statistics for its usage with the stats command – this command can list aggregated data for all commands, but it also takes an optional command argument to display more specific information about a given command, including its most prolific user (if they are in the chat<sup name="link1">[1](#note1))</sup>. The data collected for these statistics does not contain any specific messages from a conversation, but rather global counts of how many times a user has triggered that command. In other words, no private data is stored.
+The bot can list statistics for its usage with the stats command – this command can list aggregated data for all commands, but it also takes an optional command argument to display more specific information about a given command, including its most prolific user (if they are in the chat<sup name="link1">[1](#note1)</sup>). The data collected for these statistics does not contain any specific messages from a conversation, but rather global counts of how many times a user has triggered that command. In other words, no private data is stored.
 
 ![physics stats](media/docs/stats.png)
 
