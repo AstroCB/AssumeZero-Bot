@@ -1,6 +1,7 @@
 const config = require("./config");
 const utils = require("./utils");
 const cutils = require("./configutils");
+const commands = require("./commands");
 let credentials;
 try {
     // Login creds from local dir
@@ -19,13 +20,14 @@ const spotify = new (require("spotify-web-api-node"))({
 // Command order indicates (and determines) precedence
 const funcs = {
     "help": (threadId, cmatch) => { // Check help first to avoid command conflicts
+        const co = commands.commands;
         let input;
         if (cmatch[1]) {
             input = cmatch[1].trim().toLowerCase();
         }
         if (input && input.length > 0) {
             // Give details of specific command
-            const entry = utils.getHelpEntry(input, cmatch);
+            const entry = utils.getHelpEntry(input);
             if (entry) {
                 const info = entry.entry;
 
@@ -56,7 +58,7 @@ const funcs = {
         } else {
             // No command passed; give overview of all of them
             let mess = `Quick help for ${config.bot.names.short || config.bot.names.long}:\n\nPrecede these commands with "${config.trigger}":\n`;
-            for (let c in cmatch) {
+            for (let c in co) {
                 if (co.hasOwnProperty(c)) {
                     const entry = co[c];
                     if (entry.display_names.length > 0) { // Don't display if no display names (secret command)
@@ -79,7 +81,7 @@ const funcs = {
             }
             if (input && input.length > 0) {
                 // Give details of specific command
-                const entry = utils.getHelpEntry(input, cmatch);
+                const entry = utils.getHelpEntry(input);
                 if (entry) {
                     const key = entry.key;
                     const info = entry.entry;

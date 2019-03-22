@@ -21,6 +21,12 @@ exports.bot = {
     "id": "100024954724825" // Bot's ID (for security purposes in commands)
 }
 
+// Determines whether bot grammar is "contextless"
+// i.e. whether the command must match from the start of the string or anywhere within it
+// If set to true, some ambiguity may be introduced and multiple command may run from a 
+// single message.
+exports.contextless = false;
+
 // Default group name when no other information is available
 exports.defaultTitle = "Unnamed chat"
 

@@ -3,6 +3,7 @@ const request = require("request"); // For HTTP requests
 const jimp = require("jimp"); // For image processing
 const config = require("./config");
 const utils = require("./configutils");
+const commands = require("./commands");
 let gapi;
 let mem;
 let credentials;
@@ -26,7 +27,7 @@ a username (or alias) match and returns a regex match object containing the user
 of the person matched (even if an alias was used – the function handles aliases on its
 own and converts them back to usernames) in the order described below.
 
-It takes a `command` (a regex to be matched *before* the username), the `message` to be
+It takes a `command` (a regex object to be matched *before* the username), the `message` to be
 searched, the `fromUserId` of the sender (for converting "me" to a username), the group's
 `groupData` object, whether the username match should be `optional` (default `false`), any
 separator `sep` to be placed between the prefix match and the username (default 1 space), and
@@ -39,7 +40,7 @@ Returns a RegExp match object containing the matches in the following order:
 */
 exports.matchesWithUser = (command, message, fromUserId, groupData, optional = false, sep = " ", suffix = "") => {
     // Construct regex string
-    let match = message.match(new RegExp(`${command}${optional ? "(?:" : ""}${sep}${groupData.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
+    let match = message.match(new RegExp(`${command.source}${optional ? "(?:" : ""}${sep}${groupData.userRegExp}${optional ? ")?" : ""}${suffix}`, "i"));
     if (match) {
         // Preserve properties
         const index = match.index;
@@ -315,15 +316,16 @@ exports.setGroupProperty = (key, value, info, callback = () => { }) => {
 
 // Searches help for a given entry and returns an object containing the entry
 // and its key if found
-exports.getHelpEntry = (input, log) => {
-    for (let c in log) {
-        if (log.hasOwnProperty(c)) {
-            const names = log[c].display_names;
+exports.getHelpEntry = (input) => {
+    const co = commands.commands;
+    for (let c in co) {
+        if (co.hasOwnProperty(c)) {
+            const names = co[c].display_names;
             for (let i = 0; i < names.length; i++) {
                 if (input == names[i]) {
                     return {
                         "key": c,
-                        "entry": log[c]
+                        "entry": co[c]
                     };
                 }
             }

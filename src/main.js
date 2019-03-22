@@ -100,7 +100,8 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
                         // Pass to commands testing for trigger word
                         const cindex = m.toLowerCase().indexOf(config.trigger);
                         if (cindex > -1) { // Trigger command mode
-                            handleCommand(m.substring(cindex + config.trigger.length), senderId, info, message); // Pass full message obj in case it's needed in a command
+                            // Also ass full message obj in case it's needed in a command
+                            handleCommand(m.substring(cindex + config.trigger.length + 1), senderId, info, message);
                         }
                         // Check for Easter eggs
                         easter.handleEasterEggs(message, senderId, attachments, info, api);
@@ -126,14 +127,20 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
             // Check whether command is sudo-protected and, if so, whether the user is the owner
             if (!co[c].sudo || (co[c].sudo && fromUserId == config.owner.id)) {
                 // Set match vals
+                // fromStart will concatenate a 'start of string' operator to the beginning
+                // of the regular expression used to match commands if contextless grammar
+                // is turned off in the config (off by default)
+                let regex = Array.isArray(co[c].regex) ? co[c].regex[0] : co[c].regex;
+                if (typeof regex == "string") { regex = new RegExp(regex); }
+                const fromStart = config.contextless ? regex : new RegExp("^" + regex.source, regex.flags);
                 if (co[c].user_input.accepts) { // Takes a match from the members dict
                     if (Array.isArray(co[c].regex)) { // Also has a regex suffix (passed as length 2 array)
-                        co[c].m = utils.matchesWithUser(co[c].regex[0], command, fromUserId, groupInfo, co[c].user_input.optional, " ", co[c].regex[1]);
+                        co[c].m = utils.matchesWithUser(fromStart, command, fromUserId, groupInfo, co[c].user_input.optional, " ", co[c].regex[1]);
                     } else { // Just a standard regex prefex as a string + name
-                        co[c].m = utils.matchesWithUser(co[c].regex, command, fromUserId, groupInfo, co[c].user_input.optional);
+                        co[c].m = utils.matchesWithUser(fromStart, command, fromUserId, groupInfo, co[c].user_input.optional);
                     }
                 } else {
-                    co[c].m = command.match(co[c].regex);
+                    co[c].m = command.match(fromStart);
                 }
             } else { // User not authorized
                 // Set match to null to prevent checking issues
@@ -171,7 +178,7 @@ function parsePing(m, fromUserId, groupInfo) {
         users.splice(users.indexOf(groupInfo.names[fromUserId].toLowerCase()), 1);
         m = m.split("@@" + allMatch[1]).join("");
     } else {
-        let matches = utils.matchesWithUser("@@", m, fromUserId, groupInfo, false, "");
+        let matches = utils.matchesWithUser(new RegExp("@@"), m, fromUserId, groupInfo, false, "");
         while (matches && matches[1]) {
             users.push(matches[1].toLowerCase());
             const beforeSplit = m;
@@ -183,7 +190,7 @@ function parsePing(m, fromUserId, groupInfo) {
                     m = m.split(`@@${alias}`).join("");
                 }
             }
-            matches = utils.matchesWithUser("@@", m, fromUserId, groupInfo, false, "");
+            matches = utils.matchesWithUser(new RegExp("@@"), m, fromUserId, groupInfo, false, "");
         }
         // After loop, m will contain the message without the pings (the message to be sent)
     }
