@@ -100,7 +100,7 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
                         // Pass to commands testing for trigger word
                         const cindex = m.toLowerCase().indexOf(config.trigger);
                         if (cindex > -1) { // Trigger command mode
-                            // Also ass full message obj in case it's needed in a command
+                            // Also pass full message obj in case it's needed in a command
                             handleCommand(m.substring(cindex + config.trigger.length + 1), senderId, info, message);
                         }
                         // Check for Easter eggs

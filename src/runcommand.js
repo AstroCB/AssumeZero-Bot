@@ -1,3 +1,4 @@
+const request = require("request");
 const config = require("./config");
 const utils = require("./utils");
 const cutils = require("./configutils");
@@ -127,10 +128,10 @@ const funcs = {
             }
         });
     },
-    "psa": (cmatch) => {
+    "psa": (_, cmatch) => {
         utils.sendToAll(`"${cmatch[1]}"\n\nThis has been a public service announcement from ${config.owner.names.short}.`);
     },
-    "bug": (cmatch, groupInfo, _, fromUserId) => {
+    "bug": (_, cmatch, groupInfo, __, fromUserId) => {
         utils.sendMessage(`-------BUG-------\nMessage: ${cmatch[1]}\nSender: ${groupInfo.names[fromUserId]}\nTime: ${utils.getTimeString()} (${utils.getDateString()})\nGroup: ${groupInfo.name}\nID: ${groupInfo.threadId}\nInfo: ${JSON.stringify(groupInfo)}`, config.owner.id, (err) => {
             if (!err) {
                 if (groupInfo.isGroup && !cutils.contains(config.owner.id, groupInfo.members)) { // If is a group and owner is not in it, add
@@ -145,7 +146,7 @@ const funcs = {
             }
         });
     },
-    "kick": (cmatch, groupInfo) => {
+    "kick": (_, cmatch, groupInfo) => {
         const user = cmatch[1].toLowerCase();
         const optTime = cmatch[2] ? parseInt(cmatch[2]) : undefined;
         try {
@@ -157,7 +158,7 @@ const funcs = {
                 throw new Error(`User ${user} not recognized`);
             }
         } catch (e) {
-            utils.sendError(e);
+            utils.sendError(e, threadId);
         }
     },
     "xkcd": (threadId, cmatch) => { // Check before regular searches to prevent collisions
@@ -688,7 +689,7 @@ const funcs = {
                 cutils.addBannedUser(userId, callback);
             }
         } else {
-            utils.sendError(`User ${user} not found`);
+            utils.sendError(`User ${user} not found`, threadId);
         }
     },
     "vote": (threadId, cmatch, groupInfo) => {
