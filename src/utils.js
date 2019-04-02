@@ -413,19 +413,20 @@ domains, which are blocked by Facebook for URL auto-detection)
 Accepts url, optional file download location/name, optional message, and optional
 threadId parameters
 */
-exports.sendFileFromUrl = (url, path = "media/temp.jpg", message = "", threadId, api = gapi) => {
+exports.sendFileFromUrl = (url, path = "../media/temp.jpg", message = "", threadId, api = gapi) => {
     request.head(url, (err, res, body) => {
         // Download file and pass to chat API
+        const fullpath = `${__dirname}/${path}`;
         if (!err) {
-            request(url).pipe(fs.createWriteStream(path)).on('close', (err, data) => {
+            request(url).pipe(fs.createWriteStream(fullpath)).on('close', (err, data) => {
                 if (!err) {
                     // Use API's official sendMessage here for callback functionality
                     exports.sendMessage({
                         "body": message,
-                        "attachment": fs.createReadStream(`${__dirname}/${path}`)
+                        "attachment": fs.createReadStream(fullpath)
                     }, threadId, (err, data) => {
                         // Delete downloaded propic
-                        fs.unlink(path);
+                        fs.unlink(fullpath);
                     });
                 } else {
                     exports.sendMessage(message, threadId);

@@ -259,7 +259,7 @@ const funcs = {
 
                                         if (image) {
                                             // Send image of artist
-                                            utils.sendFileFromUrl(image, "media/artist.png", message, threadId);
+                                            utils.sendFileFromUrl(image, "../media/artist.png", message, threadId);
                                         } else if (link) {
                                             // Just send link
                                             utils.sendMessage({
@@ -291,7 +291,7 @@ const funcs = {
 
                                 if (preview) {
                                     // Upload preview
-                                    utils.sendFileFromUrl(preview, "media/preview.mp3", message, threadId);
+                                    utils.sendFileFromUrl(preview, "../media/preview.mp3", message, threadId);
                                 } else {
                                     // Just send Spotify URL
                                     utils.sendMessage({
@@ -357,7 +357,7 @@ const funcs = {
                         const msg = `How about ${track.name} (from "${track.album.name}") by ${utils.getArtists(track)}${track.explicit ? " (Explicit)" : ""}?`;
                         if (track.preview_url) {
                             // Send preview MP3 to chat if exists
-                            utils.sendFileFromUrl(track.preview_url, "media/preview.mp3", msg, threadId);
+                            utils.sendFileFromUrl(track.preview_url, "../media/preview.mp3", msg, threadId);
                         } else {
                             utils.sendMessage({
                                 "body": msg,
@@ -821,7 +821,7 @@ const funcs = {
                     const chosen = cmatch[1] ? Math.floor(Math.random() * results.length) : 0; // If rand not specified, use top result
                     const link = results[chosen].links[0].href;
                     const data = results[chosen].data[0];
-                    utils.sendFileFromUrl(link, `media/${data.nasa_id}.jpg`, `"${data.title}"\n${data.description}`, threadId);
+                    utils.sendFileFromUrl(link, `../media/${data.nasa_id}.jpg`, `"${data.title}"\n${data.description}`, threadId);
                 } else {
                     utils.sendError(`No results found for ${search}`, threadId);
                 }
@@ -1095,7 +1095,7 @@ const funcs = {
                 const cur = data.main;
 
                 const msg = `Weather for ${name} (${country}):\nConditions: ${weather.description}\nTemp: ${cur.temp} ºF (L-${cur.temp_min} H-${cur.temp_max})\nCloud cover: ${data.clouds.all}%`;
-                utils.sendFileFromUrl(`http://openweathermap.org/img/w/${weather.icon}.png`, `media/${weather.icon}.png`, msg, threadId);
+                utils.sendFileFromUrl(`http://openweathermap.org/img/w/${weather.icon}.png`, `../media/${weather.icon}.png`, msg, threadId);
             } else {
                 utils.sendError("Couldn't retrieve weather for that location.", threadId);
             }
