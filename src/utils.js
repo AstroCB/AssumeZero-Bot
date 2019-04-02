@@ -558,10 +558,11 @@ exports.setGroupImageFromUrl = (url, threadId, errMsg = "Photo couldn't download
     // Download file and pass to chat API (see config for details)
     // 10 is length of rest of path string (media/.png)
     const path = `media/${encodeURIComponent(url.substring(0, config.MAXPATH - 10))}.png`;
-    request(url).pipe(fs.createWriteStream(path)).on('close', (err, data) => {
+    const fullpath = `${__dirname}/${path}`;
+    request(url).pipe(fs.createWriteStream(fullpath)).on('close', (err, data) => {
         if (!err) {
-            api.changeGroupImage(fs.createReadStream(`${__dirname}/${path}`), threadId, (err) => {
-                fs.unlink(path);
+            api.changeGroupImage(fs.createReadStream(fullpath), threadId, (err) => {
+                fs.unlink(fullpath);
                 if (err) {
                     exports.sendError(errMsg, threadId);
                 }
