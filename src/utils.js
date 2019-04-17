@@ -543,7 +543,7 @@ exports.getAllScores = (groupInfo, callback = () => { }) => {
     for (let m in members) {
         if (members.hasOwnProperty(m)) {
             exports.getScore(m, (err, val) => {
-                exports.updateResults({
+                updateResults({
                     "name": members[m],
                     "score": parseInt(val) || "0"
                 });
