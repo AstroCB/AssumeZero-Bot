@@ -396,7 +396,7 @@ exports.searchForUser = (match, threadId, num = 0, api = gapi) => {
     request.get(graphUrl, (err, res, body) => {
         if (res.statusCode == 200) {
             const url = JSON.parse(body).data.url; // Photo URL from Graph API
-            const photoUrl = `media/profiles/${userId}.jpg`; // Location of downloaded file
+            const photoUrl = `../media/profiles/${userId}.jpg`; // Location of downloaded file
             if (url) {
                 exports.sendFileFromUrl(url, photoUrl, desc, threadId);
             } else {
@@ -557,7 +557,7 @@ exports.getAllScores = (groupInfo, callback = () => { }) => {
 exports.setGroupImageFromUrl = (url, threadId, errMsg = "Photo couldn't download properly", api = gapi) => {
     // Download file and pass to chat API (see config for details)
     // 10 is length of rest of path string (media/.png)
-    const path = `media/${encodeURIComponent(url.substring(0, config.MAXPATH - 10))}.png`;
+    const path = `../media/${encodeURIComponent(url.substring(0, config.MAXPATH - 10))}.png`;
     const fullpath = `${__dirname}/${path}`;
     request(url).pipe(fs.createWriteStream(fullpath)).on('close', (err, data) => {
         if (!err) {
@@ -578,7 +578,7 @@ exports.setGroupImageFromUrl = (url, threadId, errMsg = "Photo couldn't download
 exports.processImage = (url, attachments, info, callback = () => { }) => {
     const threadId = info.threadId;
     if (url) { // URL passed
-        const filename = `media/${encodeURIComponent(url)}.png`;
+        const filename = `../media/${encodeURIComponent(url)}.png`;
         jimp.read(url, (err, file) => {
             if (err) {
                 exports.sendError("Unable to retrieve image from that URL", threadId);
@@ -590,7 +590,7 @@ exports.processImage = (url, attachments, info, callback = () => { }) => {
         const attaches = attachments || info.lastMessage.attachments; // Either current message or last
         for (let i = 0; i < attaches.length; i++) {
             if (attaches[i].type == "photo") {
-                const filename = `media/${attaches[i].name}.png`;
+                const filename = `../media/${attaches[i].name}.png`;
                 jimp.read(attaches[i].largePreviewUrl, (err, file) => {
                     if (err) {
                         exports.sendError("Invalid file", threadId);
