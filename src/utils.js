@@ -486,7 +486,7 @@ exports.logInSpotify = (spotify, callback = () => { }) => {
 
 // Sends the contents of a given file (works best with text files)
 exports.sendContentsOfFile = (file, threadId) => {
-    fs.readFile(file, "utf-8", (err, text) => {
+    fs.readFile(`${__dirname}/${file}`, "utf-8", (err, text) => {
         if (!err) {
             exports.sendMessage(text, threadId);
         } else {
