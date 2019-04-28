@@ -912,5 +912,21 @@ exports.commands = {
         },
         "regex": /whereis (.+)/i,
         "experimental": false
+    },
+    "admin": {
+        "display_names": ["admin", "deadmin"],
+        "pretty_name": "(De)admin",
+        "short_description": "De(admin) a user",
+        "description": "Change a user's admin status for a group",
+        "syntax": "(de)admin {user}",
+        "example": ["admin me", "deadmin me"],
+        "sudo": true,
+        "attachments": false,
+        "user_input": {
+            "accepts": true,
+            "optional": false
+        },
+        "regex": "(de)?admin",
+        "experimental": false
     }
 };

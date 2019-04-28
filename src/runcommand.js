@@ -521,28 +521,16 @@ const funcs = {
     "order66": (threadId, _, groupInfo) => {
         // Remove everyone from the chat for configurable amount of time (see config.js)
         // Use stored threadId in case it changes later (very important)
-        if (groupInfo.isGroup) {
-            utils.sendMessage("I hate you all.", threadId);
-            setTimeout(() => {
-                let callbackset = false;
-                for (let m in groupInfo.members) {
-                    // Bot should never be in members list, but this is a safeguard
-                    // (ALSO VERY IMPORTANT so that group isn't completely emptied)
-                    if (groupInfo.members.hasOwnProperty(m) && groupInfo.members[m] != config.bot.id) {
-                        if (!callbackset) { // Only want to send the message once
-                            utils.kick(groupInfo.members[m], groupInfo, config.order66Time, () => {
-                                utils.sendMessage("Balance is restored to the Force.", threadId);
-                            });
-                            callbackset = true;
-                        } else {
-                            utils.kick(groupInfo.members[m], groupInfo, config.order66Time);
-                        }
-                    }
-                }
-            }, 2000); // Make sure people see the message (and impending doom)
-        } else {
-            utils.sendMessage("Cannot execute Order 66 on a non-group chat. Safe for now, you are, Master Jedi.", threadId);
-        }
+        setTimeout(() => {
+            if (groupInfo.isGroup) {
+                utils.sendMessage("I hate you all.", threadId);
+                utils.kickMultiple(groupInfo.members, groupInfo, config.order66Time, () => {
+                    utils.sendMessage("Balance is restored to the Force.", threadId);
+                });
+            } else {
+                utils.sendMessage("Cannot execute Order 66 on a non-group chat. Safe for now, you are, Master Jedi.", threadId);
+            }
+        }, 2000); // Make sure people see the message (and impending doom)
     },
     "color": (threadId, cmatch, groupInfo, api) => {
         // Extract input and pull valid colors from API as well as current thread color
@@ -1181,8 +1169,6 @@ const funcs = {
                     const sender = info[fromUserId].name.split(" ");
                     utils.sendMessage(`You have my respect, ${sender[sender.length - 1]}. I hope they remember you.`, threadId);
                     setTimeout(() => {
-                        let callbackset = false;
-
                         const mem = Object.keys(groupInfo.members);
                         const len = mem.length;
                         let selected = [];
@@ -1194,21 +1180,9 @@ const funcs = {
                             selected[i] = s;
                         }
                         const snapped = selected.map(key => groupInfo.members[key]);
-
-                        for (let i = 0; i < snapped.length; i++) {
-                            // Bot should never be in members list, but this is a safeguard
-                            // (ALSO VERY IMPORTANT so that group isn't completely emptied)
-                            if (snapped[i] != config.bot.id) {
-                                if (!callbackset) { // Only want to send the message once
-                                    utils.kick(snapped[i], groupInfo, config.order66Time, () => {
-                                        utils.sendMessage("Perfectly balanced, as all things should be.", threadId);
-                                    });
-                                    callbackset = true;
-                                } else {
-                                    utils.kick(snapped[i], groupInfo, config.order66Time);
-                                }
-                            }
-                        }
+                        utils.kickMultiple(snapped, groupInfo, config.order66Time, () => {
+                            utils.sendMessage("Perfectly balanced, as all things should be.", threadId);
+                        });
                     }, 2000); // Make sure people see the message (and impending doom)
                 }
             });
@@ -1293,6 +1267,22 @@ const funcs = {
                 }
             }
         });
+    },
+    "admin": (threadId, cmatch, groupInfo, api) => {
+        const status = cmatch[1] ? false : true;
+        const user = cmatch[2].toLowerCase();
+        const userId = groupInfo.members[user];
+
+        if (groupInfo.isGroup) {
+            api.changeAdminStatus(threadId, userId, status, (err) => {
+                if (err) {
+                    let admins = groupInfo.admins.map(id => groupInfo.names[id]);
+                    utils.sendError(`The bot must be an admin to kick members from the chat. Try asking ${admins.join("/")} to promote the bot.`, threadId);
+                }
+            })
+        } else {
+            utils.sendError("Can't change admin status: not a group.", threadId);
+        }
     }
 };
 

@@ -135,6 +135,31 @@ exports.kick = (userId, info, time, callback = () => { }, api = gapi) => {
     }
 }
 
+// Same as kick, but for a list of users
+exports.kickMultiple = (userIds, info, time, callback = () => { }, api = gapi) => {
+    // Check if kicking is possible first to avoid duplicate error messages
+    if (!info.isGroup) {
+        exports.sendError("Cannot kick user from private chat.", info.threadId);
+    } else if (info.admins.indexOf(config.bot.id) < 0) {
+        let admins = info.admins.map(id => info.names[id]);
+        exports.sendError(`The bot must be an admin to kick members from the chat. Try asking ${admins.join("/")} to promote the bot.`, info.threadId);
+    } else {
+        let callbackset = false;
+        for (let i = 0; i < userIds.length; i++) {
+            // Bot should never be in members list, but this is a safeguard
+            // (ALSO VERY IMPORTANT so that group isn't completely emptied)
+            if (userIds[i] != config.bot.id) {
+                if (!callbackset) { // Only want to send the message once
+                    exports.kick(userIds[i], info, time, callback);
+                    callbackset = true;
+                } else {
+                    exports.kick(userIds[i], info, time);
+                }
+            }
+        }
+    }
+}
+
 /*
 Adds user to group and updates members list
 Optional parameter to welcome new user to the group
