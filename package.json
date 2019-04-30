@@ -20,6 +20,7 @@
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
     "facebook-chat-api": "github:Schmavery/facebook-chat-api",
+    "html-entities": "^1.2.1",
     "http": "0.0.0",
     "jimp": "^0.2.27",
     "memjs": "^0.10.0",

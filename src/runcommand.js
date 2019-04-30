@@ -1,8 +1,10 @@
 const request = require("request");
+const Entities = require("html-entities").XmlEntities;
 const config = require("./config");
 const utils = require("./utils");
 const cutils = require("./configutils");
 const commands = require("./commands");
+const entities = new Entities();
 let credentials;
 try {
     // Login creds from local dir
@@ -418,7 +420,7 @@ const funcs = {
                             spotify.getPlaylist(playlist.uri, {}, (err, data) => {
                                 if (!err) {
                                     const pname = data.body.name;
-                                    const desc = data.body.description;
+                                    const desc = entities.decode(data.body.description); // Can have HTML entities in text
                                     const image = data.body.images[0];
                                     const owner = data.body.owner;
                                     const id = data.body.id;
