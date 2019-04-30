@@ -374,10 +374,10 @@ const funcs = {
     "playlist": (threadId, cmatch, groupInfo) => {
         const playlists = groupInfo["playlists"];
         if (cmatch[1]) { // User provided
+            const user = cmatch[1].toLowerCase();
+            const userId = groupInfo.members[user];
+            const name = groupInfo.names[userId];
             if (cmatch[2]) { // Data provided
-                const user = cmatch[1].toLowerCase();
-                const userId = groupInfo.members[user];
-                const name = groupInfo.names[userId];
                 const newPlaylist = {
                     "name": name,
                     "id": userId,
@@ -411,7 +411,34 @@ const funcs = {
                     }
                 });
             } else {
-                utils.sendError("Please include a Spotify URI to add a playlist (see help for more info)", threadId);
+                const playlist = groupInfo.playlists[userId];
+                if (playlist) {
+                    utils.loginSpotify(spotify, (err) => {
+                        if (!err) {
+                            spotify.getPlaylist(playlist.uri, {}, (err, data) => {
+                                if (!err) {
+                                    const pname = data.body.name;
+                                    const desc = data.body.description;
+                                    const image = data.body.images[0];
+                                    const owner = data.body.owner;
+                                    const id = data.body.id;
+                                    const url = `https://open.spotify.com/playlist/${id}`;
+                                    const message = `${pname} by ${owner.display_name} (${owner.id}):\n\n"${desc}"\n\n${url}`;
+
+                                    if (image) {
+                                        utils.sendFileFromUrl(image.url, `../media/${id}.jpg`, message, threadId);
+                                    } else {
+                                        utils.sendMessage(message);
+                                    }
+                                } else {
+                                    utils.sendError(`Couldn't find playlist with URI ${playlist.uri} for user ${playlist.name}`, threadId);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    utils.sendError("Please include a Spotify URI to add a playlist (see help for more info)", threadId);
+                }
             }
         } else { // No user provided; just display current playlists
             const pArr = Object.keys(playlists).map((p) => {
