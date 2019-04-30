@@ -498,7 +498,7 @@ exports.getArtists = (track) => {
 }
 
 // Logs into Spotify API & sets the appropriate credentials
-exports.logInSpotify = (spotify, callback = () => { }) => {
+exports.loginSpotify = (spotify, callback = () => { }) => {
     spotify.clientCredentialsGrant({}, (err, data) => {
         if (!err) {
             spotify.setAccessToken(data.body.access_token);

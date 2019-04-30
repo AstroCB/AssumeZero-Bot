@@ -234,7 +234,7 @@ const funcs = {
         });
     },
     "spotsearch": (threadId, cmatch) => {
-        utils.logInSpotify(spotify, (err) => {
+        utils.loginSpotify(spotify, (err) => {
             if (!err) {
                 const query = cmatch[2];
                 if (cmatch[1].toLowerCase() == "artist") {
@@ -313,7 +313,7 @@ const funcs = {
         });
     },
     "song": (threadId, cmatch, groupInfo) => {
-        utils.logInSpotify((err) => {
+        utils.loginSpotify(spotify, (err) => {
             if (!err) {
                 const user = cmatch[1] ? cmatch[1].toLowerCase() : null;
                 const userId = groupInfo.members[user];
@@ -343,7 +343,7 @@ const funcs = {
                     utils.sendMessage(`No playlists found for this group. To add one, use "${config.trigger} playlist" (see help for more info).\nFor now, using the default playlist.`, threadId);
                 }
 
-                spotify.getPlaylist(playlist.user, playlist.uri, {}, (err, data) => {
+                spotify.getPlaylist(playlist.uri, {}, (err, data) => {
                     if (!err) {
                         const name = data.body.name;
                         const songs = data.body.tracks.items;
@@ -387,9 +387,9 @@ const funcs = {
                 playlists[userId] = newPlaylist;
                 utils.setGroupProperty("playlists", playlists, groupInfo, (err) => {
                     if (!err) {
-                        utils.logInSpotify((err) => {
+                        utils.loginSpotify(spotify, (err) => {
                             if (!err) {
-                                spotify.getPlaylist(newPlaylist.user, newPlaylist.uri, {}, (err, data) => {
+                                spotify.getPlaylist(newPlaylist.uri, {}, (err, data) => {
                                     if (!err) {
                                         let message = `Playlist "${data.body.name}" added to the group. Here are some sample tracks:\n`;
                                         const songs = data.body.tracks.items;
@@ -420,7 +420,7 @@ const funcs = {
             if (pArr.length === 0) {
                 utils.sendMessage(`No playlists for this group. To add one, use "${config.trigger} playlist" (see help).`, threadId);
             } else {
-                utils.logInSpotify((err) => {
+                utils.loginSpotify(spotify, (err) => {
                     if (!err) {
                         let results = [];
                         let now = current = (new Date()).getTime();
@@ -440,7 +440,7 @@ const funcs = {
                         }
 
                         for (let i = 0; i < pArr.length; i++) {
-                            spotify.getPlaylist(pArr[i].user, pArr[i].uri, {}, (err, data) => {
+                            spotify.getPlaylist(pArr[i].uri, {}, (err, data) => {
                                 if (!err) {
                                     updateResults({
                                         "name": data.body.name,
