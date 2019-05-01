@@ -464,7 +464,7 @@ const funcs = {
                                 const descs = results.map((p) => {
                                     return `"${p.name}" by ${p.user} (${p.length} songs)`;
                                 });
-                                utils.sendMessage(`Playlists for this group:\n${descs.join("\n— ")}`, threadId);
+                                utils.sendMessage(`Playlists for this group:\n— ${descs.join("\n— ")}`, threadId);
                             }
                         }
 
