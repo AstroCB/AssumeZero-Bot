@@ -1153,13 +1153,15 @@ const funcs = {
                         "playlists": info.playlists,
                         "aliases": info.aliases,
                         "tab": info.tab,
-                        "pinned": info.pinned
+                        "pinned": info.pinned,
+                        "image": info.image
                     }
 
                     // Check for restorable properties and restore them
                     if (restorables.title && curInfo.isGroup) { api.setTitle(restorables.title, threadId); }
                     if (restorables.emoji) { api.changeThreadEmoji(restorables.emoji, threadId); }
                     if (restorables.color) { api.changeThreadColor(restorables.color, threadId); }
+                    if (restorables.image) { utils.setGroupImageFromUrl(restorables.image, threadId); }
                     if (restorables.nicknames) {
                         for (let id in restorables.nicknames) {
                             // Check if member is in the current group first
@@ -1173,7 +1175,9 @@ const funcs = {
                         utils.setGroupProperty("playlists", restorables.playlists, curInfo, () => {
                             utils.setGroupProperty("aliases", restorables.aliases, curInfo, () => {
                                 utils.setGroupProperty("tab", restorables.tab, curInfo, () => {
-                                    utils.setGroupProperty("pinned", restorables.pinned, curInfo);
+                                    utils.setGroupProperty("pinned", restorables.pinned, curInfo, () => {
+                                        utils.setGroupProperty("image", restorables.image, curInfo);
+                                    });
                                 });
                             });
                         });

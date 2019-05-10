@@ -228,6 +228,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, api = gapi) 
                     info.lastMessage = message;
                     info.name = data.threadName || config.defaultTitle;
                     info.emoji = data.emoji;
+                    info.image = data.imageSrc;
                     info.color = data.color ? `#${data.color}` : null;
                     if (data.nicknames && data.nicknames[config.bot.id]) { // Don't add bot to nicknames list
                         delete data.nicknames[config.bot.id];

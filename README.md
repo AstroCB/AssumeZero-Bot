@@ -164,6 +164,8 @@ let groupInfo = {
     "name": string,
     // The current thread emoji
     "emoji": string,
+    // The URL of the current group photo
+    "image": string,
     // The current thread color (as a hex string)
     "color": string,
     // A map from user IDs to nicknames
