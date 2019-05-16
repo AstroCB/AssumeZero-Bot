@@ -366,7 +366,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /(echo|quote) (.*)/i,
+        "regex": /(echo|quote)(?:(?:\s|$)([\s\S]+))?/im,
         "experimental": false
     },
     "ban": {
