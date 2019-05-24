@@ -1,0 +1,2 @@
+make archive;
+make restore;
