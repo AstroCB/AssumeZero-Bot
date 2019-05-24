@@ -207,88 +207,98 @@ to continue.
 */
 exports.updateGroupInfo = (threadId, message, callback = () => { }, api = gapi) => {
     exports.getGroupInfo(threadId, (err, existingInfo) => {
-        if (!err) {
-            let isNew = false;
-            if (!existingInfo) {
-                const n = config.bot.names; // Bot name info
+        exports.getGroupInfo(config.owner.id, (ownerErr, ownerData) => {
+            if (!err && !ownerErr) {
+                // If the dbFailSilently flag is turned on, only send the init
+                // message if the owner thread exists in the database.
+                const shouldSendMessage = !config.dbFailSilently || ownerData;
 
-                // Group not yet registered
-                isNew = true;
-                exports.sendMessage(`Hello! I'm ${n.long}${n.short ? `, but you can call me ${n.short}` : ""}. Give me a moment to collect some information about this chat before you use any commands.`, threadId);
+                let isNew = false;
+                if (!existingInfo) {
+                    const n = config.bot.names; // Bot name info
 
-                api.muteThread(threadId, -1); // Mute chat
+                    // Group not yet registered
+                    isNew = true;
 
-                // Add bot's nickname if available
-                api.changeNickname(n.short, threadId, config.bot.id); // Won't do anything if undefined
-            }
-            api.getThreadInfo(threadId, (err, data) => {
-                if (data) {
-                    let info = existingInfo || {};
-                    info.threadId = threadId;
-                    info.lastMessage = message;
-                    info.name = data.threadName || config.defaultTitle;
-                    info.emoji = data.emoji;
-                    info.image = data.imageSrc;
-                    info.color = data.color ? `#${data.color}` : null;
-                    if (data.nicknames && data.nicknames[config.bot.id]) { // Don't add bot to nicknames list
-                        delete data.nicknames[config.bot.id];
+                    
+                    if (shouldSendMessage) {
+                        exports.sendMessage(`Hello! I'm ${n.long}${n.short ? `, but you can call me ${n.short}` : ""}. Give me a moment to collect some information about this chat before you use any commands.`, threadId);
+
+                        // Add bot's nickname if available
+                        api.changeNickname(n.short, threadId, config.bot.id); // Won't do anything if undefined
                     }
-                    info.nicknames = data.nicknames || {};
-                    info.admins = data.adminIDs ? data.adminIDs.map(u => u["id"]) : [];
-                    if (isNew) {
-                        // These properties only need to be initialized once
-                        info.muted = true;
-                        info.playlists = {};
-                        info.aliases = {};
-                        info.isGroup = data.isGroup;
-                    }
-                    api.getUserInfo(data.participantIDs, (err, userData) => {
-                        if (!err) {
-                            info.members = {};
-                            info.names = {};
-                            for (let id in userData) {
-                                if (userData.hasOwnProperty(id) && id != config.bot.id) { // Very important to not add bot to participants list
-                                    info.members[userData[id].firstName.toLowerCase()] = id;
-                                    info.names[id] = userData[id].firstName;
+
+                    api.muteThread(threadId, -1); // Mute chat
+                }
+                api.getThreadInfo(threadId, (err, data) => {
+                    if (data) {
+                        let info = existingInfo || {};
+                        info.threadId = threadId;
+                        info.lastMessage = message;
+                        info.name = data.threadName || config.defaultTitle;
+                        info.emoji = data.emoji;
+                        info.image = data.imageSrc;
+                        info.color = data.color ? `#${data.color}` : null;
+                        if (data.nicknames && data.nicknames[config.bot.id]) { // Don't add bot to nicknames list
+                            delete data.nicknames[config.bot.id];
+                        }
+                        info.nicknames = data.nicknames || {};
+                        info.admins = data.adminIDs ? data.adminIDs.map(u => u["id"]) : [];
+                        if (isNew) {
+                            // These properties only need to be initialized once
+                            info.muted = true;
+                            info.playlists = {};
+                            info.aliases = {};
+                            info.isGroup = data.isGroup;
+                        }
+                        api.getUserInfo(data.participantIDs, (err, userData) => {
+                            if (!err) {
+                                info.members = {};
+                                info.names = {};
+                                for (let id in userData) {
+                                    if (userData.hasOwnProperty(id) && id != config.bot.id) { // Very important to not add bot to participants list
+                                        info.members[userData[id].firstName.toLowerCase()] = id;
+                                        info.names[id] = userData[id].firstName;
+                                    }
+                                }
+                                // Set regex to search for member first names and any included aliases
+                                const aliases = Object.keys(info.aliases).map((n) => {
+                                    return info.aliases[n];
+                                });
+                                const matches = Object.keys(info.members);
+                                info.userRegExp = utils.getRegexFromMembers(matches.concat(aliases));
+                                // Attempt to give chat a more descriptive name than "Unnamed chat" if possible
+                                if (info.name == config.defaultTitle) {
+                                    let names = Object.keys(info.names).map((n) => {
+                                        return info.names[n];
+                                    });
+                                    info.name = names.join("/") || "Unnamed chat";
+                                }
+
+                                if (isNew && shouldSendMessage) {
+                                    // Alert owner now that chat name is available
+                                    exports.sendMessage(`Bot added to new chat: "${info.name}".`, config.owner.id);
                                 }
                             }
-                            // Set regex to search for member first names and any included aliases
-                            const aliases = Object.keys(info.aliases).map((n) => {
-                                return info.aliases[n];
+                            exports.setGroupInfo(info, (err) => {
+                                if (!existingInfo && shouldSendMessage) {
+                                    exports.sendMessage(`All done! Use '${config.trigger} help' to see what I can do.`, threadId);
+                                }
+                                callback(err, info);
                             });
-                            const matches = Object.keys(info.members);
-                            info.userRegExp = utils.getRegexFromMembers(matches.concat(aliases));
-                            // Attempt to give chat a more descriptive name than "Unnamed chat" if possible
-                            if (info.name == config.defaultTitle) {
-                                let names = Object.keys(info.names).map((n) => {
-                                    return info.names[n];
-                                });
-                                info.name = names.join("/") || "Unnamed chat";
-                            }
-
-                            if (isNew) {
-                                // Alert owner now that chat name is available
-                                exports.sendMessage(`Bot added to new chat: "${info.name}".`, config.owner.id);
-                            }
-                        }
-                        exports.setGroupInfo(info, (err) => {
-                            if (!existingInfo) {
-                                exports.sendMessage(`All done! Use '${config.trigger} help' to see what I can do.`, threadId);
-                            }
-                            callback(err, info);
                         });
-                    });
-                } else {
-                    // Errors are logged here despite being a utility func b/c errors here are critical
-                    console.log(new Error(`Thread info not found for ${threadId}`));
-                    console.log(err);
-                    callback(err);
-                }
-            });
-        } else {
-            console.log(err);
-            callback(err);
-        }
+                    } else {
+                        // Errors are logged here despite being a utility func b/c errors here are critical
+                        console.log(new Error(`Thread info not found for ${threadId}`));
+                        console.log(err);
+                        callback(err);
+                    }
+                });
+            } else {
+                console.log(err);
+                callback(err);
+            }
+        });
     });
 }
 

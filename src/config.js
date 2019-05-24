@@ -131,3 +131,18 @@ exports.wiki = {
 // Max length of a file path (somewhat arbitrarily chosen by OS? Windows
 // has limit of 260; seems to be 220 for macOS)
 exports.MAXPATH = 219;
+
+// This flag decides whether to fail silently on empty database reads
+// (i.e. not send the 'hello' init message to chats not stored in the db) that result
+// from the cache being periodically wiped.
+//
+// It works by checking whether the canonical thread (config.owner.id) has an entry
+// in the database and (if not) decides that the database has been wiped and to not
+// send init messages to new chats.
+//
+// This mode works best when paired with a cron script that will restore the database
+// from a snapshot on a periodic basis in order to resolve this issue, however this is
+// not necessary as it will just continue to collect new database information silently
+// in the background as chats become active until the canonical thread is re-added to
+// the database.
+exports.dbFailSilently = true;
