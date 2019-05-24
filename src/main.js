@@ -45,6 +45,8 @@ function login(callback) {
             email: credentials.EMAIL,
             password: credentials.PASSWORD
         }, (err, api) => {
+            if (err) return console.error("Fatal error: failed login with credentials");
+
             mem.set("appstate", JSON.stringify(api.getAppState()), {}, merr => {
                 if (err) {
                     return console.error(merr);
