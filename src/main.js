@@ -71,7 +71,7 @@ exports.login = login; // Export for external use
 // Listen for commands
 function main(err, api) {
     if (err) return console.error(err);
-    console.log(`Logged in on user account ${api.getCurrentUserID()}.`);
+    console.log(`Successfully logged in to user account ${api.getCurrentUserID()}.`);
     gapi = api; // Initialize global API variable
     utils.setglobals(api, mem); // Initialize in utils module as well
     api.listen(handleMessage);
