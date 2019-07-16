@@ -45,7 +45,7 @@ function login(callback) {
             email: credentials.EMAIL,
             password: credentials.PASSWORD
         }, (err, api) => {
-            if (err) return console.error("Fatal error: failed login with credentials");
+            if (err) return console.error(`Fatal error: failed login with credentials`);
 
             mem.set("appstate", JSON.stringify(api.getAppState()), {}, merr => {
                 if (err) {
@@ -71,6 +71,7 @@ exports.login = login; // Export for external use
 // Listen for commands
 function main(err, api) {
     if (err) return console.error(err);
+    console.log(`Logged in on user account ${api.getCurrentUserID()}.`);
     gapi = api; // Initialize global API variable
     utils.setglobals(api, mem); // Initialize in utils module as well
     api.listen(handleMessage);
