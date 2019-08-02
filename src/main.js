@@ -58,13 +58,18 @@ function login(callback) {
     }
     // Logging message with config details
     console.log(`Bot ${config.bot.id} logging in ${process.env.EMAIL ? "remotely" : "locally"} with trigger "${config.trigger}".`);
-    mem.get("appstate", (err, val) => {
-        if (!err && val) {
-            withAppstate(val, callback);
-        } else {
-            withCreds(callback);
-        }
-    });
+    if (process.argv.includes("--force-login") || process.argv.includes("-f")) {
+        // Force login with credentials
+        withCreds(callback);
+    } else {
+        mem.get("appstate", (err, val) => {
+            if (!err && val) {
+                withAppstate(val, callback);
+            } else {
+                withCreds(callback);
+            }
+        });
+    }
 }
 exports.login = login; // Export for external use
 

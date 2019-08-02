@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node src/main.js",
+    "login": "node src/main.js --force-login",
     "test": "node tests/tests.js"
   },
   "author": "Cameron Bernhardt (AstroCB)",
