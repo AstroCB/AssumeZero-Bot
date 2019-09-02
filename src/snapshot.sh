@@ -1,2 +1,0 @@
-make archive;
-make restore;

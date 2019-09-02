@@ -23,3 +23,4 @@ bash:
 logout:
 	node src/logout.js
 debug: disable start
+snapshot: archive restore
