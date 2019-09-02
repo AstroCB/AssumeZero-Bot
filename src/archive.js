@@ -36,7 +36,7 @@ if (process.argv[2] == "--restore") { // Check command-line arguments
     mem.get("groups", (err, info) => {
         if (!err) {
             fs.readFile("archive.json", (err, stored) => {
-                const data = err ? {} : JSON.parse(stored);
+                const data = (err || stored.length == 0) ? {} : JSON.parse(stored);
                 const groupInfo = info.length > 0 ? JSON.parse(info) : {};
                 for (let g in groupInfo) {
                     if (groupInfo.hasOwnProperty(g)) {
