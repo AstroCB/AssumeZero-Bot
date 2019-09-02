@@ -37,7 +37,7 @@ if (process.argv[2] == "--restore") { // Check command-line arguments
         if (!err) {
             fs.readFile("archive.json", (err, stored) => {
                 const data = err ? {} : JSON.parse(stored);
-                const groupInfo = JSON.parse(info);
+                const groupInfo = info.length > 0 ? JSON.parse(info) : {};
                 for (let g in groupInfo) {
                     if (groupInfo.hasOwnProperty(g)) {
                         data[g] = groupInfo[g];

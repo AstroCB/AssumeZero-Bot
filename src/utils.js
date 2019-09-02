@@ -305,7 +305,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, api = gapi) 
 // Gets stored information about a group
 exports.getGroupInfo = (threadId, callback) => {
     exports.getGroups((err, groups) => {
-        const groupData = JSON.parse(groups) || {};
+        const groupData = groups.length ? JSON.parse(groups) : {};
         if (err) {
             // Error retrieving data
             callback(err);
@@ -330,7 +330,7 @@ exports.getGroups = (callback) => {
 // Updates stored information about a group
 exports.setGroupInfo = (info, callback = () => { }) => {
     exports.getGroups((err, groups) => {
-        const groupData = JSON.parse(groups) || {};
+        const groupData = groups.length > 0 ? JSON.parse(groups) : {};
         groupData[info.threadId] = info;
         mem.set(`groups`, JSON.stringify(groupData), {}, (err, success) => {
             callback(success ? null : err);
