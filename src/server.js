@@ -3,6 +3,7 @@ const http = require("http");
 const app = express();
 const bodyParser = require("body-parser");
 const main = require("./main");
+const login = require("./login");
 const config = require("./config");
 
 app.set("port", (process.env.PORT || 3000));
@@ -24,7 +25,7 @@ app.use(bodyParser.urlencoded({
 app.post("/command", (req, res) => {
     console.log("POST received");
     if (req.body && req.body.message && req.body.senderId && req.body.threadId) {
-        main.login((err, api) => {
+        login.login((err, api) => {
             if (!err) {
                 main.handleMessage(err, {
                     "body": req.body.message,

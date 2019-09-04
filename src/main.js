@@ -1,5 +1,5 @@
 // Dependencies
-const messenger = require("facebook-chat-api"); // Chat API
+const login = require("./login"); // Login code
 const config = require("./config"); // Config file
 const utils = require("./utils"); // Utility functions
 const commands = require("./commands"); // Command documentation/configuration
@@ -23,55 +23,8 @@ var gapi; // Global API for external functions (set on login)
 
 // Log in
 if (require.main === module) { // Called directly; login immediately
-    login(main);
+    login.login(main);
 }
-
-function login(callback) {
-    function withAppstate(appstate, callback) {
-        console.log("Logging in with saved appstate...");
-        messenger({
-            appState: JSON.parse(appstate)
-        }, (err, api) => {
-            if (err) {
-                withCreds(callback);
-            } else {
-                callback(err, api);
-            }
-        });
-    }
-    function withCreds(callback) {
-        console.log("Logging in with credentials...");
-        messenger({
-            email: credentials.EMAIL,
-            password: credentials.PASSWORD
-        }, (err, api) => {
-            if (err) return console.error(`Fatal error: failed login with credentials`);
-
-            mem.set("appstate", JSON.stringify(api.getAppState()), {}, merr => {
-                if (err) {
-                    return console.error(merr);
-                } else {
-                    callback(err, api);
-                }
-            });
-        });
-    }
-    // Logging message with config details
-    console.log(`Bot ${config.bot.id} logging in ${process.env.EMAIL ? "remotely" : "locally"} with trigger "${config.trigger}".`);
-    if (process.argv.includes("--force-login") || process.argv.includes("-f")) {
-        // Force login with credentials
-        withCreds(callback);
-    } else {
-        mem.get("appstate", (err, val) => {
-            if (!err && val) {
-                withAppstate(val, callback);
-            } else {
-                withCreds(callback);
-            }
-        });
-    }
-}
-exports.login = login; // Export for external use
 
 // Listen for commands
 function main(err, api) {

@@ -21,6 +21,6 @@ restore:
 bash:
 	heroku run bash -a assume-bot
 logout:
-	node src/logout.js
+	node src/login.js --logout
 debug: disable start
 snapshot: archive restore
