@@ -1,4 +1,5 @@
 const messenger = require("facebook-chat-api"); // Chat API
+const fs = require("fs");
 const config = require("./config");
 var credentials;
 try {
@@ -61,6 +62,14 @@ exports.login = (callback) => {
     }
 }
 
+exports.dumpLogin = () => {
+    mem.get("appstate", (err, val) => {
+        if (!err) {
+            fs.writeFileSync("appstate.json", JSON.stringify(JSON.parse(val)));
+        }
+    });
+}
+
 exports.logout = (callback) => {
     mem.delete("appstate", err => {
         if (err) {
@@ -77,6 +86,8 @@ if (require.main === module) {
         this.logout(_ => {
             process.exit();
         });
+    } else if (process.argv.includes("--dump")) {
+        this.dumpLogin();
     } else {
         this.login(_ => {
             process.exit();
