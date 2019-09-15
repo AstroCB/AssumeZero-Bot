@@ -305,12 +305,12 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, api = gapi) 
 // Gets stored information about a group
 exports.getGroupInfo = (threadId, callback) => {
     exports.getGroups((err, groups) => {
-        const groupData = groups.length ? JSON.parse(groups) : {};
         if (err) {
             // Error retrieving data
             callback(err);
         } else {
             // No errors and groups are retrieved
+            const groupData = (groups && groups.length) ? JSON.parse(groups) : {};
             const group = groupData[threadId];
             if (group) {
                 callback(null, group);

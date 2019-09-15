@@ -62,15 +62,25 @@ exports.login = (callback) => {
     }
 }
 
-exports.dumpLogin = () => {
-    mem.get("appstate", (err, val) => {
+exports.dumpLogin = (filename, callback) => {
+    mem.get(filename, (err, val) => {
         if (!err) {
-            fs.writeFileSync("appstate.json", JSON.stringify(JSON.parse(val)));
+            fs.writeFileSync(filename, JSON.stringify(JSON.parse(val)));
         }
+        callback(err);
     });
 }
 
-exports.logout = (callback) => {
+exports.loadLogin = (filename, callback) => {
+    fs.readFile(filename, (err, val) => {
+        if (!err) {
+            mem.set(filename, JSON.stringify(JSON.parse(val)));
+        }
+        callback(err);
+    });
+}
+
+exports.logout = (filename, callback) => {
     mem.delete("appstate", err => {
         if (err) {
             console.log(`Error logging out: ${err}`);
@@ -87,7 +97,13 @@ if (require.main === module) {
             process.exit();
         });
     } else if (process.argv.includes("--dump")) {
-        this.dumpLogin();
+        this.dumpLogin("appstate.json", _ => {
+            process.exit();
+        });
+    } else if (process.argv.includes("--load")) {
+        this.loadLogin("appstate.json", _ => {
+            process.exit();
+        });
     } else {
         this.login(_ => {
             process.exit();
