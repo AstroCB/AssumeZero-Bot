@@ -108,7 +108,7 @@ const funcs = {
                 }
             } else {
                 // No command passed; show all
-                getAllStats((success, data) => {
+                utils.getAllStats((success, data) => {
                     if (!success) {
                         console.log("Failed to retrieve all stats");
                     }
@@ -121,7 +121,7 @@ const funcs = {
 
                     let msg = "Command: % of total usage | # today | # this month\n";
 
-                    data.forEach((cmatch) => {
+                    data.forEach(co => {
                         msg += `\n${co.pretty_name}: ${co.stats.usage.perc.toFixed(3)}% | ${co.stats.usage.day} | ${co.stats.usage.month}`;
                     });
 
