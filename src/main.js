@@ -1,5 +1,5 @@
 // Dependencies
-const login = require("./login"); // Login code
+const botcore = require("messenger-botcore"); // Common bot code
 const config = require("./config"); // Config file
 const utils = require("./utils"); // Utility functions
 const commands = require("./commands"); // Command documentation/configuration
@@ -23,7 +23,8 @@ var gapi; // Global API for external functions (set on login)
 
 // Log in
 if (require.main === module) { // Called directly; login immediately
-    login.login(main);
+    console.log(`Bot ${config.bot.id} logging in ${process.env.EMAIL ? "remotely" : "locally"} with trigger "${config.trigger}".`);
+    botcore.login(credentials, main);
 }
 
 // Listen for commands
