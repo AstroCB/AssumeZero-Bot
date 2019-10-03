@@ -18,6 +18,8 @@ archive:
 	node src/archive.js
 restore:
 	node src/archive.js --restore
+mute:
+	node src/mute.js
 bash:
 	heroku run bash -a assume-bot
 logout:
