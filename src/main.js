@@ -116,7 +116,7 @@ function handleCommand(command, fromUserId, groupInfo, messageLiteral, api = gap
     }
     debugCommandOutput(false);
     // Check commands for matches & eval
-    runner.run(api, co, groupInfo, fromUserId, attachments);
+    runner.run(api, co, groupInfo, fromUserId, attachments, messageLiteral);
 }
 exports.handleCommand = handleCommand; // Export for external use
 

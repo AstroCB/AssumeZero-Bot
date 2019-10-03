@@ -928,5 +928,21 @@ exports.commands = {
         },
         "regex": "(de)?admin",
         "experimental": false
+    },
+    "undo": {
+        "display_names": ["undo"],
+        "pretty_name": "Undo",
+        "short_description": "Remove last message",
+        "description": "Removes last message sent by the bot (if sent within the past 10 minutes)",
+        "syntax": "undo",
+        "example": ["undo"],
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /undo/i,
+        "experimental": false
     }
 };

@@ -1316,23 +1316,30 @@ const funcs = {
         } else {
             utils.sendError("Can't change admin status: not a group.", threadId);
         }
+    },
+    "undo": (threadId, _, groupInfo, api, __, ___, mObj) => {
+        api.unsendMessage(groupInfo.lastBotMessageID, err => {
+            if (err) {
+                utils.sendMessage("Can't undo messages sent > 10 minutes ago.", threadId, undefined, mObj.messageID);
+            }
+        });
     }
 };
 
 /*
     Run function: called with threadId, the matchInfo object (previously "co"),
-    the groupInfo object, the current api instance, fromUserId, and any
-    attachments.
+    the groupInfo object, the current api instance, fromUserId, any
+    attachments, and the full message object that triggered the command.
 
     Matches the correct command and runs its associated function block (above),
     passing in the requisite information from main.
 */
-exports.run = (api, matchInfo, groupInfo, fromUserId, attachments) => {
+exports.run = (api, matchInfo, groupInfo, fromUserId, attachments, messageObj) => {
     for (c in matchInfo) {
         if (matchInfo.hasOwnProperty(c) && matchInfo[c].m) {
             // Match found
             funcs[c](groupInfo.threadId, matchInfo[c].m, groupInfo, api,
-                fromUserId, attachments);
+                fromUserId, attachments, messageObj);
         }
     }
 }

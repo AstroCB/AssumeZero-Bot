@@ -83,9 +83,18 @@ Accepts either a simple string or a message object with URL/attachment fields.
 Probably a good idea to use this wrapper for all sending instances for debug purposes
 and consistency.
 */
-exports.sendMessage = (m, threadId, callback = () => { }, api = gapi) => {
+exports.sendMessage = (m, threadId, callback = () => { }, replyId = null, api = gapi) => {
     try {
-        api.sendMessage(m, threadId, callback);
+        api.sendMessage(m, threadId, (err, minfo) => {
+            callback(err, minfo);
+
+            // Save last message ID sent
+            exports.getGroupInfo(threadId, (err, info) => {
+                if (err) return console.error(err);
+
+                exports.setGroupProperty("lastBotMessageID", minfo.messageID, info);
+            });
+        }, replyId);
     } catch (e) { // For debug mode (API not available)
         console.log(`${threadId}: ${m}`);
         callback();
@@ -220,7 +229,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, api = gapi) 
                     // Group not yet registered
                     isNew = true;
 
-                    
+
                     if (shouldSendMessage) {
                         exports.sendMessage(`Hello! I'm ${n.long}${n.short ? `, but you can call me ${n.short}` : ""}. Give me a moment to collect some information about this chat before you use any commands.`, threadId);
 
