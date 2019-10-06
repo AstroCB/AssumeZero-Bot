@@ -90,9 +90,11 @@ exports.sendMessage = (m, threadId, callback = () => { }, replyId = null, api = 
 
             // Save last message ID sent
             exports.getGroupInfo(threadId, (err, info) => {
-                if (err) return console.error(err);
+                if (info) {
+                    if (err) return console.error(err);
 
-                exports.setGroupProperty("lastBotMessageID", minfo.messageID, info);
+                    exports.setGroupProperty("lastBotMessageID", minfo.messageID, info);
+                }
             });
         }, replyId);
     } catch (e) { // For debug mode (API not available)
