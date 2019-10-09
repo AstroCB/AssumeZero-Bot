@@ -90,7 +90,7 @@ exports.sendMessage = (m, threadId, callback = () => { }, replyId = null, api = 
 
             // Save last message ID sent
             exports.getGroupInfo(threadId, (err, info) => {
-                if (info) {
+                if (minfo && info) {
                     if (err) return console.error(err);
 
                     exports.setGroupProperty("lastBotMessageID", minfo.messageID, info);
