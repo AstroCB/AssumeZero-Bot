@@ -1,10 +1,8 @@
 const express = require("express");
-const http = require("http");
 const app = express();
 const bodyParser = require("body-parser");
 const main = require("./main");
 const login = require("messenger-botcore").login;
-const config = require("./config");
 
 app.set("port", (process.env.PORT || 3000));
 app.listen(app.get("port"));
@@ -49,13 +47,3 @@ app.post("/command", (req, res) => {
         });
     }
 });
-
-// Ping every 20 minutes to keep awake
-setInterval(() => {
-    const now = new Date();
-    const isPingTime = (now.getUTCHours() < (config.localSleepTime + config.serverUTCOffset) || now.getUTCHours() >= (config.localWakeTime + config.serverUTCOffset));
-    if (!config.shouldSleep || isPingTime) {
-        console.log("Pinging server");
-        http.get(config.serverURL);
-    }
-}, 1200000);
