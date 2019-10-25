@@ -25,7 +25,7 @@
     "http": "0.0.0",
     "jimp": "^0.2.27",
     "memjs": "^1.2.2",
-    "messenger-botcore": "file:../BotCore",
+    "messenger-botcore": "^1.1.0",
     "request": "^2.86.0",
     "spotify-web-api-node": "^4.0.0"
   },
