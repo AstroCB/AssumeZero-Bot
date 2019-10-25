@@ -5,7 +5,7 @@ const botcore = require("messenger-botcore");
 const credentials = require("./credentials");
 const LIMIT = 1000;
 
-botcore.login(credentials, (err, api) => {
+botcore.login.login(credentials, (err, api) => {
     if (!err) {
         api.getThreadList(LIMIT, null, [], (err, list) => {
             if (!err) {

@@ -20,11 +20,12 @@ const mem = require("memjs").Client.create(credentials.MEMCACHIER_SERVERS, {
     "password": credentials.MEMCACHIER_PASSWORD
 });
 var gapi; // Global API for external functions (set on login)
+var stopListening; // Global function to call to halt the listening process
 
 // Log in
 if (require.main === module) { // Called directly; login immediately
     console.log(`Bot ${config.bot.id} logging in ${process.env.EMAIL ? "remotely" : "locally"} with trigger "${config.trigger}".`);
-    botcore.login(credentials, main);
+    botcore.login.login(credentials, main);
 }
 
 // Listen for commands
@@ -33,7 +34,13 @@ function main(err, api) {
     console.log(`Successfully logged in to user account ${api.getCurrentUserID()}.`);
     gapi = api; // Initialize global API variable
     utils.setglobals(api, mem); // Initialize in utils module as well
-    api.listen(handleMessage);
+    botcore.monitoring.monitor(api, config.owner.id, config.bot.names.short, credentials, process, (newApi => {
+        // Called when login failed and a new retried login was successful
+        stopListening();
+        gapi = newApi;
+        stopListening = newApi.listen(handleMessage);
+    }));
+    stopListening = api.listen(handleMessage);
 }
 
 // Processes incoming messages

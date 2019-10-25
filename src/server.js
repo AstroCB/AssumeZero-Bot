@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const main = require("./main");
-const login = require("messenger-botcore").login;
+const login = require("messenger-botcore").login.login;
 
 app.set("port", (process.env.PORT || 3000));
 app.listen(app.get("port"));
