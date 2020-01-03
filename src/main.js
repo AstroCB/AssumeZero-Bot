@@ -38,9 +38,9 @@ function main(err, api) {
         // Called when login failed and a new retried login was successful
         stopListening();
         gapi = newApi;
-        stopListening = newApi.listen(handleMessage);
+        stopListening = newApi.listenMqtt(handleMessage);
     }));
-    stopListening = api.listen(handleMessage);
+    stopListening = api.listenMqtt(handleMessage);
 }
 
 // Processes incoming messages
