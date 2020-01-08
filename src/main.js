@@ -1,3 +1,7 @@
+/*
+    Main entry point for the bot.
+*/
+
 // Dependencies
 const botcore = require("messenger-botcore"); // Common bot code
 const config = require("./config"); // Config file
@@ -6,6 +10,7 @@ const commands = require("./commands"); // Command documentation/configuration
 const runner = require("./runcommand"); // For command handling code
 const _ = require("./server"); // Server configuration (just needs to be loaded)
 const easter = require("./easter"); // Easter eggs
+const passive = require("./passive"); // Passive messages
 let credentials;
 try {
     // Login creds from local dir
@@ -66,14 +71,19 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
                     if (m) {
                         // Handle user pings
                         handlePings(m, senderId, info);
+
                         // Pass to commands testing for trigger word
                         const cindex = m.toLowerCase().indexOf(config.trigger);
                         if (cindex > -1) { // Trigger command mode
                             // Also pass full message obj in case it's needed in a command
                             handleCommand(m.substring(cindex + config.trigger.length + 1), senderId, info, message);
                         }
+
                         // Check for Easter eggs
                         easter.handleEasterEggs(message, senderId, attachments, info, api);
+
+                        // Check for passive messages to expand rich content
+                        passive.handlePassive(message, senderId, attachments, info, api);
                     }
                 }
             }

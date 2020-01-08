@@ -1,10 +1,11 @@
 /*
- Check for commands that don't require a trigger (Easter eggs)
- Some commands may require additional configuration (and most only make sense for
- the original chat it was built for), so should probably be off by default
- */
+    Check for commands that don't require a trigger (Easter eggs).
+    
+    Some commands may require additional configuration (and most only make
+    sense for the original chat it was built for), so should probably be off
+    by default.
+*/
 
-const fs = require("fs");
 const utils = require("./utils"); // For function access
 const config = require("./config");
 
