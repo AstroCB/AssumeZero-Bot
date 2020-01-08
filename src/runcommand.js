@@ -1334,9 +1334,11 @@ const funcs = {
                 if (buses.length > 0) {
                     const bus = buses[0]; // Should only find one match
                     const url = `${baseUrl}${bus.lat},${bus.lon}/`;
+                    const body = `The ${bus.routeTag} bus currently has ${bus.passengerCount} passenger${bus.passengerCount != 1 ? "s" : ""} and is moving at ${bus.speedKmHr} km/h.`;
 
                     utils.sendMessage({
-                        "url": url
+                        "url": url,
+                        "body": body
                     }, threadId);
                 } else {
                     utils.sendError("That bus isn't currently running.", threadId);
