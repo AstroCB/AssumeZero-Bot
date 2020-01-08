@@ -1323,6 +1323,25 @@ const funcs = {
                 utils.sendMessage("Can't undo messages sent > 10 minutes ago.", threadId, undefined, mObj.messageID);
             }
         });
+    },
+    "findbus": (threadId, cmatch, groupInfo, api) => {
+        const busNum = cmatch[1];
+        const baseUrl = "https://www.google.com/maps/place/";
+        request.get("https://api.umd.io/v0/bus/locations", (err, res, body) => {
+            if (!err) {
+                const data = JSON.parse(body);
+                const buses = data.vehicle.filter(bus => bus.routeTag == busNum);
+                if (buses.length > 0) {
+                    const url = buses.reduce((cur, bus) => `${cur}${bus.lat},${bus.lon}/`, baseUrl);
+
+                    utils.sendMessage({
+                        "url": url
+                    }, threadId);
+                } else {
+                    utils.sendError("That bus isn't currently running.", threadId);
+                }
+            }
+        });
     }
 };
 

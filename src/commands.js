@@ -944,5 +944,21 @@ exports.commands = {
         },
         "regex": /undo/i,
         "experimental": false
+    },
+    "findbus": {
+        "display_names": ["findbus"],
+        "pretty_name": "Find Bus",
+        "short_description": "Find UMD buses",
+        "description": "Find the location of different UMD buses",
+        "syntax": "findbus {bus number}",
+        "example": "findbus 117",
+        "sudo": false,
+        "attachments": false,
+        "user_input": {
+            "accepts": false,
+            "optional": false
+        },
+        "regex": /findbus (\d+)/i,
+        "experimental": false
     }
 };
