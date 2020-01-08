@@ -1332,7 +1332,8 @@ const funcs = {
                 const data = JSON.parse(body);
                 const buses = data.vehicle.filter(bus => bus.routeTag == busNum);
                 if (buses.length > 0) {
-                    const url = buses.reduce((cur, bus) => `${cur}${bus.lat},${bus.lon}/`, baseUrl);
+                    const bus = buses[0]; // Should only find one match
+                    const url = `${baseUrl}${bus.lat},${bus.lon}/`;
 
                     utils.sendMessage({
                         "url": url
