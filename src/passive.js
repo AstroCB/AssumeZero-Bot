@@ -4,14 +4,27 @@
 */
 const request = require("request"); // For HTTP requests
 const xpath = require("xpath"); // For HTML parsing
-const dom = require("xmldom").DOMParser; // For HTML parsing
+const domParser = require("xmldom").DOMParser; // For HTML parsing
 const utils = require("./utils"); // For util funcs
+
+const dom = new domParser({
+    locator: {},
+    errorHandler: {
+        warning: function (w) { },
+        error: function (e) { },
+        fatalError: function (e) { console.error(e) }
+    }
+});
 
 // Passive type URL regexes and their corresponding handlers
 const passiveTypes = [
     {
         "regex": /https?:\/\/twitter\.com\/.+\/status\/.+/,
         "handler": handleTweet
+    },
+    {
+        "regex": /https?:\/\/en\.wikipedia\.org\/wiki\/.+/,
+        "handler": handleWiki
     }
 ];
 
@@ -48,22 +61,35 @@ function handleTweet(match, groupInfo) {
     // and requires a 5-page application with essays
     request.get(url, {}, (err, res, body) => {
         if (res.statusCode == 200) {
-            const doc = new dom({
-                locator: {},
-                errorHandler: {
-                    warning: function (w) { },
-                    error: function (e) { },
-                    fatalError: function (e) { console.error(e) }
-                }
-            }).parseFromString(body);
+            const doc = dom.parseFromString(body);
             
             const author = xpath.select(authorXPath, doc)[0].nodeValue;
             const handle = xpath.select(handleXPath, doc)[0].nodeValue;
             const tweet = xpath.select(tweetXPath, doc)[0].nodeValue;
 
             utils.sendMessage(`${author} (@${handle}) tweeted: \n> ${tweet}`,
-                groupInfo.threadId, () => {});
+                groupInfo.threadId);
         }
     });
 }
 
+const titleXPath = "//*[@id='firstHeading']";
+const paragraphXPath = "//*[@id='mw-content-text']/div/p";
+
+function handleWiki(match, groupInfo) {
+    const url = match[0];
+    
+    request.get(url, {}, (err, res, body) => {
+        if (res.statusCode == 200) {
+            const doc = dom.parseFromString(body);
+            
+            const title = xpath.select(titleXPath, doc)[0].textContent;
+            // Filter out empty paragraphs
+            const paragraphs = xpath.select(paragraphXPath, doc);
+            const paragraph = paragraphs.map(p => p.textContent.trim())
+                                .filter(p => p.length > 1)[0];
+
+            utils.sendMessage(`*${title}*\n\n${paragraph}`, groupInfo.threadId);
+        }
+    });
+}
