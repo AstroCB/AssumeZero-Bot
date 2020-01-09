@@ -7,7 +7,7 @@
     "node": "8.0.0"
   },
   "scripts": {
-    "start": "pm2 start src/main.js --name 'assumezero-bot'",
+    "start": "pm2 start src/main.js --name 'assumezero-bot'; npm run-script logs",
     "restart": "pm2 restart assumezero-bot",
     "stop": "pm2 stop assumezero-bot",
     "logs": "pm2 logs assumezero-bot --lines=1000",
