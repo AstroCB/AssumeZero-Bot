@@ -41,7 +41,7 @@ const handleXPath =
 const tweetXPath =
     "//div[contains(@class, 'permalink-tweet-container')]//p[contains(@class, 'tweet-text')]//text()";
 
-function handleTweet(match, groupInfo, messageId) {
+function handleTweet(match, groupInfo) {
     const url = match[0];
 
     // Scrape tweets because the Twitter API is annoying
@@ -62,7 +62,7 @@ function handleTweet(match, groupInfo, messageId) {
             const tweet = xpath.select(tweetXPath, doc)[0].nodeValue;
 
             utils.sendMessage(`${author} (@${handle}) tweeted: \n> ${tweet}`,
-                groupInfo.threadId, () => {}, messageId);
+                groupInfo.threadId, () => {});
         }
     });
 }
