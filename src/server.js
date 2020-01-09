@@ -1,8 +1,10 @@
+const child_process = require("child_process");
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const main = require("./main");
 const login = require("messenger-botcore").login.login;
+const main = require("./main");
+const config = require("./config");
 
 app.set("port", (process.env.PORT || 3000));
 app.listen(app.get("port"));
@@ -21,7 +23,7 @@ app.use(bodyParser.urlencoded({
 
 // Accept POST requests for commands
 app.post("/command", (req, res) => {
-    console.log("POST received");
+    console.log("Command POST received");
     if (req.body && req.body.message && req.body.senderId && req.body.threadId) {
         login((err, api) => {
             if (!err) {
@@ -46,4 +48,15 @@ app.post("/command", (req, res) => {
             "error": "Error receiving data"
         });
     }
+});
+
+// Listen for GitHub webhooks for automated deploys
+app.post("/pushed", (req, res) => {
+    console.log("Starting automated deploy...");
+    res.sendStatus(200);
+    child_process.exec(`cd ${config.repoPath} && ./deploy.sh`, (err, stdout, stderr) => {
+        if (err) {
+            console.error(err);
+        }
+    });
 });

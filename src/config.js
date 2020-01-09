@@ -21,6 +21,10 @@ exports.bot = {
     "id": "100041587845629" // Bot's ID (for security purposes in commands)
 }
 
+// Location of the bot repo if automatic GitHub webhook deploys are used
+// (see server.js for details)
+exports.repoPath = "/home/cameron/AssumeZero-Bot/";
+
 // Determines whether bot grammar is "contextless"
 // i.e. whether the command must match from the start of the string or anywhere within it
 // If set to true, some ambiguity may be introduced and multiple command may run from a 
