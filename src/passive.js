@@ -17,9 +17,11 @@ const passiveTypes = [
 
 exports.handlePassive = (messageObj, fromUserId, attachments, groupInfo, api) => {
     const message = messageObj.body;
+    const messageId = messageObj.messageID;
+
     const type = getPassiveType(message);
     if (type) {
-        type.handler(message.match(type.regex), groupInfo);
+        type.handler(message.match(type.regex), groupInfo, messageId);
     }
 };
 
@@ -39,7 +41,7 @@ const handleXPath =
 const tweetXPath =
     "//div[contains(@class, 'permalink-tweet-container')]//p[contains(@class, 'tweet-text')]//text()";
 
-function handleTweet(match, groupInfo) {
+function handleTweet(match, groupInfo, messageId) {
     const url = match[0];
 
     // Scrape tweets because the Twitter API is annoying
@@ -59,7 +61,8 @@ function handleTweet(match, groupInfo) {
             const handle = xpath.select(handleXPath, doc)[0].nodeValue;
             const tweet = xpath.select(tweetXPath, doc)[0].nodeValue;
 
-            utils.sendMessage(`${author} (@${handle}) tweeted: \n> ${tweet}`, groupInfo.threadId);
+            utils.sendMessage(`${author} (@${handle}) tweeted: \n> ${tweet}`,
+                groupInfo.threadId, () => {}, messageId);
         }
     });
 }
