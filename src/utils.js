@@ -7,6 +7,7 @@ const commands = require("./commands");
 let gapi;
 let mem;
 let credentials;
+let lockedThreads = [];
 
 // Initialize the global variables in this module
 // MUST be called before other functions in this module
@@ -351,12 +352,16 @@ exports.setGroupInfo = (info, callback = () => { }) => {
 
 // Wrapper for updating a group property
 exports.setGroupProperty = (key, value, info, callback = () => { }) => {
-    info[key] = value;
-    setTimeout(() => {
-        exports.setGroupInfo(info, (err) => {
-            callback(err);
-        });
-    }, 1500);
+    if (!lockedThreads.includes(info.threadId)) {
+        info[key] = value;
+        lockedThreads.push(info.threadId);
+        setTimeout(() => {
+            exports.setGroupInfo(info, (err) => {
+                lockedThreads = lockedThreads.filter(t => t != info.threadId);
+                callback(err);
+            });
+        }, 1500);
+    }
     // NOTE: temporary arbitrary delay until I can figure out how to prevent
     // the background update calls from overwriting these property changes (async/await?)
 }
