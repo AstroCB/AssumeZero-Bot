@@ -62,7 +62,7 @@ exports.commands = {
             "accepts": false,
             "optional": false
         },
-        "regex": /bug (.*)/i,
+        "regex": /bug(.*)/i,
         "experimental": false
     },
     "kick": {

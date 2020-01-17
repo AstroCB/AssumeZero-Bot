@@ -134,7 +134,7 @@ const funcs = {
         utils.sendToAll(`"${cmatch[1]}"\n\nThis has been a public service announcement from ${config.owner.names.short}.`);
     },
     "bug": (_, cmatch, groupInfo, __, fromUserId) => {
-        utils.sendMessage(`-------BUG-------\nMessage: ${cmatch[1]}\nSender: ${groupInfo.names[fromUserId]}\nTime: ${utils.getTimeString()} (${utils.getDateString()})\nGroup: ${groupInfo.name}\nID: ${groupInfo.threadId}\nInfo: ${JSON.stringify(groupInfo)}`, config.owner.id, (err) => {
+        utils.sendMessage(`-------BUG-------\nMessage: ${cmatch[1] || "none"}\nSender: ${groupInfo.names[fromUserId]}\nTime: ${utils.getTimeString()} (${utils.getDateString()})\nGroup: ${groupInfo.name}\nID: ${groupInfo.threadId}\nInfo: ${JSON.stringify(groupInfo)}`, config.owner.id, (err) => {
             if (!err) {
                 if (groupInfo.isGroup && !cutils.contains(config.owner.id, groupInfo.members)) { // If is a group and owner is not in it, add
                     utils.sendMessage(`Report sent. Adding ${config.owner.names.short} to the chat for debugging purposes...`, groupInfo.threadId, () => {
@@ -490,8 +490,13 @@ const funcs = {
             utils.sendMessage(groupInfo.pinned ? groupInfo.pinned : "No pinned messages in this chat.", threadId);
         } else { // Pin new message
             const pin = `"${msg}" – ${groupInfo.names[fromUserId]} on ${utils.getDateString()}`;
-            utils.setGroupProperty("pinned", pin, groupInfo);
-            utils.sendMessage(`Pinned new message to the chat: "${msg}"`, threadId);
+            utils.setGroupProperty("pinned", pin, groupInfo, (err) => {
+                if (!err) {
+                    utils.sendMessage(`Pinned new message to the chat: "${msg}"`, threadId);
+                } else {
+                    utils.sendError("Unable to pin message to the chat.", threadId);
+                }
+            });
         }
     },
     "tab": (threadId, cmatch, groupInfo) => {
