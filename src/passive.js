@@ -60,7 +60,7 @@ function handleTweet(match, groupInfo) {
     // Scrape tweets because the Twitter API is annoying
     // and requires a 5-page application with essays
     request.get(url, {}, (err, res, body) => {
-        if (res.statusCode == 200) {
+        if (!err && res.statusCode == 200) {
             const doc = dom.parseFromString(body);
             
             const author = xpath.select(authorXPath, doc)[0].nodeValue;
@@ -80,7 +80,7 @@ function handleWiki(match, groupInfo) {
     const url = match[0];
     
     request.get(url, {}, (err, res, body) => {
-        if (res.statusCode == 200) {
+        if (!err && res.statusCode == 200) {
             const doc = dom.parseFromString(body);
             
             const title = xpath.select(titleXPath, doc)[0].textContent;
