@@ -452,7 +452,7 @@ exports.categories = {
     },
     "fun": {
         "display_name": "Fun",
-        "description": "Commands that are just for fun",
+        "description": "Just for fun",
         "commands": {
             "vote": {
                 "display_names": ["<", ">", "points", "vote"],
