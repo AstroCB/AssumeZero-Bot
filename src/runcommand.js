@@ -1274,7 +1274,7 @@ const funcs = {
                     utils.sendError("Professor not found", threadId);
                 } else {
                     const best = data[0];
-                    const msg = `${best.name} (${best.departments.join(", ")})\n\nCourses:\n${best.courses.join("\n")}`;
+                    const msg = `${best.name} (${best.department || best.departments.join(", ")})\n\nCourses:\n${best.courses.join("\n")}`;
                     utils.sendMessage(msg, threadId);
                 }
             }
@@ -1352,18 +1352,22 @@ const funcs = {
         request.get("https://api.umd.io/v0/bus/locations", (err, res, body) => {
             if (!err) {
                 const data = JSON.parse(body);
-                const buses = data.vehicle.filter(bus => bus.routeTag == busNum);
-                if (buses.length > 0) {
-                    const bus = buses[0]; // Should only find one match
-                    const url = `${baseUrl}${bus.lat},${bus.lon}/`;
-                    const body = `The ${bus.routeTag} bus currently has ${bus.passengerCount} passenger${bus.passengerCount != 1 ? "s" : ""} and is moving at ${bus.speedKmHr} km/h.`;
+                if (data && data.vehicle) {
+                    const buses = data.vehicle.filter(bus => bus.routeTag == busNum);
+                    if (buses.length > 0) {
+                        const bus = buses[0]; // Should only find one match
+                        const url = `${baseUrl}${bus.lat},${bus.lon}/`;
+                        const body = `The ${bus.routeTag} bus currently has ${bus.passengerCount} passenger${bus.passengerCount != 1 ? "s" : ""} and is moving at ${bus.speedKmHr} km/h.`;
 
-                    utils.sendMessage({
-                        "url": url,
-                        "body": body
-                    }, threadId);
+                        utils.sendMessage({
+                            "url": url,
+                            "body": body
+                        }, threadId);
+                    } else {
+                        utils.sendError("That bus isn't currently running.", threadId);
+                    }
                 } else {
-                    utils.sendError("That bus isn't currently running.", threadId);
+                    utils.sendError("No buses are currently reporting locations.", threadId);
                 }
             }
         });
