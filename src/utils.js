@@ -384,6 +384,19 @@ exports.getHelpEntry = (input) => {
         }
     }
 }
+// Searches help for a given category and returns an object containing the
+// entry and its key if found
+exports.getHelpCategory = (input) => {
+    const cat = commands.categories;
+    for (let c in cat) {
+        if (cat.hasOwnProperty(c)) {
+            const catEntry = cat[c];
+            if (catEntry.display_name && input == cat[c].display_name.toLowerCase()) {
+                return catEntry;
+            }
+        }
+    }
+}
 
 // Wrapper for sending an emoji to the group quickly
 exports.sendGroupEmoji = (groupInfo, size = "medium") => {

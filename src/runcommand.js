@@ -24,14 +24,34 @@ const spotify = new (require("spotify-web-api-node"))({
 const funcs = {
     "help": (threadId, cmatch) => { // Check help first to avoid command conflicts
         const co = commands.commands;
+        const cats = commands.categories;
         let input;
         if (cmatch[1]) {
             input = cmatch[1].trim().toLowerCase();
         }
         if (input && input.length > 0) {
-            // Give details of specific command
+            // Give details of specific command or category
+            const cat = utils.getHelpCategory(input);
             const entry = utils.getHelpEntry(input);
-            if (entry) {
+            if (cat) {
+                const name = cat.display_name;
+                const desc = cat.description;
+                const commands = cat.commands;
+
+                let mess = `_${name} commands: ${desc}_\n\n`;
+                for (let c in commands) {
+                    if (commands.hasOwnProperty(c)) {
+                        const curEntry = commands[c];
+                        if (curEntry.display_names.length > 0) { // Don't display if no display names (secret command)
+                            // Only display short description if one exists
+                            mess += `${curEntry.syntax}${curEntry.short_description ? `: ${curEntry.short_description}` : ""}${curEntry.sudo ? " [ADMIN]" : ""}\n`;
+                            mess += "------------------\n"; // Suffix for separating commands
+                        }
+                    }
+                }
+                mess += `Contact ${config.owner.names.long} with any questions, or use "${config.trigger} bug" to report bugs directly.\n\nTip: for more detailed descriptions, use "${config.trigger} help {command}"`;
+                utils.sendMessage(mess, threadId);
+            } else if (entry) {
                 const info = entry.entry;
 
                 const example = {}; // Fill example data (sometimes array; sometimes string)
@@ -59,19 +79,16 @@ const funcs = {
                 utils.sendError(`Help entry not found for "${input}"`, threadId);
             }
         } else {
-            // No command passed; give overview of all of them
-            let mess = `Quick help for ${config.bot.names.short || config.bot.names.long}:\n\nPrecede these commands with "${config.trigger}":\n`;
-            for (let c in co) {
-                if (co.hasOwnProperty(c)) {
-                    const entry = co[c];
-                    if (entry.display_names.length > 0) { // Don't display if no display names (secret command)
-                        // Only display short description if one exists
-                        mess += `${entry.syntax}${entry.short_description ? `: ${entry.short_description}` : ""}${entry.sudo ? " [ADMIN]" : ""}\n`;
-                        mess += "------------------\n"; // Suffix for separating commands
+            // No command passed; give overview of categories
+            let mess = `Quick Help for ${config.bot.names.short || config.bot.names.long}\n\nSelect a category from below with "${config.trigger} help {category}"\n\n`;
+            for (let c in cats) {
+                if (cats.hasOwnProperty(c)) {
+                    const cat = cats[c];
+                    if (cat.display_name) { // Don't display hidden categories
+                        mess += `*${cat.display_name}*: ${cat.description}\n`
                     }
                 }
             }
-            mess += `Contact ${config.owner.names.long} with any questions, or use "${config.trigger} bug" to report bugs directly.\n\nTip: for more detailed descriptions, use "${config.trigger} help {command}"`;
             utils.sendMessage(mess, threadId);
         }
     },
