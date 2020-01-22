@@ -49,7 +49,7 @@ function getPassiveType(text) {
 
 const authorXPath =
     "//div[contains(@class, 'permalink-tweet-container')]//strong[contains(@class, 'fullname')]/text()";
-const handleXPath = 
+const handleXPath =
     "//div[contains(@class, 'permalink-tweet-container')]//span[contains(@class, 'username')]//b/text()";
 const tweetXPath =
     "//div[contains(@class, 'permalink-tweet-container')]//p[contains(@class, 'tweet-text')]//text()";
@@ -62,12 +62,26 @@ function handleTweet(match, groupInfo) {
     request.get(url, {}, (err, res, body) => {
         if (!err && res.statusCode == 200) {
             const doc = dom.parseFromString(body);
-            
+
             const author = xpath.select(authorXPath, doc)[0].nodeValue;
             const handle = xpath.select(handleXPath, doc)[0].nodeValue;
-            const tweet = xpath.select(tweetXPath, doc)[0].nodeValue;
 
-            utils.sendMessage(`${author} (@${handle}) tweeted: \n> ${tweet}`,
+            // Tweets can be in multiple tags
+            const tweetNodes = xpath.select(tweetXPath, doc);
+            const tweetText = tweetNodes.map(t => t.nodeValue);
+            // Remove some weird characters and make space for retweet/pic links
+            const prettyText = tweetText.filter(t => t != "&nbsp;" && t != "…")
+                .reduce((prev, cur) => {
+                    if (prev.length > 0 && cur.match(/pic|https?/)) {
+                        return prev + " " + cur;
+                    } else {
+                        return prev + cur;
+                    }
+                }, "");
+            // If there are newlines, put a new quote marker at the beginning
+            const text = prettyText.split("\n").join("\n>");
+
+            utils.sendMessage(`${author} (@${handle}) tweeted: \n> ${text}`,
                 groupInfo.threadId);
         }
     });
@@ -78,16 +92,16 @@ const paragraphXPath = "//*[@id='mw-content-text']/div/p";
 
 function handleWiki(match, groupInfo) {
     const url = match[0];
-    
+
     request.get(url, {}, (err, res, body) => {
         if (!err && res.statusCode == 200) {
             const doc = dom.parseFromString(body);
-            
+
             const title = xpath.select(titleXPath, doc)[0].textContent;
             // Filter out empty paragraphs
             const paragraphs = xpath.select(paragraphXPath, doc);
             const paragraph = paragraphs.map(p => p.textContent.trim())
-                                .filter(p => p.length > 1)[0];
+                .filter(p => p.length > 1)[0];
 
             utils.sendMessage(`*${title}*\n\n${paragraph}`, groupInfo.threadId);
         }
