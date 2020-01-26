@@ -416,8 +416,9 @@ exports.isBanned = (senderId, groupInfo) => {
 }
 
 // Sends file(s) where each filename is a relative path to the file from root
-// Accepts a string filename or an array of filename strings, an optional message body parameter, and a callback
-exports.sendFile = (filenames, threadId, message = "", callback = () => { }, api = gapi) => {
+// Accepts a string filename or an array of filename strings, and optional
+// message body parameter, callback, and a message ID (for replying)
+exports.sendFile = (filenames, threadId, message = "", callback = () => { }, replyId = null, api = gapi) => {
     if (typeof (filenames) == "string") { // If only one is passed
         filenames = [filenames];
     }
@@ -428,7 +429,7 @@ exports.sendFile = (filenames, threadId, message = "", callback = () => { }, api
         "body": message,
         "attachment": filenames
     }
-    exports.sendMessage(msg, threadId, callback);
+    exports.sendMessage(msg, threadId, callback, replyId);
 }
 
 // Returns a string of the current time in EST

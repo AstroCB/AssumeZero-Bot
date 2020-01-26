@@ -22,7 +22,7 @@ const config = require("./config");
  */
 const eggs = [
     {
-        "regex": /genius/i,
+        "regex": /master equation/i,
         "func": (threadId) => { utils.sendFile("../media/genius.jpg", threadId); }
     },
     {
@@ -47,7 +47,7 @@ const eggs = [
     },
     {
         "regex": /nyu/i,
-        "func": (threadId, messageId) => { utils.reactToMessage(messageId, "sad"); }
+        "func": (_, messageId) => { utils.reactToMessage(messageId, "sad"); }
     },
     {
         "regex": /physics c(?:[^A-z]|$)/i,
@@ -59,13 +59,13 @@ const eggs = [
     },
     {
         "regex": /(?:\s|^)mechanics|electricity|magnetism|pulley|massless|friction|acceleration|torque|impulse/i,
-        "func": (threadId) => { utils.sendFile("../media/shaw.png", threadId); }
+        "func": (threadId, messageId) => { utils.sendFile("../media/shaw.png", threadId, "", () => {}, messageId); }
     },
     {
         "alt": (message, fromUserId, groupInfo) => {
             return utils.matchesWithUser("(?:get|measure|check) bac(?:[^k]|$)", message.body, fromUserId, groupInfo, true, "");
         },
-        "func": (threadId, messageId, data) => {
+        "func": (threadId, _, data) => {
             const name = data[1] || "Yiyi";
             utils.sendMessage(`${name.substring(0, 1).toUpperCase() + name.substring(1)}'s BAC is far above healthy levels`, threadId);
         }
@@ -92,7 +92,7 @@ const eggs = [
     },
     {
         "regex": /(?:\s|^)(lit)(?:[^A-z0-9]|$)/i,
-        "func": (threadId, messageId, data) => {
+        "func": (threadId, _, data) => {
             if (data[1] == "LIT") { // Large if all caps
                 utils.sendEmoji("🔥", threadId, "large");
             } else {
@@ -129,7 +129,7 @@ const eggs = [
         "func": (threadId) => { utils.sendFile("../media/frat.jpg", threadId); }
     },
     {
-        "regex": /girlfriend/i,
+        "regex": /my girlfriend/i,
         "func": (threadId) => { utils.sendFile("../media/girlfriend.png", threadId); }
     },
     {
@@ -139,10 +139,6 @@ const eggs = [
     {
         "regex": /xps (?:13|15)/i,
         "func": (threadId) => { utils.sendFile("../media/xps.jpg", threadId); }
-    },
-    {
-        "regex": /gender/i,
-        "func": (threadId) => { utils.sendFile("../media/binary.png", threadId); }
     },
     {
         "regex": /(^|\s)bob(bing|[^A-z]|$)/i,
@@ -209,7 +205,7 @@ const eggs = [
         "func": (threadId) => { utils.sendFile("../media/tired.jpg", threadId); }
     },
     {
-        "regex": /good thing/i,
+        "regex": /that(?:\'|’)?s a good thing/i,
         "func": (threadId) => { utils.sendFile("../media/segregation.jpg", threadId); }
     },
     {
@@ -237,10 +233,6 @@ const eggs = [
         "func": (threadId) => { utils.sendFile("../media/began.png", threadId); }
     },
     {
-        "regex": /bad taste/i,
-        "func": (threadId) => { utils.sendFile("../media/taste.png", threadId); }
-    },
-    {
         "regex": /microsoft windows/i,
         "func": (threadId) => { utils.sendFile("../media/windows.jpg", threadId); }
     },
@@ -261,7 +253,7 @@ const eggs = [
         "func": (threadId) => { utils.sendFile("../media/citizen.jpg", threadId); }
     },
     {
-        "regex": /d(?:ropbox|bx)/i,
+        "regex": /use d(?:ropbox|bx)/i,
         "func": (threadId) => { utils.sendFile("../media/dropbox.jpg", threadId); }
     },
     {
@@ -298,7 +290,7 @@ const eggs = [
     },
     {
         "regex": new RegExp(`${config.trigger} (.*)spam`, "i"),
-        "func": (threadId, mId, data, groupInfo) => {
+        "func": (threadId, _, __, groupInfo) => {
             let emoji = [];
             for (let i = 0; i < 36; i++) { // Full row of emoji
                 emoji.push(groupInfo.emoji);
@@ -323,7 +315,7 @@ const eggs = [
         "func": (threadId) => { utils.sendFile("../media/kevin.mp4", threadId); }
     },
     {
-        "regex": /squash/i,
+        "regex": /play squash/i,
         "func": (threadId) => { utils.sendFile("../media/squash.png", threadId); }
     },
     {
@@ -387,7 +379,7 @@ const eggs = [
         "func": (threadId) => { utils.sendFile("../media/jazzgrass.png", threadId); }
     },
     {
-        "alt": (message, fromUserId, groupInfo) => { // Check whether the bot was mentioned
+        "alt": (message, _, __) => { // Check whether the bot was mentioned
             return (message.mentions && message.mentions.length && message.mentions.includes(config.bot.id));
         },
         "func": (threadId) => { utils.sendMessage("Yo", threadId); }
@@ -413,7 +405,7 @@ const eggs = [
         "func": (threadId) => { utils.sendFile(["../media/gen1.jpg", "../media/gen2.jpg"], threadId); }
     },
     {
-        "regex": /artemesia/i,
+        "regex": /lake artemesia/i,
         "func": (threadId) => { utils.sendFile("../media/artemesia.jpg", threadId); }
     },
     {
@@ -453,8 +445,12 @@ const eggs = [
         "func": (threadId) => { utils.sendFile("../media/lie.png", threadId); }
     },
     {
-        "regex": /hi larry/i,
+        "regex": /h(i|ey) larry/i,
         "func": (threadId) => { utils.sendFile("../media/triggered.png", threadId); }
+    },
+    {
+        "regex": /manks? census/i,
+        "func": (threadId) => { utils.sendContentsOfFile("../media/chats.txt", threadId); }
     }
 ];
 
