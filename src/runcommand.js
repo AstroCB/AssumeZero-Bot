@@ -1049,21 +1049,11 @@ const funcs = {
     },
     "infiltrate": (threadId, cmatch, _, api) => {
         const searchName = cmatch[1];
-        api.getThreadList(0, config.threadLimit, "inbox", (err, chats) => {
+        api.getThreadList(config.threadLimit, null, [], (err, chats) => {
             if (!err) {
                 if (!searchName) { // Just list chats
                     let message = "Available groups:";
-                    message += chats.filter((c) => {
-                        // Check if can add admin
-                        const members = c.participantIDs;
-                        const botLoc = members.indexOf(config.bot.id);
-                        if (botLoc > -1) {
-                            members.splice(botLoc, 1);
-                            // Can add to chat and more than the bot & one other in the chat
-                            return (c.canReply && members.length > 1);
-                        }
-                        return false;
-                    }).map((c) => {
+                    message += chats.filter(c => c.isGroup && c.participants.length > 2).map((c) => {
                         const numMembers = c.participants.length - 1; // Exclude bot
                         return `\n– ${c.name || c.threadID} (${numMembers} ${numMembers == 1 ? "member" : "members"})`;
                     }).join("");
