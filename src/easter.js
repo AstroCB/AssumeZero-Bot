@@ -425,7 +425,7 @@ const eggs = [
         "func": (threadId) => { utils.sendFile("../media/kruskal.png", threadId); }
     },
     {
-        "regex": /honey/i,
+        "regex": /best honey/i,
         "func": (threadId) => { utils.sendFile("../media/madagain.jpg", threadId); }
     },
     {
