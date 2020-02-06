@@ -503,8 +503,20 @@ const funcs = {
     },
     "pin": (threadId, cmatch, groupInfo, _, fromUserId) => {
         const msg = cmatch[1];
-        if (!msg) { // No new message; display current
-            utils.sendMessage(groupInfo.pinned ? groupInfo.pinned : "No pinned messages in this chat.", threadId);
+        if (!msg && groupInfo.pinned) { // No new message and no named key
+            const pins = Object.keys(groupInfo.pinned);
+            if (pins.length > 0) {
+                // Display pin if only one; otherwise list pins
+                if (pins.length == 1) {
+                    const pin = pins[0];
+                    utils.sendMessage(groupInfo.pinned[pin], threadId);
+                } else {
+                    let msg = pins.reduce((m, pin) => `${m}\n${pin}`, "Available pins:");
+                    utils.sendMessage(msg, threadId);
+                }
+            } else {
+                utils.sendError("No pinned messages in this chat.", threadId);
+            }
         } else { // Pin new message
             const pin = `"${msg}" – ${groupInfo.names[fromUserId]} on ${utils.getDateString()}`;
             utils.setGroupProperty("pinned", pin, groupInfo, (err) => {

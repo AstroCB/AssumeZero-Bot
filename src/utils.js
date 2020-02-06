@@ -261,6 +261,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, api = gapi) 
                             info.muted = true;
                             info.playlists = {};
                             info.aliases = {};
+                            info.pinned = {};
                             info.isGroup = data.isGroup;
                         }
                         api.getUserInfo(data.participantIDs, (err, userData) => {
