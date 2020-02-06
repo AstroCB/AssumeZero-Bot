@@ -197,7 +197,7 @@ const eggs = [
         "func": (threadId) => { utils.sendFile("../media/flash.mp3", threadId) }
     },
     {
-        "regex": /racism/i,
+        "regex": /institutional racism/i,
         "func": (threadId) => { utils.sendFile("../media/racism.jpg", threadId); }
     },
     {
@@ -311,7 +311,7 @@ const eggs = [
         "func": (threadId) => { utils.sendFile("../media/palp.gif", threadId); }
     },
     {
-        "regex": /boosted/i,
+        "regex": /boosted board/i,
         "func": (threadId) => { utils.sendFile("../media/kevin.mp4", threadId); }
     },
     {
