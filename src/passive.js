@@ -79,7 +79,7 @@ function handleTweet(match, groupInfo) {
                     }
                 }, "");
             // If there are newlines, put a new quote marker at the beginning
-            const text = prettyText.split("\n").join("\n>");
+            const text = prettyText.split("\n").join("\n> ");
 
             utils.sendMessage(`${author} (@${handle}) tweeted: \n> ${text}`,
                 groupInfo.threadId);
