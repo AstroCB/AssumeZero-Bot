@@ -45,6 +45,7 @@ function main(err, api) {
         gapi = newApi;
         stopListening = newApi.listenMqtt(handleMessage);
     }));
+    api.setOptions({ listenEvents: true });
     stopListening = api.listenMqtt(handleMessage);
 }
 
@@ -62,6 +63,13 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
             if (err || !info) {
                 console.log(`Error retrieving group data for ${message.threadID}: ${err}`);
             } else {
+                // Welcome new members
+                if (message.logMessageType && message.logMessageType == "log:subscribe") {
+                    const newMembers = message.logMessageData.addedParticipants;
+                    const names = newMembers.map(mem => mem.firstName).join("/");
+                    utils.welcomeToChat(names, info)
+                }
+
                 // Handle messages
                 const senderId = message.senderID;
                 if (message.type == "message" && senderId != config.bot.id && !utils.isBanned(senderId, info)) { // Sender is not banned and is not the bot
