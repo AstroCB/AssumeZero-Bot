@@ -968,17 +968,17 @@ exports.categories = {
             "pin": {
                 "display_names": ["pin"],
                 "pretty_name": "Pin",
-                "short_description": "Pin a message",
-                "description": "Pins a message to be accessed later",
-                "syntax": "pin ({new message})",
-                "example": ["pin Test message", "pin"],
+                "short_description": "Pin a message to the chat",
+                "description": `Pins a message to the chat to be accessed later, using a unique name (case-sensitive)${config.introPin ? `; special pins named "${config.introPin}" will be displayed when a new member joins the chat` : ""}`,
+                "syntax": "pin (delete) {name} ({new message})",
+                "example": ["pin test Test message", "pin"],
                 "sudo": false,
                 "attachments": false,
                 "user_input": {
                     "accepts": false,
                     "optional": false
                 },
-                "regex": /pin(?:(?:\s|$)([\s\S]+))?/im,
+                "regex": /pin(?:(?:\s|$)([\S]+)?(?:\s|$)?([\s\S]+)?)?/im,
                 "experimental": false
             },
             "tab": {

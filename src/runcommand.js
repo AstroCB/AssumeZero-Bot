@@ -502,30 +502,38 @@ const funcs = {
         }
     },
     "pin": (threadId, cmatch, groupInfo, _, fromUserId) => {
-        const msg = cmatch[1];
-        if (!msg && groupInfo.pinned) { // No new message and no named key
-            const pins = Object.keys(groupInfo.pinned);
-            if (pins.length > 0) {
-                // Display pin if only one; otherwise list pins
-                if (pins.length == 1) {
-                    const pin = pins[0];
-                    utils.sendMessage(groupInfo.pinned[pin], threadId);
+        const name = cmatch[1];
+        const msg = cmatch[2];
+
+        if (groupInfo.pinned) {
+            if (name == "delete") { // Delete pins
+                utils.deletePin(msg, groupInfo, threadId);
+            } else if (!msg) { // No new pin message; display pins
+                if (name) { // Requested specific pin
+                    if (groupInfo.pinned[name]) {
+                        utils.sendMessage(groupInfo.pinned[name], threadId);
+                    } else {
+                        utils.sendError("Couldn't find that pin.", threadId);
+                    }
                 } else {
-                    let msg = pins.reduce((m, pin) => `${m}\n${pin}`, "Available pins:");
-                    utils.sendMessage(msg, threadId);
+                    const pins = Object.keys(groupInfo.pinned);
+                    if (pins.length > 0) {
+                        if (pins.length == 1) { // Display pin if only one; otherwise list pins
+                            const pin = pins[0];
+                            utils.sendMessage(groupInfo.pinned[pin], threadId);
+                        } else {
+                            let msg = pins.reduce((m, pin) => `${m}\n${pin}`, "Available pins:");
+                            utils.sendMessage(msg, threadId);
+                        }
+                    } else {
+                        utils.sendError("No pinned messages in this chat.", threadId);
+                    }
                 }
-            } else {
-                utils.sendError("No pinned messages in this chat.", threadId);
+            } else { // Pin new message
+                utils.addPin(msg, name, groupInfo.names[fromUserId], groupInfo);
             }
-        } else { // Pin new message
-            const pin = `"${msg}" – ${groupInfo.names[fromUserId]} on ${utils.getDateString()}`;
-            utils.setGroupProperty("pinned", pin, groupInfo, (err) => {
-                if (!err) {
-                    utils.sendMessage(`Pinned new message to the chat: "${msg}"`, threadId);
-                } else {
-                    utils.sendError("Unable to pin message to the chat.", threadId);
-                }
-            });
+        } else {
+            console.log("Unable to pin message due to malformed db entry");
         }
     },
     "tab": (threadId, cmatch, groupInfo) => {

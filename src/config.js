@@ -150,3 +150,7 @@ exports.MAXPATH = 219;
 // in the background as chats become active until the canonical thread is re-added to
 // the database.
 exports.dbFailSilently = true;
+
+// Name of the special pin displayed when new members join the chat
+// To disable, remove this line
+exports.introPin = "intro";

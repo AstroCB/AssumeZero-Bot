@@ -180,12 +180,12 @@ Optional parameter to control whether it should retry adding if it fails initial
 if not successful on the first attempt (default 5)
 */
 exports.addUser = (id, info, welcome = true, callback = () => { }, retry = true, currentBuffer = 0, api = gapi) => {
-    api.addUserToGroup(id, info.threadId, (err, data) => {
+    api.addUserToGroup(id, info.threadId, err => {
         if (!err) {
             exports.updateGroupInfo(info.threadId, null, (err, info) => {
                 if (!err && welcome) {
                     if (info.names[id]) {
-                        exports.sendMessage(`Welcome to ${info.name}, ${info.names[id]}!`, info.threadId);
+                        exports.welcomeToChat(info.names[id], info);
                     } else {
                         api.getUserInfo(id, (err, uinfo) => {
                             if (!err && uinfo.name) {
@@ -206,6 +206,19 @@ exports.addUser = (id, info, welcome = true, callback = () => { }, retry = true,
             callback(err);
         }
     });
+}
+
+// Utility func for welcoming users to the chat
+exports.welcomeToChat = (name, groupInfo) => {
+    let msg = `Welcome to ${groupInfo.name}, ${name}!`;
+    if (groupInfo.pinned) {
+        const introPin = groupInfo.pinned[config.introPin];
+        if (introPin) {
+            msg += `\nHere's some information about this chat:\n\n${introPin}`;
+        }
+    }
+
+    exports.sendMessage(msg, groupInfo.threadId);
 }
 
 /*
@@ -937,4 +950,33 @@ exports.parseNameReplacements = (message, fromUserId, groupInfo) => {
         }
     }
     return fixes;
+}
+
+// Deletes a pinned message from the chat
+exports.deletePin = (pin, groupInfo, threadId) => {
+    if (pin && groupInfo.pinned[pin]) {
+        delete groupInfo.pinned[pin];
+        exports.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
+            if (!err) {
+                exports.sendMessage(`Successfully deleted "${pin}".`, threadId);
+            } else {
+                exports.sendError(`Unable to delete "${pin}".`, threadId);
+            }
+        });
+    } else {
+        exports.sendError("Please specify a valid pin to delete.", threadId);
+    }
+}
+
+// Adds a pinned message to the chat
+exports.addPin = (msg, pinName, sender, groupInfo) => {
+    const pin = `"${msg}" – ${sender} on ${exports.getDateString()}`;
+    groupInfo.pinned[pinName] = pin;
+    exports.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
+        if (!err) {
+            exports.sendMessage(`Pinned new message "${pinName}" to the chat: "${msg}"`, groupInfo.threadId);
+        } else {
+            exports.sendError("Unable to pin message to the chat.", threadId);
+        }
+    });
 }
