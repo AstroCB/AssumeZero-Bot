@@ -971,10 +971,11 @@ exports.deletePin = (pin, groupInfo, threadId) => {
 // Adds a pinned message to the chat
 exports.addPin = (msg, pinName, sender, groupInfo) => {
     const pin = `"${msg}" – ${sender} on ${exports.getDateString()}`;
+    const oldPin = groupInfo.pinned[pinName];
     groupInfo.pinned[pinName] = pin;
     exports.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
         if (!err) {
-            exports.sendMessage(`Pinned new message "${pinName}" to the chat: "${msg}"`, groupInfo.threadId);
+            exports.sendMessage(`Pinned new message for pin "${pinName}" to the chat. Previous message:\n\n${oldPin}`, groupInfo.threadId);
         } else {
             exports.sendError("Unable to pin message to the chat.", threadId);
         }
