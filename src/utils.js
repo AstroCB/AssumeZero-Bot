@@ -975,7 +975,7 @@ exports.addPin = (msg, pinName, sender, groupInfo) => {
     groupInfo.pinned[pinName] = pin;
     exports.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
         if (!err) {
-            exports.sendMessage(`Pinned new message for pin "${pinName}" to the chat. Previous message:\n\n${oldPin}`, groupInfo.threadId);
+            exports.sendMessage(`Pinned new message for pin "${pinName}" to the chat.${oldPin ? `Previous message:\n\n${oldPin}` : ""}`, groupInfo.threadId);
         } else {
             exports.sendError("Unable to pin message to the chat.", threadId);
         }
