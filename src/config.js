@@ -51,8 +51,8 @@ exports.localSleepTime = 3;
 // What time the bot should wake up in your timezone
 exports.localWakeTime = 9;
 
-// Your server's UTC offset
-exports.serverUTCOffset = 5;
+// Your desired timezone for displaying times
+exports.timeZone = "America/New_York";
 
 // Time in seconds to ban users for Order 66
 exports.order66Time = 15;

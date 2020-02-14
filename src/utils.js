@@ -448,12 +448,10 @@ exports.sendFile = (filenames, threadId, message = "", callback = () => { }, rep
 
 // Returns a string of the current time in EST
 exports.getTimeString = () => {
-    const offset = -4; // Eastern
     const d = new Date();
-    const utc = d.getTime() + (d.getTimezoneOffset() * 600000); // UTC milliseconds since 1970
-    const eastern = new Date(utc + (offset * 60 * 60000));
-    return eastern.toLocaleTimeString();
+    return d.toLocaleTimeString('en-US', {'timeZone': config.timeZone});
 }
+console.log(exports.getTimeString())
 
 // Wrapper for formatted date at current time
 exports.getDateString = () => {
