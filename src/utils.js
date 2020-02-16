@@ -962,7 +962,35 @@ exports.deletePin = (pin, groupInfo, threadId) => {
             }
         });
     } else {
-        exports.sendError("Please specify a valid pin to delete.", threadId);
+        exports.sendError("Please specify an existing pin to delete.", threadId);
+    }
+}
+
+// Renames a pinned message from the chat
+exports.renamePin = (pinArgs, groupInfo, threadId) => {
+    const args = pinArgs ? pinArgs.split(" ") : [];
+    if (args.length != 2) {
+        exports.sendError("Please specify a valid pin to rename and new name.", threadId);
+        return;
+    }
+
+    const [oldPin, newPin] = args;
+    if (oldPin && newPin && groupInfo.pinned[oldPin]) {
+        if (groupInfo.pinned[newPin]) {
+            exports.sendMessage(`Cannot rename "${oldPin}" to "${newPin}" as it would override an existing pin.`, threadId);
+        } else {
+            groupInfo.pinned[newPin] = groupInfo.pinned[oldPin];
+            delete groupInfo.pinned[oldPin];
+            exports.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
+                if (!err) {
+                    exports.sendMessage(`Successfully renamed "${oldPin}" to "${newPin}".`, threadId);
+                } else {
+                    exports.sendError(`Unable to rename "${oldPin}".`, threadId);
+                }
+            });
+        }
+    } else {
+        exports.sendError("Please specify an existing pin to rename.", threadId);
     }
 }
 
