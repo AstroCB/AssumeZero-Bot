@@ -451,7 +451,6 @@ exports.getTimeString = () => {
     const d = new Date();
     return d.toLocaleTimeString('en-US', {'timeZone': config.timeZone});
 }
-console.log(exports.getTimeString())
 
 // Wrapper for formatted date at current time
 exports.getDateString = () => {
