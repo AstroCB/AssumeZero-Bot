@@ -52,7 +52,9 @@ app.post("/command", (req, res) => {
 
 // Listen for GitHub webhooks for automated deploys
 app.post("/pushed", (req, res) => {
-    console.log("Starting automated deploy...");
+    const payload = req.body;
+    console.log(`Starting automated deploy${payload ? ` of change "${payload.head_commit.message}"` : ""}...`);
+
     res.sendStatus(200);
     child_process.exec(`cd ${config.repoPath} && ./deploy.sh`, (err, stdout, stderr) => {
         if (err) {
