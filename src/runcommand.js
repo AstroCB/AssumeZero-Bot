@@ -508,6 +508,8 @@ const funcs = {
         if (groupInfo.pinned) {
             if (name == "delete") { // Delete pins
                 utils.deletePin(msg, groupInfo, threadId);
+            } else if (name == "rename") {
+                utils.renamePin(msg, groupInfo, threadId);
             } else if (!msg) { // No new pin message; display pins
                 if (name) { // Requested specific pin
                     if (groupInfo.pinned[name]) {
