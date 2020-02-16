@@ -52,19 +52,18 @@ app.post("/command", (req, res) => {
 
 // Listen for GitHub webhooks for automated deploys
 app.post("/pushed", (req, res) => {
-    let log = "Starting automated deploy";
+    let changeMsg;
     let shouldReinstall = false;
     
     const payload = req.body;
     if (payload) {
-        log += ` of change "${payload.head_commit.message}"`
+        changeMsg = ` of change "${payload.head_commit.message}"`;
         
         // Check if any commits modified package files to see if a reinstall of deps is needed
         const pkgModified = payload.commits.map(com => com.modified.some(e => /package(-lock)?\.json/.test(e))).reduce((p,c) => p ? p : c);
         shouldReinstall = pkgModified
     }
-    log += "..."
-    console.log(log);
+    console.log(`Starting automated deploy${changeMsg ? changeMsg : ""}...`);
 
     res.sendStatus(200);
     child_process.exec(`cd ${config.repoPath} && ./deploy.sh${shouldReinstall ? " --reinstall" : ""}`, (err, stdout, stderr) => {
