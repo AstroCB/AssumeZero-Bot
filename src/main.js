@@ -55,7 +55,7 @@ function main(err, api) {
 function handleMessage(err, message, external = false, api = gapi) { // New message received from listen()
     if (message && message.threadID && !err) {
         // Update info of group where message came from in the background (unless it's an external call)
-        if (!external && message.type == "message") {
+        if (!external && (message.type == "message" || message.type == "event")) {
             utils.updateGroupInfo(message.threadID, message);
         }
         // Load existing group data
