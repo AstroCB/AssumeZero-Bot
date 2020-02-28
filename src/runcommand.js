@@ -568,7 +568,8 @@ const funcs = {
         try {
             api.getUserID(user, (err, data) => {
                 if (!err) {
-                    const bestMatch = data[0]; // Hopefully the right person
+                    const filteredData = data.filter(m => m.type == "user");
+                    const bestMatch = filteredData[0]; // Hopefully the right person
                     const numResults = parseInt(cmatch[2]) || 1; // Number of results to display
                     if (command == "search") { // Is a search command
                         // Output search results / propic
