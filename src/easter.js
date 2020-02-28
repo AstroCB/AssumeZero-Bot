@@ -447,6 +447,10 @@ const eggs = [
     {
         "regex": /h(i|ey) larry/i,
         "func": (threadId) => { utils.sendFile("../media/triggered.png", threadId); }
+    },
+    {
+        "regex": /the left/i,
+        "func": (threadId) => { utils.sendFile("../media/anton_typ.gif", threadId); }
     }
 ];
 
