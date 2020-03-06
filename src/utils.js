@@ -1,6 +1,7 @@
 const fs = require("fs"); // File system
 const request = require("request"); // For HTTP requests
 const jimp = require("jimp"); // For image processing
+const chrono = require("chrono-node"); // For NL date parsing
 const config = require("./config");
 const utils = require("./configutils");
 const commands = require("./commands");
@@ -275,6 +276,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, api = gapi) 
                             info.playlists = {};
                             info.aliases = {};
                             info.pinned = {};
+                            info.events = {};
                             info.isGroup = data.isGroup;
                         }
                         api.getUserInfo(data.participantIDs, (err, userData) => {
@@ -330,13 +332,12 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, api = gapi) 
 
 // Gets stored information about a group
 exports.getGroupInfo = (threadId, callback) => {
-    exports.getGroups((err, groups) => {
+    exports.getGroupData((err, groupData) => {
         if (err) {
             // Error retrieving data
             callback(err);
         } else {
             // No errors and groups are retrieved
-            const groupData = (groups && groups.length) ? JSON.parse(groups) : {};
             const group = groupData[threadId];
             if (group) {
                 callback(null, group);
@@ -349,18 +350,28 @@ exports.getGroupInfo = (threadId, callback) => {
 }
 
 // Wrapper function for retrieving all groups from memory
-exports.getGroups = (callback) => {
-    mem.get(`groups`, callback);
+exports.getGroupData = (callback) => {
+    mem.get(`groups`, (err, groups) => {
+        if (err) {
+            // Error retrieving data
+            callback(err);
+        } else {
+            // No errors and groups are retrieved
+            const groupData = (groups && groups.length) ? JSON.parse(groups) : {};
+            callback(null, groupData);
+        }
+    });
 }
 
 // Updates stored information about a group
 exports.setGroupInfo = (info, callback = () => { }) => {
-    exports.getGroups((err, groups) => {
-        const groupData = (groups && groups.length > 0) ? JSON.parse(groups) : {};
-        groupData[info.threadId] = info;
-        mem.set(`groups`, JSON.stringify(groupData), {}, (err, success) => {
-            callback(success ? null : err);
-        });
+    exports.getGroupData((err, groupData) => {
+        if (!err) {
+            groupData[info.threadId] = info;
+            mem.set(`groups`, JSON.stringify(groupData), {}, (err, success) => {
+                callback(success ? null : err);
+            });
+        }
     });
 }
 
@@ -449,12 +460,28 @@ exports.sendFile = (filenames, threadId, message = "", callback = () => { }, rep
 // Returns a string of the current time in EST
 exports.getTimeString = () => {
     const d = new Date();
-    return d.toLocaleTimeString('en-US', {'timeZone': config.timeZone});
+    return d.toLocaleTimeString('en-US', { 'timeZone': config.timeZone });
 }
 
 // Wrapper for formatted date at current time
 exports.getDateString = () => {
     return (new Date()).toLocaleDateString();
+}
+
+// Given a date, return a nicely-formatted string (with time)
+exports.getPrettyDateString = (date) => {
+    const options = {
+        'weekday': 'long',
+        'year': 'numeric',
+        'month': 'long',
+        'day': 'numeric',
+        'hour': 'numeric',
+        'minute': 'numeric',
+        'timeZone': config.timeZone,
+        'hour12': true
+    };
+
+    return date.toLocaleString('en-US', options)
 }
 
 /*
@@ -704,11 +731,10 @@ exports.measureText = (font, text) => {
 
 // Sends a message to all of the chats that the bot is currenty in (use sparingly)
 exports.sendToAll = (msg) => {
-    exports.getGroups((err, groupData) => {
-        const groups = JSON.parse(groupData);
-        if (groups) {
-            for (let g in groups) {
-                if (groups[g].isGroup) {
+    exports.getGroupData((err, groupData) => {
+        if (!err && groupData) {
+            for (let g in groupData) {
+                if (groupData[g].isGroup) {
                     exports.sendMessage(msg, g);
                 }
             }
@@ -1005,4 +1031,91 @@ exports.addPin = (msg, pinName, sender, groupInfo) => {
             exports.sendError("Unable to pin message to the chat.", threadId);
         }
     });
+}
+
+// Adds an event to the chat
+exports.addEvent = (title, at, sender, groupInfo, threadId) => {
+    const keyTitle = title.trim().toLowerCase();
+    if (groupInfo.events[keyTitle]) {
+        exports.sendError(`An event already exists called "${title}". Please delete it if you wish to make a new one.`, threadId);
+        return;
+    }
+
+    const timestamp = chrono.parseDate(at);
+    const prettyTime = exports.getPrettyDateString(timestamp);
+    let msg = `
+Event "${title}" created for ${prettyTime}. To RSVP, upvote or downvote this message. \
+To delete this event, use "${config.trigger} event delete ${title}" (only the owner can do this). \
+\n\nI'll remind you at the time of the event.`;
+
+    exports.sendMessage(msg, threadId, (err, mid) => {
+        // Grab mid from sent message to monitor messages for RSVPs
+        if (!err) {
+            const event = {
+                "title": title,
+                "key_title": keyTitle,
+                "timestamp": timestamp,
+                "owner": sender,
+                "pretty_time": prettyTime,
+                "mid": mid,
+                "going": [],
+                "not_going": []
+            }
+
+            groupInfo.events[keyTitle] = event;
+            exports.setGroupProperty("events", groupInfo.events, groupInfo);
+        }
+    });
+}
+
+// Delete an event from the chat
+exports.deleteEvent = (rawTitle, sender, groupInfo, threadId) => {
+    const keyTitle = rawTitle.trim().toLowerCase();
+    if (groupInfo.events[keyTitle]) {
+        const event = groupInfo.events[keyTitle];
+        if (event.owner == sender) {
+            delete groupInfo.events[keyTitle]
+            exports.setGroupProperty("events", groupInfo.events, groupInfo, err => {
+                if (err) {
+                    exports.sendError("Sorry, couldn't delete the event.", threadId);
+                } else {
+                    exports.sendMessage(`Successfully deleted "${event.title}".`, threadId);
+                }
+            });
+        } else {
+            exports.sendError(`Sorry, you are not the owner of this event.`, threadId);
+        }
+    } else {
+        exports.sendError(`Couldn't find an event called ${rawTitle}.`, threadId);
+    }
+}
+
+// List event(s) in the chat
+exports.listEvents = (rawTitle, groupInfo, threadId) => {
+    if (rawTitle) {
+        // Details for specific event
+        const keyTitle = rawTitle.trim().toLowerCase();
+        const event = groupInfo.events[keyTitle];
+        if (event) {
+            let msg = `*${event.title}*\n_${event.pretty_time}_\n\nGoing:${event.going.join('/')}\nNot going:${event.not_going.join('/')}`;
+            exports.sendMessage(msg, threadId);
+        } else {
+            exports.sendError(`Couldn't find an event called ${title}.`, threadId);
+        }
+    } else {
+        // Overview
+        if (Object.keys(groupInfo.events).length > 0) {
+            let msg = "Events for this group: \n"
+            for (const e in groupInfo.events) {
+                if (groupInfo.events.hasOwnProperty(e)) {
+                    const event = groupInfo.events[e];
+
+                    msg += `\n– ${event.title} (${event.pretty_time})`
+                }
+            }
+            exports.sendMessage(msg, threadId);
+        } else {
+            exports.sendMessage("There are no events set in this chat.", threadId);
+        }
+    }
 }

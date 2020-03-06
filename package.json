@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "body-parser": "^1.18.3",
+    "chrono-node": "^1.4.3",
     "express": "^4.16.3",
     "facebook-chat-api": "github:Schmavery/facebook-chat-api",
     "html-entities": "^1.2.1",

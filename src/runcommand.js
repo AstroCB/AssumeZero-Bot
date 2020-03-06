@@ -1359,7 +1359,7 @@ const funcs = {
             }
         });
     },
-    "findbus": (threadId, cmatch, groupInfo, api) => {
+    "findbus": (threadId, cmatch) => {
         const busNum = cmatch[1];
         const baseUrl = "https://www.google.com/maps/place/";
         request.get("https://api.umd.io/v0/bus/locations", (err, res, body) => {
@@ -1384,6 +1384,22 @@ const funcs = {
                 }
             }
         });
+    },
+    "event": (threadId, cmatch, groupInfo, _, fromUserId) => {
+        if (cmatch[1]) {
+            // Create event
+            const title = cmatch[2];
+            const at = cmatch[3];
+            utils.addEvent(title, at, fromUserId, groupInfo, threadId);
+        } else if (cmatch[4]) {
+            // Delete event
+            const title = cmatch[5];
+            utils.deleteEvent(title, fromUserId, groupInfo, threadId);
+        } else if (cmatch[6]) {
+            // List event(s)
+            const rawTitle = cmatch[7];
+            utils.listEvents(rawTitle, groupInfo, threadId);
+        }
     }
 };
 

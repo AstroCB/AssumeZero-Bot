@@ -211,3 +211,17 @@ function handlePings(msg, senderId, info) {
         }
     }
 }
+
+function eventLoop() {
+    utils.getGroupData((err, data) => {
+        if (!err) {
+            // Collect events from all of the groups
+            let events = Object.keys(data).reduce((events, group) => {
+                events.push(data[group].events);
+                return events;
+            }, []);
+
+            
+        }
+    });
+}

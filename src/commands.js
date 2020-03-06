@@ -1013,6 +1013,22 @@ exports.categories = {
                 "regex": /remind (\d+) (.+)/i,
                 "experimental": true
             },
+            "event": {
+                "display_names": ["event"],
+                "pretty_name": "Event",
+                "short_description": "Create and manage events",
+                "description": "",
+                "syntax": "",
+                "example": [],
+                "sudo": false,
+                "attachments": false,
+                "user_input": {
+                    "accepts": false,
+                    "optional": false
+                },
+                "regex": /event (?:(create) (.+) for (.+)|(delete) (.+)|(list)( .+)?)/i,
+                "experimental": false
+            }
         }
     }
 };
