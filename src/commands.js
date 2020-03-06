@@ -1017,9 +1017,9 @@ exports.categories = {
                 "display_names": ["event"],
                 "pretty_name": "Event",
                 "short_description": "Create and manage events",
-                "description": "",
-                "syntax": "",
-                "example": [],
+                "description": "Create, delete, and list events in the chat, which will send reminders for pre-set times (with RSVP functionality)",
+                "syntax": "event (create {name} for {date/time}|delete {name}|list ({name}))",
+                "example": ["event create Dinner for tomorrow at 6 PM", "event delete Dinner", "event list"],
                 "sudo": false,
                 "attachments": false,
                 "user_input": {
