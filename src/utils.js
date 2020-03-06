@@ -1046,7 +1046,16 @@ exports.addEvent = (title, at, sender, groupInfo, threadId) => {
     let msg = `
 Event "${title}" created for ${prettyTime}. To RSVP, upvote or downvote this message. \
 To delete this event, use "${config.trigger} event delete ${title}" (only the owner can do this). \
-\n\nI'll remind you at the time of the event.`;
+\n\nI'll remind you at the time of the event`;
+
+    let earlyReminderTime = new Date(timestamp.getTime() - (config.reminderTime * 60000));
+    if (earlyReminderTime <= new Date()) {
+        // Too late to give an early reminder
+        earlyReminderTime = null;
+        msg += ".";
+    } else {
+        msg += `, and ${config.reminderTime} minutes early.`
+    }
 
     exports.sendMessage(msg, threadId, (err, mid) => {
         // Grab mid from sent message to monitor messages for RSVPs
@@ -1058,6 +1067,7 @@ To delete this event, use "${config.trigger} event delete ${title}" (only the ow
                 "owner": sender,
                 "threadId": threadId,
                 "pretty_time": prettyTime,
+                "remind_time": earlyReminderTime,
                 "mid": mid.messageID,
                 "going": [],
                 "not_going": []

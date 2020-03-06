@@ -265,9 +265,10 @@ function eventLoop() {
 
             const curTime = new Date();
             events.forEach(event => {
-                if (new Date(event.timestamp) <= curTime) {
+                if (new Date(event.timestamp) <= curTime
+                    || (event.remind_time && new Date(event.remind_time) <= curTime)) {
                     // Event is occurring! (or occurred since last check)
-                    let msg = `Happening now: ${event.title}${event.going.length > 0 ? "\n\nReminder for " : ""}`;
+                    let msg = `Happening ${event.remind_time ? `in ${config.reminderTime} minutes` : "now"}: ${event.title}${event.going.length > 0 ? "\n\nReminder for " : ""}`;
 
                     // Build up mentions string (with Oxford comma 🤘)
                     let numGoing = event.going.length;

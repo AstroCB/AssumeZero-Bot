@@ -159,3 +159,6 @@ exports.introPin = "intro";
 // Smaller intervals are more accurate, but intervals smaller than one minute are not
 // recommended as delays could cause event reminders to be triggered multiple times
 exports.eventCheckInterval = 0.5;
+
+// When to send an early reminder before the event (in minutes)
+exports.reminderTime = 30;
