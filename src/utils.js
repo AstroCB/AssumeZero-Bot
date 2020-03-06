@@ -1098,10 +1098,18 @@ exports.listEvents = (rawTitle, groupInfo, threadId) => {
         const keyTitle = rawTitle.trim().toLowerCase();
         const event = groupInfo.events[keyTitle];
         if (event) {
-            let msg = `*${event.title}*\n_${event.pretty_time}_\n\nGoing:${event.going.join('/')}\nNot going:${event.not_going.join('/')}`;
+            const goList = event.going.map(u => u.name);
+            const notGoList = event.not_going.map(u => u.name);
+            let msg = `*${event.title}*\n_${event.pretty_time}_\n`;
+            if (goList.length > 0) {
+                msg += `\nGoing: ${goList.join('/')}`;
+            }
+            if (notGoList.length > 0) {
+                msg += `\nNot going: ${notGoList.join('/')}`;
+            }
             exports.sendMessage(msg, threadId);
         } else {
-            exports.sendError(`Couldn't find an event called ${title}.`, threadId);
+            exports.sendError(`Couldn't find an event called ${rawTitle}.`, threadId);
         }
     } else {
         // Overview
@@ -1111,7 +1119,11 @@ exports.listEvents = (rawTitle, groupInfo, threadId) => {
                 if (groupInfo.events.hasOwnProperty(e)) {
                     const event = groupInfo.events[e];
 
-                    msg += `\n– ${event.title} (${event.pretty_time})`
+                    msg += `\n– ${event.title}`
+                    if (event.going.length > 0) {
+                        msg += ` (${event.going.length} going)`;
+                    }
+                    msg += `: ${event.pretty_time}`;
                 }
             }
             exports.sendMessage(msg, threadId);
