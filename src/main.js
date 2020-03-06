@@ -292,7 +292,14 @@ function eventLoop() {
                     // Send off the reminder message and delete the event
                     const groupInfo = data[event.threadId];
                     utils.sendMessageWithMentions(msg, mentions, groupInfo.threadId);
-                    utils.deleteEvent(event.title, event.owner, groupInfo, groupInfo.threadId, sendConfirmation = false);
+
+                    if (event.remind_time) {
+                        // Don't delete, but don't remind again
+                        groupInfo.events[event.key_title].remind_time = null;
+                        utils.setGroupProperty("events", groupInfo.events, groupInfo);
+                    } else {
+                        utils.deleteEvent(event.title, event.owner, groupInfo, groupInfo.threadId, sendConfirmation = false);
+                    }
                 }
             });
         }
