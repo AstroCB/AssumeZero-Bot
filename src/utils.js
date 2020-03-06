@@ -1054,10 +1054,11 @@ To delete this event, use "${config.trigger} event delete ${title}" (only the ow
             const event = {
                 "title": title,
                 "key_title": keyTitle,
-                "timestamp": timestamp,
+                "timestamp": timestamp.getTime(),
                 "owner": sender,
+                "threadId": threadId,
                 "pretty_time": prettyTime,
-                "mid": mid,
+                "mid": mid.messageID,
                 "going": [],
                 "not_going": []
             }
@@ -1069,7 +1070,7 @@ To delete this event, use "${config.trigger} event delete ${title}" (only the ow
 }
 
 // Delete an event from the chat
-exports.deleteEvent = (rawTitle, sender, groupInfo, threadId) => {
+exports.deleteEvent = (rawTitle, sender, groupInfo, threadId, sendConfirmation = true) => {
     const keyTitle = rawTitle.trim().toLowerCase();
     if (groupInfo.events[keyTitle]) {
         const event = groupInfo.events[keyTitle];
@@ -1078,7 +1079,7 @@ exports.deleteEvent = (rawTitle, sender, groupInfo, threadId) => {
             exports.setGroupProperty("events", groupInfo.events, groupInfo, err => {
                 if (err) {
                     exports.sendError("Sorry, couldn't delete the event.", threadId);
-                } else {
+                } else if (sendConfirmation) {
                     exports.sendMessage(`Successfully deleted "${event.title}".`, threadId);
                 }
             });

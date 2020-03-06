@@ -154,3 +154,8 @@ exports.dbFailSilently = true;
 // Name of the special pin displayed when new members join the chat
 // To disable, remove this line
 exports.introPin = "intro";
+
+// How often to check whether an event has happened (in minutes)
+// Smaller intervals are more accurate, but intervals smaller than one minute are not
+// recommended as delays could cause event reminders to be triggered multiple times
+exports.eventCheckInterval = 0.5;

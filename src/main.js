@@ -33,7 +33,7 @@ if (require.main === module) { // Called directly; login immediately
     botcore.login.login(credentials, main);
 }
 
-// Listen for commands
+// Bot setup
 function main(err, api) {
     if (err) return console.error(err);
     console.log(`Successfully logged in to user account ${api.getCurrentUserID()}.`);
@@ -47,6 +47,7 @@ function main(err, api) {
     }));
     api.setOptions({ listenEvents: true });
     stopListening = api.listenMqtt(handleMessage);
+    setInterval(eventLoop, config.eventCheckInterval * 60000);
 }
 
 // Processes incoming messages
@@ -217,11 +218,45 @@ function eventLoop() {
         if (!err) {
             // Collect events from all of the groups
             let events = Object.keys(data).reduce((events, group) => {
-                events.push(data[group].events);
+                const gEvents = data[group].events;
+                Object.keys(gEvents).forEach(event => {
+                    events.push(gEvents[event]);
+                });
+                
                 return events;
             }, []);
 
-            
+            const curTime = new Date();
+            events.forEach(event => {
+                if (new Date(event.timestamp) <= curTime) {
+                    // Event is occurring! (or occurred since last check)
+                    let msg = `Happening now: ${event.title}${event.going.length > 0 ? "\n\nReminder for " : ""}`;
+
+                    // Build up mentions string (with Oxford comma 🤘)
+                    let numGoing = event.going.length;
+                    event.going.forEach((user, i) => {
+                        if (i < numGoing - 1) {
+                            msg += `@${user.name}`;
+                            if (numGoing > 2) {
+                                msg += `, `;
+                            }
+                        } else {
+                            msg += `and @${user.name}`;
+                        }
+                    });
+                    const mentions = event.going.map(user => {
+                        return {
+                            "tag": `@${user.name}`,
+                            "id": user.id
+                        }
+                    });
+
+                    // Send off the reminder message and delete the event
+                    const groupInfo = data[event.threadId];
+                    utils.sendMessageWithMentions(msg, mentions, groupInfo.threadId);
+                    utils.deleteEvent(event.title, event.owner, groupInfo, groupInfo.threadId, sendConfirmation = false);
+                }
+            });
         }
     });
 }
