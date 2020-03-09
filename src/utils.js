@@ -1041,7 +1041,8 @@ exports.addEvent = (title, at, sender, groupInfo, threadId) => {
         return;
     }
 
-    const timestamp = chrono.parseDate(at);
+    const now = new Date();
+    const timestamp = chrono.parseDate(at, now, { 'forwardDate': true });
     const prettyTime = exports.getPrettyDateString(timestamp);
     let msg = `
 Event "${title}" created for ${prettyTime}. To RSVP, upvote or downvote this message. \
@@ -1049,7 +1050,7 @@ To delete this event, use "${config.trigger} event delete ${title}" (only the ow
 \n\nI'll remind you at the time of the event`;
 
     let earlyReminderTime = new Date(timestamp.getTime() - (config.reminderTime * 60000));
-    if (earlyReminderTime <= new Date()) {
+    if (earlyReminderTime <= now) {
         // Too late to give an early reminder
         earlyReminderTime = null;
         msg += ".";
