@@ -1113,12 +1113,13 @@ exports.listEvents = (rawTitle, groupInfo, threadId) => {
             const notGoList = event.not_going.map(u => u.name);
             let msg = `*${event.title}*\n_${event.pretty_time}_\n`;
             if (goList.length > 0) {
-                msg += `\nGoing: ${goList.join('/')}`;
+                msg += `Going: ${goList.join('/')}\n`;
             }
             if (notGoList.length > 0) {
-                msg += `\nNot going: ${notGoList.join('/')}`;
+                msg += `Not going: ${notGoList.join('/')}\n`;
             }
-            exports.sendMessage(msg, threadId);
+            msg += "\nTo RSVP, upvote or downvote the original event message linked above.";
+            exports.sendMessage(msg, threadId, () => {}, event.mid);
         } else {
             exports.sendError(`Couldn't find an event called ${rawTitle}.`, threadId);
         }
