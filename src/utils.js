@@ -1150,14 +1150,16 @@ exports.getCovidData = (type, rawQuery, threadId) => {
     const query = rawQuery.trim().toLowerCase();
     function reportData(region, deaths, recovered) {
         let msg = "";
-        const dates = Object.keys(region).map(key => new Date(key)).filter(date => date != "Invalid Date").sort().reverse();
+        const dates = Object.keys(region).map(key => new Date(key)).filter(date => date != "Invalid Date").sort((a, b) => b - a);
         if (dates.length > 0) {
             const recent = dates[0];
             const recentKey = `${recent.getMonth() + 1}/${recent.getDate()}/${`${recent.getFullYear()}`.slice(-2)}`;
             const confirmed = region[recentKey];
             if (confirmed > 0) {
-                const regDeaths = deaths.find(reg => reg.province_State == region.province_State);
-                const regRec = recovered.find(reg => reg.province_State == region.province_State);
+                const regDeaths = deaths.find(reg => reg.country_Region == region.country_Region
+                    && reg.province_State == region.province_State);
+                const regRec = recovered.find(reg => reg.country_Region == region.country_Region
+                    && reg.province_State == region.province_State);
                 const name = region.province_State || region.country_Region;
                 msg += `\n${name}: ${confirmed} confirmed, ${regDeaths[recentKey]} dead, ${regRec[recentKey]} recovered`;
             }
