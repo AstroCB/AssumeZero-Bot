@@ -27,7 +27,7 @@
     "facebook-chat-api": "github:Schmavery/facebook-chat-api",
     "html-entities": "^1.2.1",
     "http": "0.0.0",
-    "jimp": "^0.2.27",
+    "jimp": "^0.9.6",
     "memjs": "^1.2.2",
     "messenger-botcore": "github:AstroCB/BotCore",
     "pm2": "^4.2.1",
