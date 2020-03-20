@@ -63,7 +63,7 @@ app.post("/pushed", (req, res) => {
         const pkgModified = payload.commits.map(com => com.modified.some(e => /package(-lock)?\.json/.test(e))).reduce((p,c) => p ? p : c);
         shouldReinstall = pkgModified
     }
-    console.log(`Starting automated deploy${changeMsg ? changeMsg : ""}...`);
+    console.info(`Starting automated deploy${changeMsg ? changeMsg : ""}${shouldReinstall ? " and reinstalling" : ""}...`);
 
     res.sendStatus(200);
     child_process.exec(`cd ${config.repoPath} && ./deploy.sh${shouldReinstall ? " --reinstall" : ""}`, (err, stdout, stderr) => {
