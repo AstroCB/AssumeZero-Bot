@@ -1144,3 +1144,65 @@ exports.listEvents = (rawTitle, groupInfo, threadId) => {
         }
     }
 }
+
+// Get information about current status of COVID-19
+exports.getCovidData = (type, rawQuery, threadId) => {
+    const query = rawQuery.trim().toLowerCase();
+    function reportData(region, deaths, recovered) {
+        let msg = "";
+        const dates = Object.keys(region).map(key => new Date(key)).filter(date => date != "Invalid Date").sort().reverse();
+        if (dates.length > 0) {
+            const recent = dates[0];
+            const recentKey = `${recent.getMonth() + 1}/${recent.getDate()}/${`${recent.getFullYear()}`.slice(-2)}`;
+            const confirmed = region[recentKey];
+            if (confirmed > 0) {
+                const regDeaths = deaths.find(reg => reg.province_State == region.province_State);
+                const regRec = recovered.find(reg => reg.province_State == region.province_State);
+                const name = region.province_State || region.country_Region;
+                msg += `\n${name}: ${confirmed} confirmed, ${regDeaths[recentKey]} dead, ${regRec[recentKey]} recovered`;
+            }
+        }
+        return msg;
+    }
+
+    request.get("https://api.opencovid19.com/v1/confirmed", null, (cerr, cres, casesData) => {
+            request.get("https://api.opencovid19.com/v1/deaths", null, (derr, dres, deathsData) => {
+                request.get("https://api.opencovid19.com/v1/recovered", null, (rerr, rres, recoveredData) => {
+                        if (!cerr && cres.statusCode == 200 && !derr && dres.statusCode == 200 && !rerr && rres.statusCode == 200) {
+                            const cases = JSON.parse(casesData);
+                            const deaths = JSON.parse(deathsData);
+                            const recovered = JSON.parse(recoveredData);
+
+                            if (type == "country") {
+                                // Country
+                                const countryCases = cases.filter(region => region.country_Region.toLowerCase() == query);
+                                if (countryCases.length > 1) {
+                                    let msg = `This region has more granular data available:\n`;
+
+                                    countryCases.forEach(region => {
+                                        msg += reportData(region, deaths, recovered);
+                                    });
+
+                                    exports.sendMessage(msg, threadId);
+                                } else if (countryCases.length == 1) {
+                                    const region = countryCases[0];
+                                    exports.sendMessage(reportData(region, deaths, recovered), threadId);
+                                } else {
+                                    exports.sendError(`There is no data currently being reported for ${rawQuery}.`, threadId);
+                                }
+                            } else {
+                                // State
+                                const state = cases.find(region => region.province_State && region.province_State.toLowerCase() == query);
+                                if (state) {
+                                    exports.sendMessage(reportData(state, deaths, recovered), threadId);
+                                } else {
+                                    exports.sendError(`There is no data currently being reported for ${rawQuery}.`, threadId);
+                                }
+                            }
+                        } else {
+                            exports.sendError("Couldn't retrieve data.", threadId);
+                        }
+                });
+            });
+        });
+}
