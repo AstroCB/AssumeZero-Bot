@@ -36,15 +36,15 @@ if (require.main === module) { // Called directly; login immediately
 // Bot setup
 function main(err, api) {
     if (err) return console.error(err);
-    console.log(`Successfully logged in to user account ${api.getCurrentUserID()}.`);
+    console.info(`Successfully logged in to user account ${api.getCurrentUserID()}.`);
     gapi = api; // Initialize global API variable
     utils.setglobals(api, mem); // Initialize in utils module as well
-    botcore.monitoring.monitor(api, config.owner.id, config.bot.names.short, credentials, process, (newApi => {
+    botcore.monitoring.monitor(api, config.owner.id, config.bot.names.short, credentials, process, newApi => {
         // Called when login failed and a new retried login was successful
         stopListening();
         gapi = newApi;
         stopListening = newApi.listenMqtt(handleMessage);
-    }));
+    });
     api.setOptions({ listenEvents: true });
     stopListening = api.listenMqtt(handleMessage);
     setInterval(eventLoop, config.eventCheckInterval * 60000);
