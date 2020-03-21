@@ -722,15 +722,15 @@ exports.categories = {
                 "pretty_name": "COVID",
                 "short_description": "Information about COVID-19",
                 "description": "Search the JHU COVID data set for information about COVID cases around the world",
-                "syntax": "covid (state|country) {query}",
-                "example": ["covid state Maryland", "covid country Italy"],
+                "syntax": "covid ((state|country|province) {query})",
+                "example": ["covid", "covid state Maryland", "covid country Italy", "covid province Hubei"],
                 "sudo": false,
                 "attachments": false,
                 "user_input": {
                     "accepts": false,
                     "optional": false
                 },
-                "regex": /covid (state|country) (.+)/i,
+                "regex": /covid(?: (state|country|province) (.+))?/i,
                 "experimental": false
             }
         }

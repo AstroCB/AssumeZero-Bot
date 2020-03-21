@@ -86,6 +86,10 @@ Probably a good idea to use this wrapper for all sending instances for debug pur
 and consistency.
 */
 exports.sendMessage = (m, threadId, callback = () => { }, replyId = null, api = gapi) => {
+    if (!m || !threadId) {
+        return callback(new Error("Must provide message and threadId."));
+    }
+
     try {
         api.sendMessage(m, threadId, (err, minfo) => {
             callback(err, minfo);
@@ -1119,7 +1123,7 @@ exports.listEvents = (rawTitle, groupInfo, threadId) => {
                 msg += `Not going: ${notGoList.join('/')}\n`;
             }
             msg += "\nTo RSVP, upvote or downvote the original event message linked above.";
-            exports.sendMessage(msg, threadId, () => {}, event.mid);
+            exports.sendMessage(msg, threadId, () => { }, event.mid);
         } else {
             exports.sendError(`Couldn't find an event called ${rawTitle}.`, threadId);
         }
@@ -1147,64 +1151,102 @@ exports.listEvents = (rawTitle, groupInfo, threadId) => {
 
 // Get information about current status of COVID-19
 exports.getCovidData = (type, rawQuery, threadId) => {
-    const query = rawQuery.trim().toLowerCase();
-    function reportData(region, deaths, recovered) {
-        let msg = "";
-        const dates = Object.keys(region).map(key => new Date(key)).filter(date => date != "Invalid Date").sort((a, b) => b - a);
-        if (dates.length > 0) {
-            const recent = dates[0];
-            const recentKey = `${recent.getMonth() + 1}/${recent.getDate()}/${`${recent.getFullYear()}`.slice(-2)}`;
-            const confirmed = region[recentKey];
-            if (confirmed > 0) {
-                const regDeaths = deaths.find(reg => reg.country_Region == region.country_Region
-                    && reg.province_State == region.province_State);
-                const regRec = recovered.find(reg => reg.country_Region == region.country_Region
-                    && reg.province_State == region.province_State);
-                const name = region.province_State || region.country_Region;
-                msg += `\n${name}: ${confirmed} confirmed, ${regDeaths[recentKey]} dead, ${regRec[recentKey]} recovered`;
-            }
+    function buildMessage(data, useDetailedData) {
+        let msg = `Active cases: ${data.active}\nCases today: ${data.todayCases}`;
+        if (useDetailedData) {
+            msg += `\nCritical cases: ${data.critical}\nCurrent cases per million: ${data.casesPerOneMillion}`;
         }
+        msg += `\nTotal cases: ${data.cases}\n\nDeaths today: ${data.todayDeaths}\nTotal deaths: ${data.deaths}\nRecovered: ${data.recovered}`
+
         return msg;
     }
 
-    request.get("https://api.opencovid19.com/v1/confirmed", null, (cerr, cres, casesData) => {
-            request.get("https://api.opencovid19.com/v1/deaths", null, (derr, dres, deathsData) => {
-                request.get("https://api.opencovid19.com/v1/recovered", null, (rerr, rres, recoveredData) => {
+    if (!type) {
+        // Display total stats
+        request.get("https://corona.lmao.ninja/all", {}, (err, _, all) => {
+            if (!err) {
+                const data = JSON.parse(all);
+                const updated = exports.getPrettyDateString(new Date(data.updated));
+                exports.sendMessage(`Cases: ${data.cases}\nDeaths: ${data.deaths}\nRecovered: ${data.recovered}\n\n_Last updated: ${updated}_`, threadId);
+            } else {
+                exports.sendError("Couldn't retrieve data.", threadId);
+            }
+        });
+    } else {
+        const query = rawQuery.trim().toLowerCase();
+        if (type == "country") {
+            request.get(`https://corona.lmao.ninja/countries/${encodeURIComponent(query)}`, {}, (err, res, info) => {
+                if (!err && res.statusCode == 200 && info != "Country not found") {
+                    const data = JSON.parse(info);
+                    exports.sendMessage(`*${data.country}*\n\n${buildMessage(data, true)}`, threadId);
+                } else {
+                    request.get(`https://corona.lmao.ninja/countries/`, {}, (err, res, info) => {
+                        if (!err && res.statusCode == 200) {
+                            const data = JSON.parse(info);
+                            const countries = data.map(country => country.country).join(", ");
+                            exports.sendMessage(`Couldn't find data for ${rawQuery}. Here are the countries I have available:\n\n${countries}`, threadId);
+                        } else {
+                            exports.sendError("Couldn't retrieve data.", threadId);
+                        }
+                    });
+                }
+            });
+        } else if (type == "state") {
+            request.get(`https://corona.lmao.ninja/states/`, {}, (err, res, info) => {
+                if (!err && res.statusCode == 200) {
+                    const data = JSON.parse(info);
+                    const state = data.find(state => state.state.toLowerCase() == query);
+
+                    if (state) {
+                        exports.sendMessage(`*${state.state}*\n\n${buildMessage(state, false)}`, threadId);
+                    } else {
+                        const states = data.map(state => state.state).join(", ");
+                        exports.sendMessage(`Couldn't find data for ${rawQuery}. Here are the states I have available:\n\n${states}`, threadId);
+                    }
+                } else {
+                    exports.sendError("Couldn't retrieve data.", threadId);
+                }
+            });
+        } else {
+            function reportData(region, deaths, recovered) {
+                let msg = "";
+                const dates = Object.keys(region).map(key => new Date(key)).filter(date => date != "Invalid Date").sort((a, b) => b - a);
+                if (dates.length > 0) {
+                    const recent = dates[0];
+                    const recentKey = `${recent.getMonth() + 1}/${recent.getDate()}/${`${recent.getFullYear()}`.slice(-2)}`;
+                    const confirmed = region[recentKey];
+                    if (confirmed > 0) {
+                        const regDeaths = deaths.find(reg => reg.country_Region == region.country_Region
+                            && reg.province_State == region.province_State);
+                        const regRec = recovered.find(reg => reg.country_Region == region.country_Region
+                            && reg.province_State == region.province_State);
+                        const name = region.province_State || region.country_Region;
+                        msg += `\n${name}: ${confirmed} confirmed, ${regDeaths[recentKey]} dead, ${regRec[recentKey]} recovered`;
+                    }
+                }
+                return msg;
+            }
+
+            request.get("https://api.opencovid19.com/v1/confirmed", null, (cerr, cres, casesData) => {
+                request.get("https://api.opencovid19.com/v1/deaths", null, (derr, dres, deathsData) => {
+                    request.get("https://api.opencovid19.com/v1/recovered", null, (rerr, rres, recoveredData) => {
                         if (!cerr && cres.statusCode == 200 && !derr && dres.statusCode == 200 && !rerr && rres.statusCode == 200) {
                             const cases = JSON.parse(casesData);
                             const deaths = JSON.parse(deathsData);
                             const recovered = JSON.parse(recoveredData);
 
-                            if (type == "country") {
-                                // Country
-                                const countryCases = cases.filter(region => region.country_Region.toLowerCase() == query);
-                                if (countryCases.length > 1) {
-                                    let msg = `This region has more granular data available:\n`;
-
-                                    countryCases.forEach(region => {
-                                        msg += reportData(region, deaths, recovered);
-                                    });
-
-                                    exports.sendMessage(msg, threadId);
-                                } else if (countryCases.length == 1) {
-                                    const region = countryCases[0];
-                                    exports.sendMessage(reportData(region, deaths, recovered), threadId);
-                                } else {
-                                    exports.sendError(`There is no data currently being reported for ${rawQuery}.`, threadId);
-                                }
+                            const province = cases.find(region => region.province_State && region.province_State.toLowerCase() == query);
+                            if (province) {
+                                exports.sendMessage(reportData(province, deaths, recovered), threadId);
                             } else {
-                                // State
-                                const state = cases.find(region => region.province_State && region.province_State.toLowerCase() == query);
-                                if (state) {
-                                    exports.sendMessage(reportData(state, deaths, recovered), threadId);
-                                } else {
-                                    exports.sendError(`There is no data currently being reported for ${rawQuery}.`, threadId);
-                                }
+                                exports.sendError(`There is no data currently being reported for ${rawQuery}.`, threadId);
                             }
                         } else {
                             exports.sendError("Couldn't retrieve data.", threadId);
                         }
+                    });
                 });
             });
-        });
+        }
+    }
 }
