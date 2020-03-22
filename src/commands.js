@@ -1018,16 +1018,16 @@ exports.categories = {
                 "pretty_name": "Remind",
                 "short_description": "",
                 "description": "Sends a reminder at a certain point in the future",
-                "syntax": "remind {number of minutes} {reminder}",
-                "example": "remind 20 let the dogs out",
+                "syntax": "remind {person} {reminder} (in|for) {time}",
+                "example": "remind me let the dogs out in 20 minutes",
                 "sudo": false,
                 "attachments": false,
                 "user_input": {
-                    "accepts": false,
+                    "accepts": true,
                     "optional": false
                 },
-                "regex": /remind (\d+) (.+)/i,
-                "experimental": true
+                "regex": ["remind", "[^\s](.+) (?:in|for) (.+)"],
+                "experimental": false
             },
             "event": {
                 "display_names": ["event"],

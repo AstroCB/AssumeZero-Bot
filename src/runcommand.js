@@ -174,7 +174,7 @@ const funcs = {
                 // Kick with optional time specified in call only if specified in command
                 utils.kick(groupInfo.members[user], groupInfo, optTime);
             } else {
-                throw new Error(`User ${user} not recognized`);
+                utils.sendError(`Couldn't find user "${cmatch[1]}".`, threadId);
             }
         } catch (e) {
             utils.sendError(e, threadId);
@@ -1293,19 +1293,17 @@ const funcs = {
             }
         });
     },
-    "remind": (threadId, cmatch, groupInfo, _, fromUserId) => {
-        const time = parseInt(cmatch[1]);
-        const timeMS = time * 60000;
-        const msg = cmatch[2];
-        const user = groupInfo.names[fromUserId];
-        const tag = `@${user}`
+    "remind": (threadId, cmatch, groupInfo) => {
+        const user = cmatch[1].toLowerCase();
+        const userId = groupInfo.members[user];
+        const reminder = cmatch[2];
+        const time = cmatch[3];
 
-        utils.sendMessage(`I'll remind you in ${time == 1 ? "1 minute" : `${time} minutes`}.`, threadId);
-
-        setTimeout(() => {
-            const mentions = [{ "tag": tag, "id": fromUserId }];
-            utils.sendMessageWithMentions(`Reminder for ${tag}: ${msg}`, mentions, threadId);
-        }, timeMS)
+        if (userId) {
+            utils.addReminder(userId, reminder, time, groupInfo, threadId);
+        } else {
+            utils.sendError(`Couldn't find user "${cmatch[1]}".`, threadId);
+        }
     },
     "whereis": (threadId, cmatch) => {
         const query = cmatch[1];

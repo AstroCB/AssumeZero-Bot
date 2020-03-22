@@ -1047,46 +1047,50 @@ exports.addEvent = (title, at, sender, groupInfo, threadId) => {
 
     const now = new Date();
     const timestamp = chrono.parseDate(at, now, { 'forwardDate': true });
-    const prettyTime = exports.getPrettyDateString(timestamp);
-    let msg = `
+    if (timestamp) {
+        const prettyTime = exports.getPrettyDateString(timestamp);
+        let msg = `
 Event "${title}" created for ${prettyTime}. To RSVP, upvote or downvote this message. \
 To delete this event, use "${config.trigger} event delete ${title}" (only the owner can do this). \
 \n\nI'll remind you at the time of the event`;
 
-    let earlyReminderTime = new Date(timestamp.getTime() - (config.reminderTime * 60000));
-    if (earlyReminderTime <= now) {
-        // Too late to give an early reminder
-        earlyReminderTime = null;
-        msg += ".";
-    } else {
-        msg += `, and ${config.reminderTime} minutes early.`
-    }
-
-    exports.sendMessage(msg, threadId, (err, mid) => {
-        // Grab mid from sent message to monitor messages for RSVPs
-        if (!err) {
-            const event = {
-                "title": title,
-                "key_title": keyTitle,
-                "timestamp": timestamp.getTime(),
-                "owner": sender,
-                "threadId": threadId,
-                "pretty_time": prettyTime,
-                "remind_time": earlyReminderTime,
-                "mid": mid.messageID,
-                "going": [],
-                "not_going": []
-            }
-
-            groupInfo.events[keyTitle] = event;
-            exports.setGroupProperty("events", groupInfo.events, groupInfo);
+        let earlyReminderTime = new Date(timestamp.getTime() - (config.reminderTime * 60000));
+        if (earlyReminderTime <= now) {
+            // Too late to give an early reminder
+            earlyReminderTime = null;
+            msg += ".";
+        } else {
+            msg += `, and ${config.reminderTime} minutes early.`
         }
-    });
+
+        exports.sendMessage(msg, threadId, (err, mid) => {
+            // Grab mid from sent message to monitor messages for RSVPs
+            if (!err) {
+                const event = {
+                    "type": "event",
+                    "title": title,
+                    "key_title": keyTitle,
+                    "timestamp": timestamp.getTime(),
+                    "owner": sender,
+                    "threadId": threadId,
+                    "pretty_time": prettyTime,
+                    "remind_time": earlyReminderTime,
+                    "mid": mid.messageID,
+                    "going": [],
+                    "not_going": []
+                }
+
+                groupInfo.events[keyTitle] = event;
+                exports.setGroupProperty("events", groupInfo.events, groupInfo);
+            }
+        });
+    } else {
+        exports.sendError("Couldn't understand that event's time.", threadId);
+    }
 }
 
 // Delete an event from the chat
-exports.deleteEvent = (rawTitle, sender, groupInfo, threadId, sendConfirmation = true) => {
-    const keyTitle = rawTitle.trim().toLowerCase();
+exports.deleteEvent = (keyTitle, sender, groupInfo, threadId, sendConfirmation = true) => {
     if (groupInfo.events[keyTitle]) {
         const event = groupInfo.events[keyTitle];
         if (event.owner == sender) {
@@ -1129,11 +1133,18 @@ exports.listEvents = (rawTitle, groupInfo, threadId) => {
         }
     } else {
         // Overview
-        if (Object.keys(groupInfo.events).length > 0) {
+        const events = Object.keys(groupInfo.events).reduce((evts, e) => {
+            const event = groupInfo.events[e];
+            if (event.type == "event") {
+                evts[e] = groupInfo.events[e];
+            }
+            return evts;
+        }, {});
+        if (Object.keys(events).length > 0) {
             let msg = "Events for this group: \n"
-            for (const e in groupInfo.events) {
-                if (groupInfo.events.hasOwnProperty(e)) {
-                    const event = groupInfo.events[e];
+            for (const e in events) {
+                if (events.hasOwnProperty(e)) {
+                    const event = events[e];
 
                     msg += `\n– ${event.title}`
                     if (event.going.length > 0) {
@@ -1147,6 +1158,44 @@ exports.listEvents = (rawTitle, groupInfo, threadId) => {
             exports.sendMessage("There are no events set in this chat.", threadId);
         }
     }
+}
+
+// Add a reminder to the chat
+exports.addReminder = (userId, reminderStr, timeStr, groupInfo, threadId) => {
+    gapi.getUserInfo(userId, (err, uinfo) => {
+        if (!err && uinfo[userId]) {
+            const timestamp = chrono.parseDate(timeStr, new Date(), { 'forwardDate': true });
+            if (timestamp) {
+                const time = timestamp.getTime();
+                const prettyTime = exports.getPrettyDateString(timestamp);
+                const keyTitle = `r${userId}_${threadId}_${time}`; // Attempt to create a unique key
+                const userName = uinfo[userId].firstName;
+
+                const reminder = {
+                    "type": "reminder",
+                    "reminder": reminderStr,
+                    "key_title": keyTitle,
+                    "timestamp": time,
+                    "owner": userId,
+                    "owner_name": userName,
+                    "threadId": threadId
+                }
+
+                groupInfo.events[keyTitle] = reminder;
+                exports.setGroupProperty("events", groupInfo.events, groupInfo, err => {
+                    if (!err) {
+                        exports.sendMessage(`Created a reminder for ${groupInfo.names[userId]} for ${prettyTime}.`, threadId);
+                    } else {
+                        exports.sendMessage("Unable to create the reminder. Please try again.", threadId);
+                    }
+                });
+            } else {
+                exports.sendError("Couldn't understand that reminder's time.", threadId);
+            }
+        } else {
+            exports.sendError("Couldn't get that user's info.", threadId);
+        }
+    });
 }
 
 // Get information about current status of COVID-19

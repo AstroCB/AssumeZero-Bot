@@ -268,26 +268,37 @@ function eventLoop() {
                 if (new Date(event.timestamp) <= curTime
                     || (event.remind_time && new Date(event.remind_time) <= curTime)) {
                     // Event is occurring! (or occurred since last check)
-                    let msg = `Happening ${event.remind_time ? `in ${config.reminderTime} minutes` : "now"}: ${event.title}${event.going.length > 0 ? "\n\nReminder for " : ""}`;
+                    let msg, mentions;
+                    if (event.type == "event") {
+                        // Event
+                        msg = `Happening ${event.remind_time ? `in ${config.reminderTime} minutes` : "now"}: ${event.title}${event.going.length > 0 ? "\n\nReminder for " : ""}`;
 
-                    // Build up mentions string (with Oxford comma 🤘)
-                    let numGoing = event.going.length;
-                    event.going.forEach((user, i) => {
-                        if (i < numGoing - 1 || numGoing == 1) {
-                            msg += `@${user.name}`;
-                            if (numGoing > 2) {
-                                msg += `, `;
+                        // Build up mentions string (with Oxford comma 🤘)
+                        let numGoing = event.going.length;
+                        event.going.forEach((user, i) => {
+                            if (i < numGoing - 1 || numGoing == 1) {
+                                msg += `@${user.name}`;
+                                if (numGoing > 2) {
+                                    msg += `, `;
+                                }
+                            } else {
+                                msg += `and @${user.name}`;
                             }
-                        } else {
-                            msg += `and @${user.name}`;
-                        }
-                    });
-                    const mentions = event.going.map(user => {
-                        return {
-                            "tag": `@${user.name}`,
-                            "id": user.id
-                        }
-                    });
+                        });
+                        mentions = event.going.map(user => {
+                            return {
+                                "tag": `@${user.name}`,
+                                "id": user.id
+                            }
+                        });
+                    } else {
+                        // Reminder
+                        msg = `Reminder for @${event.owner_name}: ${event.reminder}`;
+                        mentions = [{
+                            "tag": `@${event.owner_name}`,
+                            "id": event.owner
+                        }];
+                    }
 
                     // Send off the reminder message and delete the event
                     const groupInfo = data[event.threadId];
@@ -298,7 +309,7 @@ function eventLoop() {
                         groupInfo.events[event.key_title].remind_time = null;
                         utils.setGroupProperty("events", groupInfo.events, groupInfo);
                     } else {
-                        utils.deleteEvent(event.title, event.owner, groupInfo, groupInfo.threadId, sendConfirmation = false);
+                        utils.deleteEvent(event.key_title, event.owner, groupInfo, groupInfo.threadId, sendConfirmation = false);
                     }
                 }
             });
