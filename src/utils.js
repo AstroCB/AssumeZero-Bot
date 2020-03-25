@@ -1199,18 +1199,21 @@ exports.addReminder = (userId, reminderStr, timeStr, groupInfo, threadId) => {
 }
 
 // Get information about current status of COVID-19
-exports.getCovidData = (type, rawQuery, threadId) => {
+exports.getCovidData = (rawType, rawQuery, threadId) => {
     function buildMessage(data, useDetailedData) {
         let msg = `Active cases: ${data.active}\nCases today: ${data.todayCases}`;
         if (useDetailedData) {
-            msg += `\nCritical cases: ${data.critical}\nCurrent cases per million: ${data.casesPerOneMillion}\nRecovered: ${data.recovered}`;
+            msg += `\nCritical cases: ${data.critical}\nCurrent cases per million: ${data.casesPerOneMillion}`;
         }
-        msg += `\nTotal cases: ${data.cases}\n\nDeaths today: ${data.todayDeaths}\nTotal deaths: ${data.deaths}`
+
+        const inferRecov = (data.cases - data.active - data.deaths);
+        const recovered = data.recovered ? `Recovered: ${data.recovered}` : `${inferRecov > -1 ? `Recovered: ${inferRecov} (inferred)` : ""}`;
+        msg += `\nTotal cases: ${data.cases}\n\nDeaths today: ${data.todayDeaths}\nTotal deaths: ${data.deaths}\n${recovered}`;
 
         return msg;
     }
 
-    if (!type) {
+    if (!rawType) {
         // Display total stats
         request.get("https://corona.lmao.ninja/all", {}, (err, _, all) => {
             if (!err) {
@@ -1222,6 +1225,7 @@ exports.getCovidData = (type, rawQuery, threadId) => {
             }
         });
     } else {
+        const type = rawType.trim().toLowerCase();
         const query = rawQuery.trim().toLowerCase();
         if (type == "country") {
             request.get(`https://corona.lmao.ninja/countries/${encodeURIComponent(query)}`, {}, (err, res, info) => {
@@ -1256,7 +1260,7 @@ exports.getCovidData = (type, rawQuery, threadId) => {
                     exports.sendError("Couldn't retrieve data.", threadId);
                 }
             });
-        } else {
+        } else if (type == "province") {
             function reportData(region, deaths, recovered) {
                 let msg = "";
                 const dates = Object.keys(region).map(key => new Date(key)).filter(date => date != "Invalid Date").sort((a, b) => b - a);

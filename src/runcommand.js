@@ -1400,7 +1400,7 @@ const funcs = {
         }
     },
     "covid": (threadId, cmatch) => {
-        const type = cmatch[1].toLowerCase();
+        const type = cmatch[1];
         const search = cmatch[2];
         utils.getCovidData(type, search, threadId);
     }
