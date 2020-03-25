@@ -1203,9 +1203,9 @@ exports.getCovidData = (type, rawQuery, threadId) => {
     function buildMessage(data, useDetailedData) {
         let msg = `Active cases: ${data.active}\nCases today: ${data.todayCases}`;
         if (useDetailedData) {
-            msg += `\nCritical cases: ${data.critical}\nCurrent cases per million: ${data.casesPerOneMillion}`;
+            msg += `\nCritical cases: ${data.critical}\nCurrent cases per million: ${data.casesPerOneMillion}\nRecovered: ${data.recovered}`;
         }
-        msg += `\nTotal cases: ${data.cases}\n\nDeaths today: ${data.todayDeaths}\nTotal deaths: ${data.deaths}\nRecovered: ${data.recovered}`
+        msg += `\nTotal cases: ${data.cases}\n\nDeaths today: ${data.todayDeaths}\nTotal deaths: ${data.deaths}`
 
         return msg;
     }
