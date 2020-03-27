@@ -1210,6 +1210,10 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
         const recovered = data.recovered ? `Recovered: ${data.recovered}` : `${inferRecov > -1 ? `Recovered: ${inferRecov} (inferred)` : ""}`;
         msg += `\nTotal cases: ${data.cases}\n\nDeaths today: ${data.todayDeaths}\nTotal deaths: ${data.deaths}\n${recovered}`;
 
+        if (useDetailedData) {
+            msg += `\nDeaths per million: ${data.deathsPerOneMillion}`
+        }
+
         return msg;
     }
 
