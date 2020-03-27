@@ -1242,7 +1242,7 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
                     request.get(`https://corona.lmao.ninja/countries/`, {}, (err, res, info) => {
                         if (!err && res.statusCode == 200) {
                             const data = JSON.parse(info);
-                            const countries = data.map(country => country.country).join(", ");
+                            const countries = data.map(country => country.country).sort().join(", ");
                             exports.sendMessage(`Couldn't find data for ${rawQuery}. Here are the countries I have available:\n\n${countries}`, threadId);
                         } else {
                             exports.sendError("Couldn't retrieve data.", threadId);
@@ -1259,7 +1259,7 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
                     if (state) {
                         exports.sendMessage(`*${state.state}*\n\n${buildMessage(state, false)}`, threadId);
                     } else {
-                        const states = data.map(state => state.state).join(", ");
+                        const states = data.map(state => state.state).sort().join(", ");
                         exports.sendMessage(`Couldn't find data for ${rawQuery}. Here are the states I have available:\n\n${states}`, threadId);
                     }
                 } else {
