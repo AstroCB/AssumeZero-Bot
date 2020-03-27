@@ -1214,7 +1214,7 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
         
         const inferRecov = (data.cases - data.active - data.deaths);
         const recovered = data.recovered ? `Recovered: ${data.recovered}` : `${inferRecov > -1 ? `Recovered: ${inferRecov} (inferred)` : ""}`;
-        msg += recovered
+        msg += `\n\n${recovered}`
         
         return msg;
     }
