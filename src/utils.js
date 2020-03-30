@@ -1209,7 +1209,7 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
         msg += `\nTotal cases: ${data.cases}\n\nDeaths today: ${data.todayDeaths}\nTotal deaths: ${data.deaths}`;
         
         if (useDetailedData) {
-            msg += `\nDeaths per million: ${data.deathsPerOneMillion}`
+            msg += `\nDeaths per million: ${data.deathsPerOneMillion ? data.deathsPerOneMillion : 0}`
         }
         
         const inferRecov = (data.cases - data.active - data.deaths);
