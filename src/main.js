@@ -39,6 +39,8 @@ function main(err, api) {
     console.info(`Successfully logged in to user account ${api.getCurrentUserID()}.`);
     gapi = api; // Initialize global API variable
     utils.setglobals(api, mem); // Initialize in utils module as well
+
+    // Configure the instance
     botcore.monitoring.monitor(api, config.owner.id, config.bot.names.short, credentials, process, newApi => {
         // Called when login failed and a new retried login was successful
         stopListening();
@@ -46,8 +48,14 @@ function main(err, api) {
         stopListening = newApi.listenMqtt(handleMessage);
     });
     api.setOptions({ listenEvents: true });
+    
+    // Kick off the message handler
     stopListening = api.listenMqtt(handleMessage);
+    // Kick off the event handler
     setInterval(eventLoop, config.eventCheckInterval * 60000);
+
+    // Tell process manager that this process is ready
+    process.send("ready");
 }
 
 // Processes incoming messages
