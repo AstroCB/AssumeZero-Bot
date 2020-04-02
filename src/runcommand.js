@@ -1272,7 +1272,7 @@ const funcs = {
                 if (data.error_code && data.error_code == 404) {
                     utils.sendError("Course not found", threadId);
                 } else {
-                    const msg = `${data.name} (${data.course_id})\nCredits: ${data.credits}\n\n${data.description}`;
+                    const msg = `${data.name} (${data.course_id})\nCredits: ${data.credits}\n\n${data.description ? data.description : ""}`;
                     utils.sendMessage(msg, threadId);
                 }
             }
