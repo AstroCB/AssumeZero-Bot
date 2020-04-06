@@ -1201,25 +1201,25 @@ exports.addReminder = (userId, reminderStr, timeStr, groupInfo, threadId) => {
 // Get information about current status of COVID-19
 exports.getCovidData = (rawType, rawQuery, threadId) => {
     function buildMessage(data, useDetailedData) {
-        let msg = `Active cases: ${data.active}\nCases today: ${data.todayCases}`;
+        let msg = `Active cases: ${data.active.toLocaleString()}\nCases today: ${data.todayCases.toLocaleString()}`;
         if (useDetailedData) {
-            msg += `\nCritical cases: ${data.critical}\nCurrent cases per million: ${data.casesPerOneMillion}`;
+            msg += `\nCritical cases: ${data.critical.toLocaleString()}\nCurrent cases per million: ${data.casesPerOneMillion.toLocaleString()}`;
         }
 
-        msg += `\nTotal cases: ${data.cases}\n\nTotal tests: ${data.tests}`;
+        msg += `\nTotal cases: ${data.cases.toLocaleString()}\n\nTotal tests: ${data.tests.toLocaleString()}`;
 
         if (useDetailedData) {
-            msg += `\nTests per million: ${data.testsPerOneMillion}`;
+            msg += `\nTests per million: ${data.testsPerOneMillion.toLocaleString()}`;
         }
 
-        msg += `\n\nDeaths today: ${data.todayDeaths}\nTotal deaths: ${data.deaths}`
+        msg += `\n\nDeaths today: ${data.todayDeaths.toLocaleString()}\nTotal deaths: ${data.deaths.toLocaleString()}`
 
         if (useDetailedData) {
-            msg += `\nDeaths per million: ${data.deathsPerOneMillion ? data.deathsPerOneMillion : 0}`
+            msg += `\nDeaths per million: ${data.deathsPerOneMillion ? data.deathsPerOneMillion.toLocaleString() : 0}`
         }
 
         const inferRecov = (data.cases - data.active - data.deaths);
-        const recovered = data.recovered ? `Recovered: ${data.recovered}` : `${inferRecov > -1 ? `Recovered: ${inferRecov} (inferred)` : ""}`;
+        const recovered = data.recovered ? `Recovered: ${data.recovered.toLocaleString()}` : `${inferRecov > -1 ? `Recovered: ${inferRecov.toLocaleString()} (inferred)` : ""}`;
         msg += `\n\n${recovered}`
 
         return msg;
@@ -1329,7 +1329,7 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
                         }
                     });
                 } else {
-                    exports.sendError("Please choose a number 10 or less for message length reasons.", threadId);
+                    exports.sendError("Please choose a number 10 or smaller for message length reasons.", threadId);
                 }
             } else {
                 exports.sendError(`"${rawQuery}" is not a valid number.`, threadId);
