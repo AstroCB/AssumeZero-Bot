@@ -1206,7 +1206,13 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
             msg += `\nCritical cases: ${data.critical}\nCurrent cases per million: ${data.casesPerOneMillion}`;
         }
 
-        msg += `\nTotal cases: ${data.cases}\n\nDeaths today: ${data.todayDeaths}\nTotal deaths: ${data.deaths}`;
+        msg += `\nTotal cases: ${data.cases}\n\nTotal tests: ${data.tests}`;
+
+        if (useDetailedData) {
+            msg += `\nTests per million: ${data.testsPerOneMillion}`;
+        }
+
+        msg += `\n\nDeaths today: ${data.todayDeaths}\nTotal deaths: ${data.deaths}`
 
         if (useDetailedData) {
             msg += `\nDeaths per million: ${data.deathsPerOneMillion ? data.deathsPerOneMillion : 0}`
