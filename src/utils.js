@@ -1315,18 +1315,22 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
         } else if (type == "top") {
             const n = parseInt(rawQuery);
             if (n) {
-                request.get(`https://corona.lmao.ninja/countries/`, {}, (err, res, info) => {
-                    if (!err && res.statusCode == 200) {
-                        const data = JSON.parse(info);
-                        const sorted = data.sort((a, b) => b.cases - a.cases);
-                        const top = sorted.slice(0, n);
+                if (n <= 10) {
+                    request.get(`https://corona.lmao.ninja/countries/`, {}, (err, res, info) => {
+                        if (!err && res.statusCode == 200) {
+                            const data = JSON.parse(info);
+                            const sorted = data.sort((a, b) => b.cases - a.cases);
+                            const top = sorted.slice(0, n);
 
-                        const msg = top.map((c, i) => `#${i + 1}: ${c.country}\n${buildMessage(c, false)}`).join("\n\n");
-                        exports.sendMessage(msg, threadId);
-                    } else {
-                        exports.sendError("Couldn't retrieve data.", threadId);
-                    }
-                });
+                            const msg = top.map((c, i) => `#${i + 1}: ${c.country}\n${buildMessage(c, false)}`).join("\n\n");
+                            exports.sendMessage(msg, threadId);
+                        } else {
+                            exports.sendError("Couldn't retrieve data.", threadId);
+                        }
+                    });
+                } else {
+                    exports.sendError("Please choose a number 10 or less for message length reasons.", threadId);
+                }
             } else {
                 exports.sendError(`"${rawQuery}" is not a valid number.`, threadId);
             }
