@@ -730,7 +730,7 @@ exports.categories = {
                     "accepts": false,
                     "optional": false
                 },
-                "regex": /covid(?: (state|country|province) (.+))?/i,
+                "regex": /covid(?: (state|country|province|top) (.+))?/i,
                 "experimental": false
             }
         }

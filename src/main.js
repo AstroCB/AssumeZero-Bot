@@ -48,14 +48,14 @@ function main(err, api) {
         stopListening = newApi.listenMqtt(handleMessage);
     });
     api.setOptions({ listenEvents: true });
-    
+
     // Kick off the message handler
     stopListening = api.listenMqtt(handleMessage);
     // Kick off the event handler
     setInterval(eventLoop, config.eventCheckInterval * 60000);
 
     // Tell process manager that this process is ready
-    process.send("ready");
+    process.send ? process.send("ready") : null;
 }
 
 // Processes incoming messages
