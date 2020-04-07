@@ -1220,7 +1220,12 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
 
         const inferRecov = (data.cases - data.active - data.deaths);
         const recovered = data.recovered ? `Recovered: ${data.recovered.toLocaleString()}` : `${inferRecov > -1 ? `Recovered: ${inferRecov.toLocaleString()} (inferred)` : ""}`;
-        msg += `\n\n${recovered}`
+        msg += `\n${recovered}`
+
+        if (useDetailedData) {
+            const updated = exports.getPrettyDateString(new Date(data.updated));
+            msg += `\n\n_Last updated: ${updated}_`;
+        }
 
         return msg;
     }
@@ -1231,7 +1236,8 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
             if (!err) {
                 const data = JSON.parse(all);
                 const updated = exports.getPrettyDateString(new Date(data.updated));
-                exports.sendMessage(`Cases: ${data.cases}\nDeaths: ${data.deaths}\nRecovered: ${data.recovered}\n\n_Last updated: ${updated}_`, threadId);
+                const msg = `Cases: ${data.cases.toLocaleString()}\nDeaths: ${data.deaths.toLocaleString()}\nRecovered: ${data.recovered.toLocaleString()}\n\n_Last updated: ${updated}_`;
+                exports.sendMessage(msg, threadId);
             } else {
                 exports.sendError("Couldn't retrieve data.", threadId);
             }
