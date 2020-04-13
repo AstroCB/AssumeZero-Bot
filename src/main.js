@@ -74,9 +74,11 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
             } else {
                 // Welcome new members
                 if (message.logMessageType && message.logMessageType == "log:subscribe") {
-                    const newMembers = message.logMessageData.addedParticipants;
-                    const names = newMembers.map(mem => mem.firstName).join("/");
-                    utils.welcomeToChat(names, info)
+                    const newMembers = message.logMessageData.addedParticipants.filter(m => m.userFbId != config.bot.id);
+                    if (newMembers.length > 0) {
+                        const names = newMembers.map(mem => mem.firstName).join("/");
+                        utils.welcomeToChat(names, info)
+                    }
                 }
 
                 // Handle messages
