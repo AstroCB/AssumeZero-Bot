@@ -145,7 +145,7 @@ const eggs = [
         "func": (threadId) => { utils.sendFile("../media/serenade.mp4", threadId); }
     },
     {
-        "regex": /wrong chat/i,
+        "regex": /^wrong chat$/i,
         "func": (threadId) => { utils.sendFile("../media/background.png", threadId); }
     },
     {
