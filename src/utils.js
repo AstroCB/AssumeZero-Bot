@@ -1236,7 +1236,7 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
             if (!err) {
                 const data = JSON.parse(all);
                 const updated = exports.getPrettyDateString(new Date(data.updated));
-                const msg = `Cases: ${data.cases.toLocaleString()}\nDeaths: ${data.deaths.toLocaleString()}\nRecovered: ${data.recovered.toLocaleString()}\n\n_Last updated: ${updated}_`;
+                const msg = `Active cases: ${data.cases.toLocaleString()}\nDeaths: ${data.deaths.toLocaleString()}\nRecovered: ${data.recovered.toLocaleString()}\n\n_Last updated: ${updated}_`;
                 exports.sendMessage(msg, threadId);
             } else {
                 exports.sendError("Couldn't retrieve data.", threadId);
