@@ -1352,10 +1352,14 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
                 const yCases = hist.cases[yKey] ? hist.cases[yKey] : -1;
                 const twoCases = hist.cases[twoKey] ? hist.cases[twoKey] : -1;
 
+                const yDeaths = hist.deaths[yKey] ? hist.deaths[yKey] : -1;
+                const twoDeaths = hist.deaths[twoKey] ? hist.deaths[twoKey] : -1;
+
                 const yCasesStr = yCases >= 0 ? `\nNew cases yesterday: ${(yCases - twoCases).toLocaleString()}` : "";
+                const yDeathsStr = yDeaths >= 0 ? `\nDeaths yesterday: ${(yDeaths - twoDeaths).toLocaleString()}` : "";
 
                 let msg = `New cases today: ${cur.todayCases.toLocaleString()}${yCasesStr}\nTotal cases: ${cur.cases.toLocaleString()}\n\n`;
-                msg += `Deaths today: ${cur.todayDeaths.toLocaleString()}\nTotal deaths: ${cur.deaths.toLocaleString()}\n`;
+                msg += `Deaths today: ${cur.todayDeaths.toLocaleString()}${yDeathsStr}\nTotal deaths: ${cur.deaths.toLocaleString()}\n\n`;
                 msg += `Total recovered: ${cur.recovered.toLocaleString()}`;
 
                 return msg;
