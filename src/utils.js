@@ -1200,10 +1200,11 @@ exports.addReminder = (userId, reminderStr, timeStr, groupInfo, threadId) => {
 
 // Get information about current status of COVID-19
 exports.getCovidData = (rawType, rawQuery, threadId) => {
-    function buildMessage(data, useDetailedData) {
-        let msg = `Active cases: ${data.active.toLocaleString()}\nCases today: ${data.todayCases.toLocaleString()}`;
+    function buildMessage(data, useDetailedData, historical) {
+        let msg = `Active cases: ${data.active.toLocaleString()}\nNew cases today: ${data.todayCases.toLocaleString()}`;
         if (useDetailedData) {
-            msg += `\nCritical cases: ${data.critical.toLocaleString()}\nCurrent cases per million: ${data.casesPerOneMillion.toLocaleString()}`;
+            const [yesterdayCases, _] = getYesterdayNumbers(historical);
+            msg += `${yesterdayCases}\nCritical cases: ${data.critical.toLocaleString()}\nCurrent cases per million: ${data.casesPerOneMillion.toLocaleString()}`;
         }
 
         msg += `\nTotal cases: ${data.cases.toLocaleString()}\n\nTotal tests: ${data.tests.toLocaleString()}`;
@@ -1230,36 +1231,72 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
         return msg;
     }
 
+    function getYesterdayNumbers(hist) {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const twoDaysAgo = new Date();
+        twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+        const yKey = `${yesterday.getMonth() + 1}/${yesterday.getDate()}/${`${yesterday.getFullYear()}`.slice(-2)}`;
+        const twoKey = `${twoDaysAgo.getMonth() + 1}/${twoDaysAgo.getDate()}/${`${twoDaysAgo.getFullYear()}`.slice(-2)}`;
+
+        const yCases = hist.cases[yKey] ? hist.cases[yKey] : -1;
+        const twoCases = hist.cases[twoKey] ? hist.cases[twoKey] : -1;
+
+        const yDeaths = hist.deaths[yKey] ? hist.deaths[yKey] : -1;
+        const twoDeaths = hist.deaths[twoKey] ? hist.deaths[twoKey] : -1;
+
+        const yCasesStr = yCases >= 0 ? `\nNew cases yesterday: ${(yCases - twoCases).toLocaleString()}` : "";
+        const yDeathsStr = yDeaths >= 0 ? `\nDeaths yesterday: ${(yDeaths - twoDeaths).toLocaleString()}` : "";
+
+        return [yCasesStr, yDeathsStr]
+    }
+
     if (!rawType) {
         // Display total stats
         request.get("https://corona.lmao.ninja/v2/all", {}, (err, _, all) => {
-            if (!err) {
-                const data = JSON.parse(all);
-                const msg = `*Worldwide data*\n\nAffected countries: ${data.affectedCountries}\n${buildMessage(data, true)}`;
-                exports.sendMessage(msg, threadId);
-            } else {
-                exports.sendError("Couldn't retrieve data.", threadId);
-            }
+            request.get(`https://corona.lmao.ninja/v2/historical/all`, {}, (herr, hres, hdata) => {
+                if (herr || hres.statusCode != 200) {
+                    hdata = { "cases": {}, "deaths": {} };
+                } else {
+                    hdata = JSON.parse(hdata);
+                }
+                if (!err) {
+                    const data = JSON.parse(all);
+                    const msg = `*Worldwide data*\n\nAffected countries: ${data.affectedCountries}\n${buildMessage(data, true, hdata)}`;
+                    exports.sendMessage(msg, threadId);
+                } else {
+                    exports.sendError("Couldn't retrieve data.", threadId);
+                }
+            });
         });
     } else {
         const type = rawType.trim().toLowerCase();
         const query = rawQuery.trim().toLowerCase();
         if (type == "country") {
             request.get(`https://corona.lmao.ninja/v2/countries/${encodeURIComponent(query)}`, {}, (err, res, info) => {
-                if (!err && res.statusCode == 200 && info != "Country not found") {
-                    const data = JSON.parse(info);
-                    exports.sendMessage(`*${data.country}*\n\n${buildMessage(data, true)}`, threadId);
-                } else {
-                    request.get(`https://corona.lmao.ninja/v2/countries/`, {}, (err, res, info) => {
-                        if (!err && res.statusCode == 200) {
-                            const data = JSON.parse(info);
-                            const countries = data.map(country => country.country).sort().join(", ");
-                            exports.sendMessage(`Couldn't find data for ${rawQuery}. Here are the countries I have available:\n\n${countries}`, threadId);
-                        } else {
-                            exports.sendError("Couldn't retrieve data.", threadId);
-                        }
-                    });
-                }
+                request.get(`https://corona.lmao.ninja/v2/historical/${query}`, {}, (herr, hres, hdata) => {
+                    if (herr || hres.statusCode != 200) {
+                        hdata = { "timeline": { "cases": {}, "deaths": {} } };
+                    } else {
+                        hdata = JSON.parse(hdata);
+                    }
+
+                    if (!err && res.statusCode == 200 && info != "Country not found") {
+                        const data = JSON.parse(info);
+                        exports.sendMessage(`*${data.country}*\n\n${buildMessage(data, true, hdata["timeline"])}`, threadId);
+                    } else {
+                        request.get(`https://corona.lmao.ninja/v2/countries/`, {}, (err, res, info) => {
+                            if (!err && res.statusCode == 200) {
+                                const data = JSON.parse(info);
+                                const countries = data.map(country => country.country).sort().join(", ");
+                                exports.sendMessage(`Couldn't find data for ${rawQuery}. Here are the countries I have available:\n\n${countries}`, threadId);
+                            } else {
+                                exports.sendError("Couldn't retrieve data.", threadId);
+                            }
+                        });
+                    }
+                });
             });
         } else if (type == "state") {
             request.get(`https://corona.lmao.ninja/v2/states/`, {}, (err, res, info) => {
@@ -1341,22 +1378,7 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
             }
         } else if (type == "today") {
             function buildTodayStr(cur, hist) {
-                const yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                const twoDaysAgo = new Date();
-                twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-
-                const yKey = `${yesterday.getMonth() + 1}/${yesterday.getDate()}/${`${yesterday.getFullYear()}`.slice(-2)}`;
-                const twoKey = `${twoDaysAgo.getMonth() + 1}/${twoDaysAgo.getDate()}/${`${twoDaysAgo.getFullYear()}`.slice(-2)}`;
-
-                const yCases = hist.cases[yKey] ? hist.cases[yKey] : -1;
-                const twoCases = hist.cases[twoKey] ? hist.cases[twoKey] : -1;
-
-                const yDeaths = hist.deaths[yKey] ? hist.deaths[yKey] : -1;
-                const twoDeaths = hist.deaths[twoKey] ? hist.deaths[twoKey] : -1;
-
-                const yCasesStr = yCases >= 0 ? `\nNew cases yesterday: ${(yCases - twoCases).toLocaleString()}` : "";
-                const yDeathsStr = yDeaths >= 0 ? `\nDeaths yesterday: ${(yDeaths - twoDeaths).toLocaleString()}` : "";
+                const [yCasesStr, yDeathsStr] = getYesterdayNumbers(hist);
 
                 let msg = `New cases today: ${cur.todayCases.toLocaleString()}${yCasesStr}\nTotal cases: ${cur.cases.toLocaleString()}\n\n`;
                 msg += `Deaths today: ${cur.todayDeaths.toLocaleString()}${yDeathsStr}\nTotal deaths: ${cur.deaths.toLocaleString()}\n\n`;
@@ -1367,7 +1389,7 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
 
             request.get(`https://corona.lmao.ninja/v2/historical/${query}`, {}, (herr, _, hdata) => {
                 if (herr) {
-                    hdata = { "timeline": { "cases": {} } };
+                    hdata = { "timeline": { "cases": {}, "deaths": {} } };
                 } else {
                     hdata = JSON.parse(hdata);
                 }
