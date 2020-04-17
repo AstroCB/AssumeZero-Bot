@@ -1356,22 +1356,25 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
             });
         } else if (type == "top") {
             const n = parseInt(rawQuery);
+            const LIMIT = 20;
             if (n) {
-                if (n <= 10) {
+                if (n <= LIMIT) {
                     request.get(`https://corona.lmao.ninja/v2/countries/`, {}, (err, res, info) => {
                         if (!err && res.statusCode == 200) {
                             const data = JSON.parse(info);
                             const sorted = data.sort((a, b) => b.cases - a.cases);
                             const top = sorted.slice(0, n);
 
-                            const msg = top.map((c, i) => `#${i + 1}: ${c.country}\n${buildMessage(c, false)}`).join("\n\n");
+                            const msg = top.map((c, i) =>
+                                `${i + 1}) ${c.country}: ${c.cases.toLocaleString()} cases/${c.deaths.toLocaleString()} deaths/${c.recovered.toLocaleString()} recovered`)
+                                .join("\n");
                             exports.sendMessage(msg, threadId);
                         } else {
                             exports.sendError("Couldn't retrieve data.", threadId);
                         }
                     });
                 } else {
-                    exports.sendError("Please choose a number 10 or smaller for message length reasons.", threadId);
+                    exports.sendError(`Please choose a number ${LIMIT} or smaller for message length reasons.`, threadId);
                 }
             } else {
                 exports.sendError(`"${rawQuery}" is not a valid number.`, threadId);
