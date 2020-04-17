@@ -1213,7 +1213,14 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
             msg += `\nTests per million: ${data.testsPerOneMillion.toLocaleString()}`;
         }
 
-        msg += `\n\nDeaths today: ${data.todayDeaths.toLocaleString()}\nTotal deaths: ${data.deaths.toLocaleString()}`
+        msg += `\n\nDeaths today: ${data.todayDeaths.toLocaleString()}`;
+        
+        if (useDetailedData) {
+            const [_, yesterdayDeaths] = getYesterdayNumbers(historical);
+            msg += `${yesterdayDeaths}`;
+        }
+        
+        msg += `\nTotal deaths: ${data.deaths.toLocaleString()}`;
 
         if (useDetailedData) {
             msg += `\nDeaths per million: ${data.deathsPerOneMillion ? data.deathsPerOneMillion.toLocaleString() : 0}`
