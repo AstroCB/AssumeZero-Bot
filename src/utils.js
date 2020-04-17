@@ -1232,11 +1232,10 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
 
     if (!rawType) {
         // Display total stats
-        request.get("https://corona.lmao.ninja/all", {}, (err, _, all) => {
+        request.get("https://corona.lmao.ninja/v2/all", {}, (err, _, all) => {
             if (!err) {
                 const data = JSON.parse(all);
-                const updated = exports.getPrettyDateString(new Date(data.updated));
-                const msg = `Active cases: ${data.cases.toLocaleString()}\nDeaths: ${data.deaths.toLocaleString()}\nRecovered: ${data.recovered.toLocaleString()}\n\n_Last updated: ${updated}_`;
+                const msg = `*Worldwide data*\n\nAffected countries: ${data.affectedCountries}\n${buildMessage(data, true)}`;
                 exports.sendMessage(msg, threadId);
             } else {
                 exports.sendError("Couldn't retrieve data.", threadId);
@@ -1246,12 +1245,12 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
         const type = rawType.trim().toLowerCase();
         const query = rawQuery.trim().toLowerCase();
         if (type == "country") {
-            request.get(`https://corona.lmao.ninja/countries/${encodeURIComponent(query)}`, {}, (err, res, info) => {
+            request.get(`https://corona.lmao.ninja/v2/countries/${encodeURIComponent(query)}`, {}, (err, res, info) => {
                 if (!err && res.statusCode == 200 && info != "Country not found") {
                     const data = JSON.parse(info);
                     exports.sendMessage(`*${data.country}*\n\n${buildMessage(data, true)}`, threadId);
                 } else {
-                    request.get(`https://corona.lmao.ninja/countries/`, {}, (err, res, info) => {
+                    request.get(`https://corona.lmao.ninja/v2/countries/`, {}, (err, res, info) => {
                         if (!err && res.statusCode == 200) {
                             const data = JSON.parse(info);
                             const countries = data.map(country => country.country).sort().join(", ");
@@ -1263,7 +1262,7 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
                 }
             });
         } else if (type == "state") {
-            request.get(`https://corona.lmao.ninja/states/`, {}, (err, res, info) => {
+            request.get(`https://corona.lmao.ninja/v2/states/`, {}, (err, res, info) => {
                 if (!err && res.statusCode == 200) {
                     const data = JSON.parse(info);
                     const state = data.find(state => state.state.toLowerCase() == query);
@@ -1322,7 +1321,7 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
             const n = parseInt(rawQuery);
             if (n) {
                 if (n <= 10) {
-                    request.get(`https://corona.lmao.ninja/countries/`, {}, (err, res, info) => {
+                    request.get(`https://corona.lmao.ninja/v2/countries/`, {}, (err, res, info) => {
                         if (!err && res.statusCode == 200) {
                             const data = JSON.parse(info);
                             const sorted = data.sort((a, b) => b.cases - a.cases);
