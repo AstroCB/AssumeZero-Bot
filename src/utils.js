@@ -1339,6 +1339,57 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
             } else {
                 exports.sendError(`"${rawQuery}" is not a valid number.`, threadId);
             }
+        } else if (type == "today") {
+            function buildTodayStr(cur, hist) {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const twoDaysAgo = new Date();
+                twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+                const yKey = `${yesterday.getMonth() + 1}/${yesterday.getDate()}/${`${yesterday.getFullYear()}`.slice(-2)}`;
+                const twoKey = `${twoDaysAgo.getMonth() + 1}/${twoDaysAgo.getDate()}/${`${twoDaysAgo.getFullYear()}`.slice(-2)}`;
+
+                const yCases = hist.cases[yKey] ? hist.cases[yKey] : -1;
+                const twoCases = hist.cases[twoKey] ? hist.cases[twoKey] : -1;
+
+                const yCasesStr = yCases >= 0 ? `\nNew cases yesterday: ${(yCases - twoCases).toLocaleString()}` : "";
+
+                let msg = `New cases today: ${cur.todayCases.toLocaleString()}${yCasesStr}\nTotal cases: ${cur.cases.toLocaleString()}\n\n`;
+                msg += `Deaths today: ${cur.todayDeaths.toLocaleString()}\nTotal deaths: ${cur.deaths.toLocaleString()}\n`;
+                msg += `Total recovered: ${cur.recovered.toLocaleString()}`;
+
+                return msg;
+            }
+
+            request.get(`https://corona.lmao.ninja/v2/historical/${query}`, {}, (herr, _, hdata) => {
+                if (herr) {
+                    hdata = { "timeline": { "cases": {} } };
+                } else {
+                    hdata = JSON.parse(hdata);
+                }
+
+                if (query == "all") {
+                    request.get("https://corona.lmao.ninja/v2/all", {}, (err, _, all) => {
+                        if (!err) {
+                            const cdata = JSON.parse(all);
+                            const msg = `*Today's worldwide summary*\n\n${buildTodayStr(cdata, hdata)}`;
+                            exports.sendMessage(msg, threadId);
+                        } else {
+                            exports.sendError("Couldn't retrieve data.", threadId);
+                        }
+                    });
+                } else {
+                    request.get(`https://corona.lmao.ninja/v2/countries/${query}`, {}, (err, _, data) => {
+                        if (!err) {
+                            const cdata = JSON.parse(data);
+                            const msg = `*Today's summary for ${cdata.country}*\n\n${buildTodayStr(cdata, hdata["timeline"])}`;
+                            exports.sendMessage(msg, threadId);
+                        } else {
+                            exports.sendError("Couldn't retrieve data.", threadId);
+                        }
+                    });
+                }
+            });
         }
     }
 }
