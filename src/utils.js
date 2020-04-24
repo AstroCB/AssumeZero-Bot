@@ -1090,7 +1090,8 @@ To delete this event, use "${config.trigger} event delete ${title}" (only the ow
 }
 
 // Delete an event from the chat
-exports.deleteEvent = (keyTitle, sender, groupInfo, threadId, sendConfirmation = true) => {
+exports.deleteEvent = (rawTitle, sender, groupInfo, threadId, sendConfirmation = true) => {
+    const keyTitle = rawTitle.trim().toLowerCase();
     if (groupInfo.events[keyTitle]) {
         const event = groupInfo.events[keyTitle];
         if (event.owner == sender) {
