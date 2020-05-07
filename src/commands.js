@@ -1018,7 +1018,7 @@ exports.categories = {
                 "pretty_name": "Remind",
                 "short_description": "",
                 "description": "Sends a reminder at a certain point in the future",
-                "syntax": "remind {person} {reminder} (in|for) {time}",
+                "syntax": "remind {person} {reminder} (in|for|at) {time}",
                 "example": "remind me let the dogs out in 20 minutes",
                 "sudo": false,
                 "attachments": false,
@@ -1026,7 +1026,7 @@ exports.categories = {
                     "accepts": true,
                     "optional": false
                 },
-                "regex": ["remind", "[^\s](.+) (?:in|for) (.+)"],
+                "regex": ["remind", "[^\s](.+) (?:in|for|at) (.+)"],
                 "experimental": false
             },
             "event": {
