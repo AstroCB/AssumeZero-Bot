@@ -46,7 +46,7 @@ const eggs = [
         "func": (threadId) => { utils.sendFile("../media/purdue.png", threadId); }
     },
     {
-        "regex": /nyu/i,
+        "regex": /(?:^|\s)nyu(?:\s|$)/i,
         "func": (_, messageId) => { utils.reactToMessage(messageId, "sad"); }
     },
     {
