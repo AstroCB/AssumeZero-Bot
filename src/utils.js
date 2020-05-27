@@ -1437,17 +1437,37 @@ exports.getStockData = (symbol, callback) => {
         "symbol": symbol.toUpperCase(),
         "apikey": config.stocksKey
     });
-    request.get(`https://www.alphavantage.co/query?${params.toString()}`, {}, (err, res, body) => {
+
+    // Yahoo Finance API for company/stock metadata
+    request.get(`http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=${symbol}&region=1&lang=en`, {}, (err, res, body) => {
+        let name, exchange, type;
         if (!err && res.statusCode == 200) {
             const data = JSON.parse(body);
-            if (data["Error Message"]) {
-                callback("No stock matching that symbol was found.");
-            } else {
-                const result = data["Global Quote"];
-                callback(null, result);
+            const results = data["ResultSet"]["Result"];
+            if (results.length > 0) {
+                const result = results[0];
+                name = result.name;
+                exchange = result.exchDisp;
+                type = result.typeDisp;
             }
-        } else {
-            callback(err);
         }
-    });
+
+        // Alpha Vantage API for stock data
+        request.get(`https://www.alphavantage.co/query?${params.toString()}`, {}, (err, res, body) => {
+            if (!err && res.statusCode == 200) {
+                const data = JSON.parse(body);
+                if (data["Error Message"]) {
+                    callback("No stock matching that symbol was found.");
+                } else {
+                    const result = data["Global Quote"];
+                    result["name"] = name;
+                    result["exchange"] = exchange;
+                    result["type"] = type;
+                    callback(null, result);
+                }
+            } else {
+                callback(err);
+            }
+        });
+    })
 }

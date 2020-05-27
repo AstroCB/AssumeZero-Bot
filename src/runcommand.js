@@ -1417,7 +1417,9 @@ const funcs = {
                 const change = changeNum > 0 ? `+${changeNum}` : changeNum;
                 const changePercNum = parseFloat(data["10. change percent"]);
                 const changePerc = changePercNum > 0 ? `+${changePercNum}` : changePercNum;
-                const msg = `${symbol}\n\nCurrent price: ${price}\nPrevious close: ${prev}\nChange: ${change} (${changePerc}%)`;
+                const updated = data["07. latest trading day"];
+                const title = data.name ? `${data.name} (${symbol})\n${data.exchange} ${data.type}` : symbol;
+                const msg = `${title}\n\nCurrent price: ${price}\nPrevious close: ${prev}\nChange: ${change} (${changePerc}%)\n\nLast updated: ${updated}`;
 
                 utils.sendMessage(msg, threadId);
             }
