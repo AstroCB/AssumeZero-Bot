@@ -289,7 +289,9 @@ function eventLoop() {
                             if (i < numGoing - 1 || numGoing == 1) {
                                 msg += `@${user.name}`;
                                 if (numGoing > 2) {
-                                    msg += `, `;
+                                    msg += ", ";
+                                } else {
+                                    msg += " ";
                                 }
                             } else {
                                 msg += `and @${user.name}`;
