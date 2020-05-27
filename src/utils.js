@@ -1430,3 +1430,24 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
         }
     }
 }
+
+exports.getStockData = (symbol, callback) => {
+    const params = new URLSearchParams({
+        "function": "GLOBAL_QUOTE",
+        "symbol": symbol.toUpperCase(),
+        "apikey": config.stocksKey
+    });
+    request.get(`https://www.alphavantage.co/query?${params.toString()}`, {}, (err, res, body) => {
+        if (!err && res.statusCode == 200) {
+            const data = JSON.parse(body);
+            if (data["Error Message"]) {
+                callback("No stock matching that symbol was found.");
+            } else {
+                const result = data["Global Quote"];
+                callback(null, result);
+            }
+        } else {
+            callback(err);
+        }
+    });
+}

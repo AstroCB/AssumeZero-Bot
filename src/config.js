@@ -132,6 +132,10 @@ exports.wiki = {
     "key": "AIzaSyCHfJCpWEYUCydDMbb9PqK42XpPQd9L-F8"
 };
 
+// For stock checking capability
+// Alpha Vantage API key
+exports.stocksKey = "T9G59LMJJM8FQWUK";
+
 // Max length of a file path (somewhat arbitrarily chosen by OS? Windows
 // has limit of 260; seems to be 220 for macOS)
 exports.MAXPATH = 219;

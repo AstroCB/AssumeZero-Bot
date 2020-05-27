@@ -721,7 +721,7 @@ exports.categories = {
                 "display_names": ["covid"],
                 "pretty_name": "COVID",
                 "short_description": "Information about COVID-19",
-                "description": "Search the JHU COVID data set for information about COVID cases around the world",
+                "description": "Search various data sets for information about COVID cases around the world",
                 "syntax": "covid ((state|country|province|top) {query})",
                 "example": ["covid", "covid state Maryland", "covid country Italy", "covid province Hubei", "covid top 5", "covid today all"],
                 "sudo": false,
@@ -731,6 +731,22 @@ exports.categories = {
                     "optional": false
                 },
                 "regex": /covid(?: (state|country|province|top|today) (.+))?/i,
+                "experimental": false
+            },
+            "stocks": {
+                "display_names": ["stocks", "$"],
+                "pretty_name": "Stocks",
+                "short_description": "",
+                "description": "Get current stock prices",
+                "syntax": "${ticker symbol}",
+                "example": "$TSLA",
+                "sudo": false,
+                "attachments": false,
+                "user_input": {
+                    "accepts": false,
+                    "optinoal": false
+                },
+                "regex": /\$([A-Z]+)/i,
                 "experimental": false
             }
         }

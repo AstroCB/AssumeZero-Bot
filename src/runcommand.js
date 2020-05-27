@@ -1403,6 +1403,25 @@ const funcs = {
         const type = cmatch[1];
         const search = cmatch[2];
         utils.getCovidData(type, search, threadId);
+    },
+    "stocks": (threadId, cmatch) => {
+        const ticker = cmatch[1];
+        utils.getStockData(ticker, (err, data) => {
+            if (err) {
+                utils.sendError(err, threadId);
+            } else {
+                const symbol = data["01. symbol"];
+                const price = parseFloat(data["05. price"]);
+                const prev = parseFloat(data["08. previous close"]);
+                const changeNum = parseFloat(data["09. change"]);
+                const change = changeNum > 0 ? `+${changeNum}` : changeNum;
+                const changePercNum = parseFloat(data["10. change percent"]);
+                const changePerc = changePercNum > 0 ? `+${changePercNum}` : changePercNum;
+                const msg = `${symbol}\n\nCurrent price: ${price}\nPrevious close: ${prev}\nChange: ${change} (${changePerc}%)`;
+
+                utils.sendMessage(msg, threadId);
+            }
+        });
     }
 };
 
