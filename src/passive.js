@@ -6,6 +6,7 @@ const request = require("request"); // For HTTP requests
 const xpath = require("xpath"); // For HTML parsing
 const domParser = require("xmldom").DOMParser; // For HTML parsing
 const utils = require("./utils"); // For util funcs
+const config = require("./config"); // For configuration
 
 const dom = new domParser({
     locator: {},
@@ -59,7 +60,7 @@ function handleTweet(match, groupInfo) {
 
     // Scrape tweets because the Twitter API is annoying
     // and requires a 5-page application with essays
-    request.get(url, {}, (err, res, body) => {
+    request.get(url, { "headers": { "User-Agent": config.scrapeAgent } }, (err, res, body) => {
         if (!err && res.statusCode == 200) {
             const doc = dom.parseFromString(body);
 
