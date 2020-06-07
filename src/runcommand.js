@@ -501,16 +501,17 @@ const funcs = {
             }
         }
     },
-    "pin": (threadId, cmatch, groupInfo, _, fromUserId) => {
+    "pin": (threadId, cmatch, groupInfo, _, fromUserId, __, msgObj) => {
         const name = cmatch[1];
         const msg = cmatch[2];
+        const reply = msgObj.messageReply;
 
         if (groupInfo.pinned) {
             if (name == "delete") { // Delete pins
                 utils.deletePin(msg, groupInfo, threadId);
             } else if (name == "rename") {
                 utils.renamePin(msg, groupInfo, threadId);
-            } else if (!msg) { // No new pin message; display pins
+            } else if (!msg && !reply) { // No new pin message; display pins
                 if (name) { // Requested specific pin
                     if (groupInfo.pinned[name]) {
                         utils.sendMessage(groupInfo.pinned[name], threadId);
@@ -532,7 +533,14 @@ const funcs = {
                     }
                 }
             } else { // Pin new message
-                utils.addPin(msg, name, groupInfo.names[fromUserId], groupInfo);
+                let pin = msg;
+                let sender = groupInfo.names[fromUserId];
+                if (reply) {
+                    // If reply provided, pin the reply instead
+                    pin = reply.body;
+                    sender = groupInfo.names[reply.senderID] || config.bot.names.short;
+                }
+                utils.addPin(pin, name, sender, groupInfo);
             }
         } else {
             console.log("Unable to pin message due to malformed db entry");
