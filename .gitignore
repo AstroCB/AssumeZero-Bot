@@ -1,5 +1,5 @@
 node_modules/
-credentials.js
+credentials.js*
 test.js
 npm-debug.log
 media/preview.mp3
