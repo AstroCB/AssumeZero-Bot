@@ -535,12 +535,14 @@ const funcs = {
             } else { // Pin new message
                 let pin = msg;
                 let sender = groupInfo.names[fromUserId];
+                let time = msgObj.timestamp;
                 if (reply) {
                     // If reply provided, pin the reply instead
                     pin = reply.body;
                     sender = groupInfo.names[reply.senderID] || config.bot.names.short;
+                    time = reply.timestamp
                 }
-                utils.addPin(pin, name, sender, groupInfo);
+                utils.addPin(pin, name, new Date(parseInt(time)), sender, groupInfo);
             }
         } else {
             console.log("Unable to pin message due to malformed db entry");

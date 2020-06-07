@@ -1024,8 +1024,8 @@ exports.renamePin = (pinArgs, groupInfo, threadId) => {
 }
 
 // Adds a pinned message to the chat
-exports.addPin = (msg, pinName, sender, groupInfo) => {
-    const pin = `"${msg}" – ${sender} on ${exports.getDateString()}`;
+exports.addPin = (msg, pinName, date, sender, groupInfo) => {
+    const pin = `"${msg}" – ${sender} on ${exports.getPrettyDateString(date)}`;
     const oldPin = groupInfo.pinned[pinName];
     groupInfo.pinned[pinName] = pin;
     exports.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
