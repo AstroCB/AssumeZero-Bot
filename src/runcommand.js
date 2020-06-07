@@ -536,12 +536,14 @@ const funcs = {
                 let pin = msg;
                 let sender = groupInfo.names[fromUserId];
                 let time = msgObj.timestamp;
-                if (reply) {
-                    // If reply provided, pin the reply instead
+
+                if (reply) { // If reply provided, pin the reply instead
                     pin = reply.body;
-                    sender = groupInfo.names[reply.senderID] || config.bot.names.short;
+                    sender = reply.senderID == config.bot.id ? config.bot.names.short :
+                        (groupInfo.names[reply.senderID] || "Unknown");
                     time = reply.timestamp
                 }
+                
                 utils.addPin(pin, name, new Date(parseInt(time)), sender, groupInfo);
             }
         } else {
