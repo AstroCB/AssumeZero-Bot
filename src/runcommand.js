@@ -513,8 +513,9 @@ const funcs = {
                 utils.renamePin(msg, groupInfo, threadId);
             } else if (!msg && !reply) { // No new pin message; display pins
                 if (name) { // Requested specific pin
-                    if (groupInfo.pinned[name]) {
-                        utils.sendMessage(groupInfo.pinned[name], threadId);
+                    const pin = groupInfo.pinned[name];
+                    if (pin) {
+                        utils.sendMessage(utils.stringifyPin(pin), threadId);
                     } else {
                         utils.sendError("Couldn't find that pin.", threadId);
                     }
@@ -523,7 +524,7 @@ const funcs = {
                     if (pins.length > 0) {
                         if (pins.length == 1) { // Display pin if only one; otherwise list pins
                             const pin = pins[0];
-                            utils.sendMessage(groupInfo.pinned[pin], threadId);
+                            utils.sendMessage(utils.stringifyPin(groupInfo.pinned[pin]), threadId);
                         } else {
                             let msg = pins.reduce((m, pin) => `${m}\n${pin}`, "Available pins:");
                             utils.sendMessage(msg, threadId);

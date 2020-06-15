@@ -219,7 +219,7 @@ exports.welcomeToChat = (name, groupInfo) => {
     if (groupInfo.pinned) {
         const introPin = groupInfo.pinned[config.introPin];
         if (introPin) {
-            msg += `\nHere's some information about this chat:\n\n${introPin}`;
+            msg += `\nHere's some information about this chat:\n\n${exports.stringifyPin(introPin)}`;
         }
     }
 
@@ -473,17 +473,20 @@ exports.getDateString = () => {
 }
 
 // Given a date, return a nicely-formatted string (with time)
-exports.getPrettyDateString = (date) => {
+exports.getPrettyDateString = (date, withTime = true) => {
     const options = {
         'weekday': 'long',
         'year': 'numeric',
         'month': 'long',
-        'day': 'numeric',
-        'hour': 'numeric',
-        'minute': 'numeric',
-        'timeZone': config.timeZone,
-        'hour12': true
+        'day': 'numeric'
     };
+
+    if (withTime) {
+        options['hour'] = 'numeric';
+        options['minute'] = 'numeric';
+        options['timeZone'] = config.timeZone;
+        options['hour12'] = true;
+    }
 
     return date.toLocaleString('en-US', options)
 }
@@ -1025,16 +1028,28 @@ exports.renamePin = (pinArgs, groupInfo, threadId) => {
 
 // Adds a pinned message to the chat
 exports.addPin = (msg, pinName, date, sender, groupInfo) => {
-    const pin = `"${msg}" – ${sender} on ${exports.getPrettyDateString(date)}`;
+    const pin = {
+        "msg": msg,
+        "sender": sender,
+        "date": date
+    }
     const oldPin = groupInfo.pinned[pinName];
+
+    // Add pin to db
     groupInfo.pinned[pinName] = pin;
     exports.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
         if (!err) {
-            exports.sendMessage(`Pinned new message for pin "${pinName}" to the chat.${oldPin ? ` Previous message:\n\n${oldPin}` : ""}`, groupInfo.threadId);
+            const pinMsg = `Pinned new message for pin "${pinName}" to the chat.${oldPin ? ` Previous message:\n\n"${oldPin.msg}"` : ""}`;
+            exports.sendMessage(pinMsg, groupInfo.threadId);
         } else {
             exports.sendError("Unable to pin message to the chat.", threadId);
         }
     });
+}
+
+exports.stringifyPin = (pin) => {
+    const dateStr = exports.getPrettyDateString(new Date(pin.date), false);
+    return `"${pin.msg}" – ${pin.sender} on ${dateStr}`;
 }
 
 // Adds an event to the chat
