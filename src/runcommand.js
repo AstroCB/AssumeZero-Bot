@@ -561,7 +561,11 @@ const funcs = {
                     }
                 } else {
                     // Just a regular fresh pin creation (or overwrite)
-                    utils.addPin(pin, name, date, sender, groupInfo);
+                    if (pin && name) {
+                        utils.addPin(pin, name, date, sender, groupInfo);
+                    } else {
+                        utils.sendError("Please provide a pin name and content to pin.", threadId);
+                    }
                 }
             }
         } else {
