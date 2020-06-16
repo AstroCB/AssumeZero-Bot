@@ -564,7 +564,7 @@ const funcs = {
                     if (pin && name) {
                         utils.addPin(pin, name, date, sender, groupInfo);
                     } else {
-                        utils.sendError("Please provide a pin name and content to pin.", threadId);
+                        utils.sendError("Please provide a pin name and message to pin.", threadId);
                     }
                 }
             }
