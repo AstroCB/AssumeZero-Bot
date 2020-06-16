@@ -550,7 +550,8 @@ const funcs = {
                     // -- Appending an existing pin --
                     // Need to extract existing pin name and content to append, which
                     // comes from different places in the case of a reply pin
-                    const match = msg ? (msg.match(/([^\s]+) (.+)/) || []) : [];
+                    // (regex designed to capture multiple lines)
+                    const match = msg ? (msg.match(/(\S+)(?:\s|$)([\s\S]+)/m) || []) : [];
                     const existing = reply ? msg : match[1];
                     const content = reply ? pin : match[2];
 
