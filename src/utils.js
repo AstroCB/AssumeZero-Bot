@@ -1052,6 +1052,28 @@ exports.stringifyPin = (pin) => {
     return `"${pin.msg}" – ${pin.sender} on ${dateStr}`;
 }
 
+exports.appendPin = (content, existing, date, sender, groupInfo) => {
+    const pin = groupInfo.pinned[existing];
+    if (pin) {
+        // Append new content to pin and update metadata
+        groupInfo.pinned[existing] = {
+            "msg": `${pin.msg}\n${content}`,
+            "sender": sender,
+            "date": date
+        }
+        // Commit changes to db
+        exports.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
+            if (!err) {
+                exports.sendMessage(`Updated pin "${existing}".`, groupInfo.threadId);
+            } else {
+                exports.sendError("Unable to append that pin; please try again.", threadId);
+            }
+        });
+    } else {
+        exports.sendError(`"${existing}" doesn't seem to exist. Please specify a valid existing pin to append to.`, groupInfo.threadId);
+    }
+}
+
 // Adds an event to the chat
 exports.addEvent = (title, at, sender, groupInfo, threadId) => {
     const keyTitle = title.trim().toLowerCase();

@@ -533,7 +533,7 @@ const funcs = {
                         utils.sendError("No pinned messages in this chat.", threadId);
                     }
                 }
-            } else { // Pin new message
+            } else { // Pin new message (or append to existing pin)
                 let pin = msg;
                 let sender = groupInfo.names[fromUserId];
                 let time = msgObj.timestamp;
@@ -544,8 +544,25 @@ const funcs = {
                         (groupInfo.names[reply.senderID] || "Unknown");
                     time = reply.timestamp
                 }
+                const date = new Date(parseInt(time));
                 
-                utils.addPin(pin, name, new Date(parseInt(time)), sender, groupInfo);
+                if (name == "append") {
+                    // -- Appending an existing pin --
+                    // Need to extract existing pin name and content to append, which
+                    // comes from different places in the case of a reply pin
+                    const match = msg ? (msg.match(/([^\s]+) (.+)/) || []) : [];
+                    const existing = reply ? msg : match[1];
+                    const content = reply ? pin : match[2];
+
+                    if (existing && content) {
+                        utils.appendPin(content, existing, date, sender, groupInfo)
+                    } else {
+                        utils.sendError("Please provide a pin and content to append to it.", threadId);
+                    }
+                } else {
+                    // Just a regular fresh pin creation (or overwrite)
+                    utils.addPin(pin, name, date, sender, groupInfo);
+                }
             }
         } else {
             console.log("Unable to pin message due to malformed db entry");
