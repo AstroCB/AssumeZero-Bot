@@ -123,7 +123,7 @@ function handleMention(match, groupInfo, messageObj) {
     const group = match[1].toLowerCase();
     const senderId = messageObj.senderID;
 
-    const members = groupInfo.groups[group];
+    const members = groupInfo.mentionGroups[group];
     if (members) {
         // Found a ping group to mention
         const mentions = members.map(id => {

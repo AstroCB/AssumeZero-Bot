@@ -281,6 +281,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, api = gapi) 
                             info.aliases = {};
                             info.pinned = {};
                             info.events = {};
+                            info.mentionGroups = {};
                             info.isGroup = data.isGroup;
                         }
                         api.getUserInfo(data.participantIDs, (err, userData) => {
