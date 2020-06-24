@@ -134,7 +134,11 @@ function handleMention(match, groupInfo, messageObj) {
         });
         const msg = mentions.map(mention => mention.tag).join(" ");
 
-        utils.sendMessageWithMentions(msg, mentions, groupInfo.threadId);
+        if (mentions.length > 0) {
+            utils.sendMessageWithMentions(msg, mentions, groupInfo.threadId);
+        } else {
+            utils.sendError("There are no members in that group.", groupInfo.threadId);
+        }
     } else {
         // Check for old-style individual pings
         utils.handlePings(messageObj.body, senderId, groupInfo);

@@ -1253,12 +1253,12 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
         }
 
         msg += `\n\nDeaths today: ${data.todayDeaths.toLocaleString()}`;
-        
+
         if (useDetailedData) {
             const [_, yesterdayDeaths] = getYesterdayNumbers(historical);
             msg += `${yesterdayDeaths}`;
         }
-        
+
         msg += `\nTotal deaths: ${data.deaths.toLocaleString()}`;
 
         if (useDetailedData) {
@@ -1569,4 +1569,72 @@ exports.handlePings = (body, senderId, info) => {
             }], info.members[pingUsers[i]]);
         }
     }
+}
+
+exports.createMentionGroup = (name, userIds, groupInfo, threadId) => {
+    groupInfo.mentionGroups[name] = userIds;
+
+    exports.setGroupProperty("mentionGroups", groupInfo.mentionGroups, groupInfo, err => {
+        if (err) {
+            exports.sendError("Unable to create the group.", threadId);
+        } else {
+            const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
+            const memberString = userIds.length > 0 ? ` with members ${memberNames}` : "";
+            exports.sendMessage(`Successfully created group "${name}"${memberString}.`, threadId);
+        }
+    });
+}
+
+exports.deleteMentionGroup = (name, groupInfo, threadId) => {
+    delete groupInfo.mentionGroups[name];
+
+    exports.setGroupProperty("mentionGroups", groupInfo.mentionGroups, groupInfo, err => {
+        if (err) {
+            exports.sendError("Unable to delete the group.", threadId);
+        } else {
+            exports.sendMessage(`Successfully deleted group "${name}".`, threadId);
+        }
+    });
+}
+
+exports.addToMentionGroup = (name, userIds, groupInfo, threadId) => {
+    let members = groupInfo.mentionGroups[name];
+    if (members) {
+        members = members.concat(userIds);
+        groupInfo.mentionGroups[name] = exports.pruneDuplicates(members);
+
+        exports.setGroupProperty("mentionGroups", groupInfo.mentionGroups, groupInfo, err => {
+            if (err) {
+                exports.sendError("Unable to add to the group.", threadId);
+            } else {
+                const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
+                exports.sendMessage(`Successfully added ${memberNames} to group "${name}".`, threadId);
+            }
+        });
+    } else {
+        exports.sendError("Please provide a valid group to add members.")
+    }
+}
+
+exports.removeFromMentionGroup = (name, userIds, groupInfo, threadId) => {
+    let members = groupInfo.mentionGroups[name];
+    if (members) {
+        members = members.filter(id => !userIds.includes(id));
+        groupInfo.mentionGroups[name] = members;
+
+        exports.setGroupProperty("mentionGroups", groupInfo.mentionGroups, groupInfo, err => {
+            if (err) {
+                exports.sendError("Unable to remove from the group.", threadId);
+            } else {
+                const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
+                exports.sendMessage(`Successfully removed ${memberNames} from group "${name}".`, threadId);
+            }
+        });
+    } else {
+        exports.sendError("Please provide a valid group to remove members.")
+    }
+}
+
+exports.pruneDuplicates = list => {
+    return list.filter((item, ind) => list.indexOf(item) == ind);
 }

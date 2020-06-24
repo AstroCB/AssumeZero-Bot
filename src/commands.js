@@ -1060,6 +1060,22 @@ exports.categories = {
                 },
                 "regex": /event (?:(create) (.+) for (.+)|(delete) (.+)|(list)( .+)?)/i,
                 "experimental": false
+            },
+            "group": {
+                "display_names": ["group"],
+                "pretty_name": "Mention groups",
+                "short_description": "",
+                "description": "Manage groups of people that can be pinged collectively",
+                "syntax": "group (create|delete) {name} ({users})",
+                "example": ["group create testers me, Larry", "group delete testers", "group subscribe testers Anton", "group unsubscribe testers me"],
+                "sudo": false,
+                "attachments": false,
+                "user_input": {
+                    "accepts": false,
+                    "optional": false
+                },
+                "regex": /group (create|delete|subscribe|unsubscribe) ([^\s]+)(?: (.+))?/i,
+                "experimental": false
             }
         }
     }

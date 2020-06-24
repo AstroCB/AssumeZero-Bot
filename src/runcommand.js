@@ -545,7 +545,7 @@ const funcs = {
                     time = reply.timestamp
                 }
                 const date = new Date(parseInt(time));
-                
+
                 if (name == "append") {
                     // -- Appending an existing pin --
                     // Need to extract existing pin name and content to append, which
@@ -860,7 +860,7 @@ const funcs = {
             }
         }
     },
-    "restart": (threadId, ) => {
+    "restart": (threadId,) => {
         utils.restart(() => {
             utils.sendMessage("Restarting...", threadId);
         });
@@ -1459,6 +1459,28 @@ const funcs = {
                 utils.sendMessage(msg, threadId);
             }
         });
+    },
+    "group": (threadId, cmatch, groupInfo, _, fromUserId) => {
+        const action = cmatch[1].toLowerCase();
+        const name = cmatch[2];
+        const userList = cmatch[3];
+
+        let userIds = [];
+        if (userList) {
+            const users = userList.split(",").map(m => utils.parseNameReplacements(m.toLowerCase().trim(), fromUserId, groupInfo));
+            userIds = users.map(user => groupInfo.members[user]).filter(id => id);
+            userIds = utils.pruneDuplicates(userIds);
+        }
+
+        if (action == "create") {
+            utils.createMentionGroup(name, userIds, groupInfo, threadId);
+        } else if (action == "subscribe" && userIds.length > 0) {
+            utils.addToMentionGroup(name, userIds, groupInfo, threadId);
+        } else if (action == "unsubscribe" && userIds.length > 0) {
+            utils.removeFromMentionGroup(name, userIds, groupInfo, threadId);
+        } else if (action == "delete") {
+            utils.deleteMentionGroup(name, groupInfo, threadId);
+        }
     }
 };
 
