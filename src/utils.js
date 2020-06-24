@@ -1543,3 +1543,29 @@ exports.parsePing = (m, fromUserId, groupInfo) => {
         "message": m.trim() // Remove leading/trailing whitespace
     };
 }
+
+// Ping individual users or the entire group
+exports.handlePings = (body, senderId, info) => {
+    const pingData = exports.parsePing(body, senderId, info);
+    const pingUsers = pingData.users;
+    const pingMessage = pingData.message;
+
+    if (pingUsers) {
+        for (let i = 0; i < pingUsers.length; i++) {
+            const sender = info.nicknames[senderId] || info.names[senderId] || "A user";
+            let message = `${sender} summoned you in ${info.name}`;
+            if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
+                message = `"${pingMessage}" – ${sender} in ${info.name}`;
+            }
+            message += ` at ${exports.getTimeString()}` // Time stamp
+            // Send message with links to chat/sender
+            exports.sendMessageWithMentions(message, [{
+                "tag": sender,
+                "id": senderId
+            }, {
+                "tag": info.name,
+                "id": info.threadId
+            }], info.members[pingUsers[i]]);
+        }
+    }
+}

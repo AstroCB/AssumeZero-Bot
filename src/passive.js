@@ -28,7 +28,7 @@ const passiveTypes = [
         "handler": handleWiki
     }, {
         "regex": /@@(.+)/,
-        "handler": handlePings
+        "handler": handleMention
     }
 ];
 
@@ -119,29 +119,24 @@ function handleWiki(match, groupInfo) {
     });
 }
 
-function handlePings(_, info, messageObj) {
-    const body = messageObj.body;
+function handleMention(match, groupInfo, messageObj) {
+    const group = match[1].toLowerCase();
     const senderId = messageObj.senderID;
-    const pingData = utils.parsePing(body, senderId, info);
-    const pingUsers = pingData.users;
-    const pingMessage = pingData.message;
 
-    if (pingUsers) {
-        for (let i = 0; i < pingUsers.length; i++) {
-            const sender = info.nicknames[senderId] || info.names[senderId] || "A user";
-            let message = `${sender} summoned you in ${info.name}`;
-            if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
-                message = `"${pingMessage}" – ${sender} in ${info.name}`;
-            }
-            message += ` at ${utils.getTimeString()}` // Time stamp
-            // Send message with links to chat/sender
-            utils.sendMessageWithMentions(message, [{
-                "tag": sender,
-                "id": senderId
-            }, {
-                "tag": info.name,
-                "id": info.threadId
-            }], info.members[pingUsers[i]]);
-        }
+    const members = groupInfo.groups[group];
+    if (members) {
+        // Found a ping group to mention
+        const mentions = members.map(id => {
+            return {
+                "tag": `@${groupInfo.names[id]}`,
+                "id": id
+            };
+        });
+        const msg = mentions.map(mention => mention.tag).join(" ");
+
+        utils.sendMessageWithMentions(msg, mentions, groupInfo.threadId);
+    } else {
+        // Check for old-style individual pings
+        utils.handlePings(messageObj.body, senderId, groupInfo);
     }
 }
