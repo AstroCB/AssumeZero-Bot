@@ -26,6 +26,9 @@ const passiveTypes = [
     {
         "regex": /https?:\/\/en\.wikipedia\.org\/wiki\/.+/,
         "handler": handleWiki
+    }, {
+        "regex": /@@(.+)/,
+        "handler": handlePing
     }
 ];
 
@@ -33,19 +36,20 @@ exports.handlePassive = (messageObj, fromUserId, attachments, groupInfo, api) =>
     const message = messageObj.body;
     const messageId = messageObj.messageID;
 
-    const type = getPassiveType(message);
-    if (type) {
-        type.handler(message.match(type.regex), groupInfo, messageId);
-    }
+    getPassiveTypes(message, type => {
+        // Call generic handler and pass in all message info (handler can
+        // decide whether they want to use it selectively via parameters)
+        const match = message.match(type.regex);
+        type.handler(match, groupInfo, messageId, fromUserId, attachments, api);
+    });
 };
 
-function getPassiveType(text) {
-    for (let i = 0; i < passiveTypes.length; i++) {
-        if (text.match(passiveTypes[i].regex)) {
-            return passiveTypes[i];
+function getPassiveTypes(text, cb) {
+    passiveTypes.forEach(type => {
+        if (text.match(type.regex)) {
+            cb(type);
         }
-    }
-    return null;
+    });
 }
 
 const authorXPath =
@@ -107,4 +111,8 @@ function handleWiki(match, groupInfo) {
             utils.sendMessage(`*${title}*\n\n${paragraph}`, groupInfo.threadId);
         }
     });
+}
+
+function handlePing() {
+
 }
