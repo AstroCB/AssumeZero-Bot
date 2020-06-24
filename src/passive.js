@@ -1,6 +1,6 @@
 /*
-    Check for certain message types that can be expanded to more rich content
-    from a link.
+    Listen for certain messages that can be acted upon without an explicit
+    trigger word – usually links that can be expanded to more rich content.
 */
 const request = require("request"); // For HTTP requests
 const xpath = require("xpath"); // For HTML parsing
@@ -28,19 +28,18 @@ const passiveTypes = [
         "handler": handleWiki
     }, {
         "regex": /@@(.+)/,
-        "handler": handlePing
+        "handler": handlePings
     }
 ];
 
-exports.handlePassive = (messageObj, fromUserId, attachments, groupInfo, api) => {
+exports.handlePassive = (messageObj, groupInfo, api) => {
     const message = messageObj.body;
-    const messageId = messageObj.messageID;
 
     getPassiveTypes(message, type => {
         // Call generic handler and pass in all message info (handler can
         // decide whether they want to use it selectively via parameters)
         const match = message.match(type.regex);
-        type.handler(match, groupInfo, messageId, fromUserId, attachments, api);
+        type.handler(match, groupInfo, messageObj, api);
     });
 };
 
@@ -51,6 +50,13 @@ function getPassiveTypes(text, cb) {
         }
     });
 }
+
+/*
+    Handler functions
+    
+    Take (up to) the following arguments:
+    match, groupInfo, messageObj, api
+*/
 
 const authorXPath =
     "//div[contains(@class, 'permalink-tweet-container')]//strong[contains(@class, 'fullname')]/text()";
@@ -113,6 +119,29 @@ function handleWiki(match, groupInfo) {
     });
 }
 
-function handlePing() {
+function handlePings(_, info, messageObj) {
+    const body = messageObj.body;
+    const senderId = messageObj.senderID;
+    const pingData = utils.parsePing(body, senderId, info);
+    const pingUsers = pingData.users;
+    const pingMessage = pingData.message;
 
+    if (pingUsers) {
+        for (let i = 0; i < pingUsers.length; i++) {
+            const sender = info.nicknames[senderId] || info.names[senderId] || "A user";
+            let message = `${sender} summoned you in ${info.name}`;
+            if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
+                message = `"${pingMessage}" – ${sender} in ${info.name}`;
+            }
+            message += ` at ${utils.getTimeString()}` // Time stamp
+            // Send message with links to chat/sender
+            utils.sendMessageWithMentions(message, [{
+                "tag": sender,
+                "id": senderId
+            }, {
+                "tag": info.name,
+                "id": info.threadId
+            }], info.members[pingUsers[i]]);
+        }
+    }
 }
