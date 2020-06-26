@@ -121,11 +121,24 @@ function handleWiki(match, groupInfo) {
 
 function handleMention(match, groupInfo, messageObj) {
     const group = match[1].toLowerCase();
+    const body = messageObj.body;
     const senderId = messageObj.senderID;
 
-    const members = groupInfo.mentionGroups[group];
+
+    // Two types of mentions: channel-wide and stored groups
+    const allMatch = body.match(config.channelMentionRegex);
+    let members = groupInfo.mentionGroups[group];
+
+    if (allMatch) {
+        // Alert everyone in the group
+        members = Object.keys(groupInfo.names);
+
+        // Remove sending user from recipients
+        members.splice(members.indexOf(senderId), 1);
+    }
+
     if (members) {
-        // Found a ping group to mention
+        // Found a group to mention (either stored or global)
         const mentions = members.map(id => {
             return {
                 "tag": `@${groupInfo.names[id]}`,
@@ -141,6 +154,6 @@ function handleMention(match, groupInfo, messageObj) {
         }
     } else {
         // Check for old-style individual pings
-        utils.handlePings(messageObj.body, senderId, groupInfo);
+        utils.handlePings(body, senderId, groupInfo);
     }
 }
