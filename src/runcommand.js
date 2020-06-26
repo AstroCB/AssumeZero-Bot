@@ -1472,14 +1472,11 @@ const funcs = {
             userIds = utils.pruneDuplicates(userIds);
         }
 
-        if (action == "create") {
-            utils.createMentionGroup(name, userIds, groupInfo, threadId);
-        } else if (action == "subscribe" && userIds.length > 0) {
-            utils.addToMentionGroup(name, userIds, groupInfo, threadId);
-        } else if (action == "unsubscribe" && userIds.length > 0) {
-            utils.removeFromMentionGroup(name, userIds, groupInfo, threadId);
-        } else if (action == "delete") {
-            utils.deleteMentionGroup(name, groupInfo, threadId);
+        switch (action) {
+            case "create": utils.createMentionGroup(name, userIds, groupInfo); break;
+            case "subscribe": utils.subToMentionGroup(name, userIds, groupInfo); break;
+            case "unsubscribe": utils.unsubFromMentionGroup(name, userIds, groupInfo); break;
+            case "delete": utils.deleteMentionGroup(name, groupInfo); break;
         }
     }
 };

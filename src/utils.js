@@ -1582,7 +1582,7 @@ exports.setGroupPropertyAndHandleErrors = (property, groupInfo, errMsg, successM
     });
 }
 
-exports.createMentionGroup = (name, userIds, groupInfo, threadId) => {
+exports.createMentionGroup = (name, userIds, groupInfo) => {
     groupInfo.mentionGroups[name] = userIds;
 
     const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
@@ -1594,7 +1594,7 @@ exports.createMentionGroup = (name, userIds, groupInfo, threadId) => {
     );
 }
 
-exports.deleteMentionGroup = (name, groupInfo, threadId) => {
+exports.deleteMentionGroup = (name, groupInfo) => {
     delete groupInfo.mentionGroups[name];
 
     exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
@@ -1603,7 +1603,9 @@ exports.deleteMentionGroup = (name, groupInfo, threadId) => {
     );
 }
 
-exports.addToMentionGroup = (name, userIds, groupInfo, threadId) => {
+exports.subToMentionGroup = (name, userIds, groupInfo) => {
+    if (userIds.length < 1) { return; }
+
     let members = groupInfo.mentionGroups[name];
     if (members) {
         members = members.concat(userIds);
@@ -1611,15 +1613,17 @@ exports.addToMentionGroup = (name, userIds, groupInfo, threadId) => {
 
         const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
         exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
-            "Unable to add to the group.",
-            `Successfully added ${memberNames} to group "${name}".`
+            "Unable to subscribe to the group.",
+            `${memberNames} successfully subscribed to group "${name}".`
         );
     } else {
         exports.sendError("Please provide a valid group to add members.")
     }
 }
 
-exports.removeFromMentionGroup = (name, userIds, groupInfo, threadId) => {
+exports.unsubFromMentionGroup = (name, userIds, groupInfo) => {
+    if (userIds.length < 1) { return; }
+
     let members = groupInfo.mentionGroups[name];
     if (members) {
         members = members.filter(id => !userIds.includes(id));
@@ -1627,8 +1631,8 @@ exports.removeFromMentionGroup = (name, userIds, groupInfo, threadId) => {
 
         const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
         exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
-            "Unable to remove from the group.",
-            `Successfully removed ${memberNames} from group "${name}".`
+            "Unable to unsubscribe from the group.",
+            `${memberNames} successfully unsubscribed from group "${name}".`
         );
     } else {
         exports.sendError("Please provide a valid group to remove members.")
