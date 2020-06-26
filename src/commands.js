@@ -1065,7 +1065,7 @@ exports.categories = {
                 "display_names": ["group"],
                 "pretty_name": "Mention groups",
                 "short_description": "",
-                "description": "Manage groups of people that can be pinged collectively",
+                "description": "Manage groups of people that can be mentioned collectively",
                 "syntax": "group (create|delete) {name} ({users})",
                 "example": ["group create testers me, Larry", "group delete testers", "group subscribe testers Anton", "group unsubscribe testers me"],
                 "sudo": false,
