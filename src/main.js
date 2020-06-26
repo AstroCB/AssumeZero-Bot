@@ -88,9 +88,6 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
                     const attachments = message.attachments;
                     // Handle message body
                     if (m) {
-                        // Handle user pings
-                        handlePings(m, senderId, info);
-
                         // Pass to commands testing for trigger word
                         const cindex = m.toLowerCase().indexOf(config.trigger);
                         if (cindex > -1) { // Trigger command mode
@@ -102,7 +99,7 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
                         easter.handleEasterEggs(message, senderId, attachments, info, api);
 
                         // Check for passive messages to expand rich content
-                        passive.handlePassive(message, senderId, attachments, info, api);
+                        passive.handlePassive(message, info, api);
                     }
                 } else if (message.type == "message_reaction") { // Potential event response
                     const eventMidMap = Object.keys(info.events).reduce((events, e) => {
@@ -199,64 +196,6 @@ function debugCommandOutput(flag) {
         console.log(Object.keys(co).map((c) => {
             return `${c}: ${co[c].m}`
         }));
-    }
-}
-
-// Parses a sent message for pings, removes them from the message,
-// and extracts the intended users from the ping to send the message to them
-function parsePing(m, fromUserId, groupInfo) {
-    let users = [];
-    const allMatch = m.match(/@@(all|everyone|channel)/i);
-    if (allMatch && allMatch[1]) { // Alert everyone
-        users = Object.keys(groupInfo.members);
-        // Remove sending user from recipients
-        users.splice(users.indexOf(groupInfo.names[fromUserId].toLowerCase()), 1);
-        m = m.split("@@" + allMatch[1]).join("");
-    } else {
-        let matches = utils.matchesWithUser(new RegExp("@@"), m, fromUserId, groupInfo, false, "");
-        while (matches && matches[1]) {
-            users.push(matches[1].toLowerCase());
-            const beforeSplit = m;
-            m = m.split(`@@${matches[1]}`).join(""); // Remove discovered match from string
-            if (m == beforeSplit) { // Discovered match was "me" or alias
-                m = m.split("@@me").join("");
-                const alias = groupInfo.aliases[matches[1]];
-                if (alias) {
-                    m = m.split(`@@${alias}`).join("");
-                }
-            }
-            matches = utils.matchesWithUser(new RegExp("@@"), m, fromUserId, groupInfo, false, "");
-        }
-        // After loop, m will contain the message without the pings (the message to be sent)
-    }
-    return {
-        /* Return array of names to ping, but remove sending user */
-        "users": users.filter(e => (e != groupInfo.names[fromUserId].toLowerCase())),
-        "message": m.trim() // Remove leading/trailing whitespace
-    };
-}
-
-function handlePings(msg, senderId, info) {
-    const pingData = parsePing(msg, senderId, info);
-    const pingUsers = pingData.users;
-    const pingMessage = pingData.message;
-    if (pingUsers) {
-        for (let i = 0; i < pingUsers.length; i++) {
-            const sender = info.nicknames[senderId] || info.names[senderId] || "A user";
-            let message = `${sender} summoned you in ${info.name}`;
-            if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
-                message = `"${pingMessage}" – ${sender} in ${info.name}`;
-            }
-            message += ` at ${utils.getTimeString()}` // Time stamp
-            // Send message with links to chat/sender
-            utils.sendMessageWithMentions(message, [{
-                "tag": sender,
-                "id": senderId
-            }, {
-                "tag": info.name,
-                "id": info.threadId
-            }], info.members[pingUsers[i]]);
-        }
     }
 }
 

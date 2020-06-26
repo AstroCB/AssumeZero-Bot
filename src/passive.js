@@ -1,6 +1,6 @@
 /*
-    Check for certain message types that can be expanded to more rich content
-    from a link.
+    Listen for certain messages that can be acted upon without an explicit
+    trigger word – usually links that can be expanded to more rich content.
 */
 const request = require("request"); // For HTTP requests
 const xpath = require("xpath"); // For HTML parsing
@@ -26,27 +26,37 @@ const passiveTypes = [
     {
         "regex": /https?:\/\/en\.wikipedia\.org\/wiki\/.+/,
         "handler": handleWiki
+    }, {
+        "regex": /@@(.+)/,
+        "handler": handleMention
     }
 ];
 
-exports.handlePassive = (messageObj, fromUserId, attachments, groupInfo, api) => {
+exports.handlePassive = (messageObj, groupInfo, api) => {
     const message = messageObj.body;
-    const messageId = messageObj.messageID;
 
-    const type = getPassiveType(message);
-    if (type) {
-        type.handler(message.match(type.regex), groupInfo, messageId);
-    }
+    getPassiveTypes(message, type => {
+        // Call generic handler and pass in all message info (handler can
+        // decide whether they want to use it selectively via parameters)
+        const match = message.match(type.regex);
+        type.handler(match, groupInfo, messageObj, api);
+    });
 };
 
-function getPassiveType(text) {
-    for (let i = 0; i < passiveTypes.length; i++) {
-        if (text.match(passiveTypes[i].regex)) {
-            return passiveTypes[i];
+function getPassiveTypes(text, cb) {
+    passiveTypes.forEach(type => {
+        if (text.match(type.regex)) {
+            cb(type);
         }
-    }
-    return null;
+    });
 }
+
+/*
+    Handler functions
+    
+    Take (up to) the following arguments:
+    match, groupInfo, messageObj, api
+*/
 
 const authorXPath =
     "//div[contains(@class, 'permalink-tweet-container')]//strong[contains(@class, 'fullname')]/text()";
@@ -107,4 +117,41 @@ function handleWiki(match, groupInfo) {
             utils.sendMessage(`*${title}*\n\n${paragraph}`, groupInfo.threadId);
         }
     });
+}
+
+function handleMention(match, groupInfo, messageObj) {
+    const group = match[1].toLowerCase();
+    const body = messageObj.body;
+    const senderId = messageObj.senderID;
+
+    // Two types of mentions: channel-wide and stored groups
+    const allMatch = body.match(config.channelMentionRegex);
+    let members = groupInfo.mentionGroups[group];
+
+    if (allMatch) {
+        // Alert everyone in the group
+        members = Object.keys(groupInfo.names);
+        // Remove sending user from recipients
+        members.splice(members.indexOf(senderId), 1);
+    }
+
+    if (members) {
+        // Found a group to mention (either stored or global)
+        const mentions = members.map(id => {
+            return {
+                "tag": `@${groupInfo.names[id]}`,
+                "id": id
+            };
+        });
+        const msg = mentions.map(mention => mention.tag).join(" ");
+
+        if (mentions.length > 0) {
+            utils.sendMessageWithMentions(msg, mentions, groupInfo.threadId);
+        } else {
+            utils.sendError("There are no members in that group.", groupInfo.threadId);
+        }
+    } else {
+        // Check for old-style individual pings
+        utils.handlePings(body, senderId, groupInfo);
+    }
 }

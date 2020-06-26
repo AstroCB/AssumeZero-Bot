@@ -281,6 +281,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, api = gapi) 
                             info.aliases = {};
                             info.pinned = {};
                             info.events = {};
+                            info.mentionGroups = {};
                             info.isGroup = data.isGroup;
                         }
                         api.getUserInfo(data.participantIDs, (err, userData) => {
@@ -1252,12 +1253,12 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
         }
 
         msg += `\n\nDeaths today: ${data.todayDeaths.toLocaleString()}`;
-        
+
         if (useDetailedData) {
             const [_, yesterdayDeaths] = getYesterdayNumbers(historical);
             msg += `${yesterdayDeaths}`;
         }
-        
+
         msg += `\nTotal deaths: ${data.deaths.toLocaleString()}`;
 
         if (useDetailedData) {
@@ -1507,4 +1508,130 @@ exports.getStockData = (symbol, callback) => {
             }
         });
     })
+}
+
+// Parses a sent message for pings, removes them from the message,
+// and extracts the intended users from the ping to send the message to them
+exports.parsePing = (m, fromUserId, groupInfo) => {
+    let users = [];
+
+    let matches = exports.matchesWithUser(new RegExp("@@"), m, fromUserId, groupInfo, false, "");
+    while (matches && matches[1]) {
+        const match = matches[1];
+        users.push(match.toLowerCase());
+        const beforeSplit = m;
+        m = m.split(`@@${match}`).join(""); // Remove discovered match from string
+        if (m == beforeSplit) { // Discovered match was "me" or alias
+            m = m.split("@@me").join("");
+            const alias = groupInfo.aliases[match];
+            if (alias) {
+                m = m.split(`@@${alias}`).join("");
+            }
+        }
+        matches = exports.matchesWithUser(new RegExp("@@"), m, fromUserId, groupInfo, false, "");
+    }
+    // After loop, m will contain the message without the pings (the message to be sent)
+    return {
+        /* Return array of names to ping, but remove sending user */
+        "users": users.filter(e => (e != groupInfo.names[fromUserId].toLowerCase())),
+        "message": m.trim() // Remove leading/trailing whitespace
+    };
+}
+
+// Ping individual users or the entire group
+exports.handlePings = (body, senderId, info) => {
+    const pingData = exports.parsePing(body, senderId, info);
+    const pingUsers = pingData.users;
+    const pingMessage = pingData.message;
+
+    if (pingUsers) {
+        for (let i = 0; i < pingUsers.length; i++) {
+            const sender = info.nicknames[senderId] || info.names[senderId] || "A user";
+            let message = `${sender} summoned you in ${info.name}`;
+            if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
+                message = `"${pingMessage}" – ${sender} in ${info.name}`;
+            }
+            message += ` at ${exports.getTimeString()}` // Time stamp
+            // Send message with links to chat/sender
+            exports.sendMessageWithMentions(message, [{
+                "tag": sender,
+                "id": senderId
+            }, {
+                "tag": info.name,
+                "id": info.threadId
+            }], info.members[pingUsers[i]]);
+        }
+    }
+}
+
+// Wrapper func for common error handling cases with property updates
+exports.setGroupPropertyAndHandleErrors = (property, groupInfo, errMsg, successMsg) => {
+    exports.setGroupProperty(property, groupInfo[property], groupInfo, err => {
+        if (err) {
+            exports.sendError(errMsg, groupInfo.threadId);
+        } else {
+            exports.sendMessage(successMsg, groupInfo.threadId);
+        }
+    });
+}
+
+exports.createMentionGroup = (name, userIds, groupInfo) => {
+    groupInfo.mentionGroups[name] = userIds;
+
+    const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
+    const memberString = userIds.length > 0 ? ` with member${userIds.length == 1 ? "" : "s"} ${memberNames}` : "";
+
+    exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
+        "Unable to create the group.",
+        `Successfully created group "${name}"${memberString}.`
+    );
+}
+
+exports.deleteMentionGroup = (name, groupInfo) => {
+    delete groupInfo.mentionGroups[name];
+
+    exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
+        "Unable to delete the group.",
+        `Successfully deleted group "${name}".`
+    );
+}
+
+exports.subToMentionGroup = (name, userIds, groupInfo) => {
+    if (userIds.length < 1) { return; }
+
+    let members = groupInfo.mentionGroups[name];
+    if (members) {
+        members = members.concat(userIds);
+        groupInfo.mentionGroups[name] = exports.pruneDuplicates(members);
+
+        const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
+        exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
+            "Unable to subscribe to the group.",
+            `${memberNames} successfully subscribed to group "${name}".`
+        );
+    } else {
+        exports.sendError("Please provide a valid group to add members.")
+    }
+}
+
+exports.unsubFromMentionGroup = (name, userIds, groupInfo) => {
+    if (userIds.length < 1) { return; }
+
+    let members = groupInfo.mentionGroups[name];
+    if (members) {
+        members = members.filter(id => !userIds.includes(id));
+        groupInfo.mentionGroups[name] = members;
+
+        const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
+        exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
+            "Unable to unsubscribe from the group.",
+            `${memberNames} successfully unsubscribed from group "${name}".`
+        );
+    } else {
+        exports.sendError("Please provide a valid group to remove members.")
+    }
+}
+
+exports.pruneDuplicates = list => {
+    return list.filter((item, ind) => list.indexOf(item) == ind);
 }
