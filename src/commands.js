@@ -1066,7 +1066,7 @@ exports.categories = {
                 "pretty_name": "Mention groups",
                 "short_description": "",
                 "description": "Manage groups of people that can be mentioned collectively",
-                "syntax": "group (create|delete) {name} ({users})",
+                "syntax": "group (create|delete|subscribe|unsubscribe) {name} ({users})",
                 "example": ["group create testers me, Larry", "group delete testers", "group subscribe testers Anton", "group unsubscribe testers me"],
                 "sudo": false,
                 "attachments": false,
