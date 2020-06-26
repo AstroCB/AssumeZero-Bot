@@ -124,7 +124,6 @@ function handleMention(match, groupInfo, messageObj) {
     const body = messageObj.body;
     const senderId = messageObj.senderID;
 
-
     // Two types of mentions: channel-wide and stored groups
     const allMatch = body.match(config.channelMentionRegex);
     let members = groupInfo.mentionGroups[group];
@@ -132,7 +131,6 @@ function handleMention(match, groupInfo, messageObj) {
     if (allMatch) {
         // Alert everyone in the group
         members = Object.keys(groupInfo.names);
-
         // Remove sending user from recipients
         members.splice(members.indexOf(senderId), 1);
     }
