@@ -1571,30 +1571,36 @@ exports.handlePings = (body, senderId, info) => {
     }
 }
 
+// Wrapper func for common error handling cases with property updates
+exports.setGroupPropertyAndHandleErrors = (property, groupInfo, errMsg, successMsg) => {
+    exports.setGroupProperty(property, groupInfo[property], groupInfo, err => {
+        if (err) {
+            exports.sendError(errMsg, groupInfo.threadId);
+        } else {
+            exports.sendMessage(successMsg, groupInfo.threadId);
+        }
+    });
+}
+
 exports.createMentionGroup = (name, userIds, groupInfo, threadId) => {
     groupInfo.mentionGroups[name] = userIds;
 
-    exports.setGroupProperty("mentionGroups", groupInfo.mentionGroups, groupInfo, err => {
-        if (err) {
-            exports.sendError("Unable to create the group.", threadId);
-        } else {
-            const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
-            const memberString = userIds.length > 0 ? ` with members ${memberNames}` : "";
-            exports.sendMessage(`Successfully created group "${name}"${memberString}.`, threadId);
-        }
-    });
+    const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
+    const memberString = userIds.length > 0 ? ` with members ${memberNames}` : "";
+
+    exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
+        "Unable to create the group.",
+        `Successfully created group "${name}"${memberString}.`
+    );
 }
 
 exports.deleteMentionGroup = (name, groupInfo, threadId) => {
     delete groupInfo.mentionGroups[name];
 
-    exports.setGroupProperty("mentionGroups", groupInfo.mentionGroups, groupInfo, err => {
-        if (err) {
-            exports.sendError("Unable to delete the group.", threadId);
-        } else {
-            exports.sendMessage(`Successfully deleted group "${name}".`, threadId);
-        }
-    });
+    exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
+        "Unable to delete the group.",
+        `Successfully deleted group "${name}".`
+    );
 }
 
 exports.addToMentionGroup = (name, userIds, groupInfo, threadId) => {
@@ -1603,14 +1609,11 @@ exports.addToMentionGroup = (name, userIds, groupInfo, threadId) => {
         members = members.concat(userIds);
         groupInfo.mentionGroups[name] = exports.pruneDuplicates(members);
 
-        exports.setGroupProperty("mentionGroups", groupInfo.mentionGroups, groupInfo, err => {
-            if (err) {
-                exports.sendError("Unable to add to the group.", threadId);
-            } else {
-                const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
-                exports.sendMessage(`Successfully added ${memberNames} to group "${name}".`, threadId);
-            }
-        });
+        const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
+        exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
+            "Unable to add to the group.",
+            `Successfully added ${memberNames} to group "${name}".`
+        );
     } else {
         exports.sendError("Please provide a valid group to add members.")
     }
@@ -1622,14 +1625,11 @@ exports.removeFromMentionGroup = (name, userIds, groupInfo, threadId) => {
         members = members.filter(id => !userIds.includes(id));
         groupInfo.mentionGroups[name] = members;
 
-        exports.setGroupProperty("mentionGroups", groupInfo.mentionGroups, groupInfo, err => {
-            if (err) {
-                exports.sendError("Unable to remove from the group.", threadId);
-            } else {
-                const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
-                exports.sendMessage(`Successfully removed ${memberNames} from group "${name}".`, threadId);
-            }
-        });
+        const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
+        exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
+            "Unable to remove from the group.",
+            `Successfully removed ${memberNames} from group "${name}".`
+        );
     } else {
         exports.sendError("Please provide a valid group to remove members.")
     }
