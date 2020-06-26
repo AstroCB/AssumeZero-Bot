@@ -1579,7 +1579,7 @@ exports.createMentionGroup = (name, userIds, groupInfo) => {
     groupInfo.mentionGroups[name] = userIds;
 
     const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
-    const memberString = userIds.length > 0 ? ` with members ${memberNames}` : "";
+    const memberString = userIds.length > 0 ? ` with member${userIds.length == 1 ? "" : "s"} ${memberNames}` : "";
 
     exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
         "Unable to create the group.",
