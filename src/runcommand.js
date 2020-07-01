@@ -151,19 +151,25 @@ const funcs = {
         utils.sendToAll(`"${cmatch[1]}"\n\nThis has been a public service announcement from ${config.owner.names.short}.`);
     },
     "bug": (_, cmatch, groupInfo, __, fromUserId) => {
-        utils.sendMessage(`-------BUG-------\nMessage: ${cmatch[1] || "none"}\nSender: ${groupInfo.names[fromUserId]}\nTime: ${utils.getTimeString()} (${utils.getDateString()})\nGroup: ${groupInfo.name}\nID: ${groupInfo.threadId}\nInfo: ${JSON.stringify(groupInfo)}`, config.owner.id, (err) => {
-            if (!err) {
-                if (groupInfo.isGroup && !cutils.contains(config.owner.id, groupInfo.members)) { // If is a group and owner is not in it, add
-                    utils.sendMessage(`Report sent. Adding ${config.owner.names.short} to the chat for debugging purposes...`, groupInfo.threadId, () => {
-                        utils.addUser(config.owner.id, groupInfo, false);
-                    });
-                } else { // Otherwise, just send confirmation
-                    utils.sendMessage(`Report sent to ${config.owner.names.short}.`, groupInfo.threadId);
+        const msg = cmatch[1] || "none";
+
+        if (msg.toLowerCase().trim() == "thread") {
+            utils.sendMessage(`Thread ID: ${groupInfo.threadId}`, groupInfo.threadId);
+        } else {
+            utils.sendMessage(`-------BUG-------\nMessage: ${msg}\nSender: ${groupInfo.names[fromUserId]}\nTime: ${utils.getTimeString()} (${utils.getDateString()})\nGroup: ${groupInfo.name}\nID: ${groupInfo.threadId}\nInfo: ${JSON.stringify(groupInfo)}`, config.owner.id, (err) => {
+                if (!err) {
+                    if (groupInfo.isGroup && !cutils.contains(config.owner.id, groupInfo.members)) { // If is a group and owner is not in it, add
+                        utils.sendMessage(`Report sent. Adding ${config.owner.names.short} to the chat for debugging purposes...`, groupInfo.threadId, () => {
+                            utils.addUser(config.owner.id, groupInfo, false);
+                        });
+                    } else { // Otherwise, just send confirmation
+                        utils.sendMessage(`Report sent to ${config.owner.names.short}.`, groupInfo.threadId);
+                    }
+                } else {
+                    utils.sendMessage(`Report could not be sent; please message ${config.owner.names.short} directly.`, groupInfo.threadId);
                 }
-            } else {
-                utils.sendMessage(`Report could not be sent; please message ${config.owner.names.short} directly.`, groupInfo.threadId);
-            }
-        });
+            });
+        }
     },
     "kick": (_, cmatch, groupInfo) => {
         const user = cmatch[1].toLowerCase();

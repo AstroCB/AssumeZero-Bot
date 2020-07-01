@@ -66,7 +66,7 @@ exports.categories = {
                     "accepts": false,
                     "optional": false
                 },
-                "regex": /bug(.*)/i,
+                "regex": /bug(.*)?/i,
                 "experimental": false
             },
             "alive": {
