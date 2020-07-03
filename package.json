@@ -4,7 +4,7 @@
   "description": "A group chat bot that performs a variety of functions.",
   "main": "main.js",
   "engines": {
-    "node": "8.0.0"
+    "node": "12.18.2"
   },
   "scripts": {
     "start": "pm2 start src/main.js --name 'assumezero-bot'; npm run-script logs",
