@@ -121,14 +121,14 @@ Lastly, the random message command will get a random message from the current co
 To get your own instance of the bot, you'll first need to clone this repo. Once you've done that, you'll need to do several things to set up its associated services – this project was written using Heroku for hosting (although it can be run locally) and memcache (via MemCachier) as a pseudo-database solution. The rest of these setup instructions will assume the use of these services, but the functionalities that they serve are encapsulated in wrapper functions that can be easily modified to use another solution if desired. If you decide to do this, you may wish to utilize [`config.js`](src/config.js) and read [Under the Hood](#under-the-hood).
 
 > ## Note
-> Configuration has moved to [BotCore](https://github.com/AstroCB/BotCore), so the Heroku-related instructions are not used anymore beyond the Heroku-related commands. The only required credentials are the `MEMCACHIER_` variables. You will also need the `EMAIL` and `PASSWORD` variables unless you already have another BotCore instance running that has successfully logged in.
+> Configuration has moved to [BotCore](https://github.com/AstroCB/BotCore), so the Heroku-related instructions are not used anymore beyond the Heroku-related commands. The only required credentials are the `MEMCACHIER_` variables. You will also need the `FACEBOOK_EMAIL` and `FACEBOOK_PASSWORD` variables unless you already have another BotCore instance running that has successfully logged in.
 
 All of the following variables need to be exported from a `credentials.js` file in the `src` directory (ideal if running locally) or exposed as environment variables (on Heroku, this can be done with config vars in the settings tab).
 
 ```js
 // Facebook log-in credentials for bot account
-exports.EMAIL = "";
-exports.PASSWORD = "";
+exports.FACEBOOK_EMAIL = "";
+exports.FACEBOOK_PASSWORD = "";
 // Heroku application token
 exports.TOKEN = "";
 // MemCachier credentials (from MemCachier dashboard)
