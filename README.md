@@ -1,9 +1,11 @@
 # AssumeZero Bot
 
 ## About
-AssumeZero Bot is a highly configurable bot that can be added to Facebook Messenger group chats. It is designed to expose features that may be hidden or made difficult to use by Messenger's UI, both on desktop and mobile. In addition to this functionality, it also connects to several different external services, like [Spotify](https://spotify.com), [Wolfram|Alpha](http://wolframalpha.com), and [OpenWeatherMap](https://openweathermap.org).
+AssumeZero Bot is a highly configurable bot that can be added to Facebook Messenger group chats. It is designed to expose, replace, and extend features that may be hidden, removed, or obscured by Messenger's mobile and desktop UIs. In addition to this functionality, it also connects to several different external services, like [Spotify](https://spotify.com), [Wolfram|Alpha](http://wolframalpha.com), and [OpenWeatherMap](https://openweathermap.org). And, while it's designed for group chats, most of its commands will work when directly messaging the bot as well, allowing it to double as a digital assistant.
 
-The bot was written with [Node.js](https://nodejs.org/) and the incredible [Facebook Chat API](https://github.com/Schmavery/facebook-chat-api), which allows the bot to emulate a Facebook user who can be added and removed from chats. As of this writing, Facebook's [official API](https://developers.facebook.com/docs/chat) can still only be used in one-on-one conversations.
+Much of the infrastructure that I originally developed while building this bot has now been spun off into a separate package called [BotCore](https://github.com/AstroCB/BotCore). BotCore is a collection of tools and functionality used for building Messenger bots just like this one, in a generalized format that can be used for all kinds of applications. If you like this project, check out [some others](https://github.com/AstroCB/BotCore/network/dependents) using BotCore!
+
+Both BotCore and this bot were written with the use of [facebook-chat-api](https://github.com/Schmavery/facebook-chat-api), which allows for emulation of a Facebook user account that can be added and removed from chats. As of this writing, Facebook's [official API](https://developers.facebook.com/docs/chat) can still only be used in one-on-one conversations.
 
 ## Usage
 Most of the bot's features are activated with a "trigger word," which can be changed in [`config.js`](src/config.js). The default trigger word is "physics" and most commands will be in the form:
@@ -14,7 +16,7 @@ To see a list of commands, use:
 
 > physics help
 
-If you wish to use the bot's canonical instance, you can message it [here](https://www.facebook.com/assumezero.bot.3). Otherwise, you can [set up your own instance](#setup).
+If this feature set interests you, I encourage you to [set up your own instance](#setup) and customize its functionality (trigger word, account name and propic, etc.) to your liking for use in your own chats.
 
 ## Basic Commands
 As a rule of thumb, the bot is capable of doing everything that a human user can do on the desktop version of Messenger. This includes messaging the chat, adding and removing users, and modifying user nicknames. Let's take a look:
@@ -33,7 +35,7 @@ However, being a bot comes with its own set of advantages. For example, the bot 
 
 Because the bot interfaces directly with Facebook's endpoints through the Facebook Chat API, it often has access to an expanded set of abilities that are not directly available through Messenger's UI.
 
-For instance, it can set the chat emoji to any emoji supported by Messenger rather than just those provided by the default palette.
+For instance, it can set the chat emoji to any emoji supported by Messenger rather than just those provided by the default palette, which only contains a limited subset on mobile.
 
 ![physics emoji](media/docs/emoji.png)
 
@@ -41,7 +43,7 @@ It can also query Facebook to perform searches for users, pages, and groups. Thi
 
 ![physics search](media/docs/search.png)
 
-There are plenty more commands like this, such as poll, title, and photo, but they all operate on a similar premise to these basic examples. Check out the help entries for these commands to learn more.
+There are plenty more commands like this, such as `poll`, `title`, and `photo`, but they all operate on a similar premise to these basic examples. Check out the help entries (`physics help`) for these commands to learn more.
 
 ## Database-dependent Commands
 
@@ -49,7 +51,7 @@ The bot stores information about each conversation that it is a part of in its d
 
 ![Init message](media/docs/init.png)
 
-After this, the group's information will be continously updated in the background as it receives new messages. This means that any changes to the group's properties, such as adding/removing users, changing the title or photo, or updating the colors or emoji, will be reflected in the bot's database entry for the conversation, which allows it to stay up-to-date and use these properties when needed without the need for a blocking network call. The properties that are stored reflect only metadata about the chat, and no personal data from chat (such as message history) is stored – the exact list of things stored in the database can be viewed in [the definition of the `groupInfo` object](#under-the-hood).
+After this, the group's information will be continously updated in the background as it receives new messages. This means that any changes to the group's properties, such as adding/removing users, changing the title or photo, or updating the colors or emoji, will be reflected in the bot's database entry for the conversation, which allows it to stay up-to-date and use these properties when needed without the need for a blocking network call. The properties that are stored reflect only metadata about the chat, and no personal data from chat (such as message history) is stored – the exact list of things stored in the database for any given chat can be viewed in [the definition of the `groupInfo` object](#under-the-hood).
 
 As a result of this persistent storage, certain commands can store and retrieve information about the conversation and its participants.
 
@@ -70,23 +72,35 @@ The bot can list statistics for its usage with the stats command – this comman
 
 ![physics stats](media/docs/stats.png)
 
-
 Now for some more interesting stuff – the playlist command interfaces with the Spotify API<sup name="link2">[2](#note2)</sup> to store playlists for each user and retrieve songs from them on command. To add a playlist to the chat, you'll need its [Spotify URI](https://support.spotify.com/us/article/sharing-music) and a user to associate it to. Once stored, the song command can be used to get a random song from it. See the help entries for these commands for more information.
 
 ![physics song](media/docs/song.png)
 
-The bot can keep a running tab for each conversation, allowing users to keep track of any shared finances and easily split costs between them. Several child commands exist for this command:
+## Chat-management Commands
 
-![physics tab](media/docs/tab.png)
-![physics tab add](media/docs/tabadd.png)
-![physics tab split](media/docs/tabsplit.png)
+The following commands are most useful in a group setting, and provide some additional functionality to Messenger group chats.
 
-Add and subtract have a default value of $1, and the split command will split between all members in the group by default, but it accepts an optional parameter to indicate how many people the tab should be split between.
+First, the pin command allows members to pin messages to the chat to be retrieved later; this is useful for keeping track of information in an active chat where it would otherwise get buried.
 
-Lastly, the pin command will allow you to pin a message that can be recalled later; this is useful for keeping track of something in an active chat where it would otherwise get buried.
+![physics pin message abc](media/docs/pin_set.png)
+![physics pin message](media/docs/pin_retrieve.png)
 
-![physics pin message](media/docs/pinset.png)
+You can pin as many messages as you want, and use "physics pin" to retrieve a list of them:
+
 ![physics pin](media/docs/pin.png)
+
+Lastly, there's a special pin called "intro" which, if set, will be shown to new members who are added to the chat:
+
+![physics pin intro](media/docs/intro.png)
+![intro pin on added user](media/docs/intro_added.png)
+
+Next up is an event command, which can be used to create and RSVP to events for a chat. Users who respond "going" to the event will be reminded in the chat before the event starts. This command is a replacement for the Messenger "Plans" feature, which was removed in a redesign.
+
+![physics event create](media/docs/event_create.png)
+![physics event list](media/docs/event_list.png)
+![event reminder](media/docs/event_reminder.png)
+
+There are several other useful chat management commands, like mention groups for saving groups of users to @mention simultaneously, and tab for keeping a running tab of expenses. See the help category "physics help misc" for more.
 
 # Fun Commands
 
@@ -151,13 +165,13 @@ Some things to note: MemCachier can be configured from Heroku add-ons, and the e
 You don't _need_ to set up all of these services, but if you don't, their associated commands will not be functional. At minimum however, you need to expose the email, password, and MemCachier variables for the bot to run.
 
 # Under the Hood
-At the highest level, the bot listens to a stream of messages, calling the `handleMessage` function when one is received. This function has two main tasks: (1) parse the message to determine which (more specific) handler function it should be passed to and (2) update the information associated with the group in memory. These tasks are performed in parallel, and if no information is currently stored about the thread, it is initialized in the database. The database also stores the appstate after logging in so that a hard user/password login doesn't have to be performed every time. To purge this appstate, use `make logout` or use the functions in [`login.js`](src/login.js).
+At the highest level, the bot listens to a stream of messages, calling the `handleMessage` function when one is received. This function has two main tasks: (1) parse the message to determine which (more specific) handler function it should be passed to and (2) update the information associated with the group in memory. These tasks are performed in parallel, and if no information is currently stored about the thread, it is initialized in the database. The database also stores the appstate after logging in so that a hard user/password login doesn't have to be performed every time. To purge this appstate, use `make logout` or check out login management in BotCore.
 
-There are three main types of messages to handle: pings, Easter eggs, and commands. All of the associated handling functions (`handlePings`, `handleEasterEggs`, and `handleCommand`) are available externally by requiring the main module. If a message contains a ping, the named member(s) will be notified in a private message thread with the bot. Easter eggs are a set of hidden responses from the bot that can be configured in [`easter.js`](src/easter.js). These are off by default. Commands are the main feature of the bot and comprise the majority of its codebase.
+There are three main types of messages to handle: passive messages, Easter eggs, and commands. They all have associated handling functions (`handlePassive`, `handleEasterEggs`, and `handleCommand`) and are available externally by requiring their containing module. Passive messages are special types of messages that will trigger the bot without directly invoking it with a trigger word – these are typically links that can be expanded to provide inline content. Easter eggs are a set of hidden responses from the bot that can be configured in [`easter.js`](src/easter.js). These are off by default, and must be manually enabled on a per-chat basis. Lastly, commands are the main feature of the bot and comprise the majority of its codebase.
 
-The bot's command structure is "context-free"; it doesn't care where in the message the trigger word is used and what comes before it – as a result, only the text following the trigger word is passed to the `handleCommand`. The user ID of the sender, the `groupInfo` object for the thread, and the full message object from the listener are also passed.
+The bot's command structure can be changed to be "context-free"; in this mode, it doesn't care where in the message the trigger word is used and what comes before it – as a result, only the text following the trigger word is passed to the `handleCommand`. The user ID of the sender, the `groupInfo` object for the thread, and the full message object from the listener are also passed. By default, commands adhere to a more strict invocation; to configure this behavior, see `contextless` in [`config.js`](src/config.js).
 
-The `groupInfo` object is a record of the information stored in the database for a given thread, and it is passed to most utility functions used in [`main.js`](src/main.js) by `handleCommand`. Its structure changes with the internals of Facebook's message representation and the facebook-chat-api's parsing of it, but it is currently represented as follows:
+The `groupInfo` object is a record of the information stored in the database for a given thread, and it is passed to most utility functions used in [`runcommand.js`](src/runcommand.js) by `handleCommand`. Its structure changes with the internals of Facebook's message representation and facebook-chat-api's parsing of it, but it is currently represented as follows:
 
 ```js
 let groupInfo = {
@@ -184,6 +198,12 @@ let groupInfo = {
     "playlists": {string: playlistObj},
     // A map from user IDs to name aliases (which can be used in commands)
     "aliases": {string: string},
+    // A map from pin names to stored pins for the chat including sender and time info
+    "pinned": {string: pinObj},
+    // A map from event names to stored events for the chat including time and RSVP info
+    "events": {string: eventObj},
+    // A map from mention group names to lists of user IDs representing their members
+    "mentionGroups": {string: [string]},
     // A flag that records whether the thread is a group
     "isGroup": bool,
     // A map from first names of thread members to user IDs
