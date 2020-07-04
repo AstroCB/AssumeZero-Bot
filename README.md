@@ -76,7 +76,7 @@ Now for some more interesting stuff – the playlist command interfaces with the
 
 ![physics song](media/docs/song.png)
 
-## Chat-management Commands
+## Chat Management Commands
 
 The following commands are most useful in a group setting, and provide some additional functionality to Messenger group chats.
 
