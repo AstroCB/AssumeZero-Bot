@@ -26,9 +26,14 @@ const passiveTypes = [
     {
         "regex": /https?:\/\/en(\.m)?\.wikipedia\.org\/wiki\/.+/,
         "handler": handleWiki
-    }, {
+    },
+    {
         "regex": /@@(.+)/,
         "handler": handleMention
+    },
+    {
+        "regex": /https?:\/\/www\.google\.com\/amp\/s\/(.+)/,
+        "handler": handleAmp
     }
 ];
 
@@ -159,4 +164,9 @@ function handleMention(match, groupInfo, messageObj) {
         // Check for old-style individual pings
         utils.handlePings(body, senderId, groupInfo);
     }
+}
+
+function handleAmp(match, groupInfo) {
+    const actualUrl = `https://${match[1]}`;
+    utils.sendMessage(`De-AMPed URL: ${actualUrl}`, groupInfo.threadId);
 }
