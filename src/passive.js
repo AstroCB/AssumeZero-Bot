@@ -24,7 +24,7 @@ const passiveTypes = [
         "handler": handleTweet
     },
     {
-        "regex": /https?:\/\/en\.wikipedia\.org\/wiki\/.+/,
+        "regex": /https?:\/\/en(\.m)?\.wikipedia\.org\/wiki\/.+/,
         "handler": handleWiki
     }, {
         "regex": /@@(.+)/,
@@ -102,7 +102,12 @@ const titleXPath = "//*[@id='firstHeading']";
 const paragraphXPath = "//*[@id='mw-content-text']/div/p";
 
 function handleWiki(match, groupInfo) {
-    const url = match[0];
+    let url = match[0];
+
+    if (match[1]) {
+        // If mobile link, convert to regular link
+        url = url.replace(".m.wikipedia", ".wikipedia");
+    }
 
     request.get(url, {}, (err, res, body) => {
         if (!err && res.statusCode == 200) {
