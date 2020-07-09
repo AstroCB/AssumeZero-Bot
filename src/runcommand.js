@@ -1466,7 +1466,7 @@ const funcs = {
             }
         });
     },
-    "group": (threadId, cmatch, groupInfo, _, fromUserId) => {
+    "group": (_, cmatch, groupInfo, __, fromUserId) => {
         const action = cmatch[1].toLowerCase();
         const name = cmatch[2];
         const userList = cmatch[3];
