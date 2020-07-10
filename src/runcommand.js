@@ -1468,7 +1468,7 @@ const funcs = {
     },
     "group": (_, cmatch, groupInfo, __, fromUserId) => {
         const action = cmatch[1].toLowerCase();
-        const name = cmatch[2];
+        const name = cmatch[2] || "unnamed";
         const userList = cmatch[3];
 
         let userIds = [];
@@ -1483,6 +1483,7 @@ const funcs = {
             case "subscribe": utils.subToMentionGroup(name, userIds, groupInfo); break;
             case "unsubscribe": utils.unsubFromMentionGroup(name, userIds, groupInfo); break;
             case "delete": utils.deleteMentionGroup(name, groupInfo); break;
+            case "list": utils.listMentionGroups(name, groupInfo); break;
         }
     }
 };

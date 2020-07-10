@@ -1635,3 +1635,27 @@ exports.unsubFromMentionGroup = (name, userIds, groupInfo) => {
 exports.pruneDuplicates = list => {
     return list.filter((item, ind) => list.indexOf(item) == ind);
 }
+
+exports.listMentionGroups = (name, groupInfo) => {
+    const groups = groupInfo.mentionGroups;
+
+    let msg;
+    if (groups[name]) { // Group name provided; list members
+        const names = groups[name].map(id => groupInfo.names[id]).join("/");
+        msg = `Group: ${name}\n`;
+        if (names.length > 0) {
+            msg += `Members: ${names}`;
+        } else {
+            msg += `No members currently subscribed.`;
+        }
+        msg += `\n\nMention this group with @@${name}`
+    } else { // List all groups
+        const names = Object.keys(groups);
+        if (names.length > 0) {
+            msg = `Available mention groups:\n\n${names.join("\n")}`;
+        } else {
+            msg = `No available mention groups. Try adding one with "${config.trigger} group create".`;
+        }
+    }
+    exports.sendMessage(msg, groupInfo.threadId);
+}

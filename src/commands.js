@@ -1074,7 +1074,7 @@ exports.categories = {
                     "accepts": false,
                     "optional": false
                 },
-                "regex": /group (create|delete|subscribe|unsubscribe) ([^\s]+)(?: (.+))?/i,
+                "regex": /group (create|delete|subscribe|unsubscribe|list)(?: ([^\s]+)(?: (.+))?)?/i,
                 "experimental": false
             }
         }
