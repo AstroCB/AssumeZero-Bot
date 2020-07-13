@@ -1,7 +1,7 @@
 The MIT License (MIT)
 =====================
 
-Copyright © 2017 [Cameron Bernhardt](mailto:cambernhardt@me.com)
+Copyright © 2020 [Cameron Bernhardt](https://cameronbernhardt.com)
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
