@@ -752,9 +752,9 @@ exports.sendToAll = (msg) => {
 
 // Sends all files in a directory (relative to root)
 exports.sendFilesFromDir = (dir, threadId) => {
-    fs.readdir(dir, (err, filenames) => {
+    fs.readdir(`${__dirname}/${dir}`, (err, filenames) => {
         if (!err) {
-            exports.sendFile(filenames.map((f) => {
+            exports.sendFile(filenames.map(f => {
                 return `${dir}/${f}`;
             }), threadId);
         } else {
