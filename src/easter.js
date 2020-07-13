@@ -454,11 +454,7 @@ const eggs = [
     },
     {
         "regex": /kitchen fire/i,
-        "func": threadId => {
-            utils.sendMessage({
-                "url": "https://www.youtube.com/watch?v=eTaYJGkNvFs"
-            }, threadId);
-        }
+        "func": threadId => { utils.sendFile("../media/fire.mp4", threadId); }
     }
 ];
 
