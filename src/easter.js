@@ -59,7 +59,7 @@ const eggs = [
     },
     {
         "regex": /(?:\s|^)mechanics|electricity|magnetism|pulley|massless|friction|acceleration|torque|impulse/i,
-        "func": (threadId, messageId) => { utils.sendFile("../media/shaw.png", threadId, "", () => {}, messageId); }
+        "func": (threadId, messageId) => { utils.sendFile("../media/shaw.png", threadId, "", () => { }, messageId); }
     },
     {
         "alt": (message, fromUserId, groupInfo) => {
@@ -451,6 +451,14 @@ const eggs = [
     {
         "regex": /the left/i,
         "func": (threadId) => { utils.sendFile("../media/anton_typ.gif", threadId); }
+    },
+    {
+        "regex": /kitchen fire/i,
+        "func": threadId => {
+            utils.sendMessage({
+                "url": "https://www.youtube.com/watch?v=eTaYJGkNvFs"
+            }, threadId);
+        }
     }
 ];
 
