@@ -1652,7 +1652,7 @@ exports.listMentionGroups = (name, groupInfo) => {
     } else { // List all groups
         const names = Object.keys(groups);
         if (names.length > 0) {
-            msg = `Available mention groups:\n\n${names.join("\n")}`;
+            msg = `Available mention groups:\n\n${names.map(n => `– ${n}`).join("\n")}`;
         } else {
             msg = `No available mention groups. Try adding one with "${config.trigger} group create".`;
         }
