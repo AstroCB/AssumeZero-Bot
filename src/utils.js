@@ -538,7 +538,7 @@ exports.sendFileFromUrl = (url, path = "../media/temp.jpg", message = "", thread
                         "attachment": fs.createReadStream(fullpath)
                     }, threadId, (err, data) => {
                         // Delete downloaded propic
-                        fs.unlink(fullpath);
+                        fs.unlink(fullpath, () => {});
                     });
                 } else {
                     exports.sendMessage(message, threadId);

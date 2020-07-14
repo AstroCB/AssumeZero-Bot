@@ -871,21 +871,26 @@ const funcs = {
             utils.sendMessage("Restarting...", threadId);
         });
     },
-    "photo": (threadId, cmatch, _, __, ___, attachments) => {
+    "photo": (threadId, cmatch, groupInfo, _, __, attachments) => {
         // Set group photo to photo at provided URL
         const url = cmatch[1];
         if (url) {
             // Use passed URL
-            utils.setGroupImageFromUrl(url, threadId, "Can't set group image for this chat");
+            utils.setGroupImageFromUrl(url, threadId, "Can't set group image for this chat.");
         } else if (attachments && attachments[0]) {
             if (attachments[0].type == "photo") {
                 // Use photo attachment
-                utils.setGroupImageFromUrl(attachments[0].largePreviewUrl, threadId, "Attachment is invalid");
+                utils.setGroupImageFromUrl(attachments[0].largePreviewUrl, threadId, "Attachment is invalid.");
             } else {
-                utils.sendError("This command only accepts photo attachments", threadId);
+                utils.sendError("This command only accepts photo attachments.", threadId);
             }
         } else {
-            utils.sendError("This command requires either a valid image URL or a photo attachment", threadId);
+            // If no photo provided, just display current group photo if it exists
+            if (groupInfo.image) {
+                utils.sendFileFromUrl(groupInfo.image, `../media/${threadId}.jpg`, "", threadId);
+            } else {
+                utils.sendError("This group currently has no photo set. To add one, use this command with either a valid image URL or a photo attachment.", threadId);
+            }
         }
     },
     "poll": (threadId, cmatch, _, api) => {

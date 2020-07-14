@@ -319,10 +319,10 @@ exports.categories = {
             "photo": {
                 "display_names": ["picture", "photo", "image"],
                 "pretty_name": "Photo",
-                "short_description": "Sets group photo to URL",
-                "description": "Changes the group's photo to the image at the specified URL or the attached image",
+                "short_description": "Sets group photo",
+                "description": "Changes the group's photo to the image at the specified URL or the attached image, or displays the current photo if neither is given.",
                 "syntax": "(photo|picture|image) ({url})",
-                "example": ["photo http://i.imgur.com/tzwVWot.png", "photo [attach an image]"],
+                "example": ["photo http://i.imgur.com/tzwVWot.png", "photo [attach an image]", "photo"],
                 "sudo": false,
                 "attachments": true,
                 "user_input": {
