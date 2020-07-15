@@ -20,7 +20,7 @@ const dom = new domParser({
 // Passive type URL regexes and their corresponding handlers
 const passiveTypes = [
     {
-        "regex": /https?:\/\/twitter\.com\/.+\/status\/.+/,
+        "regex": /https?:\/\/(mobile\.)?twitter\.com\/.+\/status\/.+/,
         "handler": handleTweet
     },
     {
@@ -71,7 +71,12 @@ const tweetXPath =
     "//div[contains(@class, 'permalink-tweet-container')]//p[contains(@class, 'tweet-text')]//text()";
 
 function handleTweet(match, groupInfo) {
-    const url = match[0];
+    let url = match[0];
+
+    if (match[1]) {
+        // If mobile link, convert to regular link
+        url = url.replace("mobile.twitter.", "twitter.");
+    }
 
     // Scrape tweets because the Twitter API is annoying
     // and requires a 5-page application with essays
