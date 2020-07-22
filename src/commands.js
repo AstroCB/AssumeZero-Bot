@@ -717,6 +717,22 @@ exports.categories = {
                 "regex": /google (.+)/i,
                 "experimental": false
             },
+            "lucky": {
+                "display_names": ["lucky"],
+                "pretty_name": "Lucky",
+                "short_description": "I'm feeling lucky",
+                "description": "Replicates functionality of Google's \"I'm feeling lucky\" functionality (takes to first webpage result for a search)",
+                "syntax": "lucky {query}",
+                "example": ["lucky define testing"],
+                "sudo": false,
+                "attachments": false,
+                "user_input": {
+                    "accepts": false,
+                    "optional": false
+                },
+                "regex": /lucky (.+)/i,
+                "experimental": true
+            },
             "covid": {
                 "display_names": ["covid"],
                 "pretty_name": "COVID",

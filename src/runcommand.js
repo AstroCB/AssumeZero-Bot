@@ -251,7 +251,7 @@ const funcs = {
                         "url": results[0].formattedUrl // Best match
                     }, threadId);
                 } else {
-                    utils.sendError("No results found", threadId);
+                    utils.sendError("No results found.", threadId);
                 }
             } else {
                 console.log(err);
@@ -1500,6 +1500,22 @@ const funcs = {
             case "delete": utils.deleteMentionGroup(name, groupInfo); break;
             case "list": utils.listMentionGroups(name, groupInfo); break;
         }
+    },
+    "lucky": (threadId, cmatch) => {
+        const query = cmatch[1].trim().split(/\s/).join("+");
+
+        request.get(`https://api.duckduckgo.com/?q=!${query}&format=json&no_redirect=1`, (err, res, body) => {
+            if (!err && res.statusCode == 200) {
+                const results = JSON.parse(body);
+                if (results.Redirect) {
+                    utils.sendMessage({ "url": results.Redirect }, threadId);
+                } else {
+                    utils.sendError("Couldn't find a good result for that search.", threadId);
+                }
+            } else {
+                utils.sendError("Couldn't retrieve any results for that search.", threadId);
+            }
+        });
     }
 };
 
