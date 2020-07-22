@@ -1199,15 +1199,25 @@ const funcs = {
             }
         });
     },
-    "branch": (threadId, cmatch, groupInfo, _, fromUserId) => {
-        const input = cmatch[1];
+    "branch": (threadId, cmatch, groupInfo, api, fromUserId) => {
+        const title = cmatch[1] ? cmatch[1].trim() : null;
+        const input = cmatch[2];
         const members = input.split(",").map(m => utils.parseNameReplacements(m.toLowerCase().trim(), fromUserId, groupInfo));
         const ids = members.map(m => groupInfo.members[m]);
 
         // Start a new chat with the collected IDs and the bot
         utils.sendMessage(`Welcome! This group was created from ${groupInfo.name}.`, ids, (err, info) => {
             if (!err) {
-                utils.sendMessage("Subgroup created.", threadId);
+                if (info.threadID) {
+                    // Set title if provided
+                    if (title) {
+                        api.setTitle(title, info.threadID);
+                    }
+
+                    // Pre-initialize chat silently to prevent welcome message send
+                    utils.updateGroupInfo(info.threadID, "", () => { }, false);
+                }
+                utils.sendMessage(`Subgroup${title ? ` "${title}"` : ""} created.`, threadId);
             } else {
                 console.log(err);
             }

@@ -368,16 +368,16 @@ exports.categories = {
                 "display_names": ["branch"],
                 "pretty_name": "Branch",
                 "short_description": "Create a new group from a subset of the current members",
-                "description": "Creates a new group chat given members of the current chat",
-                "syntax": "branch {member 1}, {member 2}, {member 3}, {member n}",
-                "example": "branch me, Cameron, Jonah, Justin",
+                "description": "Creates a new group chat given members of the current chat, with an optional title",
+                "syntax": "branch (title) {member 1}, {member 2}, {member 3}, {member n}",
+                "example": ["branch me, Cameron, Jonah, Justin", "branch Test Chat me, Larry"],
                 "sudo": false,
                 "attachments": false,
                 "user_input": {
                     "accepts": false,
                     "optional": false
                 },
-                "regex": /branch ((?:[^,]+(?:,|$))+)/i,
+                "regex": /branch ([^,]+ )?((?:[^,]+(?:,|$))+)/i,
                 "experimental": false
             },
             "restore": {

@@ -235,13 +235,14 @@ Using callback is discouraged as the idea of this function is to update in
 the background to decrease lag, but it may be useful if updates are required
 to continue.
 */
-exports.updateGroupInfo = (threadId, message, callback = () => { }, api = gapi) => {
+exports.updateGroupInfo = (threadId, message, callback = () => { }, sendsInit = true, api = gapi) => {
     exports.getGroupInfo(threadId, (err, existingInfo) => {
         exports.getGroupInfo(config.owner.id, (ownerErr, ownerData) => {
             if (!err && !ownerErr) {
                 // If the dbFailSilently flag is turned on, only send the init
-                // message if the owner thread exists in the database.
-                const shouldSendMessage = !config.dbFailSilently || ownerData;
+                // message if the owner thread exists in the database. Also
+                // allow caller to override this functionality with sendsInit.
+                const shouldSendMessage = (!config.dbFailSilently || ownerData) && sendsInit;
 
                 let isNew = false;
                 if (!existingInfo) {
@@ -538,7 +539,7 @@ exports.sendFileFromUrl = (url, path = "../media/temp.jpg", message = "", thread
                         "attachment": fs.createReadStream(fullpath)
                     }, threadId, (err, data) => {
                         // Delete downloaded propic
-                        fs.unlink(fullpath, () => {});
+                        fs.unlink(fullpath, () => { });
                     });
                 } else {
                     exports.sendMessage(message, threadId);
