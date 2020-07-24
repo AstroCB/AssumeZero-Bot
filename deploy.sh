@@ -4,5 +4,6 @@ git pull origin master
 if [ $1 == "--reinstall" ]
 then
     npm install
+    npm update
 fi
 npm run-script restart
