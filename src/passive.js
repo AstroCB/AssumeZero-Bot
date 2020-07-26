@@ -28,7 +28,7 @@ const passiveTypes = [
         "handler": handleWiki
     },
     {
-        "regex": /@@(.+)/,
+        "regex": /@@([^\s]+)/g,
         "handler": handleMention
     },
     {
@@ -44,7 +44,7 @@ exports.handlePassive = (messageObj, groupInfo, api) => {
         // Call generic handler and pass in all message info (handler can
         // decide whether they want to use it selectively via parameters)
         const match = message.match(type.regex);
-        type.handler(match, groupInfo, messageObj, api);
+        type.handler(match, groupInfo, messageObj, type.regex, api);
     });
 };
 
@@ -134,40 +134,59 @@ function handleWiki(match, groupInfo) {
     });
 }
 
-function handleMention(match, groupInfo, messageObj) {
-    const group = match[1].toLowerCase();
+function mentionify(members, groupInfo) {
+    const mentions = members.map(id => {
+        return {
+            "tag": `@${groupInfo.names[id]}`,
+            "id": id
+        };
+    });
+    const msg = mentions.map(mention => mention.tag).join(" ");
+
+    return { "body": msg, "mentions": mentions };
+}
+
+function handleMention(_, groupInfo, messageObj, regex) {
     const body = messageObj.body;
     const senderId = messageObj.senderID;
+    const users = new Set();
 
     // Two types of mentions: channel-wide and stored groups
     const allMatch = body.match(config.channelMentionRegex);
-    let members = groupInfo.mentionGroups[group];
-
     if (allMatch) {
         // Alert everyone in the group
-        members = Object.keys(groupInfo.names);
+        const members = Object.keys(groupInfo.names);
         // Remove sending user from recipients
         members.splice(members.indexOf(senderId), 1);
+        members.forEach(member => users.add(member));
     }
 
-    if (members) {
-        // Found a group to mention (either stored or global)
-        const mentions = members.map(id => {
-            return {
-                "tag": `@${groupInfo.names[id]}`,
-                "id": id
-            };
-        });
-        const msg = mentions.map(mention => mention.tag).join(" ");
+    // Stored groups
+    const groups = [];
+    let match;
+    while ((match = regex.exec(body)) !== null) {
+        groups.push(match[1]);
+    }
 
-        if (mentions.length > 0) {
-            utils.sendMessageWithMentions(msg, mentions, groupInfo.threadId);
+    for (let i = 0; i < groups.length; i++) {
+        const group = groups[i];
+        const members = groupInfo.mentionGroups[group];
+
+        if (members) {
+            // Found a group to mention (either stored or global)
+            members.forEach(member => users.add(member));
         } else {
-            utils.sendError("There are no members in that group.", groupInfo.threadId);
+            // Check for old-style individual pings
+            utils.handlePings(body, senderId, groupInfo);
         }
+    }
+
+    if (users.size > 0) {
+        const mentions = mentionify(Array.from(users), groupInfo);
+        utils.sendMessage(mentions, groupInfo.threadId);
     } else {
-        // Check for old-style individual pings
-        utils.handlePings(body, senderId, groupInfo);
+        const err = `There aren't any members in ${groups.length == 1 ? "that group" : "those groups"}.`;
+        utils.sendError(err, groupInfo.threadId);
     }
 }
 
