@@ -48,7 +48,7 @@ app.post("/pushed", (req, res) => {
     let shouldReinstall = false;
 
     const payload = req.body;
-    if (payload) {
+    if (payload && payload.commits.length > 0) {
         changeMsg = ` of change "${payload.head_commit.message}"`;
 
         // Check if any commits modified package files to see if a reinstall of deps is needed
