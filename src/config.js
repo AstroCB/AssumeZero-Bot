@@ -27,7 +27,7 @@ exports.repoPath = "/home/cameron/AssumeZero-Bot/";
 
 // Determines whether bot grammar is "contextless"
 // i.e. whether the command must match from the start of the string or anywhere within it
-// If set to true, some ambiguity may be introduced and multiple command may run from a 
+// If set to true, some ambiguity may be introduced and multiple commands may run from a 
 // single message.
 exports.contextless = false;
 
