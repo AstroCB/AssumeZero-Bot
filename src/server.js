@@ -6,7 +6,7 @@ const login = require("messenger-botcore").login.login;
 const main = require("./main");
 const config = require("./config");
 
-app.set("port", (process.env.PORT || 3000));
+app.set("port", (process.env.PORT || 4000));
 app.listen(app.get("port"));
 
 // Landing page
