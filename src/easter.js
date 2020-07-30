@@ -380,7 +380,8 @@ const eggs = [
     },
     {
         "alt": (message, _, __) => { // Check whether the bot was mentioned
-            return (message.mentions && message.mentions.length && message.mentions.includes(config.bot.id));
+            const mentions = Object.keys(message.mentions || {});
+            return (mentions && mentions.length && mentions.includes(config.bot.id));
         },
         "func": (threadId) => { utils.sendMessage("Yo", threadId); }
     },
