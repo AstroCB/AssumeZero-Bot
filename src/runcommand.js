@@ -871,7 +871,7 @@ const funcs = {
             utils.sendMessage("Restarting...", threadId);
         });
     },
-    "photo": (threadId, cmatch, groupInfo, _, __, attachments) => {
+    "photo": (threadId, cmatch, groupInfo, _, __, attachments, messageObj) => {
         // Set group photo to photo at provided URL
         const url = cmatch[1];
         if (url) {
@@ -883,6 +883,18 @@ const funcs = {
                 utils.setGroupImageFromUrl(attachments[0].largePreviewUrl, threadId, "Attachment is invalid.");
             } else {
                 utils.sendError("This command only accepts photo attachments.", threadId);
+            }
+        } else if (messageObj.type == "message_reply") {
+            const msg = messageObj.messageReply;
+            if (msg.attachments && msg.attachments.length > 0) {
+                const photo = msg.attachments[0];
+                if (photo.type == "photo") {
+                    utils.setGroupImageFromUrl(photo.largePreviewUrl, threadId, "Attachment is invalid.");
+                } else {
+                    utils.sendError("This command only accepts photo attachments.", threadId);
+                }
+            } else {
+                utils.sendError("The message you're replying to must ahve a photo attachment.", threadId);
             }
         } else {
             // If no photo provided, just display current group photo if it exists
