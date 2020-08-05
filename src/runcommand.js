@@ -1,5 +1,6 @@
 const request = require("request");
 const Entities = require("html-entities").XmlEntities;
+const jimp = require("jimp"); // For image processing
 const config = require("./config");
 const utils = require("./utils");
 const cutils = require("./configutils");
