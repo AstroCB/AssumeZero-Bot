@@ -1,6 +1,7 @@
 const request = require("request");
+const fs = require("fs");
 const Entities = require("html-entities").XmlEntities;
-const jimp = require("jimp"); // For image processing
+const jimp = require("jimp");
 const config = require("./config");
 const utils = require("./utils");
 const cutils = require("./configutils");
@@ -1053,16 +1054,23 @@ const funcs = {
                 if (!err) {
                     const width = img.bitmap.width; // Image width
                     const height = img.bitmap.height; // Image height
-                    const textDims = measureText(font, overlay); // Get text dimensions (x,y)
+                    const textDims = utils.measureText(font, overlay); // Get text dimensions (x,y)
                     img.print(font, (width - textDims[0]) / 2, (height - textDims[1]) / 2, overlay, (width + textDims[0])).write(filename, (err) => {
                         if (!err) {
-                            utils.sendFile(filename, threadId, "", () => {
-                                fs.unlink(filename);
+                            const qualifiedFilename = `${__dirname}/${filename}`;
+                            img.write(qualifiedFilename, err => {
+                                if (!err) {
+                                    utils.sendFile(filename, threadId, "", () => {
+                                        fs.unlink(qualifiedFilename, () => { });
+                                    });
+                                } else {
+                                    utils.sendError("Encountered a problem trying to save the image.", threadId);
+                                }
                             });
                         }
                     });
                 } else {
-                    utils.sendError("Couldn't load font", threadId);
+                    utils.sendError("Couldn't load font.", threadId);
                 }
             });
         });

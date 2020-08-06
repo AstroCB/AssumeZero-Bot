@@ -690,8 +690,9 @@ exports.setGroupImageFromUrl = (url, threadId, errMsg = "Photo couldn't download
 // Returns a JIMP image object and filename where the image was stored
 exports.processImage = (url, attachments, info, callback = () => { }) => {
     const threadId = info.threadId;
+    const root = `../media`;
     if (url) { // URL passed
-        const filename = `../media/${encodeURIComponent(url)}.png`;
+        const filename = `${root}/${encodeURIComponent(url)}.png`;
         jimp.read(url, (err, file) => {
             if (err) {
                 exports.sendError("Unable to retrieve image from that URL", threadId);
@@ -703,7 +704,7 @@ exports.processImage = (url, attachments, info, callback = () => { }) => {
         const attaches = attachments || info.lastMessage.attachments; // Either current message or last
         for (let i = 0; i < attaches.length; i++) {
             if (attaches[i].type == "photo") {
-                const filename = `../media/${attaches[i].name}.png`;
+                const filename = `${root}/${attaches[i].name}.png`;
                 jimp.read(attaches[i].largePreviewUrl, (err, file) => {
                     if (err) {
                         exports.sendError("Invalid file", threadId);
