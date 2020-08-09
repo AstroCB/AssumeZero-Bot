@@ -69,6 +69,10 @@ const handleXPath =
     "//div[contains(@class, 'permalink-tweet-container')]//span[contains(@class, 'username')]//b/text()";
 const tweetXPath =
     "//div[contains(@class, 'permalink-tweet-container')]//p[contains(@class, 'tweet-text')]//text()";
+const imgXPath =
+    "//meta[contains(@property, 'og:image')]/@content";
+
+const imgRegex = /pbs.twimg.com\/media\//;
 
 function handleTweet(match, groupInfo) {
     let url = match[0];
@@ -102,8 +106,18 @@ function handleTweet(match, groupInfo) {
             // If there are newlines, put a new quote marker at the beginning
             const text = prettyText.split("\n").join("\n> ");
 
-            utils.sendMessage(`${author} (@${handle}) tweeted: \n> ${text}`,
-                groupInfo.threadId);
+            const msg = `${author} (@${handle}) tweeted: \n> ${text}`;
+
+            // See if an image can be pulled from the metadata
+            const imgResults = xpath.select(imgXPath, doc);
+            if (imgResults.length > 0) {
+                const img = imgResults[0].nodeValue;
+                if (img && img.match(imgRegex)) {
+                    return utils.sendFileFromUrl(img, "../media/temp.jpg", msg, groupInfo.threadId);
+                }
+            }
+
+            utils.sendMessage(msg, groupInfo.threadId);
         }
     });
 }
