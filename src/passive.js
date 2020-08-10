@@ -70,7 +70,7 @@ const handleXPath =
 const tweetXPath =
     "//div[contains(@class, 'permalink-tweet-container')]//p[contains(@class, 'tweet-text')]//text()";
 const imgXPath =
-    "//meta[contains(@property, 'og:image')]/@content";
+    "//div[contains(@class, 'permalink-tweet-container')]//div[contains(@class, 'photo')]//img/@src";
 
 const imgRegex = /pbs.twimg.com\/media\//;
 
@@ -107,17 +107,14 @@ function handleTweet(match, groupInfo) {
             const text = prettyText.split("\n").join("\n> ");
 
             const msg = `${author} (@${handle}) tweeted: \n> ${text}`;
-
-            // See if an image can be pulled from the metadata
+            // See if an image can be found
             const imgResults = xpath.select(imgXPath, doc);
             if (imgResults.length > 0) {
-                const img = imgResults[0].nodeValue;
-                if (img && img.match(imgRegex)) {
-                    return utils.sendFileFromUrl(img, "../media/temp.jpg", msg, groupInfo.threadId);
-                }
+                const imgs = imgResults.map(img => img.nodeValue);
+                utils.sendFilesFromUrl(imgs, groupInfo.threadId, msg);
+            } else {
+                utils.sendMessage(msg, groupInfo.threadId);
             }
-
-            utils.sendMessage(msg, groupInfo.threadId);
         }
     });
 }
