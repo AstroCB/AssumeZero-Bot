@@ -45,6 +45,7 @@ function main(err, api) {
         // Called when login failed and a new retried login was successful
         stopListening();
         gapi = newApi;
+        utils.setglobals(gapi, mem);
         stopListening = newApi.listenMqtt(handleMessage);
     });
     api.setOptions({ listenEvents: true });
