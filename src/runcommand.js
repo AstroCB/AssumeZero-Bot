@@ -286,7 +286,7 @@ const funcs = {
 
                                         if (image) {
                                             // Send image of artist
-                                            utils.sendFileFromUrl(image, "../media/artist.png", message, threadId);
+                                            utils.sendFilesFromUrl(image, threadId, message);
                                         } else if (link) {
                                             // Just send link
                                             utils.sendMessage({
@@ -318,7 +318,7 @@ const funcs = {
 
                                 if (preview) {
                                     // Upload preview
-                                    utils.sendFileFromUrl(preview, "../media/preview.mp3", message, threadId);
+                                    utils.sendFilesFromUrl(preview, threadId, message);
                                 } else {
                                     // Just send Spotify URL
                                     utils.sendMessage({
@@ -384,7 +384,7 @@ const funcs = {
                         const msg = `How about ${track.name} (from "${track.album.name}") by ${utils.getArtists(track)}${track.explicit ? " (Explicit)" : ""}?`;
                         if (track.preview_url) {
                             // Send preview MP3 to chat if exists
-                            utils.sendFileFromUrl(track.preview_url, "../media/preview.mp3", msg, threadId);
+                            utils.sendFilesFromUrl(track.preview_url, threadId, msg);
                         } else {
                             utils.sendMessage({
                                 "body": msg,
@@ -453,7 +453,7 @@ const funcs = {
                                     const message = `${pname} by ${owner.display_name} (${owner.id}):\n\n"${desc}"\n\n${url}`;
 
                                     if (image) {
-                                        utils.sendFileFromUrl(image.url, `../media/${id}.jpg`, message, threadId);
+                                        utils.sendFilesFromUrl(image.url, threadId, message);
                                     } else {
                                         utils.sendMessage(message);
                                     }
@@ -901,7 +901,7 @@ const funcs = {
         } else {
             // If no photo provided, just display current group photo if it exists
             if (groupInfo.image) {
-                utils.sendFileFromUrl(groupInfo.image, `../media/${threadId}.jpg`, "", threadId);
+                utils.sendFilesFromUrl(groupInfo.image, threadId);
             } else {
                 utils.sendError("This group currently has no photo set. To add one, use this command with either a valid image URL or a photo attachment.", threadId);
             }
@@ -943,7 +943,7 @@ const funcs = {
                     const chosen = cmatch[1] ? Math.floor(Math.random() * results.length) : 0; // If rand not specified, use top result
                     const link = results[chosen].links[0].href;
                     const data = results[chosen].data[0];
-                    utils.sendFileFromUrl(link, `../media/${data.nasa_id}.jpg`, `"${data.title}"\n${data.description}`, threadId);
+                    utils.sendFilesFromUrl(link, threadId, `"${data.title}"\n${data.description}`);
                 } else {
                     utils.sendError(`No results found for ${search}`, threadId);
                 }
@@ -1214,7 +1214,7 @@ const funcs = {
                 const cur = data.main;
 
                 const msg = `Weather for ${name} (${country}):\nConditions: ${weather.description}\nTemp: ${cur.temp} ºF (L-${cur.temp_min} H-${cur.temp_max})\nCloud cover: ${data.clouds.all}%`;
-                utils.sendFileFromUrl(`http://openweathermap.org/img/w/${weather.icon}.png`, `../media/${weather.icon}.png`, msg, threadId);
+                utils.sendFilesFromUrl(`http://openweathermap.org/img/w/${weather.icon}.png`, threadId, msg);
             } else {
                 utils.sendError("Couldn't retrieve weather for that location.", threadId);
             }

@@ -509,11 +509,10 @@ exports.searchForUser = (match, threadId, num = 0, api = gapi) => {
     request.get(graphUrl, (err, res, body) => {
         if (res.statusCode == 200) {
             const url = JSON.parse(body).data.url; // Photo URL from Graph API
-            const photoUrl = `../media/profiles/${userId}.jpg`; // Location of downloaded file
             if (url) {
-                exports.sendFileFromUrl(url, photoUrl, desc, threadId);
+                this.sendFilesFromUrl(url, threadId, desc);
             } else {
-                exports.sendMessage(desc, threadId);
+                this.sendMessage(desc, threadId);
             }
         }
     });
@@ -526,30 +525,36 @@ domains, which are blocked by Facebook for URL auto-detection)
 Accepts url, optional file download location/name, optional message, and optional
 threadId parameters
 */
-exports.sendFileFromUrl = (url, path = "../media/temp.jpg", message = "", threadId, api = gapi) => {
-    request.head(url, (err, res, body) => {
-        // Download file and pass to chat API
-        const fullpath = `${__dirname}/${path}`;
-        if (!err) {
-            request(url).pipe(fs.createWriteStream(fullpath)).on('close', (err, data) => {
-                if (!err) {
-                    // Use API's official sendMessage here for callback functionality
-                    exports.sendMessage({
-                        "body": message,
-                        "attachment": fs.createReadStream(fullpath)
-                    }, threadId, (err, data) => {
-                        // Delete downloaded propic
-                        fs.unlink(fullpath, () => { });
-                    });
-                } else {
-                    exports.sendMessage(message, threadId);
-                }
+exports.sendFilesFromUrl = (urls, threadId, message = "") => {
+    if (typeof (urls) == "string") { // If only one is passed
+        urls = [urls];
+    }
+
+    const downloaded = [];
+    download(urls, () => {
+        if (downloaded.length == urls.length) {
+            // All downloads complete
+            const valid = downloaded.filter(path => path); // If download errored, null value in list
+            const attachments = valid.map(path => fs.createReadStream(path));
+
+            this.sendMessage({
+                "body": message,
+                "attachment": attachments
+            }, threadId, () => {
+                downloaded.forEach(path => fs.unlink(path, () => { }));
             });
-        } else {
-            // Just send the description if photo can't be downloaded
-            exports.sendMessage(message, threadId);
         }
     });
+
+    function download(urls, cb) {
+        urls.forEach(url => {
+            const path = `${__dirname}/../media/${encodeURIComponent(url)}.jpg`;
+            request(url).pipe(fs.createWriteStream(path)).on('close', (err, _) => {
+                downloaded.push(err ? null : path);
+                cb();
+            });
+        });
+    }
 }
 
 // Gets a random hex color from the list of supported values (now that Facebook has restricted it to
