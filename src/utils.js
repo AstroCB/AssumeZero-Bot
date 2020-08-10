@@ -548,7 +548,8 @@ exports.sendFilesFromUrl = (urls, threadId, message = "") => {
 
     function download(urls, cb) {
         urls.forEach(url => {
-            const path = `${__dirname}/../media/${encodeURIComponent(url)}.jpg`;
+            const shortName = encodeURIComponent(url).slice(0, config.MAXPATH);
+            const path = `${__dirname}/../media/${shortName}.jpg`;
             request(url).pipe(fs.createWriteStream(path)).on('close', (err, _) => {
                 downloaded.push(err ? null : path);
                 cb();
