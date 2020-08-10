@@ -534,14 +534,18 @@ exports.sendFilesFromUrl = (urls, threadId, message = "") => {
     download(urls, () => {
         if (downloaded.length == urls.length) {
             // All downloads complete
-            const valid = downloaded.filter(path => path); // If download errored, null value in list
-            const attachments = valid.map(path => fs.createReadStream(path));
+            
+            // If download errored, null value in list
+            const valid = downloaded.filter(download => download);
+            // Sort according to original order
+            const ordered = valid.sort((a, b) => urls.indexOf(a.url) - urls.indexOf(b.url));
 
+            const attachments = ordered.map(download => fs.createReadStream(download.path));
             this.sendMessage({
                 "body": message,
                 "attachment": attachments
             }, threadId, () => {
-                downloaded.forEach(path => fs.unlink(path, () => { }));
+                downloaded.forEach(download => fs.unlink(download.path, () => { }));
             });
         }
     });
@@ -551,7 +555,7 @@ exports.sendFilesFromUrl = (urls, threadId, message = "") => {
             const shortName = encodeURIComponent(url).slice(0, config.MAXPATH);
             const path = `${__dirname}/../media/${shortName}.jpg`;
             request(url).pipe(fs.createWriteStream(path)).on('close', (err, _) => {
-                downloaded.push(err ? null : path);
+                downloaded.push(err ? null : { "url": url, "path": path });
                 cb();
             });
         });
