@@ -2,6 +2,7 @@ const fs = require("fs"); // File system
 const request = require("request"); // For HTTP requests
 const jimp = require("jimp"); // For image processing
 const chrono = require("chrono-node"); // For NL date parsing
+const entities = new (require('html-entities').XmlEntities)(); // For parsing HTML strings
 const config = require("./config");
 const utils = require("./configutils");
 const commands = require("./commands");
@@ -534,7 +535,7 @@ exports.sendFilesFromUrl = (urls, threadId, message = "") => {
     download(urls, () => {
         if (downloaded.length == urls.length) {
             // All downloads complete
-            
+
             // If download errored, null value in list
             const valid = downloaded.filter(download => download);
             // Sort according to original order
@@ -1477,6 +1478,52 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
                     });
                 }
             });
+        } else if (type == "vaccine") {
+            request.get(`https://disease.sh/v3/covid-19/vaccine`, {}, (verr, _, vdata) => {
+                if (!verr) {
+                    const data = JSON.parse(vdata);
+                    if (query == "all") {
+                        let msg = `Total candidates: ${data.totalCandidates}\n\nBy phase:`;
+                        data.phases.forEach(phase => {
+                            msg += `\n${phase.phase} —> ${phase.candidates} (${(phase.candidates / data.totalCandidates * 100).toFixed(1)}%)`;
+                        });
+
+                        this.sendMessage(msg, threadId);
+                    } else {
+                        const matches = [];
+                        for (let i = 0; i < data.data.length; i++) {
+                            const info = data.data[i];
+                            // Naive substring search
+                            if (info.candidate.toLowerCase().indexOf(query) > -1
+                                || info.trialPhase.toLowerCase() == query
+                                || info.funding.filter(s => s.toLowerCase().indexOf(query) > -1).length > 0
+                                || info.institutions.filter(s => s.toLowerCase().indexOf(query) > -1).length > 0
+                                || info.sponsors.filter(s => s.toLowerCase().indexOf(query) > -1).length > 0) {
+                                matches.push(info);
+                            }
+                        }
+
+                        if (matches.length > 0) {
+                            let msg = "";
+                            matches.forEach(match => {
+                                const header = "=".repeat(match.candidate.length);
+                                msg += `\n${header}\n${match.candidate}\n${header}\n`;
+                                msg += `Status: ${match.trialPhase}\n`
+                                msg += `Sponsor${match.sponsors.length == 1 ? '' : 's'}: ${this.concatNames(match.sponsors)}\n`;
+                                msg += `Institution${match.institutions.length == 1 ? '' : 's'}: ${this.concatNames(match.institutions)}\n`;
+                                msg += `Funding: ${this.concatNames(match.funding)}\n`;
+                                msg += `\n${entities.decode(match.details)}\n`;
+                            });
+
+                            this.sendMessage(msg, threadId);
+                        } else {
+                            this.sendError("Couldn't find any vaccine candidate matches from that search.", threadId);
+                        }
+                    }
+                } else {
+                    this.sendError("Couldn't retrieve data.", threadId);
+                }
+            });
         }
     }
 }
@@ -1670,4 +1717,19 @@ exports.listMentionGroups = (name, groupInfo) => {
         }
     }
     exports.sendMessage(msg, groupInfo.threadId);
+}
+
+// Nicely formats a list of names
+exports.concatNames = names => {
+    let str = "";
+    switch (names.length) {
+        case 1: str = names[0]; break;
+        case 2: str = `${names[0]} and ${names[1]}`; break;
+        default: {
+            const last = names[names.length - 1];
+            names[names.length - 1] = `and ${last}`;
+            str = names.join(", ");
+        }
+    }
+    return str;
 }

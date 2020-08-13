@@ -738,15 +738,15 @@ exports.categories = {
                 "pretty_name": "COVID",
                 "short_description": "Information about COVID-19",
                 "description": "Search various data sets for information about COVID cases around the world",
-                "syntax": "covid ((state|country|province|top) {query})",
-                "example": ["covid", "covid state Maryland", "covid country Italy", "covid province Hubei", "covid top 5", "covid today all"],
+                "syntax": "covid ((state|country|province|top|today|vaccine) {query})",
+                "example": ["covid", "covid state Maryland", "covid country Italy", "covid province Hubei", "covid top 5", "covid today all", "covid vaccine moderna"],
                 "sudo": false,
                 "attachments": false,
                 "user_input": {
                     "accepts": false,
                     "optional": false
                 },
-                "regex": /covid(?: (state|country|province|top|today) (.+))?/i,
+                "regex": /covid(?: (state|country|province|top|today|vaccine) (.+))?/i,
                 "experimental": false
             },
             "stocks": {
