@@ -1599,20 +1599,20 @@ exports.parsePing = (m, fromUserId, groupInfo) => {
 
 // Ping individual users or the entire group
 exports.handlePings = (body, senderId, info) => {
-    const pingData = exports.parsePing(body, senderId, info);
+    const pingData = this.parsePing(body, senderId, info);
     const pingUsers = pingData.users;
     const pingMessage = pingData.message;
 
-    if (pingUsers) {
+    if (pingUsers && pingUsers.length > 0) {
         for (let i = 0; i < pingUsers.length; i++) {
             const sender = info.nicknames[senderId] || info.names[senderId] || "A user";
             let message = `${sender} summoned you in ${info.name}`;
             if (pingMessage.length > 0) { // Message left after pings removed – pass to receiver
                 message = `"${pingMessage}" – ${sender} in ${info.name}`;
             }
-            message += ` at ${exports.getTimeString()}` // Time stamp
+            message += ` at ${this.getTimeString()}` // Time stamp
             // Send message with links to chat/sender
-            exports.sendMessageWithMentions(message, [{
+            this.sendMessageWithMentions(message, [{
                 "tag": sender,
                 "id": senderId
             }, {
@@ -1620,7 +1620,9 @@ exports.handlePings = (body, senderId, info) => {
                 "id": info.threadId
             }], info.members[pingUsers[i]]);
         }
+        return true;
     }
+    return false;
 }
 
 // Wrapper func for common error handling cases with property updates

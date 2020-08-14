@@ -179,6 +179,7 @@ function handleMention(_, groupInfo, messageObj, regex) {
         groups.push(match[1]);
     }
 
+    let failedAGroup = false;
     for (let i = 0; i < groups.length; i++) {
         const group = groups[i];
         const members = groupInfo.mentionGroups[group];
@@ -187,15 +188,18 @@ function handleMention(_, groupInfo, messageObj, regex) {
             // Found a group to mention (either stored or global)
             members.forEach(member => users.add(member));
         } else {
-            // Check for old-style individual pings
-            utils.handlePings(body, senderId, groupInfo);
+            failedAGroup = true;
         }
     }
+
+    // Fallback to old-style pings if any failures to match a new-style group
+    const fallbackSucceeded = failedAGroup ? utils.handlePings(body, senderId, groupInfo) : false;
 
     if (users.size > 0) {
         const mentions = mentionify(Array.from(users), groupInfo);
         utils.sendMessage(mentions, groupInfo.threadId);
-    } else {
+    } else if (!fallbackSucceeded) {
+        // If it didn't find any new-style groups or old-style pings, send an error
         const err = `There aren't any members in ${groups.length == 1 ? "that group" : "those groups"}.`;
         utils.sendError(err, groupInfo.threadId);
     }
