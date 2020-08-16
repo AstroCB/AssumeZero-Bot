@@ -52,7 +52,7 @@ exports.matchesWithUser = (command, message, fromUserId, groupData, optional = f
             let m = match[i];
             if (m) { // Make sure only modifying the user field (no aliases here)
                 // Any post-match changes that need to be made
-                let fixes = exports.parseNameReplacements(m, fromUserId, groupData);
+                let fixes = this.parseNameReplacements(m, fromUserId, groupData);
                 match[i] = fixes;
                 if (m != fixes) {
                     /*
@@ -96,11 +96,11 @@ exports.sendMessage = (m, threadId, callback = () => { }, replyId = null, api = 
             callback(err, minfo);
 
             // Save last message ID sent
-            exports.getGroupInfo(threadId, (err, info) => {
+            this.getGroupInfo(threadId, (err, info) => {
                 if (minfo && info) {
                     if (err) return console.error(err);
 
-                    exports.setGroupProperty("lastBotMessageID", minfo.messageID, info);
+                    this.setGroupProperty("lastBotMessageID", minfo.messageID, info);
                 }
             });
         }, replyId);
@@ -112,7 +112,7 @@ exports.sendMessage = (m, threadId, callback = () => { }, replyId = null, api = 
 
 // Wrapper function for sending error messages to chat (uses sendMessage wrapper)
 exports.sendError = (m, threadId) => {
-    exports.sendMessage(`Error: ${m}`, threadId);
+    this.sendMessage(`Error: ${m}`, threadId);
 }
 
 /*
@@ -122,7 +122,7 @@ Each dict contains "tag" and "id" keys that should be set to
 the text and the id of the mention respectively
 */
 exports.sendMessageWithMentions = (message, mentions, threadId) => {
-    exports.sendMessage({
+    this.sendMessage({
         "body": message,
         "mentions": mentions,
     }, threadId);
@@ -136,18 +136,18 @@ exports.kick = (userId, info, time, callback = () => { }, api = gapi) => {
             if (err) {
                 if (info.isGroup) {
                     let admins = info.admins.map(id => info.names[id]);
-                    exports.sendError(`The bot must be an admin to kick members from the chat. Try asking ${admins.join("/")} to promote the bot.`, info.threadId);
+                    this.sendError(`The bot must be an admin to kick members from the chat. Try asking ${admins.join("/")} to promote the bot.`, info.threadId);
                 } else {
-                    exports.sendError("Cannot kick user from private chat.", info.threadId);
+                    this.sendError("Cannot kick user from private chat.", info.threadId);
                 }
             } else {
                 if (time) {
                     setTimeout(() => {
-                        exports.addUser(userId, info, false); // Don't welcome if they're not new to the group
+                        this.addUser(userId, info, false); // Don't welcome if they're not new to the group
                         callback();
                     }, time * 1000);
                 }
-                exports.updateGroupInfo(info.threadId);
+                this.updateGroupInfo(info.threadId);
             }
         });
     }
@@ -157,10 +157,10 @@ exports.kick = (userId, info, time, callback = () => { }, api = gapi) => {
 exports.kickMultiple = (userIds, info, time, callback = () => { }, api = gapi) => {
     // Check if kicking is possible first to avoid duplicate error messages
     if (!info.isGroup) {
-        exports.sendError("Cannot kick user from private chat.", info.threadId);
+        this.sendError("Cannot kick user from private chat.", info.threadId);
     } else if (info.admins.indexOf(config.bot.id) < 0) {
         let admins = info.admins.map(id => info.names[id]);
-        exports.sendError(`The bot must be an admin to kick members from the chat. Try asking ${admins.join("/")} to promote the bot.`, info.threadId);
+        this.sendError(`The bot must be an admin to kick members from the chat. Try asking ${admins.join("/")} to promote the bot.`, info.threadId);
     } else {
         let callbackset = false;
         for (let i = 0; i < userIds.length; i++) {
@@ -168,10 +168,10 @@ exports.kickMultiple = (userIds, info, time, callback = () => { }, api = gapi) =
             // (ALSO VERY IMPORTANT so that group isn't completely emptied)
             if (userIds[i] != config.bot.id) {
                 if (!callbackset) { // Only want to send the message once
-                    exports.kick(userIds[i], info, time, callback);
+                    this.kick(userIds[i], info, time, callback);
                     callbackset = true;
                 } else {
-                    exports.kick(userIds[i], info, time);
+                    this.kick(userIds[i], info, time);
                 }
             }
         }
@@ -188,14 +188,14 @@ if not successful on the first attempt (default 5)
 exports.addUser = (id, info, welcome = true, callback = () => { }, retry = true, currentBuffer = 0, api = gapi) => {
     api.addUserToGroup(id, info.threadId, err => {
         if (!err) {
-            exports.updateGroupInfo(info.threadId, null, (err, info) => {
+            this.updateGroupInfo(info.threadId, null, (err, info) => {
                 if (!err && welcome) {
                     if (info.names[id]) {
-                        exports.welcomeToChat(info.names[id], info);
+                        this.welcomeToChat(info.names[id], info);
                     } else {
                         api.getUserInfo(id, (err, uinfo) => {
                             if (!err && uinfo.name) {
-                                exports.sendMessage(`${uinfo.name} will be added to ${info.name} pending admin approval.`, info.threadId);
+                                this.sendMessage(`${uinfo.name} will be added to ${info.name} pending admin approval.`, info.threadId);
                             }
                         });
                     }
@@ -204,7 +204,7 @@ exports.addUser = (id, info, welcome = true, callback = () => { }, retry = true,
             callback();
         } else if (err && (currentBuffer < config.addBufferLimit)) {
             if (retry) {
-                exports.addUser(id, info, welcome, callback, retry, (currentBuffer + 1));
+                this.addUser(id, info, welcome, callback, retry, (currentBuffer + 1));
             } else {
                 callback(err);
             }
@@ -220,11 +220,11 @@ exports.welcomeToChat = (name, groupInfo) => {
     if (groupInfo.pinned) {
         const introPin = groupInfo.pinned[config.introPin];
         if (introPin) {
-            msg += `\nHere's some information about this chat:\n\n${exports.stringifyPin(introPin)}`;
+            msg += `\nHere's some information about this chat:\n\n${this.stringifyPin(introPin)}`;
         }
     }
 
-    exports.sendMessage(msg, groupInfo.threadId);
+    this.sendMessage(msg, groupInfo.threadId);
 }
 
 /*
@@ -237,8 +237,8 @@ the background to decrease lag, but it may be useful if updates are required
 to continue.
 */
 exports.updateGroupInfo = (threadId, message, callback = () => { }, sendsInit = true, api = gapi) => {
-    exports.getGroupInfo(threadId, (err, existingInfo) => {
-        exports.getGroupInfo(config.owner.id, (ownerErr, ownerData) => {
+    this.getGroupInfo(threadId, (err, existingInfo) => {
+        this.getGroupInfo(config.owner.id, (ownerErr, ownerData) => {
             if (!err && !ownerErr) {
                 // If the dbFailSilently flag is turned on, only send the init
                 // message if the owner thread exists in the database. Also
@@ -254,7 +254,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, sendsInit = 
 
 
                     if (shouldSendMessage) {
-                        exports.sendMessage(`Hello! I'm ${n.long}${n.short ? `, but you can call me ${n.short}` : ""}. Give me a moment to collect some information about this chat before you use any commands.`, threadId);
+                        this.sendMessage(`Hello! I'm ${n.long}${n.short ? `, but you can call me ${n.short}` : ""}. Give me a moment to collect some information about this chat before you use any commands.`, threadId);
 
                         // Add bot's nickname if available
                         api.changeNickname(n.short, threadId, config.bot.id); // Won't do anything if undefined
@@ -312,12 +312,12 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, sendsInit = 
 
                                 if (isNew && shouldSendMessage) {
                                     // Alert owner now that chat name is available
-                                    exports.sendMessage(`Bot added to new chat: "${info.name}".`, config.owner.id);
+                                    this.sendMessage(`Bot added to new chat: "${info.name}".`, config.owner.id);
                                 }
                             }
-                            exports.setGroupInfo(info, (err) => {
+                            this.setGroupInfo(info, (err) => {
                                 if (!existingInfo && shouldSendMessage) {
-                                    exports.sendMessage(`All done! Use '${config.trigger} help' to see what I can do.`, threadId);
+                                    this.sendMessage(`All done! Use '${config.trigger} help' to see what I can do.`, threadId);
                                 }
                                 callback(err, info);
                             });
@@ -339,7 +339,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, sendsInit = 
 
 // Gets stored information about a group
 exports.getGroupInfo = (threadId, callback) => {
-    exports.getGroupData((err, groupData) => {
+    this.getGroupData((err, groupData) => {
         if (err) {
             // Error retrieving data
             callback(err);
@@ -372,7 +372,7 @@ exports.getGroupData = (callback) => {
 
 // Updates stored information about a group
 exports.setGroupInfo = (info, callback = () => { }) => {
-    exports.getGroupData((err, groupData) => {
+    this.getGroupData((err, groupData) => {
         if (!err) {
             groupData[info.threadId] = info;
             mem.set(`groups`, JSON.stringify(groupData), {}, (err, success) => {
@@ -388,7 +388,7 @@ exports.setGroupProperty = (key, value, info, callback = () => { }) => {
         info[key] = value;
         lockedThreads.push(info.threadId);
         setTimeout(() => {
-            exports.setGroupInfo(info, (err) => {
+            this.setGroupInfo(info, (err) => {
                 lockedThreads = lockedThreads.filter(t => t != info.threadId);
                 callback(err);
             });
@@ -432,12 +432,12 @@ exports.getHelpCategory = (input) => {
 
 // Wrapper for sending an emoji to the group quickly
 exports.sendGroupEmoji = (groupInfo, size = "medium") => {
-    exports.sendEmoji(groupInfo.emoji || config.defaultEmoji, groupInfo.threadId, size);
+    this.sendEmoji(groupInfo.emoji || config.defaultEmoji, groupInfo.threadId, size);
 }
 
 // Specify size as a string: "small", "medium", or "large"
 exports.sendEmoji = (emoji, threadId, size = "small") => {
-    exports.sendMessage({
+    this.sendMessage({
         "emoji": emoji,
         "emojiSize": size
     }, threadId);
@@ -461,7 +461,7 @@ exports.sendFile = (filenames, threadId, message = "", callback = () => { }, rep
         "body": message,
         "attachment": filenames
     }
-    exports.sendMessage(msg, threadId, callback, replyId);
+    this.sendMessage(msg, threadId, callback, replyId);
 }
 
 // Returns a string of the current time in EST
@@ -612,7 +612,7 @@ exports.loginSpotify = (spotify, callback = () => { }) => {
 exports.sendContentsOfFile = (file, threadId) => {
     fs.readFile(`${__dirname}/${file}`, "utf-8", (err, text) => {
         if (!err) {
-            exports.sendMessage(text, threadId);
+            this.sendMessage(text, threadId);
         } else {
             console.log(err);
         }
@@ -633,7 +633,7 @@ exports.getScore = (userId, callback) => {
 // the user's score by the default value set in config, or 5 points if not set
 // Returns a callback with error, success, and a value equal to the user's new score
 exports.updateScore = (isAdd, userId, callback) => {
-    exports.getScore(userId, (err, val) => {
+    this.getScore(userId, (err, val) => {
         if (err) {
             callback(err);
         }
@@ -643,7 +643,7 @@ exports.updateScore = (isAdd, userId, callback) => {
         // Can be easily customized to accept a score parameter if so desired
         const points = config.votePoints || 5; // Default to five points
         const newScore = isAdd ? (score + points) : (score - points);
-        exports.setScore(userId, `${newScore}`, (err, success) => {
+        this.setScore(userId, `${newScore}`, (err, success) => {
             callback(err, success, newScore);
         });
     });
@@ -666,7 +666,7 @@ exports.getAllScores = (groupInfo, callback = () => { }) => {
 
     for (let m in members) {
         if (members.hasOwnProperty(m)) {
-            exports.getScore(m, (err, val) => {
+            this.getScore(m, (err, val) => {
                 updateResults({
                     "name": members[m],
                     "score": parseInt(val) || "0"
@@ -688,11 +688,11 @@ exports.setGroupImageFromUrl = (url, threadId, errMsg = "Photo couldn't download
             api.changeGroupImage(fs.createReadStream(fullpath), threadId, (err) => {
                 fs.unlink(fullpath);
                 if (err) {
-                    exports.sendError(errMsg, threadId);
+                    this.sendError(errMsg, threadId);
                 }
             });
         } else {
-            exports.sendError("Image not found at that URL");
+            this.sendError("Image not found at that URL");
         }
     });
 }
@@ -706,7 +706,7 @@ exports.processImage = (url, attachments, info, callback = () => { }) => {
         const filename = `${root}/${encodeURIComponent(url)}.png`;
         jimp.read(url, (err, file) => {
             if (err) {
-                exports.sendError("Unable to retrieve image from that URL", threadId);
+                this.sendError("Unable to retrieve image from that URL", threadId);
             } else {
                 callback(file, filename);
             }
@@ -718,17 +718,17 @@ exports.processImage = (url, attachments, info, callback = () => { }) => {
                 const filename = `${root}/${attaches[i].name}.png`;
                 jimp.read(attaches[i].largePreviewUrl, (err, file) => {
                     if (err) {
-                        exports.sendError("Invalid file", threadId);
+                        this.sendError("Invalid file", threadId);
                     } else {
                         callback(file, filename);
                     }
                 });
             } else {
-                exports.sendError(`Sorry, but ${attaches[i].name} is not an acceptable file type`, threadId);
+                this.sendError(`Sorry, but ${attaches[i].name} is not an acceptable file type`, threadId);
             }
         }
     } else {
-        exports.sendError("You must provide either a URL or a valid image attachment", threadId);
+        this.sendError("You must provide either a URL or a valid image attachment", threadId);
     }
 }
 
@@ -752,11 +752,11 @@ exports.measureText = (font, text) => {
 
 // Sends a message to all of the chats that the bot is currenty in (use sparingly)
 exports.sendToAll = (msg) => {
-    exports.getGroupData((err, groupData) => {
+    this.getGroupData((err, groupData) => {
         if (!err && groupData) {
             for (let g in groupData) {
                 if (groupData[g].isGroup) {
-                    exports.sendMessage(msg, g);
+                    this.sendMessage(msg, g);
                 }
             }
         }
@@ -767,7 +767,7 @@ exports.sendToAll = (msg) => {
 exports.sendFilesFromDir = (dir, threadId) => {
     fs.readdir(`${__dirname}/${dir}`, (err, filenames) => {
         if (!err) {
-            exports.sendFile(filenames.map(f => {
+            this.sendFile(filenames.map(f => {
                 return `${dir}/${f}`;
             }), threadId);
         } else {
@@ -846,7 +846,7 @@ exports.getAllStats = (callback) => {
 
     for (let i = 0; i < names.length; i++) {
         let key = names[i];
-        exports.getStats(key, true, (err, stats) => {
+        this.getStats(key, true, (err, stats) => {
             if (!err) {
                 updateResults({
                     "key": key,
@@ -861,7 +861,7 @@ exports.getAllStats = (callback) => {
 // Updates the usage statistics for a particular command (takes command name and
 // sending user's ID)
 exports.updateStats = (command, senderID, callback = () => { }) => {
-    exports.getStats(command, true, (err, stats) => {
+    this.getStats(command, true, (err, stats) => {
         if (!err) {
             stats.count++;
             stats.total++;
@@ -869,7 +869,7 @@ exports.updateStats = (command, senderID, callback = () => { }) => {
                 "at": (new Date()).toISOString(),
                 "user": senderID
             });
-            exports.setStats(command, stats, callback);
+            this.setStats(command, stats, callback);
         } else {
             callback(err);
         }
@@ -881,7 +881,7 @@ exports.resetStats = () => {
     const co = commands.commands;
     for (let c in co) {
         if (co.hasOwnProperty(c)) {
-            exports.setStats(c, {
+            this.setStats(c, {
                 "count": 0,
                 "total": 0,
                 "record": []
@@ -895,7 +895,7 @@ exports.logStats = () => {
     const co = commands.commands;
     for (let c in co) {
         if (co.hasOwnProperty(c)) {
-            exports.getStats(c, true, (err, stats) => {
+            this.getStats(c, true, (err, stats) => {
                 console.log(`${c}: ${stats.count}/${stats.total}`);
                 for (let i = 0; i < stats.record.length; i++) {
                     console.log(stats.record[i]);
@@ -951,8 +951,8 @@ exports.getComputedStats = (stats) => {
     const monthMarker = new Date();
     monthMarker.setMonth(monthMarker.getMonth() - 1); // Last month
 
-    const dateRecords = exports.narrowedWithinTime(stats.record, dayMarker) // All command calls within the last day
-    const monthRecords = exports.narrowedWithinTime(stats.record, monthMarker) // All command calls within the last month
+    const dateRecords = this.narrowedWithinTime(stats.record, dayMarker) // All command calls within the last day
+    const monthRecords = this.narrowedWithinTime(stats.record, monthMarker) // All command calls within the last month
 
     usage.day = dateRecords ? dateRecords.length : 0;
     usage.month = monthRecords ? monthRecords.length : 0;
@@ -1000,15 +1000,15 @@ exports.parseNameReplacements = (message, fromUserId, groupInfo) => {
 exports.deletePin = (pin, groupInfo, threadId) => {
     if (pin && groupInfo.pinned[pin]) {
         delete groupInfo.pinned[pin];
-        exports.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
+        this.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
             if (!err) {
-                exports.sendMessage(`Successfully deleted "${pin}".`, threadId);
+                this.sendMessage(`Successfully deleted "${pin}".`, threadId);
             } else {
-                exports.sendError(`Unable to delete "${pin}".`, threadId);
+                this.sendError(`Unable to delete "${pin}".`, threadId);
             }
         });
     } else {
-        exports.sendError("Please specify an existing pin to delete.", threadId);
+        this.sendError("Please specify an existing pin to delete.", threadId);
     }
 }
 
@@ -1016,27 +1016,27 @@ exports.deletePin = (pin, groupInfo, threadId) => {
 exports.renamePin = (pinArgs, groupInfo, threadId) => {
     const args = pinArgs ? pinArgs.split(" ") : [];
     if (args.length != 2) {
-        exports.sendError("Please specify a valid pin to rename and new name.", threadId);
+        this.sendError("Please specify a valid pin to rename and new name.", threadId);
         return;
     }
 
     const [oldPin, newPin] = args;
     if (oldPin && newPin && groupInfo.pinned[oldPin]) {
         if (groupInfo.pinned[newPin]) {
-            exports.sendMessage(`Cannot rename "${oldPin}" to "${newPin}" as it would override an existing pin.`, threadId);
+            this.sendMessage(`Cannot rename "${oldPin}" to "${newPin}" as it would override an existing pin.`, threadId);
         } else {
             groupInfo.pinned[newPin] = groupInfo.pinned[oldPin];
             delete groupInfo.pinned[oldPin];
-            exports.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
+            this.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
                 if (!err) {
-                    exports.sendMessage(`Successfully renamed "${oldPin}" to "${newPin}".`, threadId);
+                    this.sendMessage(`Successfully renamed "${oldPin}" to "${newPin}".`, threadId);
                 } else {
-                    exports.sendError(`Unable to rename "${oldPin}".`, threadId);
+                    this.sendError(`Unable to rename "${oldPin}".`, threadId);
                 }
             });
         }
     } else {
-        exports.sendError("Please specify an existing pin to rename.", threadId);
+        this.sendError("Please specify an existing pin to rename.", threadId);
     }
 }
 
@@ -1051,18 +1051,18 @@ exports.addPin = (msg, pinName, date, sender, groupInfo) => {
 
     // Add pin to db
     groupInfo.pinned[pinName] = pin;
-    exports.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
+    this.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
         if (!err) {
             const pinMsg = `Pinned new message for pin "${pinName}" to the chat.${oldPin ? ` Previous message:\n\n"${oldPin.msg}"` : ""}`;
-            exports.sendMessage(pinMsg, groupInfo.threadId);
+            this.sendMessage(pinMsg, groupInfo.threadId);
         } else {
-            exports.sendError("Unable to pin message to the chat.", threadId);
+            this.sendError("Unable to pin message to the chat.", threadId);
         }
     });
 }
 
 exports.stringifyPin = (pin) => {
-    const dateStr = exports.getPrettyDateString(new Date(pin.date), false);
+    const dateStr = this.getPrettyDateString(new Date(pin.date), false);
     return `"${pin.msg}" – ${pin.sender} on ${dateStr}`;
 }
 
@@ -1076,15 +1076,15 @@ exports.appendPin = (content, existing, date, sender, groupInfo) => {
             "date": date
         }
         // Commit changes to db
-        exports.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
+        this.setGroupProperty("pinned", groupInfo.pinned, groupInfo, err => {
             if (!err) {
-                exports.sendMessage(`Updated pin "${existing}".`, groupInfo.threadId);
+                this.sendMessage(`Updated pin "${existing}".`, groupInfo.threadId);
             } else {
-                exports.sendError("Unable to append that pin; please try again.", threadId);
+                this.sendError("Unable to append that pin; please try again.", threadId);
             }
         });
     } else {
-        exports.sendError(`"${existing}" doesn't seem to exist. Please specify a valid existing pin to append to.`, groupInfo.threadId);
+        this.sendError(`"${existing}" doesn't seem to exist. Please specify a valid existing pin to append to.`, groupInfo.threadId);
     }
 }
 
@@ -1092,14 +1092,14 @@ exports.appendPin = (content, existing, date, sender, groupInfo) => {
 exports.addEvent = (title, at, sender, groupInfo, threadId) => {
     const keyTitle = title.trim().toLowerCase();
     if (groupInfo.events[keyTitle]) {
-        exports.sendError(`An event already exists called "${title}". Please delete it if you wish to make a new one.`, threadId);
+        this.sendError(`An event already exists called "${title}". Please delete it if you wish to make a new one.`, threadId);
         return;
     }
 
     const now = new Date();
     const timestamp = chrono.parseDate(at, now, { 'forwardDate': true });
     if (timestamp) {
-        const prettyTime = exports.getPrettyDateString(timestamp);
+        const prettyTime = this.getPrettyDateString(timestamp);
         let msg = `
 Event "${title}" created for ${prettyTime}. To RSVP, upvote or downvote this message. \
 To delete this event, use "${config.trigger} event delete ${title}" (only the owner can do this). \
@@ -1114,7 +1114,7 @@ To delete this event, use "${config.trigger} event delete ${title}" (only the ow
             msg += `, and ${config.reminderTime} minutes early.`
         }
 
-        exports.sendMessage(msg, threadId, (err, mid) => {
+        this.sendMessage(msg, threadId, (err, mid) => {
             // Grab mid from sent message to monitor messages for RSVPs
             if (!err) {
                 const event = {
@@ -1132,11 +1132,11 @@ To delete this event, use "${config.trigger} event delete ${title}" (only the ow
                 }
 
                 groupInfo.events[keyTitle] = event;
-                exports.setGroupProperty("events", groupInfo.events, groupInfo);
+                this.setGroupProperty("events", groupInfo.events, groupInfo);
             }
         });
     } else {
-        exports.sendError("Couldn't understand that event's time.", threadId);
+        this.sendError("Couldn't understand that event's time.", threadId);
     }
 }
 
@@ -1147,18 +1147,18 @@ exports.deleteEvent = (rawTitle, sender, groupInfo, threadId, sendConfirmation =
         const event = groupInfo.events[keyTitle];
         if (event.owner == sender) {
             delete groupInfo.events[keyTitle]
-            exports.setGroupProperty("events", groupInfo.events, groupInfo, err => {
+            this.setGroupProperty("events", groupInfo.events, groupInfo, err => {
                 if (err) {
-                    exports.sendError("Sorry, couldn't delete the event.", threadId);
+                    this.sendError("Sorry, couldn't delete the event.", threadId);
                 } else if (sendConfirmation) {
-                    exports.sendMessage(`Successfully deleted "${event.title}".`, threadId);
+                    this.sendMessage(`Successfully deleted "${event.title}".`, threadId);
                 }
             });
         } else {
-            exports.sendError(`Sorry, you are not the owner of this event.`, threadId);
+            this.sendError(`Sorry, you are not the owner of this event.`, threadId);
         }
     } else {
-        exports.sendError(`Couldn't find an event called ${rawTitle}.`, threadId);
+        this.sendError(`Couldn't find an event called ${rawTitle}.`, threadId);
     }
 }
 
@@ -1179,9 +1179,9 @@ exports.listEvents = (rawTitle, groupInfo, threadId) => {
                 msg += `Not going: ${notGoList.join('/')}\n`;
             }
             msg += "\nTo RSVP, upvote or downvote the original event message linked above.";
-            exports.sendMessage(msg, threadId, () => { }, event.mid);
+            this.sendMessage(msg, threadId, () => { }, event.mid);
         } else {
-            exports.sendError(`Couldn't find an event called ${rawTitle}.`, threadId);
+            this.sendError(`Couldn't find an event called ${rawTitle}.`, threadId);
         }
     } else {
         // Overview
@@ -1205,9 +1205,9 @@ exports.listEvents = (rawTitle, groupInfo, threadId) => {
                     msg += `: ${event.pretty_time}`;
                 }
             }
-            exports.sendMessage(msg, threadId);
+            this.sendMessage(msg, threadId);
         } else {
-            exports.sendMessage("There are no events set in this chat.", threadId);
+            this.sendMessage("There are no events set in this chat.", threadId);
         }
     }
 }
@@ -1219,7 +1219,7 @@ exports.addReminder = (userId, reminderStr, timeStr, groupInfo, threadId) => {
             const timestamp = chrono.parseDate(timeStr, new Date(), { 'forwardDate': true });
             if (timestamp) {
                 const time = timestamp.getTime();
-                const prettyTime = exports.getPrettyDateString(timestamp);
+                const prettyTime = this.getPrettyDateString(timestamp);
                 const keyTitle = `r${userId}_${threadId}_${time}`; // Attempt to create a unique key
                 const userName = uinfo[userId].firstName;
 
@@ -1234,18 +1234,18 @@ exports.addReminder = (userId, reminderStr, timeStr, groupInfo, threadId) => {
                 }
 
                 groupInfo.events[keyTitle] = reminder;
-                exports.setGroupProperty("events", groupInfo.events, groupInfo, err => {
+                this.setGroupProperty("events", groupInfo.events, groupInfo, err => {
                     if (!err) {
-                        exports.sendMessage(`Created a reminder for ${groupInfo.names[userId]} for ${prettyTime}.`, threadId);
+                        this.sendMessage(`Created a reminder for ${groupInfo.names[userId]} for ${prettyTime}.`, threadId);
                     } else {
-                        exports.sendMessage("Unable to create the reminder. Please try again.", threadId);
+                        this.sendMessage("Unable to create the reminder. Please try again.", threadId);
                     }
                 });
             } else {
-                exports.sendError("Couldn't understand that reminder's time.", threadId);
+                this.sendError("Couldn't understand that reminder's time.", threadId);
             }
         } else {
-            exports.sendError("Couldn't get that user's info.", threadId);
+            this.sendError("Couldn't get that user's info.", threadId);
         }
     });
 }
@@ -1283,7 +1283,7 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
         msg += `\n${recovered}`
 
         if (useDetailedData) {
-            const updated = exports.getPrettyDateString(new Date(data.updated));
+            const updated = this.getPrettyDateString(new Date(data.updated));
             msg += `\n\n_Last updated: ${updated}_`;
         }
 
@@ -1323,9 +1323,9 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
                 if (!err) {
                     const data = JSON.parse(all);
                     const msg = `*Worldwide data*\n\nAffected countries: ${data.affectedCountries}\n${buildMessage(data, true, hdata)}`;
-                    exports.sendMessage(msg, threadId);
+                    this.sendMessage(msg, threadId);
                 } else {
-                    exports.sendError("Couldn't retrieve data.", threadId);
+                    this.sendError("Couldn't retrieve data.", threadId);
                 }
             });
         });
@@ -1343,15 +1343,15 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
 
                     if (!err && res.statusCode == 200 && info != "Country not found") {
                         const data = JSON.parse(info);
-                        exports.sendMessage(`*${data.country}*\n\n${buildMessage(data, true, hdata["timeline"])}`, threadId);
+                        this.sendMessage(`*${data.country}*\n\n${buildMessage(data, true, hdata["timeline"])}`, threadId);
                     } else {
                         request.get(`https://corona.lmao.ninja/v2/countries/`, {}, (err, res, info) => {
                             if (!err && res.statusCode == 200) {
                                 const data = JSON.parse(info);
                                 const countries = data.map(country => country.country).sort().join(", ");
-                                exports.sendMessage(`Couldn't find data for ${rawQuery}. Here are the countries I have available:\n\n${countries}`, threadId);
+                                this.sendMessage(`Couldn't find data for ${rawQuery}. Here are the countries I have available:\n\n${countries}`, threadId);
                             } else {
-                                exports.sendError("Couldn't retrieve data.", threadId);
+                                this.sendError("Couldn't retrieve data.", threadId);
                             }
                         });
                     }
@@ -1364,13 +1364,13 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
                     const state = data.find(state => state.state.toLowerCase() == query);
 
                     if (state) {
-                        exports.sendMessage(`*${state.state}*\n\n${buildMessage(state, false)}`, threadId);
+                        this.sendMessage(`*${state.state}*\n\n${buildMessage(state, false)}`, threadId);
                     } else {
                         const states = data.map(state => state.state).sort().join(", ");
-                        exports.sendMessage(`Couldn't find data for ${rawQuery}. Here are the states I have available:\n\n${states}`, threadId);
+                        this.sendMessage(`Couldn't find data for ${rawQuery}. Here are the states I have available:\n\n${states}`, threadId);
                     }
                 } else {
-                    exports.sendError("Couldn't retrieve data.", threadId);
+                    this.sendError("Couldn't retrieve data.", threadId);
                 }
             });
         } else if (type == "province") {
@@ -1403,12 +1403,12 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
 
                             const province = cases.find(region => region.province_State && region.province_State.toLowerCase() == query);
                             if (province) {
-                                exports.sendMessage(reportData(province, deaths, recovered), threadId);
+                                this.sendMessage(reportData(province, deaths, recovered), threadId);
                             } else {
-                                exports.sendError(`There is no data currently being reported for ${rawQuery}.`, threadId);
+                                this.sendError(`There is no data currently being reported for ${rawQuery}.`, threadId);
                             }
                         } else {
-                            exports.sendError("Couldn't retrieve data.", threadId);
+                            this.sendError("Couldn't retrieve data.", threadId);
                         }
                     });
                 });
@@ -1427,16 +1427,16 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
                             const msg = top.map((c, i) =>
                                 `${i + 1}) ${c.country}: ${c.cases.toLocaleString()} cases/${c.deaths.toLocaleString()} deaths/${c.recovered.toLocaleString()} recovered`)
                                 .join("\n");
-                            exports.sendMessage(msg, threadId);
+                            this.sendMessage(msg, threadId);
                         } else {
-                            exports.sendError("Couldn't retrieve data.", threadId);
+                            this.sendError("Couldn't retrieve data.", threadId);
                         }
                     });
                 } else {
-                    exports.sendError(`Please choose a number ${LIMIT} or smaller for message length reasons.`, threadId);
+                    this.sendError(`Please choose a number ${LIMIT} or smaller for message length reasons.`, threadId);
                 }
             } else {
-                exports.sendError(`"${rawQuery}" is not a valid number.`, threadId);
+                this.sendError(`"${rawQuery}" is not a valid number.`, threadId);
             }
         } else if (type == "today") {
             function buildTodayStr(cur, hist) {
@@ -1461,9 +1461,9 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
                         if (!err) {
                             const cdata = JSON.parse(all);
                             const msg = `*Today's worldwide summary*\n\n${buildTodayStr(cdata, hdata)}`;
-                            exports.sendMessage(msg, threadId);
+                            this.sendMessage(msg, threadId);
                         } else {
-                            exports.sendError("Couldn't retrieve data.", threadId);
+                            this.sendError("Couldn't retrieve data.", threadId);
                         }
                     });
                 } else {
@@ -1471,9 +1471,9 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
                         if (!err) {
                             const cdata = JSON.parse(data);
                             const msg = `*Today's summary for ${cdata.country}*\n\n${buildTodayStr(cdata, hdata["timeline"])}`;
-                            exports.sendMessage(msg, threadId);
+                            this.sendMessage(msg, threadId);
                         } else {
-                            exports.sendError("Couldn't retrieve data.", threadId);
+                            this.sendError("Couldn't retrieve data.", threadId);
                         }
                     });
                 }
@@ -1574,7 +1574,7 @@ exports.getStockData = (symbol, callback) => {
 exports.parsePing = (m, fromUserId, groupInfo) => {
     let users = [];
 
-    let matches = exports.matchesWithUser(new RegExp("@@"), m, fromUserId, groupInfo, false, "");
+    let matches = this.matchesWithUser(new RegExp("@@"), m, fromUserId, groupInfo, false, "");
     while (matches && matches[1]) {
         const match = matches[1];
         users.push(match.toLowerCase());
@@ -1587,7 +1587,7 @@ exports.parsePing = (m, fromUserId, groupInfo) => {
                 m = m.split(`@@${alias}`).join("");
             }
         }
-        matches = exports.matchesWithUser(new RegExp("@@"), m, fromUserId, groupInfo, false, "");
+        matches = this.matchesWithUser(new RegExp("@@"), m, fromUserId, groupInfo, false, "");
     }
     // After loop, m will contain the message without the pings (the message to be sent)
     return {
@@ -1626,11 +1626,11 @@ exports.handlePings = (body, senderId, info) => {
 
 // Wrapper func for common error handling cases with property updates
 exports.setGroupPropertyAndHandleErrors = (property, groupInfo, errMsg, successMsg) => {
-    exports.setGroupProperty(property, groupInfo[property], groupInfo, err => {
+    this.setGroupProperty(property, groupInfo[property], groupInfo, err => {
         if (err) {
-            exports.sendError(errMsg, groupInfo.threadId);
+            this.sendError(errMsg, groupInfo.threadId);
         } else {
-            exports.sendMessage(successMsg, groupInfo.threadId);
+            this.sendMessage(successMsg, groupInfo.threadId);
         }
     });
 }
@@ -1641,7 +1641,7 @@ exports.createMentionGroup = (name, userIds, groupInfo) => {
     const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
     const memberString = userIds.length > 0 ? ` with member${userIds.length == 1 ? "" : "s"} ${memberNames}` : "";
 
-    exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
+    this.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
         "Unable to create the group.",
         `Successfully created group "${name}"${memberString}.`
     );
@@ -1650,7 +1650,7 @@ exports.createMentionGroup = (name, userIds, groupInfo) => {
 exports.deleteMentionGroup = (name, groupInfo) => {
     delete groupInfo.mentionGroups[name];
 
-    exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
+    this.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
         "Unable to delete the group.",
         `Successfully deleted group "${name}".`
     );
@@ -1662,15 +1662,15 @@ exports.subToMentionGroup = (name, userIds, groupInfo) => {
     let members = groupInfo.mentionGroups[name];
     if (members) {
         members = members.concat(userIds);
-        groupInfo.mentionGroups[name] = exports.pruneDuplicates(members);
+        groupInfo.mentionGroups[name] = this.pruneDuplicates(members);
 
         const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
-        exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
+        this.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
             "Unable to subscribe to the group.",
             `${memberNames} successfully subscribed to group "${name}".`
         );
     } else {
-        exports.sendError("Please provide a valid group to add members.")
+        this.sendError("Please provide a valid group to add members.")
     }
 }
 
@@ -1683,12 +1683,12 @@ exports.unsubFromMentionGroup = (name, userIds, groupInfo) => {
         groupInfo.mentionGroups[name] = members;
 
         const memberNames = userIds.map(user => groupInfo.names[user]).join("/");
-        exports.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
+        this.setGroupPropertyAndHandleErrors("mentionGroups", groupInfo,
             "Unable to unsubscribe from the group.",
             `${memberNames} successfully unsubscribed from group "${name}".`
         );
     } else {
-        exports.sendError("Please provide a valid group to remove members.")
+        this.sendError("Please provide a valid group to remove members.")
     }
 }
 
@@ -1717,7 +1717,7 @@ exports.listMentionGroups = (name, groupInfo) => {
             msg = `No available mention groups. Try adding one with "${config.trigger} group create".`;
         }
     }
-    exports.sendMessage(msg, groupInfo.threadId);
+    this.sendMessage(msg, groupInfo.threadId);
 }
 
 // Nicely formats a list of names

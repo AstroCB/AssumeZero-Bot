@@ -44,7 +44,7 @@ exports.getBannedUsers = (callback) => {
 }
 
 exports.addBannedUser = (id, callback) => {
-    exports.getBannedUsers((err, bannedUsers) => {
+    this.getBannedUsers((err, bannedUsers) => {
         if (!err) {
             if (bannedUsers.indexOf(id) < 0) {
                 bannedUsers.push(id);
@@ -64,7 +64,7 @@ exports.addBannedUser = (id, callback) => {
 }
 
 exports.removeBannedUser = (id, callback = () => { }) => {
-    exports.getBannedUsers((err, bannedUsers) => {
+    this.getBannedUsers((err, bannedUsers) => {
         if (!err) {
             const ind = bannedUsers.indexOf(id);
             if (ind > -1) {
