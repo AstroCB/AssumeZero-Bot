@@ -11,9 +11,9 @@ const config = require("./config"); // For configuration
 const dom = new domParser({
     locator: {},
     errorHandler: {
-        warning: function (w) { },
-        error: function (e) { },
-        fatalError: function (e) { console.error(e) }
+        warning: w => { },
+        error: e => { },
+        fatalError: e => { console.error(e) }
     }
 });
 

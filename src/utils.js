@@ -132,7 +132,7 @@ exports.sendMessageWithMentions = (message, mentions, threadId) => {
 // Also accepts optional callback parameter if length is specified
 exports.kick = (userId, info, time, callback = () => { }, api = gapi) => {
     if (userId != config.bot.id) { // Never allow bot to be kicked
-        api.removeUserFromGroup(userId, info.threadId, (err) => {
+        api.removeUserFromGroup(userId, info.threadId, err => {
             if (err) {
                 if (info.isGroup) {
                     let admins = info.admins.map(id => info.names[id]);
@@ -297,14 +297,14 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, sendsInit = 
                                     }
                                 }
                                 // Set regex to search for member first names and any included aliases
-                                const aliases = Object.keys(info.aliases).map((n) => {
+                                const aliases = Object.keys(info.aliases).map(n => {
                                     return info.aliases[n];
                                 });
                                 const matches = Object.keys(info.members);
                                 info.userRegExp = utils.getRegexFromMembers(matches.concat(aliases));
                                 // Attempt to give chat a more descriptive name than "Unnamed chat" if possible
                                 if (info.name == config.defaultTitle) {
-                                    let names = Object.keys(info.names).map((n) => {
+                                    let names = Object.keys(info.names).map(n => {
                                         return info.names[n];
                                     });
                                     info.name = names.join("/") || "Unnamed chat";
@@ -315,7 +315,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, sendsInit = 
                                     this.sendMessage(`Bot added to new chat: "${info.name}".`, config.owner.id);
                                 }
                             }
-                            this.setGroupInfo(info, (err) => {
+                            this.setGroupInfo(info, err => {
                                 if (!existingInfo && shouldSendMessage) {
                                     this.sendMessage(`All done! Use '${config.trigger} help' to see what I can do.`, threadId);
                                 }
@@ -357,7 +357,7 @@ exports.getGroupInfo = (threadId, callback) => {
 }
 
 // Wrapper function for retrieving all groups from memory
-exports.getGroupData = (callback) => {
+exports.getGroupData = callback => {
     mem.get(`groups`, (err, groups) => {
         if (err) {
             // Error retrieving data
@@ -388,7 +388,7 @@ exports.setGroupProperty = (key, value, info, callback = () => { }) => {
         info[key] = value;
         lockedThreads.push(info.threadId);
         setTimeout(() => {
-            this.setGroupInfo(info, (err) => {
+            this.setGroupInfo(info, err => {
                 lockedThreads = lockedThreads.filter(t => t != info.threadId);
                 callback(err);
             });
@@ -400,7 +400,7 @@ exports.setGroupProperty = (key, value, info, callback = () => { }) => {
 
 // Searches help for a given entry and returns an object containing the entry
 // and its key if found
-exports.getHelpEntry = (input) => {
+exports.getHelpEntry = input => {
     const co = commands.commands;
     for (let c in co) {
         if (co.hasOwnProperty(c)) {
@@ -418,7 +418,7 @@ exports.getHelpEntry = (input) => {
 }
 // Searches help for a given category and returns an object containing the
 // entry and its key if found
-exports.getHelpCategory = (input) => {
+exports.getHelpCategory = input => {
     const cat = commands.categories;
     for (let c in cat) {
         if (cat.hasOwnProperty(c)) {
@@ -584,7 +584,7 @@ exports.restart = (callback = () => { }) => {
 }
 
 // Constructs a string of artists when passed a track object from the Spotify API
-exports.getArtists = (track) => {
+exports.getArtists = track => {
     const artists = track.artists;
     artistStr = "";
     for (let i = 0; i < artists.length; i++) {
@@ -685,7 +685,7 @@ exports.setGroupImageFromUrl = (url, threadId, errMsg = "Photo couldn't download
     const fullpath = `${__dirname}/${path}`;
     request(url).pipe(fs.createWriteStream(fullpath)).on('close', (err, data) => {
         if (!err) {
-            api.changeGroupImage(fs.createReadStream(fullpath), threadId, (err) => {
+            api.changeGroupImage(fs.createReadStream(fullpath), threadId, err => {
                 fs.unlink(fullpath);
                 if (err) {
                     this.sendError(errMsg, threadId);
@@ -751,7 +751,7 @@ exports.measureText = (font, text) => {
 }
 
 // Sends a message to all of the chats that the bot is currenty in (use sparingly)
-exports.sendToAll = (msg) => {
+exports.sendToAll = msg => {
     this.getGroupData((err, groupData) => {
         if (!err && groupData) {
             for (let g in groupData) {
@@ -825,9 +825,9 @@ exports.setStats = (command, stats, callback = () => { }) => {
     });
 }
 
-exports.getAllStats = (callback) => {
+exports.getAllStats = callback => {
     const co = commands.commands;
-    const names = Object.keys(co).filter((c) => {
+    const names = Object.keys(co).filter(c => {
         return (co[c].display_names.length > 0); // Don't show secret commands
     });
     let results = [];
@@ -908,13 +908,13 @@ exports.logStats = () => {
 // Returns the passed list of record objects narrowed to those within the
 // specified time period
 exports.narrowedWithinTime = (record, marker) => {
-    return record.filter((val) => {
+    return record.filter(val => {
         return (new Date(val.at) > marker);
     });
 }
 
 // Gets the most active user of a given command using its passed records
-exports.getHighestUser = (record) => {
+exports.getHighestUser = record => {
     let usageMap = {}; // Map userIDs to number of invocations
     for (let i = 0; i < record.length; i++) {
         const id = record[i].user;
@@ -941,7 +941,7 @@ exports.getHighestUser = (record) => {
   `day`: # of times used in the last day
   `month`: # of times used in the last month
 */
-exports.getComputedStats = (stats) => {
+exports.getComputedStats = stats => {
     const usage = {};
     usage.perc = (((stats.count * 1.0) / stats.total) * 100) || 0;
 
@@ -1061,7 +1061,7 @@ exports.addPin = (msg, pinName, date, sender, groupInfo) => {
     });
 }
 
-exports.stringifyPin = (pin) => {
+exports.stringifyPin = pin => {
     const dateStr = this.getPrettyDateString(new Date(pin.date), false);
     return `"${pin.msg}" – ${pin.sender} on ${dateStr}`;
 }

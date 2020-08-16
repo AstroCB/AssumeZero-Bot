@@ -194,7 +194,7 @@ exports.handleCommand = handleCommand; // Export for external use
 function debugCommandOutput(flag) {
     if (flag) {
         const co = commands.commands;
-        console.log(Object.keys(co).map((c) => {
+        console.log(Object.keys(co).map(c => {
             return `${c}: ${co[c].m}`
         }));
     }

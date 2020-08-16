@@ -13,7 +13,7 @@ const mem = require("memjs").Client.create(credentials.MEMCACHIER_SERVERS, {
     password: credentials.MEMCACHIER_PASSWORD
 });
 
-exports.getRegexFromMembers = (names) => {
+exports.getRegexFromMembers = names => {
     let regstr = "(";
     for (let i = 0; i < names.length; i++) {
         regstr += names[i];
@@ -32,7 +32,7 @@ exports.contains = (a, members) => {
 
 // For banning functionality
 
-exports.getBannedUsers = (callback) => {
+exports.getBannedUsers = callback => {
     mem.get("banned", (err, data) => {
         try {
             callback(err, JSON.parse(data.toString()) || []);

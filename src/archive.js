@@ -18,7 +18,7 @@ if (process.argv[2] == "--restore") { // Check command-line arguments
     console.log("Restoring...");
     fs.readFile("archive.json", (err, stored) => {
         if (!err) {
-            mem.set("groups", stored.toString(), {}, (err) => {
+            mem.set("groups", stored.toString(), {}, err => {
                 if (!err) {
                     console.log(`Data restored from backup:`, JSON.parse(stored));
                 } else {
@@ -43,7 +43,7 @@ if (process.argv[2] == "--restore") { // Check command-line arguments
                         data[g] = groupInfo[g];
                     }
                 }
-                fs.writeFile("archive.json", JSON.stringify(data), (err) => {
+                fs.writeFile("archive.json", JSON.stringify(data), err => {
                     if (err) { console.error(`Couldn't create backup: ${err}`); }
                     process.exit();
                 });
