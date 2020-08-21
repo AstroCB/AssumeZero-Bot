@@ -638,16 +638,20 @@ const funcs = {
     "order66": (threadId, _, groupInfo, __, senderId) => {
         // Remove everyone from the chat for configurable amount of time (see config.js)
         // Use stored threadId in case it changes later (very important)
-        setTimeout(() => {
-            if (groupInfo.isGroup) {
+        if (groupInfo.isGroup) {
+            if (groupInfo.admins.includes(config.bot.id)) {
                 utils.sendMessage("I hate you all.", threadId);
-                utils.kickMultiple(groupInfo.members, senderId, groupInfo, config.order66Time, () => {
-                    utils.sendMessage("Balance is restored to the Force.", threadId);
-                });
+                setTimeout(() => {
+                    utils.kickMultiple(Object.keys(groupInfo.names), senderId, groupInfo, config.order66Time, () => {
+                        utils.sendMessage("Balance is restored to the Force.", threadId);
+                    });
+                }, 2000); // Make sure people see the message (and impending doom)
             } else {
-                utils.sendMessage("Cannot execute Order 66 on a non-group chat. Safe for now, you are, Master Jedi.", threadId);
+                utils.sendMessage("Not. Yet. The Senate will decide your fate.", threadId);
             }
-        }, 2000); // Make sure people see the message (and impending doom)
+        } else {
+            utils.sendMessage("Cannot execute Order 66 on a non-group chat. Safe for now, you are, Master Jedi.", threadId);
+        }
     },
     "color": (threadId, cmatch, groupInfo, api) => {
         // Extract input and pull valid colors from API as well as current thread color
@@ -1312,23 +1316,28 @@ const funcs = {
             api.getUserInfo(fromUserId, (err, info) => {
                 if (!err) {
                     const sender = info[fromUserId].name.split(" ");
-                    utils.sendMessage(`You have my respect, ${sender[sender.length - 1]}. I hope they remember you.`, threadId);
-                    setTimeout(() => {
-                        const mem = Object.keys(groupInfo.members);
-                        const len = mem.length;
-                        let selected = [];
-                        for (let i = 0; i < len / 2; i++) {
-                            let s = mem[Math.floor(Math.random() * len)];
-                            while (selected.indexOf(s) > -1) {
-                                s = mem[Math.floor(Math.random() * len)];
+                    const lastName = sender[sender.length - 1];
+                    if (groupInfo.admins.includes(config.bot.id)) {
+                        utils.sendMessage(`You have my respect, ${lastName}. I hope they remember you.`, threadId);
+                        setTimeout(() => {
+                            const mem = Object.keys(groupInfo.members);
+                            const len = mem.length;
+                            let selected = [];
+                            for (let i = 0; i < len / 2; i++) {
+                                let s = mem[Math.floor(Math.random() * len)];
+                                while (selected.indexOf(s) > -1) {
+                                    s = mem[Math.floor(Math.random() * len)];
+                                }
+                                selected[i] = s;
                             }
-                            selected[i] = s;
-                        }
-                        const snapped = selected.map(key => groupInfo.members[key]);
-                        utils.kickMultiple(snapped, fromUserId, groupInfo, config.order66Time, () => {
-                            utils.sendMessage("Perfectly balanced, as all things should be.", threadId);
-                        });
-                    }, 2000); // Make sure people see the message (and impending doom)
+                            const snapped = selected.map(key => groupInfo.members[key]);
+                            utils.kickMultiple(snapped, fromUserId, groupInfo, config.order66Time, () => {
+                                utils.sendMessage("Perfectly balanced, as all things should be.", threadId);
+                            });
+                        }, 2000); // Make sure people see the message (and impending doom)
+                    } else {
+                        utils.sendMessage(`You could not live with your failure, ${lastName}. Where did that bring you? Back to me.`, threadId);
+                    }
                 }
             });
         } else {
