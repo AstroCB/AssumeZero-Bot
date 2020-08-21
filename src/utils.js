@@ -162,16 +162,19 @@ exports.kickMultiple = (userIds, kickerId, info, time, callback = () => { }, api
     } else {
         let callbackset = false;
         for (let i = 0; i < userIds.length; i++) {
-            // Bot should never be in members list, but this is a safeguard
-            // (ALSO VERY IMPORTANT so that group isn't completely emptied)
-            if (userIds[i] != config.bot.id) {
-                if (!callbackset) { // Only want to send the message once
-                    this.kick(userIds[i], kickerId, info, time, callback);
-                    callbackset = true;
-                } else {
-                    this.kick(userIds[i], kickerId, info, time);
+            // Stagger the kicks so it doesn't look as much like a bot
+            setTimeout(() => {
+                // Bot should never be in members list, but this is a safeguard
+                // (ALSO VERY IMPORTANT so that group isn't completely emptied)
+                if (userIds[i] != config.bot.id) {
+                    if (!callbackset) { // Only want to send the message once
+                        this.kick(userIds[i], kickerId, info, time, callback);
+                        callbackset = true;
+                    } else {
+                        this.kick(userIds[i], kickerId, info, time);
+                    }
                 }
-            }
+            }, i * 1000);
         }
     }
 }
