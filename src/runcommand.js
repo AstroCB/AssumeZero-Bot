@@ -173,14 +173,14 @@ const funcs = {
             });
         }
     },
-    "kick": (_, cmatch, groupInfo) => {
+    "kick": (_, cmatch, groupInfo, __, senderId) => {
         const user = cmatch[1].toLowerCase();
         const optTime = cmatch[2] ? parseInt(cmatch[2]) : undefined;
         try {
             // Make sure already in group
             if (groupInfo.members[user]) {
                 // Kick with optional time specified in call only if specified in command
-                utils.kick(groupInfo.members[user], groupInfo, optTime);
+                utils.kick(groupInfo.members[user], senderId, groupInfo, optTime);
             } else {
                 utils.sendError(`Couldn't find user "${cmatch[1]}".`, threadId);
             }
@@ -635,13 +635,13 @@ const funcs = {
             utils.sendError(`User ${user} not recognized`);
         }
     },
-    "order66": (threadId, _, groupInfo) => {
+    "order66": (threadId, _, groupInfo, __, senderId) => {
         // Remove everyone from the chat for configurable amount of time (see config.js)
         // Use stored threadId in case it changes later (very important)
         setTimeout(() => {
             if (groupInfo.isGroup) {
                 utils.sendMessage("I hate you all.", threadId);
-                utils.kickMultiple(groupInfo.members, groupInfo, config.order66Time, () => {
+                utils.kickMultiple(groupInfo.members, senderId, groupInfo, config.order66Time, () => {
                     utils.sendMessage("Balance is restored to the Force.", threadId);
                 });
             } else {
@@ -1116,14 +1116,14 @@ const funcs = {
             }
         });
     },
-    "destroy": (threadId, _, groupInfo, api) => { // DANGEROUS COMMAND
+    "destroy": (threadId, _, groupInfo, api, senderId) => { // DANGEROUS COMMAND
         for (let m in groupInfo.members) {
             // Bot should never be in members list, but this is a safeguard
             // (ALSO VERY IMPORTANT so that group isn't completely emptied)
             // We're talking triple redundancies at this point
             if (groupInfo.members.hasOwnProperty(m) && groupInfo.members[m] != config.bot.id
                 && groupInfo.members[m] != api.getCurrentUserID()) {
-                utils.kick(groupInfo.members[m], groupInfo);
+                utils.kick(groupInfo.members[m], senderId, groupInfo);
             }
         }
         // Archive the thread afterwards to avoid clutter in the messages list
@@ -1325,7 +1325,7 @@ const funcs = {
                             selected[i] = s;
                         }
                         const snapped = selected.map(key => groupInfo.members[key]);
-                        utils.kickMultiple(snapped, groupInfo, config.order66Time, () => {
+                        utils.kickMultiple(snapped, fromUserId, groupInfo, config.order66Time, () => {
                             utils.sendMessage("Perfectly balanced, as all things should be.", threadId);
                         });
                     }, 2000); // Make sure people see the message (and impending doom)
@@ -1411,7 +1411,7 @@ const funcs = {
             }
         });
     },
-    "admin": (threadId, cmatch, groupInfo, api) => {
+    "admin": (threadId, cmatch, groupInfo, api, senderId) => {
         const status = cmatch[1] ? false : true;
         const user = cmatch[2].toLowerCase();
         const userId = groupInfo.members[user];
@@ -1419,8 +1419,7 @@ const funcs = {
         if (groupInfo.isGroup) {
             api.changeAdminStatus(threadId, userId, status, err => {
                 if (err) {
-                    let admins = groupInfo.admins.map(id => groupInfo.names[id]);
-                    utils.sendError(`The bot must be an admin to kick members from the chat. Try asking ${admins.join("/")} to promote the bot.`, threadId);
+                    utils.sendError(`The bot must be an admin to promote other users. ${utils.getPromoteString(senderId, groupInfo)}`, threadId);
                 }
             })
         } else {

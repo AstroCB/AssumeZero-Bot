@@ -130,13 +130,12 @@ exports.sendMessageWithMentions = (message, mentions, threadId) => {
 
 // Kick user for an optional length of time in seconds (default indefinitely)
 // Also accepts optional callback parameter if length is specified
-exports.kick = (userId, info, time, callback = () => { }, api = gapi) => {
+exports.kick = (userId, kickerId, info, time, callback = () => { }, api = gapi) => {
     if (userId != config.bot.id) { // Never allow bot to be kicked
         api.removeUserFromGroup(userId, info.threadId, err => {
             if (err) {
                 if (info.isGroup) {
-                    let admins = info.admins.map(id => info.names[id]);
-                    this.sendError(`The bot must be an admin to kick members from the chat. Try asking ${admins.join("/")} to promote the bot.`, info.threadId);
+                    this.sendError(`The bot must be an admin to kick members from the chat. ${this.getPromoteString(kickerId, info)}`, info.threadId);
                 } else {
                     this.sendError("Cannot kick user from private chat.", info.threadId);
                 }
@@ -154,13 +153,12 @@ exports.kick = (userId, info, time, callback = () => { }, api = gapi) => {
 }
 
 // Same as kick, but for a list of users
-exports.kickMultiple = (userIds, info, time, callback = () => { }, api = gapi) => {
+exports.kickMultiple = (userIds, kickerId, info, time, callback = () => { }, api = gapi) => {
     // Check if kicking is possible first to avoid duplicate error messages
     if (!info.isGroup) {
         this.sendError("Cannot kick user from private chat.", info.threadId);
     } else if (info.admins.indexOf(config.bot.id) < 0) {
-        let admins = info.admins.map(id => info.names[id]);
-        this.sendError(`The bot must be an admin to kick members from the chat. Try asking ${admins.join("/")} to promote the bot.`, info.threadId);
+        this.sendError(`The bot must be an admin to kick members from the chat. ${this.getPromoteString(kickerId, info)}`, info.threadId);
     } else {
         let callbackset = false;
         for (let i = 0; i < userIds.length; i++) {
@@ -168,10 +166,10 @@ exports.kickMultiple = (userIds, info, time, callback = () => { }, api = gapi) =
             // (ALSO VERY IMPORTANT so that group isn't completely emptied)
             if (userIds[i] != config.bot.id) {
                 if (!callbackset) { // Only want to send the message once
-                    this.kick(userIds[i], info, time, callback);
+                    this.kick(userIds[i], kickerId, info, time, callback);
                     callbackset = true;
                 } else {
-                    this.kick(userIds[i], info, time);
+                    this.kick(userIds[i], kickerId, info, time);
                 }
             }
         }
@@ -1733,4 +1731,15 @@ exports.concatNames = names => {
         }
     }
     return str;
+}
+
+// Gets a contextually-aware string asking to promote the bot based on whether
+// the caller can do so
+exports.getPromoteString = (fromUserId, groupInfo) => {
+    // The bot shouldn't technically end up here if it's in the admins list, but the list is cached,
+    // so if it gets called immediately after removing it as an admin, it might still be in there
+    const admins = groupInfo.admins.filter(id => id != config.bot.id).map(id => groupInfo.names[id]);
+    const promoteStr = groupInfo.admins.includes(fromUserId) ? "promoting" : `asking ${admins.join("/")} to promote`;
+
+    return `Try ${promoteStr} the bot!`
 }
