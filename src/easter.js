@@ -456,6 +456,10 @@ const eggs = [
     {
         "regex": /kitchen fire/i,
         "func": threadId => { utils.sendFile("../media/fire.mov", threadId); }
+    },
+    {
+        "regex": /jesus/i,
+        "func": threadId => { utils.sendFile("../media/jess.png", threadId); }
     }
 ];
 
