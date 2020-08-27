@@ -1284,7 +1284,7 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
         msg += `\n${recovered}`
 
         if (useDetailedData) {
-            const updated = this.getPrettyDateString(new Date(data.updated));
+            const updated = exports.getPrettyDateString(new Date(data.updated));
             msg += `\n\n_Last updated: ${updated}_`;
         }
 
