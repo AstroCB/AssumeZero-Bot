@@ -1545,6 +1545,34 @@ const funcs = {
                 utils.sendError("Couldn't retrieve any results for that search.", threadId);
             }
         });
+    },
+    "timer": (threadId, cmatch, groupInfo) => {
+        const operation = cmatch[1].toLowerCase().trim();
+
+        if (operation == "start") {
+            if (groupInfo.timer) {
+                utils.sendError("Can't start a new timer while one is already running.", threadId);
+            } else {
+                const time = new Date();
+
+                groupInfo.timer = time;
+                utils.setGroupPropertyAndHandleErrors("timer", groupInfo,
+                    "Couldn't start a new timer.",
+                    `Started new timer from ${utils.getPrettyDateString(time, true)}.`);
+            }
+        } else {
+            if (!groupInfo.timer) {
+                utils.sendError("Can't stop a timer if one is not running.", threadId);
+            } else {
+                const from = new Date(groupInfo.timer);
+                const to = new Date();
+
+                groupInfo.timer = null;
+                utils.setGroupPropertyAndHandleErrors("timer", groupInfo,
+                    "Couldn't stop the timer.",
+                    `Timer stopped. Elapsed time: ${utils.fancyDuration(from, to)}`);
+            }
+        }
     }
 };
 

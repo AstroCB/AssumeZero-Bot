@@ -3,6 +3,7 @@ const request = require("request"); // For HTTP requests
 const jimp = require("jimp"); // For image processing
 const chrono = require("chrono-node"); // For NL date parsing
 const entities = new (require('html-entities').XmlEntities)(); // For parsing HTML strings
+const humanize = require("humanize-duration"); // For creating readable time durations
 const config = require("./config");
 const utils = require("./configutils");
 const commands = require("./commands");
@@ -263,6 +264,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, sendsInit = 
 
                     api.muteThread(threadId, -1); // Mute chat
                 }
+                // groupInfo schema definition
                 api.getThreadInfo(threadId, (err, data) => {
                     if (data) {
                         let info = existingInfo || {};
@@ -1745,4 +1747,8 @@ exports.getPromoteString = (fromUserId, groupInfo) => {
     const promoteStr = groupInfo.admins.includes(fromUserId) ? "promoting" : `asking ${admins.join("/")} to promote`;
 
     return `Try ${promoteStr} the bot!`
+}
+
+exports.fancyDuration = (from, to) => {
+    return humanize(to - from);
 }

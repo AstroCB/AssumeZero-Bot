@@ -1092,6 +1092,22 @@ exports.categories = {
                 },
                 "regex": /group (create|delete|subscribe|unsubscribe|list)(?: ([^\s]+)(?: (.+))?)?/i,
                 "experimental": false
+            },
+            "timer": {
+                "display_names": ["timer"],
+                "pretty_name": "Timer",
+                "short_description": "",
+                "description": "Starts/stops a timer in the chat, and reports the duration",
+                "syntax": "timer (start|stop)",
+                "example": ["timer start", "timer stop"],
+                "sudo": false,
+                "attachments": false,
+                "user_input": {
+                    "accepts": false,
+                    "optional": false
+                },
+                "regex": /timer (start|stop)/i,
+                "experimental": false
             }
         }
     }
