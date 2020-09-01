@@ -1058,7 +1058,7 @@ exports.categories = {
                     "accepts": true,
                     "optional": false
                 },
-                "regex": ["remind", "[^\s](.+) (?:in|for|at) (.+)"],
+                "regex": ["remind", "[^\s](.+) (?:in|for|at|on) (.+)"],
                 "experimental": false
             },
             "event": {

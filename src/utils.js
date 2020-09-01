@@ -122,11 +122,11 @@ Mentions parameter is an array of dictionaries for each mention
 Each dict contains "tag" and "id" keys that should be set to
 the text and the id of the mention respectively
 */
-exports.sendMessageWithMentions = (message, mentions, threadId) => {
+exports.sendMessageWithMentions = (message, mentions, threadId, replyId = null) => {
     this.sendMessage({
         "body": message,
         "mentions": mentions,
-    }, threadId);
+    }, threadId, () => { }, replyId);
 }
 
 // Kick user for an optional length of time in seconds (default indefinitely)
@@ -1216,7 +1216,7 @@ exports.listEvents = (rawTitle, groupInfo, threadId) => {
 }
 
 // Add a reminder to the chat
-exports.addReminder = (userId, reminderStr, timeStr, groupInfo, threadId) => {
+exports.addReminder = (userId, reminderStr, timeStr, groupInfo, threadId, messageId) => {
     gapi.getUserInfo(userId, (err, uinfo) => {
         if (!err && uinfo[userId]) {
             const timestamp = chrono.parseDate(timeStr, new Date(), { 'forwardDate': true });
@@ -1233,7 +1233,8 @@ exports.addReminder = (userId, reminderStr, timeStr, groupInfo, threadId) => {
                     "timestamp": time,
                     "owner": userId,
                     "owner_name": userName,
-                    "threadId": threadId
+                    "threadId": threadId,
+                    "replyId": messageId
                 }
 
                 groupInfo.events[keyTitle] = reminder;

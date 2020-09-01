@@ -218,7 +218,7 @@ function eventLoop() {
                 if (new Date(event.timestamp) <= curTime
                     || (event.remind_time && new Date(event.remind_time) <= curTime)) {
                     // Event is occurring! (or occurred since last check)
-                    let msg, mentions;
+                    let msg, mentions, replyId;
                     if (event.type == "event") {
                         // Event
                         msg = `Happening ${event.remind_time ? `in ${config.reminderTime} minutes` : "now"}: ${event.title}${event.going.length > 0 ? "\n\nReminder for " : ""}`;
@@ -250,11 +250,12 @@ function eventLoop() {
                             "tag": `@${event.owner_name}`,
                             "id": event.owner
                         }];
+                        replyId = event.replyId
                     }
 
                     // Send off the reminder message and delete the event
                     const groupInfo = data[event.threadId];
-                    utils.sendMessageWithMentions(msg, mentions, groupInfo.threadId);
+                    utils.sendMessageWithMentions(msg, mentions, groupInfo.threadId, replyId);
 
                     if (event.remind_time) {
                         // Don't delete, but don't remind again

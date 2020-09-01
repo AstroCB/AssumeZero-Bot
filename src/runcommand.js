@@ -1379,14 +1379,14 @@ const funcs = {
             }
         });
     },
-    "remind": (threadId, cmatch, groupInfo) => {
+    "remind": (threadId, cmatch, groupInfo, _, __, ___, messageObj) => {
         const user = cmatch[1].toLowerCase();
         const userId = groupInfo.members[user];
         const reminder = cmatch[2];
         const time = cmatch[3];
 
         if (userId) {
-            utils.addReminder(userId, reminder, time, groupInfo, threadId);
+            utils.addReminder(userId, reminder, time, groupInfo, threadId, messageObj.messageID);
         } else {
             utils.sendError(`Couldn't find user "${cmatch[1]}".`, threadId);
         }
