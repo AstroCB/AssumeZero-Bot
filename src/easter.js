@@ -462,7 +462,7 @@ const eggs = [
         "func": threadId => { utils.sendFile("../media/jess.png", threadId); }
     },
     {
-        "regex": /1\%/i,
+        "regex": /(^|\s)1\%/i,
         "func": threadId => { utils.sendFile("../media/onepercent.png", threadId); }
     }
 ];
