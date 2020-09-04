@@ -2,6 +2,7 @@ const request = require("request");
 const fs = require("fs");
 const Entities = require("html-entities").XmlEntities;
 const jimp = require("jimp");
+const botcore = require("messenger-botcore");
 const config = require("./config");
 const utils = require("./utils");
 const cutils = require("./configutils");
@@ -783,19 +784,24 @@ const funcs = {
     "ban": (threadId, cmatch, groupInfo) => {
         const user = cmatch[2].toLowerCase();
         const userId = groupInfo.members[user];
-        const callback = (err, users, status) => {
-            if (err) {
-                utils.sendError(err, threadId);
-            } else {
-                config.banned = users;
-                utils.sendMessage(`${groupInfo.names[userId]} successfully ${status}.`, threadId);
-            }
-        }
+
         if (user) {
             if (cmatch[1]) { // Unban
-                cutils.removeBannedUser(userId, callback);
+                botcore.banned.removeUser(userId, success => {
+                    if (success) {
+                        utils.sendMessage(`Successfully unbanned ${groupInfo.names[userId]}.`, threadId);
+                    } else {
+                        utils.sendError(`Unable to unban ${groupInfo.names[userId]} because they're not currently banned.`, threadId);
+                    }
+                });
             } else { // Ban
-                cutils.addBannedUser(userId, callback);
+                botcore.banned.addUser(userId, success => {
+                    if (success) {
+                        utils.sendMessage(`Successfully banned ${groupInfo.names[userId]}.`, threadId);
+                    } else {
+                        utils.sendError(`Unable to ban ${groupInfo.names[userId]} because they've already been banned.`, threadId);
+                    }
+                });
             }
         } else {
             utils.sendError(`User ${user} not found`, threadId);

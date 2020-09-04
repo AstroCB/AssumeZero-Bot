@@ -72,16 +72,6 @@ exports.numColors = 10;
 // Default emoji
 exports.defaultEmoji = "🚀";
 
-// exports.banned is a list of banned user IDs as strings
-// Stored in memory and pulled at runtime & after updates
-// Remove this function call and replace with an array of user IDs to override
-utils.getBannedUsers((err, users) => {
-    if (err) {
-        console.log(err);
-    }
-    exports.banned = users;
-});
-
 // For xkcd searching capability
 // Custom search engine that searches the xkcd website only
 // (keep unless you want to customize the results) and an API key

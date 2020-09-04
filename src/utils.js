@@ -446,9 +446,6 @@ exports.sendEmoji = (emoji, threadId, size = "small") => {
     }, threadId);
 }
 
-exports.isBanned = (senderId, groupInfo) => {
-    return (config.banned.indexOf(senderId) > -1 || !senderId || !groupInfo.names[senderId]);
-}
 
 // Sends file(s) where each filename is a relative path to the file from root
 // Accepts a string filename or an array of filename strings, and optional

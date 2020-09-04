@@ -84,62 +84,64 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
 
                 // Handle messages
                 const senderId = message.senderID;
-                if ((message.type == "message" || message.type == "message_reply") && senderId != config.bot.id && !utils.isBanned(senderId, info)) { // Sender is not banned and is not the bot
-                    const m = message.body;
-                    const attachments = message.attachments;
-                    // Handle message body
-                    if (m) {
-                        // Pass to commands testing for trigger word
-                        const cindex = m.toLowerCase().indexOf(config.trigger);
-                        if (cindex > -1) { // Trigger command mode
-                            // Also pass full message obj in case it's needed in a command
-                            handleCommand(m.substring(cindex + config.trigger.length + 1), senderId, info, message);
-                        }
-
-                        // Check for Easter eggs
-                        easter.handleEasterEggs(message, senderId, attachments, info, api);
-
-                        // Check for passive messages to expand rich content
-                        passive.handlePassive(message, info, api);
-                    }
-                } else if (message.type == "message_reaction") { // Potential event response
-                    const eventMidMap = Object.keys(info.events).reduce((events, e) => {
-                        const event = info.events[e];
-                        events[event.mid] = event;
-                        return events;
-                    }, {});
-
-                    const event = eventMidMap[message.messageID];
-                    const rsvpr = message.userID;
-                    const resp = message.reaction;
-                    if (event && (resp == "👍" || resp == "👎")) {
-                        api.getUserInfo(rsvpr, (err, uinfo) => {
-                            if (!err) {
-                                const data = uinfo[rsvpr];
-                                let resp_list;
-
-                                // Remove any pre-existing responses from that user
-                                event.going = event.going.filter(user => user.id != rsvpr);
-                                event.not_going = event.not_going.filter(user => user.id != rsvpr);
-
-                                if (resp == "👍") {
-                                    resp_list = event.going;
-                                } else if (resp == "👎") {
-                                    resp_list = event.not_going;
-                                } else {
-                                    // Not a valid RSVP react
-                                    return;
-                                }
-
-                                resp_list.push({
-                                    "id": rsvpr,
-                                    "name": data.firstName
-                                });
-                                utils.setGroupProperty("events", info.events, info);
+                botcore.banned.isUser(senderId, isBanned => {
+                    if ((message.type == "message" || message.type == "message_reply") && senderId != config.bot.id && !isBanned) { // Sender is not banned and is not the bot
+                        const m = message.body;
+                        const attachments = message.attachments;
+                        // Handle message body
+                        if (m) {
+                            // Pass to commands testing for trigger word
+                            const cindex = m.toLowerCase().indexOf(config.trigger);
+                            if (cindex > -1) { // Trigger command mode
+                                // Also pass full message obj in case it's needed in a command
+                                handleCommand(m.substring(cindex + config.trigger.length + 1), senderId, info, message);
                             }
-                        });
+
+                            // Check for Easter eggs
+                            easter.handleEasterEggs(message, senderId, attachments, info, api);
+
+                            // Check for passive messages to expand rich content
+                            passive.handlePassive(message, info, api);
+                        }
+                    } else if (message.type == "message_reaction") { // Potential event response
+                        const eventMidMap = Object.keys(info.events).reduce((events, e) => {
+                            const event = info.events[e];
+                            events[event.mid] = event;
+                            return events;
+                        }, {});
+
+                        const event = eventMidMap[message.messageID];
+                        const rsvpr = message.userID;
+                        const resp = message.reaction;
+                        if (event && (resp == "👍" || resp == "👎")) {
+                            api.getUserInfo(rsvpr, (err, uinfo) => {
+                                if (!err) {
+                                    const data = uinfo[rsvpr];
+                                    let resp_list;
+
+                                    // Remove any pre-existing responses from that user
+                                    event.going = event.going.filter(user => user.id != rsvpr);
+                                    event.not_going = event.not_going.filter(user => user.id != rsvpr);
+
+                                    if (resp == "👍") {
+                                        resp_list = event.going;
+                                    } else if (resp == "👎") {
+                                        resp_list = event.not_going;
+                                    } else {
+                                        // Not a valid RSVP react
+                                        return;
+                                    }
+
+                                    resp_list.push({
+                                        "id": rsvpr,
+                                        "name": data.firstName
+                                    });
+                                    utils.setGroupProperty("events", info.events, info);
+                                }
+                            });
+                        }
                     }
-                }
+                });
             }
         });
     }
