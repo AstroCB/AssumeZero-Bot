@@ -30,7 +30,7 @@
     "humanize-duration": "^3.23.1",
     "jimp": "^0.9.8",
     "memjs": "^1.2.2",
-    "messenger-botcore": "^2.3.0",
+    "messenger-botcore": "^2.3.1",
     "pm2": "^4.4.1",
     "request": "^2.88.2",
     "spotify-web-api-node": "^4.0.0",
