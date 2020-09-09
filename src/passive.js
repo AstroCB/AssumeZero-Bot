@@ -72,8 +72,6 @@ const tweetXPath =
 const imgXPath =
     "//div[contains(@class, 'permalink-tweet-container')]//div[contains(@class, 'photo')]//img/@src";
 
-const imgRegex = /pbs.twimg.com\/media\//;
-
 function handleTweet(match, groupInfo) {
     let url = match[0];
 
