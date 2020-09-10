@@ -47,7 +47,7 @@ const funcs = {
                         const curEntry = commands[c];
                         if (curEntry.display_names.length > 0) { // Don't display if no display names (secret command)
                             // Only display short description if one exists
-                            mess += `${curEntry.syntax}${curEntry.short_description ? `: ${curEntry.short_description}` : ""}${curEntry.sudo ? " [ADMIN]" : ""}\n`;
+                            mess += `${curEntry.syntax}${curEntry.short_description ? `: ${curEntry.short_description}` : ""}${curEntry.sudo ? " [OWNER]" : ""}\n`;
                             mess += "------------------\n"; // Suffix for separating commands
                         }
                     }
@@ -69,7 +69,7 @@ const funcs = {
                 }
 
                 const helpMsg = `Entry for command "${info.pretty_name}":\n${info.description}\n\nSyntax: ${config.trigger} ${info.syntax}${example.header ? `\n\n${example.header}${example.body}` : ""}`;
-                const addenda = `${info.attachments ? "\n\n(This command accepts attachments)" : ""}${info.sudo ? "\n\n(This command requires admin privileges)" : ""}${info.experimental ? "\n\n(This command is experimental)" : ""}`;
+                const addenda = `${info.attachments ? "\n\n(This command accepts attachments)" : ""}${info.sudo ? "\n\n(This command requires owner privileges)" : ""}${info.experimental ? "\n\n(This command is experimental)" : ""}`;
                 utils.getStats(entry.key, false, (err, stats) => {
                     if (err) { // Couldn't retrieve stats; just show help message
                         utils.sendMessage(`${helpMsg}${addenda}`, threadId);
