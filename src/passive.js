@@ -28,7 +28,7 @@ const passiveTypes = [
         "handler": handleWiki
     },
     {
-        "regex": /@@([^\s]+)/g,
+        "regex": /@@([\w]+)/g,
         "handler": handleMention
     },
     {
