@@ -68,7 +68,7 @@ const authorXPath =
 const handleXPath =
     "//div[contains(@class, 'permalink-tweet-container')]//span[contains(@class, 'username')]//b/text()";
 const tweetXPath =
-    "//div[contains(@class, 'permalink-tweet-container')]//p[contains(@class, 'tweet-text')]//text()";
+    "//meta[contains(@property, 'og:description')]/@content";
 const imgXPath =
     "//div[contains(@class, 'permalink-tweet-container')]//div[contains(@class, 'photo')]//img/@src";
 
@@ -88,19 +88,11 @@ function handleTweet(match, groupInfo) {
 
             const author = xpath.select(authorXPath, doc)[0].nodeValue;
             const handle = xpath.select(handleXPath, doc)[0].nodeValue;
+            const tweet = xpath.select(tweetXPath, doc)[0].nodeValue;
 
-            // Tweets can be in multiple tags
-            const tweetNodes = xpath.select(tweetXPath, doc);
-            const tweetText = tweetNodes.map(t => t.nodeValue);
-            // Remove some weird characters and make space for retweet/pic links
-            const prettyText = tweetText.filter(t => t != "&nbsp;" && t != "…")
-                .reduce((prev, cur) => {
-                    if (prev.length > 0 && cur.match(/pic|https?/)) {
-                        return prev + " " + cur;
-                    } else {
-                        return prev + cur;
-                    }
-                }, "");
+            // Remove unicode quotes from beginning + end of tweet
+            const prettyText = tweet.substring(1, tweet.length - 1);
+
             // If there are newlines, put a new quote marker at the beginning
             const text = prettyText.split("\n").join("\n> ");
 
