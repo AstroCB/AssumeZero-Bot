@@ -63,7 +63,7 @@ const eggs = [
     },
     {
         "alt": (message, fromUserId, groupInfo) => {
-            return utils.matchesWithUser("(?:get|measure|check) bac(?:[^k]|$)", message.body, fromUserId, groupInfo, true, "");
+            return utils.matchesWithUser(/(?:get|measure|check) bac(?:[^k]|$)/, message.body, fromUserId, groupInfo, true, "");
         },
         "func": (threadId, _, data) => {
             const name = data[1] || "Yiyi";
