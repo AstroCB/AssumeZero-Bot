@@ -206,7 +206,7 @@ const eggs = [
     },
     {
         "regex": /that(?:\'|’)?s a good thing/i,
-        "func": threadId => { utils.sendFile("../media/segregation.jpg", threadId); }
+        "func": threadId => { utils.sendFile("../media/goodthing.jpg", threadId); }
     },
     {
         "regex": /go terps/i,
@@ -258,11 +258,11 @@ const eggs = [
     },
     {
         "regex": /(?:yo)?u(?:(?:\'|’)re|r)? ri(?:ght|te)/i,
-        "func": (threadId, messageId) => { utils.reactToMessage(messageId, "angry"); }
+        "func": (_, messageId) => { utils.reactToMessage(messageId, "angry"); }
     },
     {
         "regex": /(?:^|\s)(?:v|a)r($|[^A-z0-9])/i,
-        "func": (threadId, messageId) => { utils.reactToMessage(messageId, "funny"); }
+        "func": (_, messageId) => { utils.reactToMessage(messageId, "funny"); }
     },
     {
         "regex": /langlieb family/i,
@@ -339,7 +339,7 @@ const eggs = [
         "func": threadId => { utils.sendFile("../media/umdcs.jpeg", threadId); }
     },
     {
-        "regex": /thank you pizza/i,
+        "regex": /pizza time/i,
         "func": threadId => { utils.sendFile("../media/siri.jpg", threadId); }
     },
     {
@@ -363,7 +363,7 @@ const eggs = [
         "func": threadId => { utils.sendFile("../media/hacker.jpeg", threadId); }
     },
     {
-        "regex": /musk gone mad/i,
+        "regex": /elon musk/i,
         "func": threadId => { utils.sendFile("../media/musk.png", threadId); }
     },
     {
@@ -458,12 +458,16 @@ const eggs = [
         "func": threadId => { utils.sendFile("../media/fire.mov", threadId); }
     },
     {
-        "regex": /jesus/i,
+        "regex": /^jesus$/i,
         "func": threadId => { utils.sendFile("../media/jess.png", threadId); }
     },
     {
         "regex": /(^|\s)1\%/i,
         "func": threadId => { utils.sendFile("../media/onepercent.png", threadId); }
+    },
+    {
+        "regex": /engage/,
+        "func": threadId => { utils.sendFile("../media/engage.png", threadId); }
     }
 ];
 
