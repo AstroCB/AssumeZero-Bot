@@ -213,7 +213,7 @@ const eggs = [
         "func": threadId => { utils.sendEmoji("🐢", threadId); }
     },
     {
-        "regex": /tl(?:\;)?dr/i,
+        "regex": /tl(?:\;)?dr(?|$)/i,
         "func": threadId => { utils.sendMessage("Scroll up", threadId); }
     },
     {
