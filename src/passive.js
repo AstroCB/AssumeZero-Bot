@@ -5,6 +5,8 @@
 const request = require("request"); // For HTTP requests
 const xpath = require("xpath"); // For HTML parsing
 const domParser = require("xmldom").DOMParser; // For HTML parsing
+const Entities = new require("html-entities").XmlEntities; // For decoding HTML entities
+const entities = new Entities();
 const utils = require("./utils"); // For util funcs
 const config = require("./config"); // For configuration
 
@@ -90,8 +92,8 @@ function handleTweet(match, groupInfo) {
             const handle = xpath.select(handleXPath, doc)[0].nodeValue;
             const tweet = xpath.select(tweetXPath, doc)[0].nodeValue;
 
-            // Remove unicode quotes from beginning + end of tweet
-            const prettyText = tweet.substring(1, tweet.length - 1);
+            // Remove unicode quotes from beginning + end of tweet; decode any HTML entities
+            const prettyText = entities.decode(tweet.substring(1, tweet.length - 1));
 
             // If there are newlines, put a new quote marker at the beginning
             const text = prettyText.split("\n").join("\n> ");
