@@ -5,7 +5,7 @@
 const request = require("request"); // For HTTP requests
 const xpath = require("xpath"); // For HTML parsing
 const domParser = require("xmldom").DOMParser; // For HTML parsing
-const Entities = new require("html-entities").XmlEntities; // For decoding HTML entities
+const Entities = require("html-entities").XmlEntities; // For decoding HTML entities
 const entities = new Entities();
 const utils = require("./utils"); // For util funcs
 const config = require("./config"); // For configuration
