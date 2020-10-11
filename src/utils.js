@@ -705,11 +705,12 @@ exports.processImage = (url, attachments, info, callback = () => { }) => {
     const root = `../media`;
     if (url) { // URL passed
         const filename = `${root}/${encodeURIComponent(url)}.png`;
+        const path = `${__dirname}/${filename}`;
         jimp.read(url, (err, file) => {
             if (err) {
                 this.sendError("Unable to retrieve image from that URL", threadId);
             } else {
-                callback(file, filename);
+                callback(file, filename, path);
             }
         });
     } else if (attachments || (info.lastMessage && info.lastMessage.attachments.length > 0)) {
@@ -717,11 +718,12 @@ exports.processImage = (url, attachments, info, callback = () => { }) => {
         for (let i = 0; i < attaches.length; i++) {
             if (attaches[i].type == "photo") {
                 const filename = `${root}/${attaches[i].name}.png`;
+                const path = `${__dirname}/${filename}`;
                 jimp.read(attaches[i].largePreviewUrl, (err, file) => {
                     if (err) {
                         this.sendError("Invalid file", threadId);
                     } else {
-                        callback(file, filename);
+                        callback(file, filename, path);
                     }
                 });
             } else {

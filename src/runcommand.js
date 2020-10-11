@@ -982,11 +982,11 @@ const funcs = {
     },
     "bw": (threadId, cmatch, groupInfo, _, __, attachments) => {
         const url = cmatch[1];
-        utils.processImage(url, attachments, groupInfo, (img, filename) => {
-            img.greyscale().write(filename, err => {
+        utils.processImage(url, attachments, groupInfo, (img, filename, path) => {
+            img.greyscale().write(path, err => {
                 if (!err) {
                     utils.sendFile(filename, threadId, "", () => {
-                        fs.unlink(filename);
+                        fs.unlink(path, () => { });
                     });
                 }
             });
@@ -994,11 +994,11 @@ const funcs = {
     },
     "sepia": (threadId, cmatch, groupInfo, _, __, attachments) => {
         const url = cmatch[1];
-        utils.processImage(url, attachments, groupInfo, (img, filename) => {
-            img.sepia().write(filename, err => {
+        utils.processImage(url, attachments, groupInfo, (img, filename, path) => {
+            img.sepia().write(path, err => {
                 if (!err) {
                     utils.sendFile(filename, threadId, "", () => {
-                        fs.unlink(filename);
+                        fs.unlink(path, () => { });
                     });
                 }
             });
@@ -1007,11 +1007,11 @@ const funcs = {
     "flip": (threadId, cmatch, groupInfo, _, __, attachments) => {
         const horiz = (cmatch[1].toLowerCase().indexOf("horiz") > -1); // Horizontal or vertical
         const url = cmatch[2];
-        utils.processImage(url, attachments, groupInfo, (img, filename) => {
-            img.flip(horiz, !horiz).write(filename, err => {
+        utils.processImage(url, attachments, groupInfo, (img, filename, path) => {
+            img.flip(horiz, !horiz).write(path, err => {
                 if (!err) {
                     utils.sendFile(filename, threadId, "", () => {
-                        fs.unlink(filename);
+                        fs.unlink(path, () => { });
                     });
                 }
             });
@@ -1019,11 +1019,11 @@ const funcs = {
     },
     "invert": (threadId, cmatch, groupInfo, _, __, attachments) => {
         const url = cmatch[1];
-        utils.processImage(url, attachments, groupInfo, (img, filename) => {
-            img.invert().write(filename, err => {
+        utils.processImage(url, attachments, groupInfo, (img, filename, path) => {
+            img.invert().write(path, err => {
                 if (!err) {
                     utils.sendFile(filename, threadId, "", () => {
-                        fs.unlink(filename);
+                        fs.unlink(path, () => { });
                     });
                 }
             });
@@ -1033,24 +1033,24 @@ const funcs = {
         const pixels = parseInt(cmatch[1]) || 2;
         const gauss = cmatch[2];
         const url = cmatch[3];
-        utils.processImage(url, attachments, groupInfo, (img, filename) => {
+        utils.processImage(url, attachments, groupInfo, (img, filename, path) => {
             if (gauss) {
                 // Gaussian blur (extremely resource-intensive – will pretty much halt the bot while processing)
                 utils.sendMessage("Hang on, this might take me a bit...", threadId, () => {
                     const now = (new Date()).getTime();
-                    img.gaussian(pixels).write(filename, err => {
+                    img.gaussian(pixels).write(path, err => {
                         if (!err) {
                             utils.sendFile(filename, threadId, `Processing took ${((new Date()).getTime() - now) / 1000} seconds.`, () => {
-                                fs.unlink(filename);
+                                fs.unlink(path, () => { });
                             });
                         }
                     });
                 });
             } else {
-                img.blur(pixels).write(filename, err => {
+                img.blur(pixels).write(path, err => {
                     if (!err) {
                         utils.sendFile(filename, threadId, "", () => {
-                            fs.unlink(filename);
+                            fs.unlink(path, () => { });
                         });
                     }
                 });
@@ -1060,19 +1060,18 @@ const funcs = {
     "overlay": (threadId, cmatch, groupInfo, _, __, attachments) => {
         const url = cmatch[1];
         const overlay = cmatch[2];
-        utils.processImage(url, attachments, groupInfo, (img, filename) => {
+        utils.processImage(url, attachments, groupInfo, (img, filename, path) => {
             jimp.loadFont(jimp.FONT_SANS_32_BLACK, (err, font) => {
                 if (!err) {
                     const width = img.bitmap.width; // Image width
                     const height = img.bitmap.height; // Image height
                     const textDims = utils.measureText(font, overlay); // Get text dimensions (x,y)
-                    img.print(font, (width - textDims[0]) / 2, (height - textDims[1]) / 2, overlay, (width + textDims[0])).write(filename, err => {
+                    img.print(font, (width - textDims[0]) / 2, (height - textDims[1]) / 2, overlay, (width + textDims[0])).write(path, err => {
                         if (!err) {
-                            const qualifiedFilename = `${__dirname}/${filename}`;
-                            img.write(qualifiedFilename, err => {
+                            img.write(path, err => {
                                 if (!err) {
                                     utils.sendFile(filename, threadId, "", () => {
-                                        fs.unlink(qualifiedFilename, () => { });
+                                        fs.unlink(path, () => { });
                                     });
                                 } else {
                                     utils.sendError("Encountered a problem trying to save the image.", threadId);
@@ -1093,11 +1092,11 @@ const funcs = {
         perc = (perc > 100) ? 1 : (perc / 100.0);
         perc = bright ? perc : (-1 * perc);
         const url = cmatch[3];
-        utils.processImage(url, attachments, groupInfo, (img, filename) => {
-            img.brightness(perc).write(filename, err => {
+        utils.processImage(url, attachments, groupInfo, (img, filename, path) => {
+            img.brightness(perc).write(path, err => {
                 if (!err) {
                     utils.sendFile(filename, threadId, "", () => {
-                        fs.unlink(filename);
+                        fs.unlink(path, () => { });
                     });
                 }
             });
