@@ -1,5 +1,3 @@
-const utils = require("./configutils"); // Utility functions
-
 // The trigger word that precedes most commands and will activate the bot
 exports.trigger = "physics";
 
@@ -19,7 +17,7 @@ exports.bot = {
         "long": "AssumeZero Bot" // Name displayed in profile on bot's Facebook account
     },
     "id": "100041587845629" // Bot's ID (for security purposes in commands)
-}
+};
 
 // Location of the bot repo if automatic GitHub webhook deploys are used
 // (see server.js for details)
@@ -32,7 +30,7 @@ exports.repoPath = "/home/cameron/AssumeZero-Bot/";
 exports.contextless = false;
 
 // Default group name when no other information is available
-exports.defaultTitle = "Unnamed chat"
+exports.defaultTitle = "Unnamed chat";
 
 // Heroku settings (might need to tweak some things if using another host)
 // App name

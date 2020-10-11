@@ -8,7 +8,7 @@ const config = require("./config"); // Config file
 const utils = require("./utils"); // Utility functions
 const commands = require("./commands"); // Command documentation/configuration
 const runner = require("./runcommand"); // For command handling code
-const _ = require("./server"); // Server configuration (just needs to be loaded)
+require("./server"); // Server configuration (just needs to be loaded)
 const easter = require("./easter"); // Easter eggs
 const passive = require("./passive"); // Passive messages
 let credentials;
@@ -78,7 +78,7 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
                     const newMembers = message.logMessageData.addedParticipants.filter(m => m.userFbId != config.bot.id);
                     if (newMembers.length > 0) {
                         const names = newMembers.map(mem => mem.firstName).join("/");
-                        utils.welcomeToChat(names, info)
+                        utils.welcomeToChat(names, info);
                     }
                 }
 
@@ -197,7 +197,7 @@ function debugCommandOutput(flag) {
     if (flag) {
         const co = commands.commands;
         console.log(Object.keys(co).map(c => {
-            return `${c}: ${co[c].m}`
+            return `${c}: ${co[c].m}`;
         }));
     }
 }
@@ -243,7 +243,7 @@ function eventLoop() {
                             return {
                                 "tag": `@${user.name}`,
                                 "id": user.id
-                            }
+                            };
                         });
                     } else {
                         // Reminder
@@ -252,7 +252,7 @@ function eventLoop() {
                             "tag": `@${event.owner_name}`,
                             "id": event.owner
                         }];
-                        replyId = event.replyId
+                        replyId = event.replyId;
                     }
 
                     // Send off the reminder message and delete the event
@@ -264,7 +264,7 @@ function eventLoop() {
                         groupInfo.events[event.key_title].remind_time = null;
                         utils.setGroupProperty("events", groupInfo.events, groupInfo);
                     } else {
-                        utils.deleteEvent(event.key_title, event.owner, groupInfo, groupInfo.threadId, sendConfirmation = false);
+                        utils.deleteEvent(event.key_title, event.owner, groupInfo, groupInfo.threadId, false);
                     }
                 }
             });

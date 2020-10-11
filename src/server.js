@@ -2,7 +2,6 @@ const child_process = require("child_process");
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
-const login = require("messenger-botcore").login.login;
 const main = require("./main");
 const config = require("./config");
 
@@ -16,7 +15,7 @@ app.get("/", (_, res) => {
     });
 });
 
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
 }));
@@ -53,12 +52,12 @@ app.post("/pushed", (req, res) => {
 
         // Check if any commits modified package files to see if a reinstall of deps is needed
         const pkgModified = payload.commits.map(com => com.modified.some(e => /package(-lock)?\.json/.test(e))).reduce((p, c) => p ? p : c);
-        shouldReinstall = pkgModified
+        shouldReinstall = pkgModified;
     }
     console.info(`Starting automated deploy${changeMsg ? changeMsg : ""}${shouldReinstall ? " and reinstalling" : ""}...`);
 
     res.sendStatus(200);
-    child_process.exec(`cd ${config.repoPath} && ./deploy.sh${shouldReinstall ? " --reinstall" : ""}`, (err, stdout, stderr) => {
+    child_process.exec(`cd ${config.repoPath} && ./deploy.sh${shouldReinstall ? " --reinstall" : ""}`, err => {
         if (err) {
             console.error(err);
         }

@@ -13,7 +13,7 @@ botcore.login.login(credentials, (err, api) => {
                     api.muteThread(list.threadID, -1);
                 });
             }
-        })
+        });
         api.markAsReadAll();
     }
 });

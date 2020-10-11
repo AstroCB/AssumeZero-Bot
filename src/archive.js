@@ -30,7 +30,7 @@ if (process.argv[2] == "--restore") { // Check command-line arguments
             console.log("Error reading data from backup");
             process.exit();
         }
-    })
+    });
 } else {
     // Archives existing group data in a file called "archive.json"
     mem.get("groups", (err, info) => {

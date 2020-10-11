@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 // Stores user commands (accessible via trigger word set in config.js)
 const config = require("./config");
 exports.categories = {
@@ -1116,7 +1117,7 @@ exports.categories = {
 // Splice all of the categories' commands together into one map
 const commGroups = Object.keys(exports.categories).map(cat => exports.categories[cat].commands);
 exports.commands = commGroups.reduce((acc, group) => {
-    for (co in group) {
+    for (let co in group) {
         if (group.hasOwnProperty(co)) {
             acc[co] = group[co];
         }

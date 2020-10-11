@@ -1,6 +1,6 @@
 /*
     Listen for certain messages that can be acted upon without an explicit
-    trigger word – usually links that can be expanded to more rich content.
+    trigger word – usually links that can be expanded to more rich content.
 */
 const request = require("request"); // For HTTP requests
 const xpath = require("xpath"); // For HTML parsing
@@ -13,9 +13,9 @@ const config = require("./config"); // For configuration
 const dom = new domParser({
     locator: {},
     errorHandler: {
-        warning: w => { },
-        error: e => { },
-        fatalError: e => { console.error(e) }
+        warning: () => { },
+        error: () => { },
+        fatalError: e => { console.error(e); }
     }
 });
 
