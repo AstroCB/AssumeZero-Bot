@@ -38,7 +38,8 @@
     "xpath": "0.0.27"
   },
   "devDependencies": {
-    "fast-deep-equal": "^2.0.1",
-    "extend": ">=3.0.2"
+    "eslint": "^7.11.0",
+    "extend": ">=3.0.2",
+    "fast-deep-equal": "^2.0.1"
   }
 }
