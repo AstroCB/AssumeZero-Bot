@@ -1579,6 +1579,15 @@ const funcs = {
                     `Timer stopped. Elapsed time: ${utils.fancyDuration(from, to)}`);
             }
         }
+    },
+    "follow": (threadId, cmatch, groupInfo) => {
+        const handle = cmatch[2];
+        if (cmatch[1]) {
+            // Unfollow
+        } else {
+            // Follow
+            const latestTweet = utils.getLatestTweetID(handle);
+        }
     }
 };
 

@@ -4,9 +4,11 @@ const jimp = require("jimp"); // For image processing
 const chrono = require("chrono-node"); // For NL date parsing
 const entities = new (require('html-entities').XmlEntities)(); // For parsing HTML strings
 const humanize = require("humanize-duration"); // For creating readable time durations
+
 const config = require("./config");
 const utils = require("./configutils");
 const commands = require("./commands");
+
 let gapi;
 let mem;
 let credentials;
@@ -1753,4 +1755,35 @@ exports.getPromoteString = (fromUserId, groupInfo) => {
 
 exports.fancyDuration = (from, to) => {
     return humanize(to - from);
+};
+
+exports.sendTweetMsg = (id, threadId) => {
+    const expansions = "?expansions=attachments.media_keys,referenced_tweets.id,author_id&media.fields=url";
+    const url = `https://api.twitter.com/2/tweets/${id}${expansions}`;
+
+    request.get(url, { "headers": { "authorization": `Bearer ${credentials.TWITTER_TOKEN}` } }, (err, res, body) => {
+        if (!err && res.statusCode == 200) {
+            const { data, includes } = JSON.parse(body);
+
+            const tweet = data.text;
+
+            const authorId = data.author_id;
+            const author = includes.users.find(user => user.id === authorId);
+            const { name, username } = author;
+
+            // If there are newlines, put a new quote marker at the beginning
+            const text = tweet.split("\n").join("\n> ");
+            const msg = `${name} (@${username}) tweeted: \n> ${text}`;
+
+            // See if any media can be found
+            if (includes.media) {
+                const imgs = includes.media
+                    .filter(media => media.type === "photo")
+                    .map(img => img.url);
+                this.sendFilesFromUrl(imgs, threadId, msg);
+            } else {
+                this.sendMessage(msg, threadId);
+            }
+        }
+    });
 };

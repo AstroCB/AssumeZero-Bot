@@ -38,14 +38,14 @@ function main(err, api) {
     if (err) return console.error(err);
     console.info(`Successfully logged in to user account ${api.getCurrentUserID()}.`);
     gapi = api; // Initialize global API variable
-    utils.setglobals(api, mem); // Initialize in utils module as well
+    utils.setglobals(api, mem, credentials); // Initialize in utils module as well
 
     // Configure the instance
     botcore.monitoring.monitor(api, config.owner.id, config.bot.names.short, credentials, process, newApi => {
         // Called when login failed and a new retried login was successful
         stopListening();
         gapi = newApi;
-        utils.setglobals(gapi, mem);
+        utils.setglobals(gapi, mem, credentials);
         stopListening = newApi.listenMqtt(handleMessage);
     });
     api.setOptions({ listenEvents: true });

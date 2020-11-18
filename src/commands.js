@@ -1109,7 +1109,23 @@ exports.categories = {
                 },
                 "regex": /timer (start|stop)/i,
                 "experimental": false
-            }
+            },
+            "follow": {
+                "display_names": ["follow"],
+                "pretty_name": "Follow",
+                "short_description": "Follow a Twitter account",
+                "description": "Follows a Twitter account, sending new tweets to the chat as they're posted",
+                "syntax": "(un)follow {twitter_handle}",
+                "example": ["follow @AstroCB", "unfollow @AstroCB"],
+                "sudo": false,
+                "attachments": false,
+                "user_input": {
+                    "accepts": false,
+                    "optional": false
+                },
+                "regex": /(un)?follow @?(\w+)/i,
+                "experimental": false
+            },
         }
     }
 };

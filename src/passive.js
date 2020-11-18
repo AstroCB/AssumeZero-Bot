@@ -22,7 +22,7 @@ const dom = new domParser({
 // Passive type URL regexes and their corresponding handlers
 const passiveTypes = [
     {
-        "regex": /https?:\/\/(mobile\.)?twitter\.com\/.+\/status\/.+/,
+        "regex": /https?:\/\/(?:mobile\.)?twitter\.com\/.+\/status\/(\d+)/,
         "handler": handleTweet
     },
     {
@@ -65,50 +65,9 @@ function getPassiveTypes(text, cb) {
     match, groupInfo, messageObj, api
 */
 
-const authorXPath =
-    "//div[contains(@class, 'permalink-tweet-container')]//strong[contains(@class, 'fullname')]/text()";
-const handleXPath =
-    "//div[contains(@class, 'permalink-tweet-container')]//span[contains(@class, 'username')]//b/text()";
-const tweetXPath =
-    "//meta[contains(@property, 'og:description')]/@content";
-const imgXPath =
-    "//div[contains(@class, 'permalink-tweet-container')]//div[contains(@class, 'photo')]//img/@src";
-
 function handleTweet(match, groupInfo) {
-    let url = match[0];
-
-    if (match[1]) {
-        // If mobile link, convert to regular link
-        url = url.replace("mobile.twitter.", "twitter.");
-    }
-
-    // Scrape tweets because the Twitter API is annoying
-    // and requires a 5-page application with essays
-    request.get(url, { "headers": { "User-Agent": config.scrapeAgent } }, (err, res, body) => {
-        if (!err && res.statusCode == 200) {
-            const doc = dom.parseFromString(body);
-
-            const author = xpath.select(authorXPath, doc)[0].nodeValue;
-            const handle = xpath.select(handleXPath, doc)[0].nodeValue;
-            const tweet = xpath.select(tweetXPath, doc)[0].nodeValue;
-
-            // Remove unicode quotes from beginning + end of tweet; decode any HTML entities
-            const prettyText = entities.decode(tweet.substring(1, tweet.length - 1));
-
-            // If there are newlines, put a new quote marker at the beginning
-            const text = prettyText.split("\n").join("\n> ");
-
-            const msg = `${author} (@${handle}) tweeted: \n> ${text}`;
-            // See if an image can be found
-            const imgResults = xpath.select(imgXPath, doc);
-            if (imgResults.length > 0) {
-                const imgs = imgResults.map(img => img.nodeValue);
-                utils.sendFilesFromUrl(imgs, groupInfo.threadId, msg);
-            } else {
-                utils.sendMessage(msg, groupInfo.threadId);
-            }
-        }
-    });
+    const tweetId = match[1];
+    utils.sendTweetMsg(tweetId, groupInfo.threadId);
 }
 
 const titleXPath = "//*[@id='firstHeading']";
@@ -122,7 +81,7 @@ function handleWiki(match, groupInfo) {
         url = url.replace(".m.wikipedia", ".wikipedia");
     }
 
-    request.get(url, {}, (err, res, body) => {
+    request.get(url, { "headers": { "User-Agent": config.scrapeAgent } }, (err, res, body) => {
         if (!err && res.statusCode == 200) {
             const doc = dom.parseFromString(body);
 
