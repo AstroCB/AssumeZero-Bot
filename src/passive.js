@@ -101,9 +101,13 @@ function mentionify(members, groupInfo) {
             "id": id
         };
     });
-    const msg = mentions.map(mention => mention.tag).join(" ");
 
-    return { "body": msg, "mentions": mentions };
+    const msg = mentions.map(mention => mention.tag).join(" ");
+    // Facebook bug disallows searching from position 0 for mentions, so we
+    // have to insert a zero-width space at the beginning before our tags
+    const body = `\u200B${msg}`;
+
+    return { "body": body, "mentions": mentions };
 }
 
 function handleMention(_, groupInfo, messageObj, regex) {
