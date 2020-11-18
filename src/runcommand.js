@@ -1597,7 +1597,7 @@ const funcs = {
         } else {
             // Follow
             if (handle === "list") {
-                const users = Object.keys(groupInfo.following).map(username => `\n@${username}`);
+                const users = Object.keys(groupInfo.following).map(username => `\n@${username}`).join('');
                 if (users.length > 0) {
                     return utils.sendMessage(`List of users you're currently following in this chat:\n${users}`, threadId);
                 }
