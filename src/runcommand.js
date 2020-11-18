@@ -1584,9 +1584,39 @@ const funcs = {
         const handle = cmatch[2];
         if (cmatch[1]) {
             // Unfollow
+            const key = handle.toLowerCase();
+            if (groupInfo.following[key]) {
+                delete groupInfo.following[key];
+                utils.setGroupPropertyAndHandleErrors("following", groupInfo,
+                    "Huh, couldn't unfollow that user for some reason. Please try again.",
+                    `Success! You've unfollowed @${handle}.`
+                );
+            } else {
+                utils.sendError(`You're not currently following @${handle}. Use "${config.trigger} follow list" for a list of the user's you're following.`, threadId);
+            }
         } else {
             // Follow
-            const latestTweet = utils.getLatestTweetID(handle);
+            if (handle === "list") {
+                const users = Object.keys(groupInfo.following).map(username => `\n@${username}`);
+                if (users.length > 0) {
+                    return utils.sendMessage(`List of users you're currently following in this chat:\n${users}`, threadId);
+                }
+                return utils.sendMessage("You're not currently following any users in this chat.", threadId);
+            }
+
+            utils.getLatestTweetID(handle, (err, id, userInfo) => {
+                if (err) {
+                    utils.sendError(err.message, threadId);
+                } else {
+                    const { name, username } = userInfo;
+
+                    groupInfo.following[username.toLowerCase()] = id;
+                    utils.setGroupPropertyAndHandleErrors("following", groupInfo,
+                        "Huh, couldn't follow that user for some reason. Please try again.",
+                        `Success! You're now following tweets from ${name} (@${username}).\n\nTo stop receiving this user's tweets in this chat, use "${config.trigger} unfollow @${username}".`
+                    );
+                }
+            });
         }
     }
 };

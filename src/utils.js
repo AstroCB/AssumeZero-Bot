@@ -289,6 +289,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, sendsInit = 
                             info.pinned = {};
                             info.events = {};
                             info.mentionGroups = {};
+                            info.following = {};
                             info.isGroup = data.isGroup;
                         }
                         api.getUserInfo(data.participantIDs, (err, userData) => {
@@ -1757,33 +1758,64 @@ exports.fancyDuration = (from, to) => {
     return humanize(to - from);
 };
 
-exports.sendTweetMsg = (id, threadId) => {
-    const expansions = "?expansions=attachments.media_keys,referenced_tweets.id,author_id&media.fields=url";
-    const url = `https://api.twitter.com/2/tweets/${id}${expansions}`;
-
+exports.twitterGET = (path, callback) => {
+    const url = `https://api.twitter.com/2${path}`;
     request.get(url, { "headers": { "authorization": `Bearer ${credentials.TWITTER_TOKEN}` } }, (err, res, body) => {
         if (!err && res.statusCode == 200) {
-            const { data, includes } = JSON.parse(body);
+            const data = JSON.parse(body);
+            callback(null, data);
+        } else {
+            callback(new Error("Couldn't retrieve data from that endpoint"));
+        }
+    });
+};
 
-            const tweet = data.text;
+exports.sendTweetMsg = (id, threadId) => {
+    const expansions = "?expansions=attachments.media_keys,referenced_tweets.id,author_id&media.fields=url";
 
-            const authorId = data.author_id;
-            const author = includes.users.find(user => user.id === authorId);
-            const { name, username } = author;
+    this.twitterGET(`/tweets/${id}${expansions}`, (err, tweetData) => {
+        if (err) return;
 
-            // If there are newlines, put a new quote marker at the beginning
-            const text = tweet.split("\n").join("\n> ");
-            const msg = `${name} (@${username}) tweeted: \n> ${text}`;
+        const { data, includes } = tweetData;
 
-            // See if any media can be found
-            if (includes.media) {
-                const imgs = includes.media
-                    .filter(media => media.type === "photo")
-                    .map(img => img.url);
-                this.sendFilesFromUrl(imgs, threadId, msg);
-            } else {
-                this.sendMessage(msg, threadId);
-            }
+        const authorId = data.author_id;
+        const author = includes.users.find(user => user.id === authorId);
+        const { name, username } = author;
+
+        // If there are newlines, put a new quote marker at the beginning
+        const text = data.text.split("\n").join("\n> ");
+        const msg = `${name} (@${username}) tweeted: \n> ${text}`;
+
+        // See if any media can be found
+        if (includes.media) {
+            const imgs = includes.media
+                .filter(media => media.type === "photo")
+                .map(img => img.url);
+            this.sendFilesFromUrl(imgs, threadId, msg);
+        } else {
+            this.sendMessage(msg, threadId);
+        }
+    });
+};
+
+exports.getLatestTweetID = (handle, callback) => {
+    const expansions = "?user.fields=protected";
+    this.twitterGET(`/users/by/username/${handle}${expansions}`, (err, userData) => {
+        if (err) return callback(new Error("Can't find this user."));
+
+        const { data: userInfo } = userData;
+        if (userInfo.protected) {
+            callback(new Error("Can't fetch this user's tweets because their account is protected."));
+        } else {
+            this.twitterGET(`/tweets/search/recent?query=from:${handle}`, (err, tweetData) => {
+                if (err) return callback(new Error("Encountered an error fetching this user's tweets."));
+
+                const { meta, data: tweets } = tweetData;
+                // If the user doesn't have any recent tweets, just return empty strings since we only
+                // care about being able to detect when they post new ones by diffing the IDs
+                const id = meta.result_count > 0 ? tweets[0].id : "";
+                callback(null, id, userInfo);
+            });
         }
     });
 };
