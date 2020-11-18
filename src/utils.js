@@ -1783,7 +1783,7 @@ exports.sendTweetMsg = (id, threadId) => {
         const { name, username } = author;
 
         // If there are newlines, put a new quote marker at the beginning
-        const text = data.text.split("\n").join("\n> ");
+        const text = entities.decode(data.text.split("\n").join("\n> "));
         const msg = `${name} (@${username}) tweeted: \n> ${text}`;
 
         // See if any media can be found
