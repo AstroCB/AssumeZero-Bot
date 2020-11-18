@@ -205,6 +205,10 @@ function debugCommandOutput(flag) {
 function eventLoop() {
     utils.getGroupData((err, data) => {
         if (!err) {
+            /* ------------*/
+            /* USER EVENTS */
+            /* ------------*/
+
             // Collect events from all of the groups
             let events = Object.keys(data).reduce((events, group) => {
                 const gEvents = data[group].events;
@@ -267,6 +271,30 @@ function eventLoop() {
                         utils.deleteEvent(event.key_title, event.owner, groupInfo, groupInfo.threadId, false);
                     }
                 }
+            });
+
+            /* ---------------*/
+            /* TWITTER EVENTS */
+            /* ---------------*/
+
+            Object.keys(data).forEach(threadId => {
+                const groupInfo = data[threadId];
+                const followedUsers = groupInfo.following;
+
+                Object.keys(followedUsers).forEach(username => {
+                    utils.getLatestTweetID(username, (err, id) => {
+                        if (!err) {
+                            if (followedUsers[username] !== id) {
+                                // New tweet since last check; store it
+                                followedUsers[username] = id;
+                                utils.setGroupProperty("following", followedUsers, groupInfo);
+
+                                // Send the new tweet to the chat
+                                utils.sendTweetMsg(id, threadId);
+                            }
+                        }
+                    });
+                });
             });
         }
     });
