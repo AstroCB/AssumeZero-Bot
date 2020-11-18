@@ -1592,7 +1592,7 @@ const funcs = {
                     `Success! You've unfollowed @${handle}.`
                 );
             } else {
-                utils.sendError(`You're not currently following @${handle}. Use "${config.trigger} follow list" for a list of the user's you're following.`, threadId);
+                utils.sendError(`You're not currently following @${handle}. Use "${config.trigger} follow list" for a list of the users you're following.`, threadId);
             }
         } else {
             // Follow
