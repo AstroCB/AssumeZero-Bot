@@ -1770,7 +1770,7 @@ exports.twitterGET = (path, callback) => {
     });
 };
 
-exports.sendTweetMsg = (id, threadId) => {
+exports.sendTweetMsg = (id, threadId, includeLink = false) => {
     const expansions = "?expansions=attachments.media_keys,referenced_tweets.id,author_id&media.fields=url";
 
     this.twitterGET(`/tweets/${id}${expansions}`, (err, tweetData) => {
@@ -1784,7 +1784,11 @@ exports.sendTweetMsg = (id, threadId) => {
 
         // If there are newlines, put a new quote marker at the beginning
         const text = entities.decode(data.text.split("\n").join("\n> "));
-        const msg = `${name} (@${username}) tweeted: \n> ${text}`;
+        let msg = `${name} (@${username}) tweeted: \n> ${text}`;
+
+        if (includeLink) {
+            msg += `\n\nhttps://twitter.com/${username}/status/${id}`;
+        }
 
         // See if any media can be found
         if (includes.media) {

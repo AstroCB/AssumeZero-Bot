@@ -290,7 +290,7 @@ function eventLoop() {
                                 utils.setGroupProperty("following", followedUsers, groupInfo);
 
                                 // Send the new tweet to the chat
-                                utils.sendTweetMsg(id, threadId);
+                                utils.sendTweetMsg(id, threadId, true);
                             }
                         }
                     });
