@@ -1618,6 +1618,42 @@ const funcs = {
                 }
             });
         }
+    },
+    "subscribe": (threadId, cmatch, groupInfo) => {
+        const url = cmatch[2];
+        if (cmatch[1]) {
+            // Unsubscribe
+            if (groupInfo.feeds[url]) {
+                delete groupInfo.feeds[url];
+                utils.setGroupPropertyAndHandleErrors("feeds", groupInfo,
+                    "Huh, couldn't unsubscribe from that feed for some reason. Please try again.",
+                    "Success! You've unsubscribed from that feed."
+                );
+            } else {
+                utils.sendError(`You're not currently subscribed to that feed. Use "${config.trigger} subscribe list" for a list of this chat's feed subscriptions.`, threadId);
+            }
+        } else {
+            // Subscribe
+            if (url === "list") {
+                const feeds = Object.keys(groupInfo.feeds).map(feed => `\n${feed}`).join('');
+                if (feeds.length > 0) {
+                    return utils.sendMessage(`List of feeds you're currently subscribed to in this chat:\n${feeds}`, threadId);
+                }
+                return utils.sendMessage("You're not currently following any feeds in this chat.", threadId);
+            }
+
+            utils.getLatestFeedItems(url, groupInfo, (err, _, feed) => {
+                if (err) {
+                    utils.sendError("Unable to look up that feed. Ensure it's a valid direct URL to an RSS feed.", threadId);
+                } else {
+                    groupInfo.feeds[url] = new Date().toISOString();
+                    utils.setGroupPropertyAndHandleErrors("feeds", groupInfo,
+                        "Huh, couldn't subscribe to that feed for some reason. Please try again.",
+                        `Success! You are now subscribed to the feed "${feed.title}".\n\nTo stop receiving updates from this feed in this chat, use "${config.trigger} unsubscribe ${url}".`
+                    );
+                }
+            });
+        }
     }
 };
 

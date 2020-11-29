@@ -33,6 +33,7 @@
     "messenger-botcore": "^2.3.1",
     "pm2": "^4.4.1",
     "request": "^2.88.2",
+    "rss-parser": "^3.9.0",
     "spotify-web-api-node": "^4.0.0",
     "xmldom": "^0.2.1",
     "xpath": "0.0.27"

@@ -4,6 +4,7 @@ const jimp = require("jimp"); // For image processing
 const chrono = require("chrono-node"); // For NL date parsing
 const entities = new (require('html-entities').XmlEntities)(); // For parsing HTML strings
 const humanize = require("humanize-duration"); // For creating readable time durations
+const rss = new (require("rss-parser"))(); // For parsing RSS feeds
 
 const config = require("./config");
 const utils = require("./configutils");
@@ -290,6 +291,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, sendsInit = 
                             info.events = {};
                             info.mentionGroups = {};
                             info.following = {};
+                            info.feeds = {};
                             info.isGroup = data.isGroup;
                         }
                         api.getUserInfo(data.participantIDs, (err, userData) => {
@@ -1821,5 +1823,16 @@ exports.getLatestTweetID = (handle, callback) => {
                 callback(null, id, userInfo);
             });
         }
+    });
+};
+
+exports.getLatestFeedItems = (feedURL, groupInfo, callback) => {
+    const lastCheck = groupInfo.feeds[feedURL] ? new Date(groupInfo.feeds[feedURL]) : new Date();
+
+    rss.parseURL(feedURL, (err, feed) => {
+        if (err) return callback(err);
+
+        const newItems = feed.items ? feed.items.filter(item => new Date(item.pubDate) > lastCheck) : [];
+        callback(null, newItems, feed);
     });
 };

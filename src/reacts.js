@@ -1,3 +1,8 @@
+/*
+    Handles reactions placed on messages in the chat, which the bot uses to
+    record responses to events and take other actions on specific messages.
+*/
+
 const utils = require("./utils");
 const config = require("./config");
 

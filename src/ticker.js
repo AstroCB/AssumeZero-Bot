@@ -11,7 +11,7 @@
 const utils = require("./utils");
 const config = require("./config");
 
-const checks = [events, tweets];
+const checks = [events, tweets, feeds];
 
 exports.ticker = () => {
     utils.getGroupData((err, data) => {
@@ -103,6 +103,26 @@ function tweets(data) {
                         // Send the new tweet to the chat
                         utils.sendTweetMsg(id, threadId, true);
                     }
+                }
+            });
+        });
+    });
+}
+
+function feeds(data) {
+    Object.keys(data).forEach(threadId => {
+        const groupInfo = data[threadId];
+        const feeds = groupInfo.feeds;
+
+        Object.keys(feeds).forEach(feedURL => {
+            utils.getLatestFeedItems(feedURL, groupInfo, (err, items, feed) => {
+                if (!err && items.length > 0) {
+                    // New feed items since last check: update last check record and send items to chat
+                    feeds[feedURL] = new Date().toISOString();
+                    utils.setGroupProperty("feeds", feeds, groupInfo);
+
+                    const itemText = items.map(item => `\n${item.title.trim()}\n${item.link}\n`).join('');
+                    utils.sendMessage(`New item${items.length == 1 ? '' : 's'} in feed "${feed.title}"\n${itemText}\nTo unsubscribe from this feed, use "${config.trigger} unsubscribe ${feedURL}".`, threadId);
                 }
             });
         });

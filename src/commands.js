@@ -1111,12 +1111,12 @@ exports.categories = {
                 "experimental": false
             },
             "follow": {
-                "display_names": ["follow"],
+                "display_names": ["follow", "unfollow"],
                 "pretty_name": "Follow",
                 "short_description": "Follow a Twitter account",
                 "description": "Follows a Twitter account, sending new tweets to the chat as they're posted",
-                "syntax": "(un)follow {twitter_handle}",
-                "example": ["follow @AstroCB", "unfollow @AstroCB"],
+                "syntax": "(un)follow {twitter_handle}|list",
+                "example": ["follow @AstroCB", "unfollow @AstroCB", "follow list"],
                 "sudo": false,
                 "attachments": false,
                 "user_input": {
@@ -1124,6 +1124,22 @@ exports.categories = {
                     "optional": false
                 },
                 "regex": /(un)?follow @?(\w+)/i,
+                "experimental": false
+            },
+            "subscribe": {
+                "display_names": ["subscribe", "unsubscribe"],
+                "pretty_name": "Subscribe",
+                "short_description": "Subscribe to an RSS feed",
+                "description": "Subscribes to an RSS feed, sending new items to the chat as they're added",
+                "syntax": "(un)subscribe {feed URL}|list",
+                "example": ["subscribe https://github.com/AstroCB/AssumeZero-Bot/commits/master.atom", "unsubscribe https://github.com/AstroCB/AssumeZero-Bot/commits/master.atom", "subscribe list"],
+                "sudo": false,
+                "attachments": false,
+                "user_input": {
+                    "accepts": false,
+                    "optional": false
+                },
+                "regex": /(un)?subscribe (\S+)/i,
                 "experimental": false
             },
         }
