@@ -12,6 +12,7 @@ require("./server"); // Server configuration (just needs to be loaded)
 const easter = require("./easter"); // Easter eggs
 const passive = require("./passive"); // Passive messages
 const reacts = require("./reacts"); // Message reactions
+const ticker = require("./ticker"); // Recurring ticker process
 let credentials;
 try {
     // Login creds from local dir
@@ -53,8 +54,8 @@ function main(err, api) {
 
     // Kick off the message handler
     stopListening = api.listenMqtt(handleMessage);
-    // Kick off the event handler
-    setInterval(eventLoop, config.eventCheckInterval * 60000);
+    // Kick off the recurring ticker
+    setInterval(ticker.ticker, config.tickerInterval * 60000);
 
     // Tell process manager that this process is ready
     process.send ? process.send("ready") : null;
@@ -166,102 +167,4 @@ function debugCommandOutput(flag) {
             return `${c}: ${co[c].m}`;
         }));
     }
-}
-
-function eventLoop() {
-    utils.getGroupData((err, data) => {
-        if (!err) {
-            /* ------------*/
-            /* USER EVENTS */
-            /* ------------*/
-
-            // Collect events from all of the groups
-            let events = Object.keys(data).reduce((events, group) => {
-                const gEvents = data[group].events;
-                Object.keys(gEvents).forEach(event => {
-                    events.push(gEvents[event]);
-                });
-
-                return events;
-            }, []);
-
-            const curTime = new Date();
-            events.forEach(event => {
-                if (new Date(event.timestamp) <= curTime
-                    || (event.remind_time && new Date(event.remind_time) <= curTime)) {
-                    // Event is occurring! (or occurred since last check)
-                    let msg, mentions, replyId;
-                    if (event.type == "event") {
-                        // Event
-                        msg = `Happening ${event.remind_time ? `in ${config.reminderTime} minutes` : "now"}: ${event.title}${event.going.length > 0 ? "\n\nReminder for " : ""}`;
-
-                        // Build up mentions string (with Oxford comma 🤘)
-                        let numGoing = event.going.length;
-                        event.going.forEach((user, i) => {
-                            if (i < numGoing - 1 || numGoing == 1) {
-                                msg += `@${user.name}`;
-                                if (numGoing > 2) {
-                                    msg += ", ";
-                                } else {
-                                    msg += " ";
-                                }
-                            } else {
-                                msg += `and @${user.name}`;
-                            }
-                        });
-                        mentions = event.going.map(user => {
-                            return {
-                                "tag": `@${user.name}`,
-                                "id": user.id
-                            };
-                        });
-                    } else {
-                        // Reminder
-                        msg = `Reminder for @${event.owner_name}: ${event.reminder}`;
-                        mentions = [{
-                            "tag": `@${event.owner_name}`,
-                            "id": event.owner
-                        }];
-                        replyId = event.replyId;
-                    }
-
-                    // Send off the reminder message and delete the event
-                    const groupInfo = data[event.threadId];
-                    utils.sendMessageWithMentions(msg, mentions, groupInfo.threadId, replyId);
-
-                    if (event.remind_time) {
-                        // Don't delete, but don't remind again
-                        groupInfo.events[event.key_title].remind_time = null;
-                        utils.setGroupProperty("events", groupInfo.events, groupInfo);
-                    } else {
-                        utils.deleteEvent(event.key_title, event.owner, groupInfo, groupInfo.threadId, false);
-                    }
-                }
-            });
-
-            /* ---------------*/
-            /* TWITTER EVENTS */
-            /* ---------------*/
-
-            Object.keys(data).forEach(threadId => {
-                const groupInfo = data[threadId];
-                const followedUsers = groupInfo.following;
-
-                Object.keys(followedUsers).forEach(username => {
-                    utils.getLatestTweetID(username, (err, id) => {
-                        if (!err) {
-                            if (followedUsers[username] !== id) {
-                                // New tweet since last check; store it
-                                followedUsers[username] = id;
-                                utils.setGroupProperty("following", followedUsers, groupInfo);
-
-                                // Send the new tweet to the chat
-                                utils.sendTweetMsg(id, threadId, true);
-                            }
-                        }
-                    });
-                });
-            });
-        }
-    });
 }
