@@ -11,6 +11,7 @@ const runner = require("./runcommand"); // For command handling code
 require("./server"); // Server configuration (just needs to be loaded)
 const easter = require("./easter"); // Easter eggs
 const passive = require("./passive"); // Passive messages
+const reacts = require("./reacts"); // Message reactions
 let credentials;
 try {
     // Login creds from local dir
@@ -103,43 +104,8 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
                             // Check for passive messages to expand rich content
                             passive.handlePassive(message, info, api);
                         }
-                    } else if (message.type == "message_reaction") { // Potential event response
-                        const eventMidMap = Object.keys(info.events).reduce((events, e) => {
-                            const event = info.events[e];
-                            events[event.mid] = event;
-                            return events;
-                        }, {});
-
-                        const event = eventMidMap[message.messageID];
-                        const rsvpr = message.userID;
-                        const resp = message.reaction;
-                        if (event && (resp == "👍" || resp == "👎")) {
-                            api.getUserInfo(rsvpr, (err, uinfo) => {
-                                if (!err) {
-                                    const data = uinfo[rsvpr];
-                                    let resp_list;
-
-                                    // Remove any pre-existing responses from that user
-                                    event.going = event.going.filter(user => user.id != rsvpr);
-                                    event.not_going = event.not_going.filter(user => user.id != rsvpr);
-
-                                    if (resp == "👍") {
-                                        resp_list = event.going;
-                                    } else if (resp == "👎") {
-                                        resp_list = event.not_going;
-                                    } else {
-                                        // Not a valid RSVP react
-                                        return;
-                                    }
-
-                                    resp_list.push({
-                                        "id": rsvpr,
-                                        "name": data.firstName
-                                    });
-                                    utils.setGroupProperty("events", info.events, info);
-                                }
-                            });
-                        }
+                    } else if (message.type == "message_reaction") {
+                        reacts.handleReacts(message, info, api);
                     }
                 });
             }
