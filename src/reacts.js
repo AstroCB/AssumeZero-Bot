@@ -16,6 +16,9 @@ exports.handleReacts = (message, info, api) => {
         case "👍":
         case "👎":
             return recordEventRSVP((react === "👍"), message, info, api);
+        case "❌":
+        case "🗑":
+            return api.unsendMessage(message.messageID);
     }
 };
 
