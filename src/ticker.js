@@ -121,8 +121,8 @@ function feeds(data) {
                     feeds[feedURL] = new Date().toISOString();
                     utils.setGroupProperty("feeds", feeds, groupInfo);
 
-                    const itemText = items.map(item => `\n${item.title.trim()}\n${item.link}\n`).join('');
-                    utils.sendMessage(`New item${items.length == 1 ? '' : 's'} in feed "${feed.title}"\n${itemText}\nTo unsubscribe from this feed, use "${config.trigger} unsubscribe ${feedURL}".`, threadId);
+                    const itemText = items.map(item => `\n${item.title.trim()}\n${item.link}`).join('\n');
+                    utils.sendMessage(`New item${items.length == 1 ? '' : 's'} in feed "${feed.title}"\n${itemText}`, threadId);
                 }
             });
         });
