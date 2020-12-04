@@ -21,6 +21,7 @@ exports.ticker = () => {
     });
 };
 
+// Check whether scheduled events are occurring
 function events(data) {
     // Collect events from all of the groups
     let events = Object.keys(data).reduce((events, group) => {
@@ -87,6 +88,7 @@ function events(data) {
     });
 }
 
+// Check whether followed accounts have tweeted
 function tweets(data) {
     Object.keys(data).forEach(threadId => {
         const groupInfo = data[threadId];
@@ -109,6 +111,7 @@ function tweets(data) {
     });
 }
 
+// Check whether subscribed RSS feeds have updated
 function feeds(data) {
     Object.keys(data).forEach(threadId => {
         const groupInfo = data[threadId];

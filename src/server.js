@@ -63,3 +63,13 @@ app.post("/pushed", (req, res) => {
         }
     });
 });
+
+app.get("/healthcheck", (_, res) => {
+    main.utils.sendMessage("healthcheck", config.bot.id, (err) => {
+        if (err) {
+            res.status(500).send(err);
+        } else {
+            res.sendStatus(200);
+        }
+    });
+});

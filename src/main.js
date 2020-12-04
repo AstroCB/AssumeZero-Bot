@@ -6,6 +6,7 @@
 const botcore = require("messenger-botcore"); // Common bot code
 const config = require("./config"); // Config file
 const utils = require("./utils"); // Utility functions
+exports.utils = utils; // Export utils so we can hook into it from other modules
 const commands = require("./commands"); // Command documentation/configuration
 const runner = require("./runcommand"); // For command handling code
 require("./server"); // Server configuration (just needs to be loaded)
