@@ -1502,15 +1502,16 @@ const funcs = {
                 utils.sendError(err, threadId);
             } else {
                 const symbol = data["01. symbol"];
-                const price = parseFloat(data["05. price"]);
-                const prev = parseFloat(data["08. previous close"]);
+                const price = parseFloat(data["05. price"]).toLocaleString();
+                const prev = parseFloat(data["08. previous close"]).toLocaleString();
                 const changeNum = parseFloat(data["09. change"]);
                 const change = changeNum > 0 ? `+${changeNum}` : changeNum;
                 const changePercNum = parseFloat(data["10. change percent"]);
                 const changePerc = changePercNum > 0 ? `+${changePercNum}` : changePercNum;
+                const marketCap = data.marketCap.toLocaleString();
                 const updated = data["07. latest trading day"];
-                const title = data.name ? `${data.name} (${symbol})\n${data.exchange} ${data.type}` : symbol;
-                const msg = `${title}\n\nCurrent price: ${price}\nPrevious close: ${prev}\nChange: ${change} (${changePerc}%)\n\nLast updated: ${updated}`;
+                const title = data.name ? `${data.name} (${symbol})\n${data.exchange} ${data.type}\nMarket cap: $${marketCap}` : symbol;
+                const msg = `${title}\n\nCurrent price: $${price}\nPrevious close: $${prev}\nChange: ${change} (${changePerc}%)\n\nLast updated: ${updated}`;
 
                 utils.sendMessage(msg, threadId);
             }

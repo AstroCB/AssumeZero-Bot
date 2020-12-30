@@ -1539,37 +1539,39 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
 };
 
 exports.getStockData = (symbol, callback) => {
-    const params = new URLSearchParams({
-        "function": "GLOBAL_QUOTE",
+    const params = {
         "symbol": symbol.toUpperCase(),
         "apikey": config.stocksKey
-    });
+    };
 
-    // Yahoo Finance API for company/stock metadata
-    request.get(`http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=${symbol}&region=1&lang=en`, {}, (err, res, body) => {
-        let name, exchange, type;
+    // Alpha Vantage API endpoint for company metadata
+    const metadataParams = new URLSearchParams({ ...params, "function": "OVERVIEW" });
+    request.get(`https://www.alphavantage.co/query?${metadataParams.toString()}`, {}, (err, res, body) => {
+        let name, exchange, type, marketCap;
         if (!err && res.statusCode == 200) {
             const data = JSON.parse(body);
-            const results = data["ResultSet"]["Result"];
-            if (results.length > 0) {
-                const result = results[0];
-                name = result.name;
-                exchange = result.exchDisp;
-                type = result.typeDisp;
-            }
+            name = data["Name"];
+            exchange = data["Exchange"];
+            type = data["AssetType"];
+            marketCap = parseInt(data["MarketCapitalization"]);
         }
 
-        // Alpha Vantage API for stock data
-        request.get(`https://www.alphavantage.co/query?${params.toString()}`, {}, (err, res, body) => {
+        // Alpha Vantage API endpoint for stock quote data
+        const quoteParams = new URLSearchParams({ ...params, "function": "GLOBAL_QUOTE" });
+        request.get(`https://www.alphavantage.co/query?${quoteParams.toString()}`, {}, (err, res, body) => {
             if (!err && res.statusCode == 200) {
                 const data = JSON.parse(body);
                 if (data["Error Message"]) {
                     callback("No stock matching that symbol was found.");
                 } else {
-                    const result = data["Global Quote"];
-                    result["name"] = name;
-                    result["exchange"] = exchange;
-                    result["type"] = type;
+                    // Construct a more detailed results object with company metadata
+                    const result = {
+                        ...data["Global Quote"],
+                        name,
+                        exchange,
+                        type,
+                        marketCap
+                    };
                     callback(null, result);
                 }
             } else {
