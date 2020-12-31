@@ -38,20 +38,38 @@ const passiveTypes = [
 ];
 
 exports.handlePassive = (messageObj, groupInfo, api) => {
-    const message = messageObj.body;
-
-    getPassiveTypes(message, type => {
+    getPassiveTypes(messageObj, (type, match) => {
         // Call generic handler and pass in all message info (handler can
         // decide whether they want to use it selectively via parameters)
-        const match = message.match(type.regex);
         type.handler(match, groupInfo, messageObj, type.regex, api);
     });
 };
 
-function getPassiveTypes(text, cb) {
+function getPassiveTypes(msg, cb) {
+    const { body, attachments } = msg;
     passiveTypes.forEach(type => {
-        if (text.match(type.regex)) {
-            cb(type);
+        const match = body.match(type.regex);
+        if (match) {
+            cb(type, match);
+        } else {
+            // If there isn't a match in the body, we can also check the attachments
+            attachments
+                .filter(attachment => attachment.type === "share" && attachment.url)
+                .map(attachment => {
+                    // Sometimes, Facebook futzes with the URL for redirects,
+                    // so we need to decode it before checking for a match
+                    const encodedURLMatch = attachment.url.match(/l\.facebook\.com\/l\.php\?u=([^&]+)/i);
+                    if (encodedURLMatch) {
+                        return { ...attachment, "url": decodeURIComponent(encodedURLMatch[1]) };
+                    }
+                    return attachment;
+                })
+                .forEach(attachment => {
+                    const attachmentMatch = attachment.url.match(type.regex);
+                    if (attachmentMatch) {
+                        cb(type, attachmentMatch);
+                    }
+                });
         }
     });
 }

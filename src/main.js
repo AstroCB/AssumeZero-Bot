@@ -92,7 +92,7 @@ function handleMessage(err, message, external = false, api = gapi) { // New mess
                         const m = message.body;
                         const attachments = message.attachments;
                         // Handle message body
-                        if (m) {
+                        if (m || attachments) {
                             // Pass to commands testing for trigger word
                             const cindex = m.toLowerCase().indexOf(config.trigger);
                             if (cindex > -1) { // Trigger command mode
