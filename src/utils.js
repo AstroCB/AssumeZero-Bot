@@ -1799,10 +1799,12 @@ exports.sendTweetMsg = (id, threadId, includeLink = false) => {
             const imgs = includes.media
                 .filter(media => media.type === "photo")
                 .map(img => img.url);
-            this.sendFilesFromUrl(imgs, threadId, msg);
-        } else {
-            this.sendMessage(msg, threadId);
+            if (imgs.length > 0) {
+                return this.sendFilesFromUrl(imgs, threadId, msg);
+            }
         }
+
+        this.sendMessage(msg, threadId);
     });
 };
 
