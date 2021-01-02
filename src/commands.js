@@ -106,7 +106,7 @@ exports.categories = {
                 "display_names": ["mute", "unmute"],
                 "pretty_name": "Mute/unmute",
                 "short_description": "Turns on/off easter eggs",
-                "description": "Turns on/off easter eggs until they are turned back on",
+                "description": "Turns on/off easter eggs until they are toggled again",
                 "syntax": "(un)mute",
                 "example": ["mute", "unmute"],
                 "sudo": false,
@@ -197,7 +197,23 @@ exports.categories = {
                 },
                 "regex": /undo/i,
                 "experimental": false
-            }
+            },
+            "richcontent": {
+                "display_names": ["rich content"],
+                "pretty_name": "Rich content",
+                "short_description": "Turns on/off rich content (expanded tweets, wiki articles, etc.)",
+                "description": "Turns on/off rich content ",
+                "syntax": "rich content (on|off)",
+                "example": ["rich content on", "rich content off"],
+                "sudo": false,
+                "attachments": false,
+                "user_input": {
+                    "accepts": false,
+                    "optional": false
+                },
+                "regex": /rich content (on|off)/i,
+                "experimental": false
+            },
         }
     },
     "messenger": {

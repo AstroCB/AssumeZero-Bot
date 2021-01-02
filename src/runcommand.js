@@ -1655,6 +1655,15 @@ const funcs = {
                 }
             });
         }
+    },
+    "richcontent": (_, cmatch, groupInfo) => {
+        const isEnabled = cmatch[1].toLowerCase();
+
+        groupInfo.richContent = (isEnabled === "on");
+        utils.setGroupPropertyAndHandleErrors("richContent", groupInfo,
+            "Wasn't able to update rich content settings; please try again.",
+            `Success! Rich content is now ${isEnabled}.`
+        );
     }
 };
 
