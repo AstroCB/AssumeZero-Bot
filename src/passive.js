@@ -38,11 +38,13 @@ const passiveTypes = [
 ];
 
 exports.handlePassive = (messageObj, groupInfo, api) => {
-    getPassiveTypes(messageObj, (type, match) => {
-        // Call generic handler and pass in all message info (handler can
-        // decide whether they want to use it selectively via parameters)
-        type.handler(match, groupInfo, messageObj, type.regex, api);
-    });
+    if (groupInfo.richContent) { // Don't check for passives if rich content is disabled
+        getPassiveTypes(messageObj, (type, match) => {
+            // Call generic handler and pass in all message info (handler can
+            // decide whether they want to use it selectively via parameters)
+            type.handler(match, groupInfo, messageObj, type.regex, api);
+        });
+    }
 };
 
 function getPassiveTypes(msg, cb) {

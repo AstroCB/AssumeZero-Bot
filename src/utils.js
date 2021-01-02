@@ -293,6 +293,7 @@ exports.updateGroupInfo = (threadId, message, callback = () => { }, sendsInit = 
                             info.following = {};
                             info.feeds = {};
                             info.isGroup = data.isGroup;
+                            info.richContent = true;
                         }
                         api.getUserInfo(data.participantIDs, (err, userData) => {
                             if (!err) {
