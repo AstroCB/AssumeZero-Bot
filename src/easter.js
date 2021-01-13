@@ -460,10 +460,6 @@ const eggs = [
         "func": threadId => { utils.sendFile("../media/fire.mov", threadId); }
     },
     {
-        "regex": /^jesus$/i,
-        "func": threadId => { utils.sendFile("../media/jess.png", threadId); }
-    },
-    {
         "regex": /(^|\s)1\%/i,
         "func": threadId => { utils.sendFile("../media/onepercent.png", threadId); }
     },
