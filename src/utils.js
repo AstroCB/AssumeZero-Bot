@@ -1301,14 +1301,18 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
         return msg;
     }
 
+    function getDateKey(date) {
+        return `${date.getMonth() + 1}/${date.getDate()}/${`${date.getFullYear()}`.slice(-2)}`;
+    }
+
     function getYesterdayNumbers(hist) {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const twoDaysAgo = new Date();
         twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
 
-        const yKey = `${yesterday.getMonth() + 1}/${yesterday.getDate()}/${`${yesterday.getFullYear()}`.slice(-2)}`;
-        const twoKey = `${twoDaysAgo.getMonth() + 1}/${twoDaysAgo.getDate()}/${`${twoDaysAgo.getFullYear()}`.slice(-2)}`;
+        const yKey = getDateKey(yesterday);
+        const twoKey = getDateKey(twoDaysAgo);
 
         const yCases = hist.cases[yKey] ? hist.cases[yKey] : -1;
         const twoCases = hist.cases[twoKey] ? hist.cases[twoKey] : -1;
@@ -1341,11 +1345,34 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
         return msg;
     }
 
-    function buildTodayStr(cur, hist) {
+    function getVaccString(vhist) {
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const twoDaysAgo = new Date();
+        twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+        const tKey = getDateKey(today);
+        const yKey = getDateKey(yesterday);
+        const twoKey = getDateKey(twoDaysAgo);
+
+        const tVacc = vhist[tKey] ? vhist[tKey] : -1;
+        const yVacc = vhist[yKey] ? vhist[yKey] : -1;
+        const twoVacc = vhist[twoKey] ? vhist[twoKey] : -1;
+
+        const tVaccStr = tVacc >= 0 ? `Vaccinations today: ${(tVacc - yVacc).toLocaleString()}` : "";
+        const yVaccStr = yVacc >= 0 ? `\nVaccinations yesterday: ${(yVacc - twoVacc).toLocaleString()}` : "";
+
+        return tVaccStr.length > 0 || yVaccStr > 0 ? `${tVaccStr}${yVaccStr}\n\n` : "";
+    }
+
+    function buildTodayStr(cur, hist, vhist) {
         const [yCasesStr, yDeathsStr] = getYesterdayNumbers(hist);
+        const vaccString = getVaccString(vhist);
 
         let msg = `New cases today: ${cur.todayCases.toLocaleString()}${yCasesStr}\nTotal cases: ${cur.cases.toLocaleString()}\n\n`;
         msg += `Deaths today: ${cur.todayDeaths.toLocaleString()}${yDeathsStr}\nTotal deaths: ${cur.deaths.toLocaleString()}\n\n`;
+        msg += vaccString;
         msg += `Total recovered: ${cur.recovered.toLocaleString()}`;
 
         return msg;
@@ -1468,21 +1495,27 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
                 }
 
                 if (query == "all") {
-                    request.get("https://corona.lmao.ninja/v2/all", {}, (err, _, all) => {
+                    request.get("https://disease.sh/v3/covid-19/all", {}, (err, _, all) => {
                         if (!err) {
                             const cdata = JSON.parse(all);
-                            const msg = `*Today's worldwide summary*\n\n${buildTodayStr(cdata, hdata)}`;
-                            this.sendMessage(msg, threadId);
+                            request.get("https://disease.sh/v3/covid-19/vaccine/coverage", (err, _, data) => {
+                                const vdata = err ? {} : JSON.parse(data);
+                                const msg = `*Today's worldwide summary*\n\n${buildTodayStr(cdata, hdata, vdata)}`;
+                                this.sendMessage(msg, threadId);
+                            });
                         } else {
                             this.sendError("Couldn't retrieve data.", threadId);
                         }
                     });
                 } else {
-                    request.get(`https://corona.lmao.ninja/v2/countries/${query}`, {}, (err, _, data) => {
+                    request.get(`https://disease.sh/v3/covid-19/countries/${query}`, {}, (err, _, data) => {
                         if (!err) {
                             const cdata = JSON.parse(data);
-                            const msg = `*Today's summary for ${cdata.country}*\n\n${buildTodayStr(cdata, hdata["timeline"])}`;
-                            this.sendMessage(msg, threadId);
+                            request.get(`https://disease.sh/v3/covid-19/vaccine/coverage/countries/${query}`, (err, _, data) => {
+                                const vdata = err ? { "timeline": {} } : JSON.parse(data);
+                                const msg = `*Today's summary for ${cdata.country}*\n\n${buildTodayStr(cdata, hdata["timeline"], vdata["timeline"])}`;
+                                this.sendMessage(msg, threadId);
+                            });
                         } else {
                             this.sendError("Couldn't retrieve data.", threadId);
                         }
