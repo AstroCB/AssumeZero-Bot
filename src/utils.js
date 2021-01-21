@@ -1504,12 +1504,10 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
                         const matches = [];
                         for (let i = 0; i < data.data.length; i++) {
                             const info = data.data[i];
+                            const fields = [info.candidate, info.trialPhase, info.institutions, info.sponsors].flat();
                             // Naive substring search
-                            if (info.candidate.toLowerCase().indexOf(query) > -1
-                                || info.trialPhase.toLowerCase() == query
-                                || info.funding.filter(s => s.toLowerCase().indexOf(query) > -1).length > 0
-                                || info.institutions.filter(s => s.toLowerCase().indexOf(query) > -1).length > 0
-                                || info.sponsors.filter(s => s.toLowerCase().indexOf(query) > -1).length > 0) {
+                            const matchingFields = fields.filter(field => field && field.toLowerCase().indexOf(query) > -1);
+                            if (matchingFields.length > 0) {
                                 matches.push(info);
                             }
                         }
@@ -1522,7 +1520,6 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
                                 msg += `Status: ${match.trialPhase}\n`;
                                 msg += `Sponsor${match.sponsors.length == 1 ? '' : 's'}: ${this.concatNames(match.sponsors)}\n`;
                                 msg += `Institution${match.institutions.length == 1 ? '' : 's'}: ${this.concatNames(match.institutions)}\n`;
-                                msg += `Funding: ${this.concatNames(match.funding)}\n`;
                                 msg += `\n${entities.decode(match.details)}\n`;
                             });
 
