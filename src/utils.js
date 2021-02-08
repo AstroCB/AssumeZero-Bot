@@ -5,6 +5,8 @@ const chrono = require("chrono-node"); // For NL date parsing
 const entities = new (require('html-entities').XmlEntities)(); // For parsing HTML strings
 const humanize = require("humanize-duration"); // For creating readable time durations
 const rss = new (require("rss-parser"))(); // For parsing RSS feeds
+const { Octokit } = require("@octokit/rest"); // For interacting with GitHub
+const { createAppAuth } = require("@octokit/auth-app"); // For authorizing Octokit
 
 const config = require("./config");
 const utils = require("./configutils");
@@ -14,6 +16,29 @@ let gapi;
 let mem;
 let credentials;
 let lockedThreads = [];
+let octokitInit;
+
+// We have to lazily initialize octokit because it requires credentials, which won't
+// be initialized until after this file is loaded into memory. Instead of creating
+// a function that initializes and returns an instance every time, we can initialize
+// it once and cache its value for subsequent calls.
+const getOctokit = () => {
+    return octokitInit ? octokitInit
+        : (() => {
+            octokitInit = new Octokit({
+                authStrategy: createAppAuth,
+                auth: {
+                    appId: credentials.GITHUB_APP_ID,
+                    privateKey: credentials.GITHUB_PRIVATE_KEY,
+                    installationId: credentials.GITHUB_INSTALLATION_ID,
+                    clientId: credentials.GITHUB_CLIENT_ID,
+                    clientSecret: credentials.GITHUB_CLIENT_SECRET
+                }
+            });
+
+            return octokitInit;
+        })();
+};
 
 // Initialize the global variables in this module
 // MUST be called before other functions in this module
@@ -1870,4 +1895,33 @@ exports.getLatestFeedItems = (feedURL, groupInfo, callback) => {
         const newItems = feed.items ? feed.items.filter(item => new Date(item.pubDate) > lastCheck) : [];
         callback(null, newItems, feed);
     });
+};
+
+// Creates a new GitHub issue in the configured repo
+// Takes a reporter (name of person filing the report),
+// creator (name of person creating the ticket), and a text body describing the issue
+// Lastly, takes a callback with parameters for 1) an error (if fails) and
+// (if successful) 2) the created issue's URL and 3) number
+exports.createGitHubIssue = async (reporter, creator, text, type, groupInfo, callback) => {
+    const isBug = type === 'bug';
+    const createdAt = this.getPrettyDateString(new Date());
+    const issueType = isBug ? "Report" : "Request";
+    const title = `[@${creator} please change the title] ${issueType} in ${groupInfo.title} at ${createdAt}`;
+    const body = `${reporter} at ${createdAt}:\n> ${text.replace(/\n/g, "\n> ")}`;
+    const labels = isBug ? ['bug'] : ['new-feature'];
+
+    try {
+        const octokit = getOctokit();
+        const response = await octokit.issues.create({
+            ...config.ghRepo,
+            title,
+            body,
+            labels
+        });
+        const num = response.data.number;
+        const url = `https://github.com/${config.ghRepo.owner}/${config.ghRepo.repo}/issues/${num}`;
+        callback(null, url, num);
+    } catch (err) {
+        callback(err);
+    }
 };

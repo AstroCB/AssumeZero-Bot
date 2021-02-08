@@ -160,3 +160,9 @@ exports.scrapeAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebK
 
 // Regex to match when mentioning the whole group (see the `mention` passive message type)
 exports.channelMentionRegex = /@@(all|everyone|channel)/i;
+
+// Config to specify where to post new GitHub issues created by the bot
+exports.ghRepo = {
+    owner: 'AstroCB',
+    repo: 'AssumeZero-Bot'
+};

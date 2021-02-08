@@ -7,18 +7,24 @@ const utils = require("./utils");
 const config = require("./config");
 
 exports.handleReacts = (message, info, api) => {
-    if (message.senderID !== config.bot.id) {
-        return; // Don't handle reacts to other users' messages
+    const react = message.reaction;
+
+    if (message.senderID === config.bot.id) {
+        // Reacts we only want to handle on the bot's messages
+        switch (react) {
+            case "👍":
+            case "👎":
+                return recordEventRSVP((react === "👍"), message, info, api);
+            case "❌":
+            case "🗑":
+                return api.unsendMessage(message.messageID);
+        }
     }
 
-    const react = message.reaction;
+    // Reacts we want to handle on all messages
     switch (react) {
-        case "👍":
-        case "👎":
-            return recordEventRSVP((react === "👍"), message, info, api);
-        case "❌":
-        case "🗑":
-            return api.unsendMessage(message.messageID);
+        case "🐛":
+            return reportBug(message, info, api);
     }
 };
 
@@ -49,4 +55,43 @@ function recordEventRSVP(isGoing, message, info, api) {
             }
         });
     }
+}
+
+function reportBug(reactMsg, info, api) {
+    const initiator = info.names[reactMsg.senderID];
+
+    // Confirm receipt with react
+    api.setMessageReaction("✨", reactMsg.messageID);
+
+    const onFailure = (err) => {
+        // Change message reaction to indicate failure
+        api.setMessageReaction("❌", reactMsg.messageID);
+        console.error(err);
+    };
+
+    api.getMessage(reactMsg.threadID, reactMsg.messageID, (err, msg) => {
+        if (!err) {
+            const text = msg.body;
+            api.getUserInfo(msg.senderID, (err, userInfo) => {
+                if (!err) {
+                    const reporter = userInfo.name;
+                    utils.createGitHubIssue(reporter, initiator, text, 'bug', info, (err, url, num) => {
+                        if (!err) {
+                            // Send the confirmation with a link
+                            api.sendMessage({
+                                url,
+                                body: `Created ${config.ghRepo.repo}#${num}`
+                            }, reactMsg.threadID, () => { }, reactMsg.messageID);
+                        } else {
+                            onFailure("Failed to create issue: ", err);
+                        }
+                    });
+                } else {
+                    onFailure(`Unable to retrieve details about user ${msg.senderID}`);
+                }
+            });
+        } else {
+            onFailure("Failed to retrieve reacji'd message: ", err);
+        }
+    });
 }

@@ -10,3 +10,4 @@ archive*.json
 *.icloud
 appstate.json
 get_session.sh
+*.pem
