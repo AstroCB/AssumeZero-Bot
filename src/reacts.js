@@ -58,7 +58,7 @@ function recordEventRSVP(isGoing, message, info, api) {
 }
 
 function reportBug(reactMsg, info, api) {
-    const initiator = info.names[reactMsg.senderID];
+    const reporter = info.names[reactMsg.senderID];
 
     // Confirm receipt with react
     api.setMessageReaction("✨", reactMsg.messageID);
@@ -74,8 +74,8 @@ function reportBug(reactMsg, info, api) {
             const text = msg.body;
             api.getUserInfo(msg.senderID, (err, userInfo) => {
                 if (!err) {
-                    const reporter = userInfo.name;
-                    utils.createGitHubIssue(reporter, initiator, text, 'bug', info, (err, url, num) => {
+                    const sender = userInfo[msg.senderID].name;
+                    utils.createGitHubIssue(sender, reporter, text, 'bug', info, (err, url, num) => {
                         if (!err) {
                             // Send the confirmation with a link
                             api.sendMessage({

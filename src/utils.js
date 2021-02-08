@@ -1902,12 +1902,12 @@ exports.getLatestFeedItems = (feedURL, groupInfo, callback) => {
 // creator (name of person creating the ticket), and a text body describing the issue
 // Lastly, takes a callback with parameters for 1) an error (if fails) and
 // (if successful) 2) the created issue's URL and 3) number
-exports.createGitHubIssue = async (reporter, creator, text, type, groupInfo, callback) => {
+exports.createGitHubIssue = async (sender, reporter, text, type, groupInfo, callback) => {
     const isBug = type === 'bug';
     const createdAt = this.getPrettyDateString(new Date());
     const issueType = isBug ? "Report" : "Request";
-    const title = `[@${creator} please change the title] ${issueType} in ${groupInfo.name} at ${createdAt}`;
-    const body = `${reporter} at ${createdAt}:\n> ${text.replace(/\n/g, "\n> ")}`;
+    const title = `[@${reporter} please change the title] ${issueType} in ${groupInfo.name} at ${createdAt}`;
+    const body = `${sender} at ${createdAt}:\n> ${text.replace(/\n/g, "\n> ")}`;
     const labels = isBug ? ['bug'] : ['new-feature'];
 
     try {
