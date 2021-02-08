@@ -58,7 +58,7 @@ function recordEventRSVP(isGoing, message, info, api) {
 }
 
 function reportBug(reactMsg, info, api) {
-    const reporter = info.names[reactMsg.senderID];
+    const reporter = info.names[reactMsg.userID];
 
     // Confirm receipt with react
     api.setMessageReaction("✨", reactMsg.messageID);
