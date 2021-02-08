@@ -1906,7 +1906,7 @@ exports.createGitHubIssue = async (reporter, creator, text, type, groupInfo, cal
     const isBug = type === 'bug';
     const createdAt = this.getPrettyDateString(new Date());
     const issueType = isBug ? "Report" : "Request";
-    const title = `[@${creator} please change the title] ${issueType} in ${groupInfo.title} at ${createdAt}`;
+    const title = `[@${creator} please change the title] ${issueType} in ${groupInfo.name} at ${createdAt}`;
     const body = `${reporter} at ${createdAt}:\n> ${text.replace(/\n/g, "\n> ")}`;
     const labels = isBug ? ['bug'] : ['new-feature'];
 
