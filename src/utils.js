@@ -526,31 +526,6 @@ exports.getPrettyDateString = (date, withTime = true) => {
 };
 
 /*
-Creates a description for a user search result given the match's data from the chat API
-Also performs a Graph API search for a high-res version of the user's profile picture
-and uploads it with the description if it finds one
-Optional parameter to specify which level of match it is (1st, 2nd, 3rd, etc.)
-*/
-exports.searchForUser = (match, threadId, num = 0) => {
-    const desc = `${(num === 0) ? "Best match" : "Match " + (num + 1)}: ${match.name}\n${match.profileUrl}\nRank: ${match.score}\nUser ID: ${match.userID}`;
-
-    // Try to get large propic URL from Facebook Graph API using user ID
-    // If propic exists, combine it with the description
-    const userId = match.userID;
-    const graphUrl = `https://graph.facebook.com/${userId}/picture?type=large&redirect=false&width=400&height=400`;
-    request.get(graphUrl, (err, res, body) => {
-        if (!err && res.statusCode == 200) {
-            const url = JSON.parse(body).data.url; // Photo URL from Graph API
-            if (url) {
-                this.sendFilesFromUrl(url, threadId, desc);
-            } else {
-                this.sendMessage(desc, threadId);
-            }
-        }
-    });
-};
-
-/*
 Sends a file to the group from a URL by temporarily downloading it
 and re-uploading it as part of the message (useful for images on Facebook
 domains, which are blocked by Facebook for URL auto-detection)
