@@ -1346,24 +1346,20 @@ exports.getCovidData = (rawType, rawQuery, threadId) => {
     }
 
     function getVaccString(vhist) {
-        const today = new Date();
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const twoDaysAgo = new Date();
         twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
 
-        const tKey = getDateKey(today);
         const yKey = getDateKey(yesterday);
         const twoKey = getDateKey(twoDaysAgo);
 
-        const tVacc = vhist[tKey] ? vhist[tKey] : -1;
         const yVacc = vhist[yKey] ? vhist[yKey] : -1;
         const twoVacc = vhist[twoKey] ? vhist[twoKey] : -1;
 
-        const tVaccStr = tVacc >= 0 ? `Vaccinations today: ${(tVacc - yVacc).toLocaleString()}` : "";
         const yVaccStr = yVacc >= 0 ? `\nVaccinations yesterday: ${(yVacc - twoVacc).toLocaleString()}` : "";
 
-        return tVaccStr.length > 0 || yVaccStr > 0 ? `${tVaccStr}${yVaccStr}\n\n` : "";
+        return yVaccStr > 0 ? `${yVaccStr}\n\n` : "";
     }
 
     function buildTodayStr(cur, hist, vhist) {
