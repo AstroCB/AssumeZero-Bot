@@ -1084,14 +1084,14 @@ exports.categories = {
                 "short_description": "Create and manage events",
                 "description": "Create, delete, and list events in the chat, which will send reminders for pre-set times (with RSVP functionality)",
                 "syntax": "event (create {name} for {date/time}|delete {name}|list ({name}))",
-                "example": ["event create Dinner for tomorrow at 6 PM", "event delete Dinner", "event list"],
+                "example": ["event create Dinner for tomorrow at 6 PM", "event delete Dinner", "event list", "event repeat daily"],
                 "sudo": false,
                 "attachments": false,
                 "user_input": {
                     "accepts": false,
                     "optional": false
                 },
-                "regex": /event (?:(create) (.+) for (.+)|(delete) (.+)|(list)( .+)?)/i,
+                "regex": /event (?:(create) (.+) for (.+)|(delete) (.+)|(list)( .+)?|(repeat) (.+))/i,
                 "experimental": false
             },
             "group": {

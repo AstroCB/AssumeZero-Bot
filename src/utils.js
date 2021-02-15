@@ -1098,6 +1098,25 @@ exports.appendPin = (content, existing, date, sender, groupInfo) => {
     }
 };
 
+exports.getEventTimeMetadata = (date) => {
+    const now = new Date();
+
+    const eventTime = date.getTime();
+    const prettyTime = this.getPrettyDateString(date);
+
+    let earlyReminderTime = new Date(date.getTime() - (config.reminderTime * 60000));
+    if (earlyReminderTime <= now) {
+        // Too late to give an early reminder
+        earlyReminderTime = null;
+    }
+
+    return {
+        eventTime,
+        prettyTime,
+        earlyReminderTime
+    };
+};
+
 // Adds an event to the chat
 exports.addEvent = (title, at, sender, groupInfo, threadId) => {
     const keyTitle = title.trim().toLowerCase();
@@ -1109,16 +1128,14 @@ exports.addEvent = (title, at, sender, groupInfo, threadId) => {
     const now = new Date();
     const timestamp = chrono.parseDate(at, now, { 'forwardDate': true });
     if (timestamp) {
-        const prettyTime = this.getPrettyDateString(timestamp);
+        const { eventTime, prettyTime, earlyReminderTime } = this.getEventTimeMetadata(timestamp);
         let msg = `
 Event "${title}" created for ${prettyTime}. To RSVP, upvote or downvote this message. \
 To delete this event, use "${config.trigger} event delete ${title}" (only the owner can do this). \
 \n\nI'll remind you at the time of the event`;
 
-        let earlyReminderTime = new Date(timestamp.getTime() - (config.reminderTime * 60000));
-        if (earlyReminderTime <= now) {
+        if (!earlyReminderTime) {
             // Too late to give an early reminder
-            earlyReminderTime = null;
             msg += ".";
         } else {
             msg += `, and ${config.reminderTime} minutes early.`;
@@ -1131,14 +1148,15 @@ To delete this event, use "${config.trigger} event delete ${title}" (only the ow
                     "type": "event",
                     "title": title,
                     "key_title": keyTitle,
-                    "timestamp": timestamp.getTime(),
+                    "timestamp": eventTime,
                     "owner": sender,
                     "threadId": threadId,
                     "pretty_time": prettyTime,
                     "remind_time": earlyReminderTime,
                     "mid": mid.messageID,
                     "going": [],
-                    "not_going": []
+                    "not_going": [],
+                    "repeats_every": 0
                 };
 
                 groupInfo.events[keyTitle] = event;
@@ -1181,7 +1199,16 @@ exports.listEvents = (rawTitle, groupInfo, threadId) => {
         if (event) {
             const goList = event.going.map(u => u.name);
             const notGoList = event.not_going.map(u => u.name);
-            let msg = `*${event.title}*\n_${event.pretty_time}_\n`;
+            let msg = `*${event.title}*\n_${event.pretty_time}_`;
+
+            if (event.repeats_every) {
+                const interval = nameForInterval(event.repeats_every);
+                if (interval) {
+                    msg += ` (repeats ${interval})`;
+                }
+            }
+            msg += '\n';
+
             if (goList.length > 0) {
                 msg += `Going: ${goList.join('/')}\n`;
             }
@@ -1189,6 +1216,7 @@ exports.listEvents = (rawTitle, groupInfo, threadId) => {
                 msg += `Not going: ${notGoList.join('/')}\n`;
             }
             msg += "\nTo RSVP, upvote or downvote the original event message linked above.";
+
             this.sendMessage(msg, threadId, () => { }, event.mid);
         } else {
             this.sendError(`Couldn't find an event called ${rawTitle}.`, threadId);
@@ -1220,6 +1248,66 @@ exports.listEvents = (rawTitle, groupInfo, threadId) => {
             this.sendMessage("There are no events set in this chat.", threadId);
         }
     }
+};
+
+exports.prettyList = (list, separator = "and") => {
+    let total = list.length;
+    let msg = '';
+
+    list.forEach((item, i) => {
+        if (i < total - 1 || total == 1) {
+            msg += item;
+            if (total > 2) {
+                msg += ", ";
+            } else {
+                msg += " ";
+            }
+        } else {
+            msg += `${separator} ${item}`;
+        }
+    });
+
+    return msg;
+};
+
+const DAY = 60 * 60 * 24 * 1000; // Day in milliseconds
+const intervalLengths = {
+    "daily": DAY,
+    "weekly": 7 * DAY,
+    "monthly": 30 * DAY,
+    "yearly": 365 * DAY,
+    "never": null
+};
+const acceptedIntervals = Object.keys(intervalLengths);
+const nameForInterval = (interval) => {
+    for (let i = 0; i < acceptedIntervals.length; i++) {
+        const name = acceptedIntervals[i];
+        if (intervalLengths[name] === interval) {
+            return name;
+        }
+    }
+    return null;
+};
+
+exports.repeatEvent = (rawInterval, eventID, groupInfo, threadId) => {
+    const interval = rawInterval.toLowerCase().trim();
+    const length = intervalLengths[interval];
+    if (length === undefined) {
+        this.sendError(`Unrecognized interval "${rawInterval}"; try ${this.prettyList(acceptedIntervals, "or")}.`, threadId);
+        return;
+    }
+
+    const eventName = Object.keys(groupInfo.events).find(name => groupInfo.events[name].mid === eventID);
+    if (!eventName) {
+        this.sendError("Couldn't find an event associated with that message. Try finding the original event confirmation.", threadId);
+        return;
+    }
+
+    groupInfo.events[eventName].repeats_every = length;
+    this.setGroupPropertyAndHandleErrors("events", groupInfo,
+        "Failed to update that event; please try again.",
+        `Successfully updated the event; it will now repeat ${interval}. ${length ? `To stop repeating, use "${config.trigger} event repeat never".` : ''}`
+    );
 };
 
 // Add a reminder to the chat

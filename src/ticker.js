@@ -44,19 +44,9 @@ function events(data) {
                 msg = `Happening ${event.remind_time ? `in ${config.reminderTime} minutes` : "now"}: ${event.title}${event.going.length > 0 ? "\n\nReminder for " : ""}`;
 
                 // Build up mentions string (with Oxford comma 🤘)
-                let numGoing = event.going.length;
-                event.going.forEach((user, i) => {
-                    if (i < numGoing - 1 || numGoing == 1) {
-                        msg += `@${user.name}`;
-                        if (numGoing > 2) {
-                            msg += ", ";
-                        } else {
-                            msg += " ";
-                        }
-                    } else {
-                        msg += `and @${user.name}`;
-                    }
-                });
+                const goingList = event.going.map(user => `@${user.name}`);
+                msg += utils.prettyList(goingList);
+
                 mentions = event.going.map(user => {
                     return {
                         "tag": `@${user.name}`,
@@ -80,6 +70,18 @@ function events(data) {
             if (event.remind_time) {
                 // Don't delete, but don't remind again
                 groupInfo.events[event.key_title].remind_time = null;
+                utils.setGroupProperty("events", groupInfo.events, groupInfo);
+            } else if (event.repeats_every) {
+                // Event repeats again; update reminder time
+                const newDate = new Date(event.timestamp + event.repeats_every);
+                const { eventTime, prettyTime, earlyReminderTime } = this.getEventTimeMetadata(newDate);
+
+                groupInfo.events[event.key_title] = {
+                    ...groupInfo.events[event.key_title],
+                    "timestamp": eventTime,
+                    "pretty_time": prettyTime,
+                    "remind_time": earlyReminderTime
+                };
                 utils.setGroupProperty("events", groupInfo.events, groupInfo);
             } else {
                 utils.deleteEvent(event.key_title, event.owner, groupInfo, groupInfo.threadId, false);
