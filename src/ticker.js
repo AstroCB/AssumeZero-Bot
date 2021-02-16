@@ -74,7 +74,7 @@ function events(data) {
             } else if (event.repeats_every) {
                 // Event repeats again; update reminder time
                 const newDate = new Date(event.timestamp + event.repeats_every);
-                const { eventTime, prettyTime, earlyReminderTime } = this.getEventTimeMetadata(newDate);
+                const { eventTime, prettyTime, earlyReminderTime } = utils.getEventTimeMetadata(newDate);
 
                 groupInfo.events[event.key_title] = {
                     ...groupInfo.events[event.key_title],
