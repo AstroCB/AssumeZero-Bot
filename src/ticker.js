@@ -73,9 +73,16 @@ function events(data) {
                 utils.setGroupProperty("events", groupInfo.events, groupInfo);
             } else if (event.repeats_every) {
                 // Event repeats again; update reminder time
-                const newDate = new Date(event.timestamp + event.repeats_every);
-                const { eventTime, prettyTime, earlyReminderTime } = utils.getEventTimeMetadata(newDate);
+                let newDate = new Date(event.timestamp + event.repeats_every);
 
+                while (newDate < new Date()) {
+                    // If the newly-scheduled date is in the past (could happen if the
+                    // bot is down at the original event time), reschedule it again
+                    // until it is in the future
+                    newDate = new Date(newDate.getTime() + event.repeats_every);
+                }
+
+                const { eventTime, prettyTime, earlyReminderTime } = utils.getEventTimeMetadata(newDate);
                 groupInfo.events[event.key_title] = {
                     ...groupInfo.events[event.key_title],
                     "timestamp": eventTime,
