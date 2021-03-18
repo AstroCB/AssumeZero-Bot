@@ -137,7 +137,7 @@ To get your own instance of the bot, you'll first need to clone this repo. Once 
 > ## Note
 > Configuration has moved to [BotCore](https://github.com/AstroCB/BotCore), so the Heroku-related instructions are not used anymore beyond the Heroku-related commands. The only required credentials are the `MEMCACHIER_` variables. To obtain these, you'll have to either [add MemCachier as an add-on](https://github.com/AstroCB/AssumeZero-Bot/issues/13#issuecomment-653367466) if you're deploying it through Heroku, or [sign up for a MemCachier cache](https://github.com/AstroCB/AssumeZero-Bot/issues/14#issuecomment-653734900) on their website otherwise.
 > 
-> You will also need the `FACEBOOK_EMAIL` and `FACEBOOK_PASSWORD` variables unless you already have another BotCore instance running that has successfully logged in. See [the BotCore docs](https://github.com/AstroCB/BotCore/blob/master/DOCS.md#credentialsobj) for more details.
+> You will also need the `FACEBOOK_EMAIL` and `FACEBOOK_PASSWORD` variables unless you already have another BotCore instance running that has successfully logged in. See [the BotCore docs](http://cameronbernhardt.com/BotCore/interfaces/types.logincredentials.html) for more details.
 
 All of the following variables need to be exported from a `credentials.js` file in the `src` directory (ideal if running locally) or exposed as environment variables (on Heroku, this can be done with config vars in the settings tab).
 
