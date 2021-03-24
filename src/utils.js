@@ -1984,3 +1984,23 @@ exports.createGitHubIssue = async (sender, reporter, text, type, groupInfo, call
         callback(err);
     }
 };
+
+const isLowerCase = str => {
+    if (str.match(/[A-z]+/)) {
+        // This only works if it has letters
+        return str === str.toLowerCase();
+    }
+    return false;
+};
+
+exports.spongeify = text => [...text].reduce((str, cur) => {
+    if (str.length == 0) {
+        return cur.toLowerCase();
+    }
+
+    const lastChar = str[str.length - 1];
+    if (isLowerCase(lastChar)) {
+        return str.concat(cur.toUpperCase());
+    }
+    return str.concat(cur.toLowerCase());
+}, "");

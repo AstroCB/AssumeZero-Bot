@@ -1673,6 +1673,11 @@ const funcs = {
             "Wasn't able to update rich content settings; please try again.",
             `Success! Rich content is now ${isEnabled}.`
         );
+    },
+    "sponge": (threadId, cmatch) => {
+        const text = cmatch[1];
+
+        utils.sendMessage(utils.spongeify(text), threadId);
     }
 };
 

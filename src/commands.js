@@ -630,6 +630,22 @@ exports.categories = {
                 },
                 "regex": /choose ((?:[^,]+(?:,|$))+)/i,
                 "experimental": false
+            },
+            "sponge": {
+                "display_names": ["sponge"],
+                "pretty_name": "Spongebob",
+                "short_description": "",
+                "description": "sPoNgIfIeS tExT",
+                "syntax": "sponge {text}",
+                "example": "sponge this command works",
+                "sudo": false,
+                "attachments": false,
+                "user_input": {
+                    "accepts": false,
+                    "optional": false
+                },
+                "regex": /sponge (.+)/i,
+                "experimental": false
             }
         }
 
