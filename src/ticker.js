@@ -68,7 +68,7 @@ function events(data) {
             // Send off the reminder message and delete/update the event as needed
             const groupInfo = data[event.threadId];
 
-            const notifyDeadline = eventTime + (config.eventLatenessThreshold * 1000);
+            const notifyDeadline = new Date(eventTime.getTime() + (config.eventLatenessThreshold * 1000));
             if (curTime < notifyDeadline) {
                 // We only want to send the message if it happens within a certain threshold of
                 // the actual time; if we're just now noticing that the event occurred 12 hours later,
