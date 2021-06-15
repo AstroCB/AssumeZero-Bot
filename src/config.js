@@ -166,3 +166,10 @@ exports.ghRepo = {
     owner: 'AstroCB',
     repo: 'AssumeZero-Bot'
 };
+
+// Amount of time (in seconds) after a scheduled event time that we're allowed to
+// still send the notification message; if more time than this has passed when we
+// notice that the event has occurred, we won't send a message alert. This is used
+// primarily to prevent spamming chats with late event notifications when the bot
+// reawakens after extended downtime.
+exports.eventLatenessThreshold = 600; // 10 minutes

@@ -35,8 +35,10 @@ function events(data) {
 
     const curTime = new Date();
     events.forEach(event => {
-        if (new Date(event.timestamp) <= curTime
-            || (event.remind_time && new Date(event.remind_time) <= curTime)) {
+        const eventTime = new Date(event.timestamp);
+        const remindTime = new Date(event.remind_time);
+
+        if (eventTime <= curTime || (event.remind_time && remindTime <= curTime)) {
             // Event is occurring! (or occurred since last check)
             let msg, mentions, replyId;
             if (event.type == "event") {
@@ -63,9 +65,16 @@ function events(data) {
                 replyId = event.replyId;
             }
 
-            // Send off the reminder message and delete the event
+            // Send off the reminder message and delete/update the event as needed
             const groupInfo = data[event.threadId];
-            utils.sendMessageWithMentions(msg, mentions, groupInfo.threadId, replyId);
+
+            const notifyDeadline = eventTime + (config.eventLatenessThreshold * 1000);
+            if (curTime < notifyDeadline) {
+                // We only want to send the message if it happens within a certain threshold of
+                // the actual time; if we're just now noticing that the event occurred 12 hours later,
+                // the bot was probably down up to this point and we don't want to notify all this time afterward
+                utils.sendMessageWithMentions(msg, mentions, groupInfo.threadId, replyId);
+            }
 
             if (event.remind_time) {
                 // Don't delete, but don't remind again
