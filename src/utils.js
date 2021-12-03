@@ -122,6 +122,9 @@ exports.sendMessage = (m, threadId, callback = () => { }, replyId = null, api = 
 
     try {
         api.sendMessage(m, threadId, (err, minfo) => {
+            if (err) {
+                console.error("Failed to send message:", m, "with error:", err);
+            }
             callback(err, minfo);
 
             // Save last message ID sent
